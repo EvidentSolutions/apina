@@ -1,3 +1,6 @@
 rootProject.name = 'apina'
-include ':apina-model'
 
+include ':apina-model',
+        ':apina-spring',
+        ':apina-tsang',
+        ':apina-cli'

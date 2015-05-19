@@ -19,18 +19,33 @@ configure(allprojects) { project ->
     }
 }
 
-project(':apina-model') {
+configure(subprojects) { project ->
     apply plugin: 'java'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
-    description = 'Dalesbred - a database access library'
-
     dependencies {
-        compile "org.springframework:spring-core:4.1.6.RELEASE"
-        compile "org.jetbrains:annotations:13:0"
-
         testCompile "junit:junit:4.12"
+    }
+}
+
+project(':apina-tsang') {
+    dependencies {
+        compile project(':apina-model')
+    }
+}
+
+project(':apina-spring') {
+    dependencies {
+        compile project(':apina-model')
+    }
+}
+
+project(':apina-cli') {
+    dependencies {
+        compile project(':apina-model')
+        compile project(':apina-spring')
+        compile project(':apina-tsang')
     }
 }
