@@ -1,0 +1,17 @@
+.DS_Store
+*~
+bin
+classes
+out
+.idea/workspace.xml
+.idea/ant.xml
+.idea/uiDesigner.xml
+.idea/dataSources.xml
+.idea/dataSources.ids
+.idea/libraries
+.idea/modules.xml
+*.iml
+/build
+/*/build
+.gradle
+dalesbred/src/test/resources/postgresql-connection.properties

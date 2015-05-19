@@ -1,0 +1,36 @@
+plugins {
+    id 'pl.allegro.tech.build.axion-release' version '1.2.4'
+}
+
+scmVersion {
+    localOnly = true
+    tag {
+        prefix = 'v'
+        versionSeparator = ''
+    }
+}
+
+configure(allprojects) { project ->
+    group = 'fi.evident.apina'
+    project.version = scmVersion.version
+
+    repositories {
+        jcenter()
+    }
+}
+
+project(':apina-model') {
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    description = 'Dalesbred - a database access library'
+
+    dependencies {
+        compile "org.springframework:spring-core:4.1.6.RELEASE"
+        compile "org.jetbrains:annotations:13:0"
+
+        testCompile "junit:junit:4.12"
+    }
+}
