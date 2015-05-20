@@ -13,9 +13,13 @@ import static java.util.Objects.requireNonNull;
 public final class EndpointGroup {
 
     /** Name of the original source element that specifies this endpoint group */
-    private String sourceName = "<unknown>";
+    private final String name;
 
     private final Collection<Endpoint> endpoints = new ArrayList<>();
+
+    public EndpointGroup(String name) {
+        this.name = requireNonNull(name);
+    }
 
     public void addEndpoint(Endpoint endpoint) {
         endpoints.add(requireNonNull(endpoint));
@@ -25,11 +29,12 @@ public final class EndpointGroup {
         return unmodifiableCollection(endpoints);
     }
 
-    public String getSourceName() {
-        return sourceName;
+    public String getName() {
+        return name;
     }
 
-    public void setSourceName(String sourceName) {
-        this.sourceName = requireNonNull(sourceName);
+    @Override
+    public String toString() {
+        return name;
     }
 }

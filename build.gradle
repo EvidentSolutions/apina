@@ -14,8 +14,20 @@ configure(allprojects) { project ->
     group = 'fi.evident.apina'
     project.version = scmVersion.version
 
+    ext {
+        slf4jVersion = '1.7.12'
+    }
+
     repositories {
         jcenter()
+    }
+
+    configurations.all {
+        resolutionStrategy.dependencySubstitution.eachModule { ModuleDependencySubstitution details ->
+            if (details.requested.group == 'org.slf4j') {
+                details.useVersion slf4jVersion
+            }
+        }
     }
 }
 
@@ -39,6 +51,9 @@ project(':apina-tsang') {
 project(':apina-spring') {
     dependencies {
         compile project(':apina-model')
+        compile "org.ow2.asm:asm:5.0.4"
+        compile "org.slf4j:jcl-over-slf4j"
+        compile "org.jetbrains:annotations:13.0"
     }
 }
 
@@ -47,5 +62,6 @@ project(':apina-cli') {
         compile project(':apina-model')
         compile project(':apina-spring')
         compile project(':apina-tsang')
+        compile "ch.qos.logback:logback-classic:1.1.3"
     }
 }
