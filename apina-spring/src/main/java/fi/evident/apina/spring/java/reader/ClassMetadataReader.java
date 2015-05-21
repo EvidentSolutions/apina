@@ -144,7 +144,7 @@ final class ClassMetadataReader {
 
         @Override
         public void visitEnd() {
-            annotation.setAttribute(name, values);
+            annotation.setAttribute(name, values.toArray());
         }
 
         @Override

@@ -1,17 +1,30 @@
 package fi.evident.apina.spring.java.model;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
 public final class JavaAnnotation {
 
+    /** Name of the annotation type */
     private final QualifiedName name;
 
+    /**
+     * Attributes of the annotation.
+     *
+     * Type of values depends on the type of attributes:
+     * <ul>
+     *     <li>for basic Java types (String, Integer, etc) corresponding Java classes are used</li>
+     *     <li>enumeration values are represented as {@link EnumValue}s</li>
+     *     <li>nested annotations are represented as nested {@link JavaAnnotation}s</li>
+     *     <li>for arrays, everything is stored inside {@code Object[]}</li>
+     * </ul>
+     */
     private final Map<String, Object> attributes = new LinkedHashMap<>();
 
     public JavaAnnotation(QualifiedName name) {
@@ -24,6 +37,20 @@ public final class JavaAnnotation {
 
     public void setAttribute(String name, Object value) {
         attributes.put(name, value);
+    }
+
+    public Optional<Object> getAttribute(String name) {
+        return Optional.ofNullable(attributes.get(name));
+    }
+
+    public List<Object> getAttributeValues(String name) {
+        Object value = attributes.get(name);
+        if (value == null)
+            return Collections.emptyList();
+        else if (value instanceof Object[])
+            return unmodifiableList(asList((Object[]) value));
+        else
+            return singletonList(value);
     }
 
     @Override
@@ -57,13 +84,13 @@ public final class JavaAnnotation {
     }
 
     private void writeValue(StringBuilder sb, Object value) {
-        if (value instanceof List<?>) {
-            List<?> list = (List<?>) value;
+        if (value instanceof Object[]) {
+            Object[] array = (Object[]) value;
 
-            if (list.size() == 1)
-                writePrimitive(sb, list.get(0));
+            if (array.length == 1)
+                writePrimitive(sb, array[0]);
             else
-                sb.append(list.stream().map(Object::toString).collect(joining(",", "{", "}")));
+                sb.append(Stream.of(array).map(Object::toString).collect(joining(",", "{", "}")));
         } else {
             writePrimitive(sb, value);
         }
