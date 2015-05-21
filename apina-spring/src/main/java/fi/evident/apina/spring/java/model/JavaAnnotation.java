@@ -8,13 +8,13 @@ import java.util.Map;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
-public final class AnnotationMetadata {
+public final class JavaAnnotation {
 
     private final QualifiedName name;
 
     private final Map<String, Object> attributes = new LinkedHashMap<>();
 
-    public AnnotationMetadata(QualifiedName name) {
+    public JavaAnnotation(QualifiedName name) {
         this.name = requireNonNull(name);
     }
 

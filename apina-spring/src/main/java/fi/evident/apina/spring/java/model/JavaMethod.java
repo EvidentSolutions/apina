@@ -12,7 +12,7 @@ public final class JavaMethod implements JavaAnnotatedElement {
 
     private final String name;
     private final JavaVisibility visibility;
-    private final List<AnnotationMetadata> annotations = new ArrayList<>();
+    private final List<JavaAnnotation> annotations = new ArrayList<>();
     private final JavaType returnType;
     private final List<JavaType> argumentTypes;
     private final int modifiers;
@@ -46,11 +46,11 @@ public final class JavaMethod implements JavaAnnotatedElement {
     }
 
     @Override
-    public List<AnnotationMetadata> getAnnotations() {
+    public List<JavaAnnotation> getAnnotations() {
         return unmodifiableList(annotations);
     }
 
-    public void addAnnotation(AnnotationMetadata annotation) {
+    public void addAnnotation(JavaAnnotation annotation) {
         annotations.add(requireNonNull(annotation));
     }
 

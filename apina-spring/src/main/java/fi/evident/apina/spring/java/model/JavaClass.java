@@ -14,7 +14,7 @@ public final class JavaClass implements JavaAnnotatedElement {
     private final QualifiedName name;
     private final QualifiedName superName;
     private final List<QualifiedName> interfaces;
-    private final List<AnnotationMetadata> annotations = new ArrayList<>();
+    private final List<JavaAnnotation> annotations = new ArrayList<>();
     private final List<JavaField> fields = new ArrayList<>();
     private final List<JavaMethod> methods = new ArrayList<>();
 
@@ -45,11 +45,11 @@ public final class JavaClass implements JavaAnnotatedElement {
     }
 
     @Override
-    public List<AnnotationMetadata> getAnnotations() {
+    public List<JavaAnnotation> getAnnotations() {
         return unmodifiableList(annotations);
     }
 
-    public void addAnnotation(AnnotationMetadata annotation) {
+    public void addAnnotation(JavaAnnotation annotation) {
         annotations.add(requireNonNull(annotation));
     }
 

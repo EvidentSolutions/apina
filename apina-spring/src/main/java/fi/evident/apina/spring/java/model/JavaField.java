@@ -13,7 +13,7 @@ public final class JavaField implements JavaAnnotatedElement {
     private final JavaVisibility visibility;
     private final JavaType type;
     private final int modifiers;
-    private final List<AnnotationMetadata> annotations = new ArrayList<>();
+    private final List<JavaAnnotation> annotations = new ArrayList<>();
 
     public JavaField(String name, JavaVisibility visibility, JavaType type, int modifiers) {
         this.name = requireNonNull(name);
@@ -39,11 +39,11 @@ public final class JavaField implements JavaAnnotatedElement {
     }
 
     @Override
-    public List<AnnotationMetadata> getAnnotations() {
+    public List<JavaAnnotation> getAnnotations() {
         return unmodifiableList(annotations);
     }
 
-    public void addAnnotation(AnnotationMetadata annotation) {
+    public void addAnnotation(JavaAnnotation annotation) {
         annotations.add(requireNonNull(annotation));
     }
 

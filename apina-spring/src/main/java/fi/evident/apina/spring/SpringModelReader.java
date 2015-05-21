@@ -35,14 +35,14 @@ public final class SpringModelReader {
         System.out.println();
 
         for (JavaField javaField : javaClass.getFields()) {
-            for (AnnotationMetadata annotation : javaField.getAnnotations())
+            for (JavaAnnotation annotation : javaField.getAnnotations())
                 System.out.println("    " + annotation);
             System.out.println("    " + javaField);
             System.out.println();
         }
 
         for (JavaMethod javaMethod : javaClass.getMethods()) {
-            for (AnnotationMetadata annotation : javaMethod.getAnnotations())
+            for (JavaAnnotation annotation : javaMethod.getAnnotations())
                 System.out.println("    " + annotation);
             System.out.println("    " + javaMethod);
             System.out.println();

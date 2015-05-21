@@ -66,7 +66,7 @@ final class ClassMetadataReader {
 
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-            AnnotationMetadata annotation = new AnnotationMetadata(parseTypeDescriptor(desc));
+            JavaAnnotation annotation = new JavaAnnotation(parseTypeDescriptor(desc));
             getJavaClass().addAnnotation(annotation);
 
             return new MyAnnotationVisitor(annotation);
@@ -98,9 +98,9 @@ final class ClassMetadataReader {
 
     private static final class MyAnnotationVisitor extends AnnotationVisitor {
 
-        private final AnnotationMetadata annotation;
+        private final JavaAnnotation annotation;
 
-        public MyAnnotationVisitor(AnnotationMetadata annotation) {
+        public MyAnnotationVisitor(JavaAnnotation annotation) {
             super(Opcodes.ASM5);
 
             this.annotation = requireNonNull(annotation);
@@ -120,7 +120,7 @@ final class ClassMetadataReader {
 
         @Override
         public AnnotationVisitor visitAnnotation(String name, String desc) {
-            AnnotationMetadata nested = new AnnotationMetadata(parseTypeDescriptor(desc));
+            JavaAnnotation nested = new JavaAnnotation(parseTypeDescriptor(desc));
             annotation.setAttribute(name, nested);
             return new MyAnnotationVisitor(nested);
         }
@@ -132,11 +132,11 @@ final class ClassMetadataReader {
     }
 
     private static final class ArrayAnnotationVisitor extends AnnotationVisitor {
-        private final AnnotationMetadata annotation;
+        private final JavaAnnotation annotation;
         private final String name;
         private final List<Object> values = new ArrayList<>();
 
-        public ArrayAnnotationVisitor(AnnotationMetadata annotation, String name) {
+        public ArrayAnnotationVisitor(JavaAnnotation annotation, String name) {
             super(Opcodes.ASM5);
             this.name = requireNonNull(name);
             this.annotation = requireNonNull(annotation);
@@ -161,7 +161,7 @@ final class ClassMetadataReader {
 
         @Override
         public AnnotationVisitor visitAnnotation(String name, String desc) {
-            AnnotationMetadata nested = new AnnotationMetadata(parseTypeDescriptor(desc));
+            JavaAnnotation nested = new JavaAnnotation(parseTypeDescriptor(desc));
             values.add(nested);
             return new MyAnnotationVisitor(nested);
         }
@@ -178,7 +178,7 @@ final class ClassMetadataReader {
 
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-            AnnotationMetadata annotation = new AnnotationMetadata(parseTypeDescriptor(desc));
+            JavaAnnotation annotation = new JavaAnnotation(parseTypeDescriptor(desc));
             field.addAnnotation(annotation);
             return new MyAnnotationVisitor(annotation);
         }
@@ -195,7 +195,7 @@ final class ClassMetadataReader {
 
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-            AnnotationMetadata annotation = new AnnotationMetadata(parseTypeDescriptor(desc));
+            JavaAnnotation annotation = new JavaAnnotation(parseTypeDescriptor(desc));
             method.addAnnotation(annotation);
             return new MyAnnotationVisitor(annotation);
         }

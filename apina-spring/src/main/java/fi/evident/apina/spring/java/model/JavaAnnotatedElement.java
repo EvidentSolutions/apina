@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface JavaAnnotatedElement {
 
-    List<AnnotationMetadata> getAnnotations();
+    List<JavaAnnotation> getAnnotations();
 
     default boolean hasAnnotation(QualifiedName annotationType) {
         return getAnnotations().stream()
