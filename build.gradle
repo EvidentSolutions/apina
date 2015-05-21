@@ -50,10 +50,16 @@ project(':apina-tsang') {
     }
 }
 
+project(':apina-java') {
+    dependencies {
+        compile "org.ow2.asm:asm:5.0.4"
+    }
+}
+
 project(':apina-spring') {
     dependencies {
         compile project(':apina-model')
-        compile "org.ow2.asm:asm:5.0.4"
+        compile project(':apina-java')
     }
 }
 

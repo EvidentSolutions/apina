@@ -1,8 +1,8 @@
 package fi.evident.apina.cli;
 
+import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.spring.SpringModelReader;
-import fi.evident.apina.spring.java.reader.Classpath;
 import fi.evident.apina.tsang.AngularTypeScriptWriter;
 
 import java.io.File;

@@ -1,12 +1,12 @@
 package fi.evident.apina.spring;
 
+import fi.evident.apina.java.model.*;
+import fi.evident.apina.java.reader.ClassMetadataCollectionLoader;
+import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.Endpoint;
 import fi.evident.apina.model.EndpointGroup;
 import fi.evident.apina.model.URITemplate;
-import fi.evident.apina.spring.java.model.*;
-import fi.evident.apina.spring.java.reader.ClassMetadataCollectionLoader;
-import fi.evident.apina.spring.java.reader.Classpath;
 
 import java.io.IOException;
 import java.util.List;
