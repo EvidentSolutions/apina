@@ -1,7 +1,7 @@
 package fi.evident.apina.spring.java.model;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +12,7 @@ public final class AnnotationMetadata {
 
     private final QualifiedName name;
 
-    private final Map<String, Object> attributes = new HashMap<>();
+    private final Map<String, Object> attributes = new LinkedHashMap<>();
 
     public AnnotationMetadata(QualifiedName name) {
         this.name = requireNonNull(name);
