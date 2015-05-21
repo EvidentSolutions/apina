@@ -52,7 +52,7 @@ project(':apina-spring') {
     dependencies {
         compile project(':apina-model')
         compile "org.ow2.asm:asm:5.0.4"
-        compile "org.slf4j:jcl-over-slf4j"
+        compile "org.slf4j:slf4j-api"
         compile "org.jetbrains:annotations:13.0"
     }
 }
