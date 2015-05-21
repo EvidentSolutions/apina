@@ -1,5 +1,6 @@
 package fi.evident.apina.spring.java.model;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,12 +12,14 @@ public final class JavaField implements JavaAnnotatedElement {
     private final String name;
     private final JavaVisibility visibility;
     private final JavaType type;
+    private final int modifiers;
     private final List<AnnotationMetadata> annotations = new ArrayList<>();
 
-    public JavaField(String name, JavaVisibility visibility, JavaType type) {
+    public JavaField(String name, JavaVisibility visibility, JavaType type, int modifiers) {
         this.name = requireNonNull(name);
         this.visibility = requireNonNull(visibility);
         this.type = requireNonNull(type);
+        this.modifiers = modifiers;
     }
 
     public String getName() {
@@ -31,6 +34,10 @@ public final class JavaField implements JavaAnnotatedElement {
         return type;
     }
 
+    public boolean isStatic() {
+        return Modifier.isStatic(modifiers);
+    }
+
     @Override
     public List<AnnotationMetadata> getAnnotations() {
         return unmodifiableList(annotations);
@@ -42,6 +49,16 @@ public final class JavaField implements JavaAnnotatedElement {
 
     @Override
     public String toString() {
-        return visibility + " " + type + " " + name;
+        StringBuilder sb = new StringBuilder();
+
+        if (visibility != JavaVisibility.PACKAGE)
+            sb.append(visibility).append(' ');
+
+        if (isStatic())
+            sb.append("static ");
+
+        sb.append(type).append(' ').append(name);
+
+        return sb.toString();
     }
 }

@@ -1,5 +1,6 @@
 package fi.evident.apina.spring.java.model;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +15,14 @@ public final class JavaMethod implements JavaAnnotatedElement {
     private final List<AnnotationMetadata> annotations = new ArrayList<>();
     private final JavaType returnType;
     private final List<JavaType> argumentTypes;
+    private final int modifiers;
 
-    public JavaMethod(String name, JavaVisibility visibility, JavaType returnType, List<JavaType> argumentTypes) {
+    public JavaMethod(String name, JavaVisibility visibility, JavaType returnType, List<JavaType> argumentTypes, int modifiers) {
         this.name = requireNonNull(name);
         this.visibility = requireNonNull(visibility);
         this.returnType = requireNonNull(returnType);
         this.argumentTypes = unmodifiableList(requireNonNull(argumentTypes));
+        this.modifiers = modifiers;
     }
 
     public String getName() {
@@ -36,6 +39,10 @@ public final class JavaMethod implements JavaAnnotatedElement {
 
     public List<JavaType> getArgumentTypes() {
         return argumentTypes;
+    }
+
+    public boolean isStatic() {
+        return Modifier.isStatic(modifiers);
     }
 
     @Override

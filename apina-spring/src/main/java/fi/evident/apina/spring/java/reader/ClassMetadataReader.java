@@ -74,18 +74,16 @@ final class ClassMetadataReader {
 
         @Override
         public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-            // TODO: use access
-            JavaField field = new JavaField(name, parseVisibility(access), parseJavaType(desc, signature));
+            JavaField field = new JavaField(name, parseVisibility(access), parseJavaType(desc, signature), access);
             getJavaClass().addField(field);
             return new MyFieldVisitor(field);
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-            // TODO: use access
             MethodSignature methodSignature = parseMethodSignature(desc, signature);
 
-            JavaMethod method = new JavaMethod(name, parseVisibility(access), methodSignature.getReturnType(), methodSignature.getArgumentTypes());
+            JavaMethod method = new JavaMethod(name, parseVisibility(access), methodSignature.getReturnType(), methodSignature.getArgumentTypes(), access);
             getJavaClass().addMethod(method);
             return new MyMethodVisitor(method);
         }
