@@ -4,10 +4,9 @@ import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.EndpointGroup;
 import fi.evident.apina.spring.java.model.*;
 import fi.evident.apina.spring.java.reader.ClassMetadataCollectionLoader;
+import fi.evident.apina.spring.java.reader.Classpath;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Collection;
 
 /**
  * Builds {@link ApiDefinition} by reading the classes of a Spring Web MVC application.
@@ -18,7 +17,7 @@ public final class SpringModelReader {
 
     private SpringModelReader() { }
 
-    public static ApiDefinition readApiDefinition(Collection<Path> classpath) throws IOException {
+    public static ApiDefinition readApiDefinition(Classpath classpath) throws IOException {
         ClassMetadataCollection metadataCollection = ClassMetadataCollectionLoader.load(classpath);
 
         ApiDefinition api = new ApiDefinition();

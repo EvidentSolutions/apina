@@ -60,4 +60,9 @@ public final class JavaClass implements JavaAnnotatedElement {
     public void addMethod(JavaMethod method) {
         methods.add(requireNonNull(method));
     }
+
+    @Override
+    public String toString() {
+        return name.toString();
+    }
 }

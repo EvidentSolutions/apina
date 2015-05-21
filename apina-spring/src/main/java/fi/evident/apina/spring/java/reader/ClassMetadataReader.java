@@ -3,16 +3,10 @@ package fi.evident.apina.spring.java.reader;
 import fi.evident.apina.spring.java.model.*;
 import org.objectweb.asm.*;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -25,37 +19,18 @@ import static java.util.stream.Collectors.toList;
  */
 final class ClassMetadataReader {
 
-    public static ClassMetadataCollection loadMetadataForClasses(Collection<URI> resources) throws IOException {
-        try {
-            return new ClassMetadataCollection(resources.stream()
-                    .map(ClassMetadataReader::loadMetadata)
-                    .collect(toList()));
-
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
-        }
-    }
-
-    private static JavaClass loadMetadata(URI resource) {
+    public static JavaClass loadMetadata(InputStream in) {
 
         try {
             MyClassVisitor visitor = new MyClassVisitor();
 
-            ClassReader classReader = createClassReader(resource);
+            ClassReader classReader = new ClassReader(in);
             classReader.accept(visitor, ClassReader.SKIP_DEBUG);
 
             return visitor.getJavaClass();
 
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-    }
-
-    private static ClassReader createClassReader(URI resource) throws IOException {
-        Path path = Paths.get(resource);
-
-        try (InputStream in = new BufferedInputStream(Files.newInputStream(path))) {
-            return new ClassReader(in);
         }
     }
 
