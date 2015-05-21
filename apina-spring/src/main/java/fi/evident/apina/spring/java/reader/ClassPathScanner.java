@@ -38,8 +38,11 @@ final class ClassPathScanner {
         } else if (isRegularFile(classpathEntry) && classpathEntry.toString().endsWith(".jar")) {
             forEachClassInArchive(classpathEntry, processor);
 
+        } else if (Files.notExists(classpathEntry)) {
+            log.warn("Skipping nonexistent classpath entry: {}", classpathEntry);
+
         } else {
-            throw new IllegalArgumentException("invalid classpath entry: " + classpathEntry);
+            throw new IOException("invalid classpath entry: " + classpathEntry);
         }
     }
 
