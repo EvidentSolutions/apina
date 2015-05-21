@@ -13,11 +13,10 @@ public final class ClassMetadataCollectionLoader {
 
     public static ClassMetadataCollection load(Classpath classpath) throws IOException {
         List<JavaClass> classes = new ArrayList<>();
+
         ClassPathScanner.processAllClasses(classpath, in -> {
             classes.add(ClassMetadataReader.loadMetadata(in));
         });
-
-        System.out.println(classes);
 
         return new ClassMetadataCollection(classes);
     }
