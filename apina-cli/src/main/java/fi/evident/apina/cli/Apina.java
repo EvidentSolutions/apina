@@ -5,6 +5,7 @@ import fi.evident.apina.spring.SpringModelReader;
 import fi.evident.apina.spring.java.reader.Classpath;
 import fi.evident.apina.tsang.AngularTypeScriptWriter;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +14,7 @@ public final class Apina {
 
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.err.println("usage: apina OUTPUT INPUT...");
+            System.err.printf("usage: apina INPUT1%sINPUT2%s... OUTPUT\n", File.pathSeparator, File.pathSeparator);
             System.exit(1);
         }
 
