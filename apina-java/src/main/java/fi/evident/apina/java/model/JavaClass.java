@@ -14,20 +14,20 @@ import static java.util.Objects.requireNonNull;
  */
 public final class JavaClass implements JavaAnnotatedElement {
 
-    private final JavaBasicType name;
+    private final String name;
     private final JavaBasicType superName;
     private final List<JavaType> interfaces;
     private final List<JavaAnnotation> annotations = new ArrayList<>();
     private final List<JavaField> fields = new ArrayList<>();
     private final List<JavaMethod> methods = new ArrayList<>();
 
-    public JavaClass(JavaBasicType name, JavaBasicType superName, List<JavaType> interfaces) {
+    public JavaClass(String name, JavaBasicType superName, List<JavaType> interfaces) {
         this.name = requireNonNull(name);
         this.superName = requireNonNull(superName);
         this.interfaces = unmodifiableList(requireNonNull(interfaces));
     }
 
-    public JavaType getName() {
+    public String getName() {
         return name;
     }
 
@@ -66,6 +66,14 @@ public final class JavaClass implements JavaAnnotatedElement {
 
     @Override
     public String toString() {
-        return name.toString();
+        return name;
+    }
+
+    public JavaField getField(String name) {
+        JavaField field = fields.stream().filter(f -> name.equals(f.getName())).findFirst().orElse(null);
+        if (field != null)
+            return field;
+        else
+            throw new RuntimeException("field not found " + name);
     }
 }

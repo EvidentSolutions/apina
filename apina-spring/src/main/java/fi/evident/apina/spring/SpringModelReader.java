@@ -44,7 +44,7 @@ public final class SpringModelReader {
     }
 
     private EndpointGroup createEndpointGroupForController(JavaClass javaClass) {
-        EndpointGroup endpointGroup = new EndpointGroup(javaClass.getName().toString());
+        EndpointGroup endpointGroup = new EndpointGroup(javaClass.getName());
 
         for (JavaMethod method : javaClass.getMethods()) {
             if (method.getVisibility() == JavaVisibility.PUBLIC && !method.isStatic() && method.hasAnnotation(REQUEST_MAPPING)) {

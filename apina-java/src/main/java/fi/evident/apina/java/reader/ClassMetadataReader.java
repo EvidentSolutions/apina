@@ -59,7 +59,7 @@ final class ClassMetadataReader {
 
             // TODO: use access
             this.javaClass = new JavaClass(
-                    TypeParser.parseObjectType(name).toBasicType(),
+                    TypeParser.parseObjectType(name).toBasicType().toString(),
                     TypeParser.parseObjectType(superName).toBasicType(),
                     Stream.of(interfaces).map(TypeParser::parseObjectType).collect(toList()));
         }
