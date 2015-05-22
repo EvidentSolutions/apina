@@ -4,12 +4,14 @@ import fi.evident.apina.java.model.MethodSignature;
 import fi.evident.apina.java.model.type.JavaArrayType;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.JavaTypeVariable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -19,15 +21,15 @@ import static java.util.stream.Collectors.toList;
  */
 final class TypeParser {
 
-    public static JavaType parseJavaType(@NotNull String typeDescriptor, @Nullable String signature) {
+    public static JavaType parseJavaType(@NotNull String typeDescriptor, @Nullable String signature, Map<String, JavaTypeVariable> typeVariableMap) {
         if (signature != null)
-            return parseGenericType(signature);
+            return parseGenericType(signature, typeVariableMap);
         else
             return parseTypeDescriptor(typeDescriptor);
     }
 
-    public static JavaType parseGenericType(String signature) {
-        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor();
+    public static JavaType parseGenericType(String signature, Map<String, JavaTypeVariable> typeVariableMap) {
+        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor(typeVariableMap);
 
         new SignatureReader(signature).acceptType(visitor);
 
@@ -46,8 +48,23 @@ final class TypeParser {
         return javaType(Type.getObjectType(internalName));
     }
 
-    public static MethodSignature parseMethodSignature(String methodDescriptor, @Nullable String signature) {
-        // TODO: use signature if available
+    public static MethodSignature parseMethodSignature(String methodDescriptor, @Nullable String signature, Map<String, JavaTypeVariable> typeVariableMap) {
+        if (signature != null)
+            return parseGenericMethodSignature(signature, typeVariableMap);
+        else
+            return parseMethodDescriptor(methodDescriptor);
+    }
+
+    static MethodSignature parseGenericMethodSignature(String signature, Map<String, JavaTypeVariable> typeVariableMap) {
+        MethodSignatureVisitor visitor = new MethodSignatureVisitor(typeVariableMap);
+
+        new SignatureReader(signature).accept(visitor);
+
+        return visitor.get();
+    }
+
+    @NotNull
+    static MethodSignature parseMethodDescriptor(String methodDescriptor) {
         Type methodType = Type.getMethodType(methodDescriptor);
 
         JavaType returnType = javaType(methodType.getReturnType());

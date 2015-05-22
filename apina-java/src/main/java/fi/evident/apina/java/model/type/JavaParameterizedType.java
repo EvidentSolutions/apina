@@ -1,8 +1,10 @@
 package fi.evident.apina.java.model.type;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
@@ -15,11 +17,11 @@ public final class JavaParameterizedType extends JavaType {
 
     public final List<JavaType> arguments;
 
-    public JavaParameterizedType(JavaType baseType, List<JavaType> arguments) {
+    public JavaParameterizedType(JavaType baseType, List<? extends JavaType> arguments) {
         if (arguments.isEmpty()) throw new IllegalArgumentException("no arguments for generic type");
 
         this.baseType = requireNonNull(baseType);
-        this.arguments = requireNonNull(arguments);
+        this.arguments = unmodifiableList(new ArrayList<>(arguments));
     }
 
     public List<JavaType> getArguments() {

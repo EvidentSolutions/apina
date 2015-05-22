@@ -21,9 +21,10 @@ public class ClassMetadataReaderTest {
 
         List<JavaField> fields = javaClass.getFields();
 
-        assertThat(fields.size(), is(2));
+        assertThat(fields.size(), is(3));
         assertThat(javaClass.getField("field1").getType(), is(typeWithRepresentation("java.lang.String")));
         assertThat(javaClass.getField("field2").getType(), is(typeWithRepresentation("java.util.List<java.lang.String>")));
+        assertThat(javaClass.getField("field3").getType(), is(typeWithRepresentation("T extends java.lang.CharSequence")));
     }
 
     private static JavaClass loadClass(Class<?> cl) {
@@ -44,16 +45,22 @@ public class ClassMetadataReaderTest {
     }
 
     @SuppressWarnings("unused")
-    private static final class TestClass {
+    private static final class TestClass<T extends CharSequence> {
 
         public String field1;
 
         public List<String> field2;
 
+        private T field3;
+
         public void method1() {
         }
 
         public String method2() {
+            throw new UnsupportedOperationException();
+        }
+
+        public T method3(T x) {
             throw new UnsupportedOperationException();
         }
     }

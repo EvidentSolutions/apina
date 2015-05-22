@@ -1,6 +1,5 @@
 package fi.evident.apina.java.model;
 
-import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 import org.objectweb.asm.Opcodes;
 
@@ -15,18 +14,18 @@ import static java.util.Objects.requireNonNull;
  */
 public final class JavaClass implements JavaAnnotatedElement {
 
-    private final String name;
-    private final int modifiers;
-    private final JavaBasicType superName;
+    private final JavaType type;
+    private final JavaType superClass;
     private final List<JavaType> interfaces;
     private final List<JavaAnnotation> annotations = new ArrayList<>();
     private final List<JavaField> fields = new ArrayList<>();
     private final List<JavaMethod> methods = new ArrayList<>();
+    private final int modifiers;
 
-    public JavaClass(String name, JavaBasicType superName, List<JavaType> interfaces, int modifiers) {
+    public JavaClass(JavaType type, JavaType superClass, List<JavaType> interfaces, int modifiers) {
         this.modifiers = modifiers;
-        this.name = requireNonNull(name);
-        this.superName = requireNonNull(superName);
+        this.type = requireNonNull(type);
+        this.superClass = requireNonNull(superClass);
         this.interfaces = unmodifiableList(requireNonNull(interfaces));
     }
 
@@ -35,11 +34,15 @@ public final class JavaClass implements JavaAnnotatedElement {
     }
 
     public String getName() {
-        return name;
+        return type.toString();
     }
 
-    public JavaType getSuperName() {
-        return superName;
+    public JavaType getType() {
+        return type;
+    }
+
+    public JavaType getSuperClass() {
+        return superClass;
     }
 
     public List<JavaType> getInterfaces() {
@@ -73,7 +76,7 @@ public final class JavaClass implements JavaAnnotatedElement {
 
     @Override
     public String toString() {
-        return name;
+        return type.toString();
     }
 
     public JavaField getField(String name) {

@@ -4,7 +4,11 @@ import fi.evident.apina.java.model.MethodSignature;
 import fi.evident.apina.java.model.type.*;
 import org.junit.Test;
 
-import static fi.evident.apina.java.reader.TypeParser.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import static fi.evident.apina.java.reader.TypeParser.parseObjectType;
+import static fi.evident.apina.java.reader.TypeParser.parseTypeDescriptor;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
@@ -12,23 +16,25 @@ import static org.junit.Assert.assertThat;
 
 public class TypeParserTest {
 
+    private final Map<String,JavaTypeVariable> typeVariableMap = new HashMap<>();
+
     @Test
     public void parsingJavaTypesWithoutGenericSignatures() {
-        assertThat(parseJavaType("I", null), is(basicType("int")));
-        assertThat(parseJavaType("V", null), is(basicType("void")));
-        assertThat(parseJavaType("Z", null), is(basicType("boolean")));
-        assertThat(parseJavaType("J", null), is(basicType("long")));
+        assertThat(parseTypeDescriptor("I"), is(basicType("int")));
+        assertThat(parseTypeDescriptor("V"), is(basicType("void")));
+        assertThat(parseTypeDescriptor("Z"), is(basicType("boolean")));
+        assertThat(parseTypeDescriptor("J"), is(basicType("long")));
 
-        assertThat(parseJavaType("Ljava/lang/Integer;", null), is(basicType("java.lang.Integer")));
-        assertThat(parseJavaType("Ljava/util/List;", null), is(basicType("java.util.List")));
+        assertThat(parseTypeDescriptor("Ljava/lang/Integer;"), is(basicType("java.lang.Integer")));
+        assertThat(parseTypeDescriptor("Ljava/util/List;"), is(basicType("java.util.List")));
     }
 
     @Test
     public void parsingArrayTypesWithoutGenericSignatures() {
-        assertThat(parseJavaType("[I", null), is(arrayType(basicType("int"))));
-        assertThat(parseJavaType("[[[I", null), is(arrayType(arrayType(arrayType(basicType("int"))))));
-        assertThat(parseJavaType("[Ljava/lang/Integer;", null), is(arrayType(basicType("java.lang.Integer"))));
-        assertThat(parseJavaType("[[Ljava/lang/Integer;", null), is(arrayType(arrayType(basicType("java.lang.Integer")))));
+        assertThat(parseTypeDescriptor("[I"), is(arrayType(basicType("int"))));
+        assertThat(parseTypeDescriptor("[[[I"), is(arrayType(arrayType(arrayType(basicType("int"))))));
+        assertThat(parseTypeDescriptor("[Ljava/lang/Integer;"), is(arrayType(basicType("java.lang.Integer"))));
+        assertThat(parseTypeDescriptor("[[Ljava/lang/Integer;"), is(arrayType(arrayType(basicType("java.lang.Integer")))));
     }
 
     @Test
@@ -55,6 +61,8 @@ public class TypeParserTest {
 
     @Test
     public void parsingTypeVariables() {
+        typeVariableMap.put("T", typeVariable("T"));
+
         assertThat(parseGenericType("TT;"), is(typeVariable("T")));
         assertThat(parseGenericType("Ljava/util/List<TT;>;"), is(genericType("java.util.List", typeVariable("T"))));
     }
@@ -62,6 +70,11 @@ public class TypeParserTest {
     @Test
     public void parsingGenericArrayTypes() {
         assertThat(parseGenericType("[Ljava/lang/String;"), is(arrayType(basicType("java.lang.String"))));
+    }
+
+    @Test
+    public void parsingGenericArrayTypeForTypeVariable() {
+        typeVariableMap.put("A", typeVariable("A"));
         assertThat(parseGenericType("[TA;"), is(arrayType(typeVariable("A"))));
     }
 
@@ -72,7 +85,7 @@ public class TypeParserTest {
 
     @Test
     public void parsingNonGenericMethodSignaturesWithSingleParameter() {
-        MethodSignature signature = parseMethodSignature("(Ljava/lang/Integer;)Ljava/lang/String;", null);
+        MethodSignature signature = TypeParser.parseMethodDescriptor("(Ljava/lang/Integer;)Ljava/lang/String;");
 
         assertThat(signature.getReturnType(), is(basicType("java.lang.String")));
         assertThat(signature.getArgumentTypes(), is(singletonList(basicType("java.lang.Integer"))));
@@ -80,16 +93,46 @@ public class TypeParserTest {
 
     @Test
     public void parsingNonGenericMethodSignaturesWithMultipleParameters() {
-        MethodSignature signature = parseMethodSignature(
-                "(Ljava/lang/Class;Ljava/util/function/Function;Ljava/lang/Object;)Ljava/lang/Enum;", null);
+        MethodSignature signature = TypeParser.parseMethodDescriptor("(Ljava/lang/Class;Ljava/util/function/Function;Ljava/lang/Object;)Ljava/lang/Enum;");
 
         assertThat(signature.getReturnType(), is(basicType("java.lang.Enum")));
         assertThat(signature.getArgumentTypes(), is(asList(
                 basicType("java.lang.Class"), basicType("java.util.function.Function"), basicType("java.lang.Object"))));
     }
 
-    private static JavaType typeVariable(String name) {
-        return new JavaTypeVariable(name);
+    @Test
+    public void parsingGenericMethodSignatures_noDeclaredVariables() {
+        MethodSignature signature = parseGenericMethodSignature("(Ljava/util/List<Ljava/lang/String;>;)Ljava/util/Set<Ljava/lang/Integer;>;");
+
+        assertThat(signature.getReturnType(), is(genericType("java.util.Set", basicType("java.lang.Integer"))));
+        assertThat(signature.getArgumentTypes(), is(singletonList(genericType("java.util.List", basicType("java.lang.String")))));
+    }
+
+    @Test
+    public void parsingGenericMethodSignatures_declaredVariables() {
+        MethodSignature signature = parseGenericMethodSignature("<T:Ljava/io/Serializable;>(TT;)Ljava/util/List<TT;>;");
+
+        assertThat(signature.getArgumentTypes(), is(singletonList(typeVariable("T", basicType("java.io.Serializable")))));
+        assertThat(signature.getReturnType(), is(genericType("java.util.List", typeVariable("T", basicType("java.io.Serializable")))));
+    }
+
+    @Test
+    public void parsingGenericMethodSignatures_variableWithMultipleBounds() {
+        MethodSignature signature = parseGenericMethodSignature("<T:Ljava/lang/Cloneable;:Ljava/io/Serializable;>()Ljava/util/List<TT;>;");
+
+        assertThat(signature.getReturnType(), is(genericType("java.util.List", typeVariable("T", basicType("java.lang.Cloneable"), basicType("java.io.Serializable")))));
+    }
+
+    private JavaType parseGenericType(String signature) {
+        return TypeParser.parseGenericType(signature, typeVariableMap);
+    }
+
+    private MethodSignature parseGenericMethodSignature(String signature) {
+        return TypeParser.parseGenericMethodSignature(signature, typeVariableMap);
+    }
+
+    private static JavaTypeVariable typeVariable(String name, JavaType... bounds) {
+        return new JavaTypeVariable(name, asList(bounds));
     }
 
     private static JavaType basicType(String name) {

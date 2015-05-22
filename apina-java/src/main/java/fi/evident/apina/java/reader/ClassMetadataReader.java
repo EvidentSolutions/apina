@@ -2,6 +2,9 @@ package fi.evident.apina.java.reader;
 
 import fi.evident.apina.java.model.*;
 import fi.evident.apina.java.model.type.JavaBasicType;
+import fi.evident.apina.java.model.type.JavaParameterizedType;
+import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.JavaTypeVariable;
 import org.objectweb.asm.*;
 
 import java.io.IOException;
@@ -9,8 +12,10 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -48,6 +53,8 @@ final class ClassMetadataReader {
 
         private JavaClass javaClass;
 
+        private Map<String, JavaTypeVariable> typeVariableMap = emptyMap();
+
         public MyClassVisitor() {
             super(Opcodes.ASM5);
         }
@@ -57,11 +64,28 @@ final class ClassMetadataReader {
             if (javaClass != null)
                 throw new IllegalStateException("classMetadata already initialized");
 
-            this.javaClass = new JavaClass(
-                    TypeParser.parseObjectType(name).toBasicType().toString(),
-                    TypeParser.parseObjectType(superName).toBasicType(),
-                    Stream.of(interfaces).map(TypeParser::parseObjectType).collect(toList()),
-                    access);
+            JavaType type = TypeParser.parseObjectType(name);
+            JavaType superType;
+            List<JavaType> interfaceTypes;
+
+            if (signature != null) {
+                // If we have a generic signature available, parse it using our visitor
+                ClassSignatureVisitor visitor = ClassSignatureVisitor.parse(signature);
+
+                TypeVariableCollection typeVariables = visitor.getTypeVariables();
+                if (!typeVariables.isEmpty()) {
+                    type = new JavaParameterizedType(type, typeVariables.getTypeVariables());
+                    typeVariableMap = typeVariables.getTypeVariableMap();
+                }
+
+                superType = visitor.getSuperClass().orElse(new JavaBasicType(Object.class));
+                interfaceTypes = visitor.getInterfaces();
+            } else {
+                superType = TypeParser.parseObjectType(superName);
+                interfaceTypes = Stream.of(interfaces).map(TypeParser::parseObjectType).collect(toList());
+            }
+
+            this.javaClass = new JavaClass(type, superType, interfaceTypes, access);
         }
 
         @Override
@@ -74,7 +98,7 @@ final class ClassMetadataReader {
 
         @Override
         public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-            JavaField field = new JavaField(name, parseVisibility(access), TypeParser.parseJavaType(desc, signature), access);
+            JavaField field = new JavaField(name, parseVisibility(access), TypeParser.parseJavaType(desc, signature, typeVariableMap), access);
             getJavaClass().addField(field);
             return new MyFieldVisitor(field);
         }
@@ -86,7 +110,7 @@ final class ClassMetadataReader {
                 return null;
             }
 
-            MethodSignature methodSignature = TypeParser.parseMethodSignature(desc, signature);
+            MethodSignature methodSignature = TypeParser.parseMethodSignature(desc, signature, typeVariableMap);
 
             JavaMethod method = new JavaMethod(name, parseVisibility(access), methodSignature.getReturnType(), methodSignature.getParameters(), access);
             getJavaClass().addMethod(method);
