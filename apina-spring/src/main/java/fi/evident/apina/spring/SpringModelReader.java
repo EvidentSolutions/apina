@@ -1,6 +1,7 @@
 package fi.evident.apina.spring;
 
 import fi.evident.apina.java.model.*;
+import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.reader.ClassMetadataCollectionLoader;
 import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.ApiDefinition;
@@ -18,8 +19,8 @@ import static java.util.Collections.emptyList;
  */
 public final class SpringModelReader {
 
-    private static final QualifiedName REST_CONTROLLER = new QualifiedName("org.springframework.web.bind.annotation.RestController");
-    private static final QualifiedName REQUEST_MAPPING = new QualifiedName("org.springframework.web.bind.annotation.RequestMapping");
+    private static final JavaBasicType REST_CONTROLLER = new JavaBasicType("org.springframework.web.bind.annotation.RestController");
+    private static final JavaBasicType REQUEST_MAPPING = new JavaBasicType("org.springframework.web.bind.annotation.RequestMapping");
 
     private SpringModelReader() { }
 

@@ -1,12 +1,15 @@
-package fi.evident.apina.java.model;
+package fi.evident.apina.java.model.type;
 
 import static java.util.Objects.requireNonNull;
 
-public final class QualifiedName {
+/**
+ * Represents a raw Java type, like {@link Class}.
+ */
+public final class JavaBasicType extends JavaType {
 
     public final String name;
 
-    public QualifiedName(String name) {
+    public JavaBasicType(String name) {
         this.name = requireNonNull(name);
     }
 
@@ -15,7 +18,7 @@ public final class QualifiedName {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        QualifiedName that = (QualifiedName) o;
+        JavaBasicType that = (JavaBasicType) o;
 
         return name.equals(that.name);
     }

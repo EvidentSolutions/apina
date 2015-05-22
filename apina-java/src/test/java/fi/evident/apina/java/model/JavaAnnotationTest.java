@@ -1,5 +1,6 @@
 package fi.evident.apina.java.model;
 
+import fi.evident.apina.java.model.type.JavaBasicType;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
@@ -54,6 +55,6 @@ public class JavaAnnotationTest {
     }
 
     private static JavaAnnotation newAnnotation(String name) {
-        return new JavaAnnotation(new QualifiedName(name));
+        return new JavaAnnotation(new JavaBasicType(name));
     }
 }

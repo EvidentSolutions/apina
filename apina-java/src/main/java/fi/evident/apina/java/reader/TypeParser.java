@@ -1,8 +1,8 @@
 package fi.evident.apina.java.reader;
 
-import fi.evident.apina.java.model.JavaType;
 import fi.evident.apina.java.model.MethodSignature;
-import fi.evident.apina.java.model.QualifiedName;
+import fi.evident.apina.java.model.type.JavaBasicType;
+import fi.evident.apina.java.model.type.JavaType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
@@ -17,12 +17,12 @@ final class TypeParser {
         return javaType(Type.getType(typeDescriptor));
     }
 
-    public static QualifiedName parseTypeDescriptor(String typeDescriptor) {
-        return new QualifiedName(Type.getType(typeDescriptor).getClassName());
+    public static JavaBasicType parseTypeDescriptor(String typeDescriptor) {
+        return new JavaBasicType(Type.getType(typeDescriptor).getClassName());
     }
 
-    public static QualifiedName parseObjectType(String internalName) {
-        return new QualifiedName(Type.getObjectType(internalName).getClassName());
+    public static JavaBasicType parseObjectType(String internalName) {
+        return new JavaBasicType(Type.getObjectType(internalName).getClassName());
     }
 
     public static MethodSignature parseMethodSignature(String methodDescriptor, @Nullable String signature) {
@@ -33,6 +33,6 @@ final class TypeParser {
     }
 
     private static JavaType javaType(Type type) {
-        return new JavaType(new QualifiedName(type.getClassName()));
+        return new JavaBasicType(type.getClassName());
     }
 }

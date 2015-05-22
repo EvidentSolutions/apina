@@ -1,5 +1,7 @@
 package fi.evident.apina.java.model;
 
+import fi.evident.apina.java.model.type.JavaBasicType;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,7 +19,7 @@ public final class ClassMetadataCollection {
         this.classes.addAll(classes);
     }
 
-    public List<JavaClass> findClassesWithAnnotation(QualifiedName annotationType) {
+    public List<JavaClass> findClassesWithAnnotation(JavaBasicType annotationType) {
         return classes.stream()
                 .filter(c -> c.hasAnnotation(annotationType))
                 .collect(toList());

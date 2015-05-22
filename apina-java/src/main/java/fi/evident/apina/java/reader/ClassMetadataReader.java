@@ -1,6 +1,7 @@
 package fi.evident.apina.java.reader;
 
 import fi.evident.apina.java.model.*;
+import fi.evident.apina.java.model.type.JavaBasicType;
 import org.objectweb.asm.*;
 
 import java.io.IOException;
@@ -112,7 +113,7 @@ final class ClassMetadataReader {
 
         @Override
         public void visitEnum(String name, String desc, String value) {
-            QualifiedName enumType = TypeParser.parseTypeDescriptor(desc);
+            JavaBasicType enumType = TypeParser.parseTypeDescriptor(desc);
 
             annotation.setAttribute(name, new EnumValue(enumType, value));
         }
@@ -153,7 +154,7 @@ final class ClassMetadataReader {
 
         @Override
         public void visitEnum(String name, String desc, String value) {
-            QualifiedName enumType = TypeParser.parseTypeDescriptor(desc);
+            JavaBasicType enumType = TypeParser.parseTypeDescriptor(desc);
 
             values.add(new EnumValue(enumType, value));
         }

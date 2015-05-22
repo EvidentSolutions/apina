@@ -1,5 +1,6 @@
 package fi.evident.apina.java.model;
 
+import fi.evident.apina.java.model.type.JavaBasicType;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 
@@ -15,6 +16,6 @@ public class JavaFieldTest {
     }
 
     private static JavaField fieldWithModifiers(int modifiers) {
-        return new JavaField("foo", JavaVisibility.PUBLIC, new JavaType(new QualifiedName("java.lang.String")), modifiers);
+        return new JavaField("foo", JavaVisibility.PUBLIC, new JavaBasicType("java.lang.String"), modifiers);
     }
 }

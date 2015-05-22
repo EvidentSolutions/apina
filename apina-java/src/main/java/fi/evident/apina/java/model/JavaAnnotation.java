@@ -1,5 +1,7 @@
 package fi.evident.apina.java.model;
 
+import fi.evident.apina.java.model.type.JavaBasicType;
+
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -12,7 +14,7 @@ import static java.util.stream.Collectors.joining;
 public final class JavaAnnotation {
 
     /** Name of the annotation type */
-    private final QualifiedName name;
+    private final JavaBasicType name;
 
     /**
      * Attributes of the annotation.
@@ -27,11 +29,11 @@ public final class JavaAnnotation {
      */
     private final Map<String, Object> attributes = new LinkedHashMap<>();
 
-    public JavaAnnotation(QualifiedName name) {
+    public JavaAnnotation(JavaBasicType name) {
         this.name = requireNonNull(name);
     }
 
-    public QualifiedName getName() {
+    public JavaBasicType getName() {
         return name;
     }
 

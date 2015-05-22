@@ -1,5 +1,7 @@
 package fi.evident.apina.java.model;
 
+import fi.evident.apina.java.model.type.JavaType;
+
 import java.util.List;
 
 import static java.util.Collections.unmodifiableList;

@@ -1,5 +1,7 @@
 package fi.evident.apina.java.model;
 
+import fi.evident.apina.java.model.type.JavaType;
+
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;

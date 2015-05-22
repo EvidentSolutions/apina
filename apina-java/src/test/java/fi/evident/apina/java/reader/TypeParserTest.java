@@ -1,8 +1,8 @@
 package fi.evident.apina.java.reader;
 
-import fi.evident.apina.java.model.JavaType;
 import fi.evident.apina.java.model.MethodSignature;
-import fi.evident.apina.java.model.QualifiedName;
+import fi.evident.apina.java.model.type.JavaBasicType;
+import fi.evident.apina.java.model.type.JavaType;
 import org.junit.Test;
 
 import static fi.evident.apina.java.reader.TypeParser.*;
@@ -31,7 +31,7 @@ public class TypeParserTest {
 
     @Test
     public void parsingObjectType() {
-        assertThat(parseObjectType("java/lang/Integer"), is(new QualifiedName("java.lang.Integer")));
+        assertThat(parseObjectType("java/lang/Integer"), is(new JavaBasicType("java.lang.Integer")));
     }
 
     @Test
@@ -53,6 +53,6 @@ public class TypeParserTest {
     }
 
     private static JavaType simpleType(String name) {
-        return new JavaType(new QualifiedName(name));
+        return new JavaBasicType(name);
     }
 }
