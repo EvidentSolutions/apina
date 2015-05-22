@@ -1,10 +1,7 @@
 package fi.evident.apina.java.reader;
 
 import fi.evident.apina.java.model.MethodSignature;
-import fi.evident.apina.java.model.type.JavaBasicType;
-import fi.evident.apina.java.model.type.JavaParameterizedType;
-import fi.evident.apina.java.model.type.JavaType;
-import fi.evident.apina.java.model.type.JavaWildcardType;
+import fi.evident.apina.java.model.type.*;
 import org.junit.Test;
 
 import static fi.evident.apina.java.reader.TypeParser.*;
@@ -55,8 +52,8 @@ public class TypeParserTest {
 
     @Test
     public void parsingTypeVariables() {
-        // TODO: implement type variables
-        // assertThat(parseGenericType("Ljava/util/List<TT;>;"), is(...));
+        assertThat(parseGenericType("TT;"), is(typeVariable("T")));
+        assertThat(parseGenericType("Ljava/util/List<TT;>;"), is(genericType("java.util.List", typeVariable("T"))));
     }
 
     @Test
@@ -85,6 +82,10 @@ public class TypeParserTest {
         assertThat(signature.getReturnType(), is(basicType("java.lang.Enum")));
         assertThat(signature.getArgumentTypes(), is(asList(
                 basicType("java.lang.Class"), basicType("java.util.function.Function"), basicType("java.lang.Object"))));
+    }
+
+    private static JavaType typeVariable(String name) {
+        return new JavaTypeVariable(name);
     }
 
     private static JavaBasicType basicType(String name) {

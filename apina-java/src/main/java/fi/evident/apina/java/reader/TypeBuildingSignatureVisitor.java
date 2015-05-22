@@ -1,15 +1,13 @@
 package fi.evident.apina.java.reader;
 
-import fi.evident.apina.java.model.type.JavaBasicType;
-import fi.evident.apina.java.model.type.JavaParameterizedType;
-import fi.evident.apina.java.model.type.JavaType;
-import fi.evident.apina.java.model.type.JavaWildcardType;
+import fi.evident.apina.java.model.type.*;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
@@ -20,7 +18,7 @@ import static java.util.stream.Collectors.toList;
 final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Supplier<JavaType> {
 
     @Nullable
-    private JavaBasicType name;
+    private Function<List<JavaType>, JavaType> builder;
 
     private final List<Supplier<JavaType>> arguments = new ArrayList<>();
 
@@ -28,33 +26,38 @@ final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Sup
         super(Opcodes.ASM5);
     }
 
-    private void initName(JavaBasicType name) {
-        if (this.name != null)
-            throw new IllegalStateException("tried to initialize name twice");
+    private void initBuilder(Function<List<JavaType>, JavaType> builder) {
+        if (this.builder != null)
+            throw new IllegalStateException("tried to initialize builder twice");
 
-        this.name = name;
+        this.builder = builder;
     }
 
     @Override
     public JavaType get() {
-        if (name == null)
-            throw new IllegalStateException("no name defined for type builder");
+        if (builder == null)
+            throw new IllegalStateException("no builder defined for visitor");
 
-        if (arguments.isEmpty())
-            return name;
-        else
-            return new JavaParameterizedType(name, arguments.stream().map(Supplier::get).collect(toList()));
+        List<JavaType> argumentTypes = arguments.stream().map(Supplier::get).collect(toList());
+
+        return builder.apply(argumentTypes);
     }
 
     @Override
     public void visitBaseType(char descriptor) {
-        initName(TypeParser.parseTypeDescriptor(String.valueOf(descriptor)));
+        JavaBasicType baseType = TypeParser.parseTypeDescriptor(String.valueOf(descriptor));
+        initBuilder(args -> {
+            assert args.isEmpty();
+            return baseType;
+        });
     }
 
     @Override
     public void visitTypeVariable(String name) {
-        // TODO implement parsing type variables
-        throw new UnsupportedOperationException("visitTypeVariable " + name);
+        initBuilder(args -> {
+            assert args.isEmpty();
+            return new JavaTypeVariable(name);
+        });
     }
 
     @Override
@@ -65,7 +68,8 @@ final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Sup
 
     @Override
     public void visitClassType(String name) {
-        initName(TypeParser.parseObjectType(name));
+        JavaBasicType baseType = TypeParser.parseObjectType(name);
+        initBuilder(args -> args.isEmpty() ? baseType : new JavaParameterizedType(baseType, args));
     }
 
     @Override
