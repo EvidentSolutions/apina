@@ -32,4 +32,8 @@ public final class JavaBasicType extends JavaType {
     public String toString() {
         return name;
     }
+
+    public JavaBasicType toBasicType() {
+        return this;
+    }
 }

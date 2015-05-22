@@ -11,14 +11,14 @@ import static java.util.stream.Collectors.joining;
  */
 public final class JavaParameterizedType extends JavaType {
 
-    public final JavaBasicType typeName;
+    public final JavaType baseType;
 
     public final List<JavaType> arguments;
 
-    public JavaParameterizedType(JavaBasicType typeName, List<JavaType> arguments) {
+    public JavaParameterizedType(JavaType baseType, List<JavaType> arguments) {
         if (arguments.isEmpty()) throw new IllegalArgumentException("no arguments for generic type");
 
-        this.typeName = requireNonNull(typeName);
+        this.baseType = requireNonNull(baseType);
         this.arguments = requireNonNull(arguments);
     }
 
@@ -33,16 +33,16 @@ public final class JavaParameterizedType extends JavaType {
 
         JavaParameterizedType that = (JavaParameterizedType) o;
 
-        return typeName.equals(that.typeName) && arguments.equals(that.arguments);
+        return baseType.equals(that.baseType) && arguments.equals(that.arguments);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(typeName, arguments);
+        return Objects.hash(baseType, arguments);
     }
 
     @Override
     public String toString() {
-        return typeName + arguments.stream().map(JavaType::toString).collect(joining(", ", "<", ">"));
+        return baseType + arguments.stream().map(JavaType::toString).collect(joining(", ", "<", ">"));
     }
 }

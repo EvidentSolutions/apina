@@ -1,6 +1,7 @@
 package fi.evident.apina.java.reader;
 
 import fi.evident.apina.java.model.MethodSignature;
+import fi.evident.apina.java.model.type.JavaArrayType;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 import org.jetbrains.annotations.NotNull;
@@ -33,27 +34,41 @@ final class TypeParser {
         return visitor.get();
     }
 
-    public static JavaBasicType parseTypeDescriptor(String typeDescriptor) {
-        return basicJavaType(Type.getType(typeDescriptor));
+    public static JavaType parseTypeDescriptor(String typeDescriptor) {
+        return javaType(Type.getType(typeDescriptor));
     }
 
-    public static JavaBasicType parseObjectType(String internalName) {
-        return basicJavaType(Type.getObjectType(internalName));
+    public static JavaBasicType parseBasicTypeDescriptor(String typeDescriptor) {
+        return parseTypeDescriptor(typeDescriptor).toBasicType();
+    }
+
+    public static JavaType parseObjectType(String internalName) {
+        return javaType(Type.getObjectType(internalName));
     }
 
     public static MethodSignature parseMethodSignature(String methodDescriptor, @Nullable String signature) {
         // TODO: use signature if available
         Type methodType = Type.getMethodType(methodDescriptor);
 
-        JavaType returnType = basicJavaType(methodType.getReturnType());
+        JavaType returnType = javaType(methodType.getReturnType());
         List<JavaType> argumentTypes = Stream.of(methodType.getArgumentTypes())
-                .map(TypeParser::basicJavaType)
+                .map(TypeParser::javaType)
                 .collect(toList());
 
         return new MethodSignature(returnType, argumentTypes);
     }
 
-    private static JavaBasicType basicJavaType(Type type) {
-        return new JavaBasicType(type.getClassName());
+    private static JavaType javaType(Type type) {
+        if (type.getSort() == Type.ARRAY) {
+            JavaType javaType = new JavaBasicType(type.getElementType().getClassName());
+
+            for (int i = 0, dimensions = type.getDimensions(); i < dimensions; i++)
+                javaType = new JavaArrayType(javaType);
+
+            return javaType;
+
+        } else {
+            return new JavaBasicType(type.getClassName());
+        }
     }
 }

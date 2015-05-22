@@ -21,11 +21,14 @@ public class TypeParserTest {
 
         assertThat(parseJavaType("Ljava/lang/Integer;", null), is(basicType("java.lang.Integer")));
         assertThat(parseJavaType("Ljava/util/List;", null), is(basicType("java.util.List")));
+    }
 
-        assertThat(parseJavaType("[I", null), is(basicType("int[]")));
-        assertThat(parseJavaType("[[[[I", null), is(basicType("int[][][][]")));
-        assertThat(parseJavaType("[Ljava/lang/Integer;", null), is(basicType("java.lang.Integer[]")));
-        assertThat(parseJavaType("[[Ljava/lang/Integer;", null), is(basicType("java.lang.Integer[][]")));
+    @Test
+    public void parsingArrayTypesWithoutGenericSignatures() {
+        assertThat(parseJavaType("[I", null), is(arrayType(basicType("int"))));
+        assertThat(parseJavaType("[[[I", null), is(arrayType(arrayType(arrayType(basicType("int"))))));
+        assertThat(parseJavaType("[Ljava/lang/Integer;", null), is(arrayType(basicType("java.lang.Integer"))));
+        assertThat(parseJavaType("[[Ljava/lang/Integer;", null), is(arrayType(arrayType(basicType("java.lang.Integer")))));
     }
 
     @Test
@@ -58,7 +61,8 @@ public class TypeParserTest {
 
     @Test
     public void parsingGenericArrayTypes() {
-        // TODO: implement generic array types
+        assertThat(parseGenericType("[Ljava/lang/String;"), is(arrayType(basicType("java.lang.String"))));
+        assertThat(parseGenericType("[TA;"), is(arrayType(typeVariable("A"))));
     }
 
     @Test
@@ -88,8 +92,12 @@ public class TypeParserTest {
         return new JavaTypeVariable(name);
     }
 
-    private static JavaBasicType basicType(String name) {
+    private static JavaType basicType(String name) {
         return new JavaBasicType(name);
+    }
+
+    private static JavaType arrayType(JavaType elementType) {
+        return new JavaArrayType(elementType);
     }
 
     private static JavaType genericType(String name, JavaType... args) {

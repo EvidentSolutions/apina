@@ -59,14 +59,14 @@ final class ClassMetadataReader {
 
             // TODO: use access
             this.javaClass = new JavaClass(
-                    TypeParser.parseObjectType(name),
-                    TypeParser.parseObjectType(superName),
+                    TypeParser.parseObjectType(name).toBasicType(),
+                    TypeParser.parseObjectType(superName).toBasicType(),
                     Stream.of(interfaces).map(TypeParser::parseObjectType).collect(toList()));
         }
 
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-            JavaAnnotation annotation = new JavaAnnotation(TypeParser.parseTypeDescriptor(desc));
+            JavaAnnotation annotation = new JavaAnnotation(TypeParser.parseBasicTypeDescriptor(desc));
             getJavaClass().addAnnotation(annotation);
 
             return new MyAnnotationVisitor(annotation);
@@ -113,14 +113,14 @@ final class ClassMetadataReader {
 
         @Override
         public void visitEnum(String name, String desc, String value) {
-            JavaBasicType enumType = TypeParser.parseTypeDescriptor(desc);
+            JavaBasicType enumType = TypeParser.parseBasicTypeDescriptor(desc);
 
             annotation.setAttribute(name, new EnumValue(enumType, value));
         }
 
         @Override
         public AnnotationVisitor visitAnnotation(String name, String desc) {
-            JavaAnnotation nested = new JavaAnnotation(TypeParser.parseTypeDescriptor(desc));
+            JavaAnnotation nested = new JavaAnnotation(TypeParser.parseTypeDescriptor(desc).toBasicType());
             annotation.setAttribute(name, nested);
             return new MyAnnotationVisitor(nested);
         }
@@ -154,14 +154,14 @@ final class ClassMetadataReader {
 
         @Override
         public void visitEnum(String name, String desc, String value) {
-            JavaBasicType enumType = TypeParser.parseTypeDescriptor(desc);
+            JavaBasicType enumType = TypeParser.parseBasicTypeDescriptor(desc);
 
             values.add(new EnumValue(enumType, value));
         }
 
         @Override
         public AnnotationVisitor visitAnnotation(String name, String desc) {
-            JavaAnnotation nested = new JavaAnnotation(TypeParser.parseTypeDescriptor(desc));
+            JavaAnnotation nested = new JavaAnnotation(TypeParser.parseBasicTypeDescriptor(desc));
             values.add(nested);
             return new MyAnnotationVisitor(nested);
         }
@@ -178,7 +178,7 @@ final class ClassMetadataReader {
 
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-            JavaAnnotation annotation = new JavaAnnotation(TypeParser.parseTypeDescriptor(desc));
+            JavaAnnotation annotation = new JavaAnnotation(TypeParser.parseBasicTypeDescriptor(desc));
             field.addAnnotation(annotation);
             return new MyAnnotationVisitor(annotation);
         }
@@ -195,7 +195,7 @@ final class ClassMetadataReader {
 
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-            JavaAnnotation annotation = new JavaAnnotation(TypeParser.parseTypeDescriptor(desc));
+            JavaAnnotation annotation = new JavaAnnotation(TypeParser.parseBasicTypeDescriptor(desc));
             method.addAnnotation(annotation);
             return new MyAnnotationVisitor(annotation);
         }

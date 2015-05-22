@@ -45,7 +45,7 @@ final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Sup
 
     @Override
     public void visitBaseType(char descriptor) {
-        JavaBasicType baseType = TypeParser.parseTypeDescriptor(String.valueOf(descriptor));
+        JavaType baseType = TypeParser.parseTypeDescriptor(String.valueOf(descriptor));
         initBuilder(args -> {
             assert args.isEmpty();
             return baseType;
@@ -62,13 +62,19 @@ final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Sup
 
     @Override
     public SignatureVisitor visitArrayType() {
-        // TODO implement parsing array types
-        throw new UnsupportedOperationException("visitArrayType");
+        TypeBuildingSignatureVisitor nestedVisitor = new TypeBuildingSignatureVisitor();
+
+        initBuilder(args -> {
+            assert args.isEmpty();
+            return new JavaArrayType(nestedVisitor.get());
+        });
+
+        return nestedVisitor;
     }
 
     @Override
     public void visitClassType(String name) {
-        JavaBasicType baseType = TypeParser.parseObjectType(name);
+        JavaType baseType = TypeParser.parseObjectType(name);
         initBuilder(args -> args.isEmpty() ? baseType : new JavaParameterizedType(baseType, args));
     }
 

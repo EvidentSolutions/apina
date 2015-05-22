@@ -1,6 +1,7 @@
 package fi.evident.apina.java.model;
 
 import fi.evident.apina.java.model.type.JavaBasicType;
+import fi.evident.apina.java.model.type.JavaType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,26 +16,26 @@ public final class JavaClass implements JavaAnnotatedElement {
 
     private final JavaBasicType name;
     private final JavaBasicType superName;
-    private final List<JavaBasicType> interfaces;
+    private final List<JavaType> interfaces;
     private final List<JavaAnnotation> annotations = new ArrayList<>();
     private final List<JavaField> fields = new ArrayList<>();
     private final List<JavaMethod> methods = new ArrayList<>();
 
-    public JavaClass(JavaBasicType name, JavaBasicType superName, List<JavaBasicType> interfaces) {
+    public JavaClass(JavaBasicType name, JavaBasicType superName, List<JavaType> interfaces) {
         this.name = requireNonNull(name);
         this.superName = requireNonNull(superName);
         this.interfaces = unmodifiableList(requireNonNull(interfaces));
     }
 
-    public JavaBasicType getName() {
+    public JavaType getName() {
         return name;
     }
 
-    public JavaBasicType getSuperName() {
+    public JavaType getSuperName() {
         return superName;
     }
 
-    public List<JavaBasicType> getInterfaces() {
+    public List<JavaType> getInterfaces() {
         return unmodifiableList(interfaces);
     }
 
