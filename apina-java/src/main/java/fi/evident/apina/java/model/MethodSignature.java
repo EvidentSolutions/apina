@@ -6,6 +6,7 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Contains parameter types and return types of a method.
@@ -26,5 +27,9 @@ public final class MethodSignature {
 
     public List<JavaType> getArgumentTypes() {
         return argumentTypes;
+    }
+
+    public List<JavaParameter> getParameters() {
+        return argumentTypes.stream().map(JavaParameter::new).collect(toList());
     }
 }

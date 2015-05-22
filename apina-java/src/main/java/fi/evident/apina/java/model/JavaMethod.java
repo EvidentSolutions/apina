@@ -16,14 +16,14 @@ public final class JavaMethod implements JavaAnnotatedElement {
     private final JavaVisibility visibility;
     private final List<JavaAnnotation> annotations = new ArrayList<>();
     private final JavaType returnType;
-    private final List<JavaType> argumentTypes;
+    private final List<JavaParameter> parameters;
     private final int modifiers;
 
-    public JavaMethod(String name, JavaVisibility visibility, JavaType returnType, List<JavaType> argumentTypes, int modifiers) {
+    public JavaMethod(String name, JavaVisibility visibility, JavaType returnType, List<JavaParameter> parameters, int modifiers) {
         this.name = requireNonNull(name);
         this.visibility = requireNonNull(visibility);
         this.returnType = requireNonNull(returnType);
-        this.argumentTypes = unmodifiableList(requireNonNull(argumentTypes));
+        this.parameters = unmodifiableList(requireNonNull(parameters));
         this.modifiers = modifiers;
     }
 
@@ -39,8 +39,8 @@ public final class JavaMethod implements JavaAnnotatedElement {
         return returnType;
     }
 
-    public List<JavaType> getArgumentTypes() {
-        return argumentTypes;
+    public List<JavaParameter> getParameters() {
+        return parameters;
     }
 
     public boolean isStatic() {
@@ -58,6 +58,6 @@ public final class JavaMethod implements JavaAnnotatedElement {
 
     @Override
     public String toString() {
-        return visibility + " " + returnType + " " + name + argumentTypes.stream().map(JavaType::toString).collect(joining(", ", "(", ")"));
+        return visibility + " " + returnType + " " + name + parameters.stream().map(JavaParameter::toString).collect(joining(", ", "(", ")"));
     }
 }

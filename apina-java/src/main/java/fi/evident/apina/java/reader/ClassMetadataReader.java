@@ -83,7 +83,7 @@ final class ClassMetadataReader {
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
             MethodSignature methodSignature = TypeParser.parseMethodSignature(desc, signature);
 
-            JavaMethod method = new JavaMethod(name, parseVisibility(access), methodSignature.getReturnType(), methodSignature.getArgumentTypes(), access);
+            JavaMethod method = new JavaMethod(name, parseVisibility(access), methodSignature.getReturnType(), methodSignature.getParameters(), access);
             getJavaClass().addMethod(method);
             return new MyMethodVisitor(method);
         }
@@ -187,6 +187,7 @@ final class ClassMetadataReader {
     private static final class MyMethodVisitor extends MethodVisitor {
 
         private final JavaMethod method;
+        private int parameterIndex = 0;
 
         public MyMethodVisitor(JavaMethod method) {
             super(Opcodes.ASM5);
@@ -197,6 +198,24 @@ final class ClassMetadataReader {
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
             JavaAnnotation annotation = new JavaAnnotation(TypeParser.parseBasicTypeDescriptor(desc));
             method.addAnnotation(annotation);
+            return new MyAnnotationVisitor(annotation);
+        }
+
+        @Override
+        public void visitParameter(String name, int access) {
+            JavaParameter nextParameter = method.getParameters().get(parameterIndex++);
+
+            if (name != null)
+                nextParameter.initName(name);
+        }
+
+        @Override
+        public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
+            JavaParameter javaParameter = method.getParameters().get(parameter);
+
+            JavaAnnotation annotation = new JavaAnnotation(TypeParser.parseBasicTypeDescriptor(desc));
+            javaParameter.addAnnotation(annotation);
+
             return new MyAnnotationVisitor(annotation);
         }
     }
