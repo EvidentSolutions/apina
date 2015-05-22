@@ -12,7 +12,7 @@ public final class AngularTypeScriptWriter {
         for (EndpointGroup endpointGroup : api.getEndpointGroups()) {
             System.out.println(endpointGroup.getName());
             for (Endpoint endpoint : endpointGroup.getEndpoints()) {
-                System.out.println("    " + endpoint.getName() + " " + endpoint.getUriTemplate());
+                System.out.println("    " + endpoint);
             }
         }
     }

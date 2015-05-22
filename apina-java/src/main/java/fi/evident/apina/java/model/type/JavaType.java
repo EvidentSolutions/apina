@@ -12,6 +12,10 @@ public abstract class JavaType {
         throw new ClassCastException("can't cast " + getClass().getName() + " to JavaBasicType");
     }
 
+    public boolean isVoid() {
+        return false;
+    }
+
     // Force subclass to implement equals, hashCode and toString since we really want them for all types
 
     @Override

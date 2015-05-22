@@ -36,4 +36,9 @@ public final class JavaBasicType extends JavaType {
     public JavaBasicType toBasicType() {
         return this;
     }
+
+    @Override
+    public boolean isVoid() {
+        return name.equals("void");
+    }
 }
