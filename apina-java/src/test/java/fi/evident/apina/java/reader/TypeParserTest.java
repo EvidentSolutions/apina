@@ -2,7 +2,9 @@ package fi.evident.apina.java.reader;
 
 import fi.evident.apina.java.model.MethodSignature;
 import fi.evident.apina.java.model.type.JavaBasicType;
+import fi.evident.apina.java.model.type.JavaParameterizedType;
 import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.JavaWildcardType;
 import org.junit.Test;
 
 import static fi.evident.apina.java.reader.TypeParser.*;
@@ -30,6 +32,39 @@ public class TypeParserTest {
     }
 
     @Test
+    public void parsingGenericPrimitiveSignatures() {
+        assertThat(parseGenericType("I"), is(simpleType("int")));
+        assertThat(parseGenericType("V"), is(simpleType("void")));
+    }
+
+    @Test
+    public void parsingConcreteGenericSignatures() {
+        assertThat(parseGenericType("Ljava/util/List<Ljava/lang/Integer;>;"),
+                is(genericType("java.util.List", simpleType("java.lang.Integer"))));
+
+        assertThat(parseGenericType("Ljava/util/Map<Ljava/lang/Integer;Ljava/lang/String;>;"),
+                is(genericType("java.util.Map", simpleType("java.lang.Integer"), simpleType("java.lang.String"))));
+    }
+
+    @Test
+    public void parsingWildcardTypes() {
+        assertThat(parseGenericType("Ljava/util/List<*>;"), is(genericType("java.util.List", JavaWildcardType.unbounded())));
+        assertThat(parseGenericType("Ljava/util/List<+Ljava/lang/String;>;"), is(genericType("java.util.List", JavaWildcardType.extending(simpleType("java.lang.String")))));
+        assertThat(parseGenericType("Ljava/util/List<-Ljava/lang/String;>;"), is(genericType("java.util.List", JavaWildcardType.withSuper(simpleType("java.lang.String")))));
+    }
+
+    @Test
+    public void parsingTypeVariables() {
+        // TODO: implement type variables
+        // assertThat(parseGenericType("Ljava/util/List<TT;>;"), is(...));
+    }
+
+    @Test
+    public void parsingGenericArrayTypes() {
+        // TODO: implement generic array types
+    }
+
+    @Test
     public void parsingObjectType() {
         assertThat(parseObjectType("java/lang/Integer"), is(new JavaBasicType("java.lang.Integer")));
     }
@@ -54,5 +89,9 @@ public class TypeParserTest {
 
     private static JavaType simpleType(String name) {
         return new JavaBasicType(name);
+    }
+
+    private static JavaType genericType(String name, JavaType... args) {
+        return new JavaParameterizedType(new JavaBasicType(name), asList(args));
     }
 }
