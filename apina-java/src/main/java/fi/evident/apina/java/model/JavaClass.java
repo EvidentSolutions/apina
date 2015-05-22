@@ -2,6 +2,7 @@ package fi.evident.apina.java.model;
 
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
+import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,16 +16,22 @@ import static java.util.Objects.requireNonNull;
 public final class JavaClass implements JavaAnnotatedElement {
 
     private final String name;
+    private final int modifiers;
     private final JavaBasicType superName;
     private final List<JavaType> interfaces;
     private final List<JavaAnnotation> annotations = new ArrayList<>();
     private final List<JavaField> fields = new ArrayList<>();
     private final List<JavaMethod> methods = new ArrayList<>();
 
-    public JavaClass(String name, JavaBasicType superName, List<JavaType> interfaces) {
+    public JavaClass(String name, JavaBasicType superName, List<JavaType> interfaces, int modifiers) {
+        this.modifiers = modifiers;
         this.name = requireNonNull(name);
         this.superName = requireNonNull(superName);
         this.interfaces = unmodifiableList(requireNonNull(interfaces));
+    }
+
+    public boolean isEnum() {
+        return (modifiers & Opcodes.ACC_ENUM) != 0;
     }
 
     public String getName() {

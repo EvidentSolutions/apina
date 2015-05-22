@@ -57,11 +57,11 @@ final class ClassMetadataReader {
             if (javaClass != null)
                 throw new IllegalStateException("classMetadata already initialized");
 
-            // TODO: use access
             this.javaClass = new JavaClass(
                     TypeParser.parseObjectType(name).toBasicType().toString(),
                     TypeParser.parseObjectType(superName).toBasicType(),
-                    Stream.of(interfaces).map(TypeParser::parseObjectType).collect(toList()));
+                    Stream.of(interfaces).map(TypeParser::parseObjectType).collect(toList()),
+                    access);
         }
 
         @Override
@@ -81,6 +81,11 @@ final class ClassMetadataReader {
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+            if (getJavaClass().isEnum() && name.equals("<init>")) {
+                // Skip constructors of enums
+                return null;
+            }
+
             MethodSignature methodSignature = TypeParser.parseMethodSignature(desc, signature);
 
             JavaMethod method = new JavaMethod(name, parseVisibility(access), methodSignature.getReturnType(), methodSignature.getParameters(), access);
