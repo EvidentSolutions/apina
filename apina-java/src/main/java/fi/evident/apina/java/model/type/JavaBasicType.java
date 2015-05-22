@@ -13,6 +13,10 @@ public final class JavaBasicType extends JavaType {
         this.name = requireNonNull(name);
     }
 
+    public JavaBasicType(Class<?> cl) {
+        this.name = requireNonNull(cl.getName());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
