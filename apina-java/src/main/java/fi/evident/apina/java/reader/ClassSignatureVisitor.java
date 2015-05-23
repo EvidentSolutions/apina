@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toList;
  * <ul>
  *     <li>generic variables with their bounds if class defines any</li>
  *     <li>generic super-class signature</li>
- *     <li>generic ignatures of implemented interfaces</li>
+ *     <li>generic signatures of implemented interfaces</li>
  * </ul>
  */
 final class ClassSignatureVisitor extends SignatureVisitor {
