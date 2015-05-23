@@ -28,6 +28,12 @@ configure(allprojects) { project ->
                 details.useVersion slf4jVersion
             }
         }
+
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.name == 'hamcrest-core') {
+                details.useTarget group: details.requested.group, name: 'hamcrest-all', version: details.requested.version
+            }
+        }
     }
 }
 
