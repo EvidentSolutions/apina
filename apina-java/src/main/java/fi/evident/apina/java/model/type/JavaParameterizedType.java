@@ -24,6 +24,10 @@ public final class JavaParameterizedType extends JavaType {
         this.arguments = unmodifiableList(new ArrayList<>(arguments));
     }
 
+    public JavaType getBaseType() {
+        return baseType;
+    }
+
     public List<JavaType> getArguments() {
         return arguments;
     }

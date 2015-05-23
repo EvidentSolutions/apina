@@ -26,6 +26,10 @@ public final class JavaTypeVariable extends JavaType {
         return name;
     }
 
+    public List<JavaType> getBounds() {
+        return bounds;
+    }
+
     @Override
     public String toString() {
         if (bounds.isEmpty())
