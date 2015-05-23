@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Comparator;
 import java.util.List;
 
 import static fi.evident.apina.java.reader.JavaTypeMatchers.*;
@@ -21,10 +22,17 @@ public class ClassMetadataReaderTest {
 
         List<JavaField> fields = javaClass.getFields();
 
+        assertThat(javaClass.getSchema(), is(singletonSchema("T", basicType(CharSequence.class))));
+
         assertThat(fields.size(), is(3));
         assertThat(javaClass.getField("field1").getType(), is(typeWithRepresentation("java.lang.String")));
         assertThat(javaClass.getField("field2").getType(), is(typeWithRepresentation("java.util.List<java.lang.String>")));
-        assertThat(javaClass.getField("field3").getType(), is(typeVariable("T", basicType(CharSequence.class))));
+        assertThat(javaClass.getField("field3").getType(), is(typeVariable("T")));
+    }
+
+    @Test
+    public void innerClassWithOuterBounds() {
+        loadClass(AnonymousInnerClassWithOuterBounds.createInnerClassInstance().getClass());
     }
 
     private static JavaClass loadClass(Class<?> cl) {
@@ -62,6 +70,20 @@ public class ClassMetadataReaderTest {
 
         public T method3(T x) {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    private static final class AnonymousInnerClassWithOuterBounds {
+
+        @SuppressWarnings("Convert2Lambda")
+        public static <T> Comparator<T> createInnerClassInstance() {
+            return new Comparator<T>() {
+                @SuppressWarnings("ComparatorMethodParameterNotUsed")
+                @Override
+                public int compare(T o1, T o2) {
+                    return 0;
+                }
+            };
         }
     }
 }

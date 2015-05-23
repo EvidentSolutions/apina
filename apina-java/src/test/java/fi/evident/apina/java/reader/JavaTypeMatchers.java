@@ -7,8 +7,10 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonMap;
 
 /**
  * Hamcrest matches for {@link JavaType}s.
@@ -49,23 +51,17 @@ final class JavaTypeMatchers {
         };
     }
 
-    @SafeVarargs
-    public static Matcher<JavaType> typeVariable(String name, Matcher<JavaType>... boundMatchers) {
-        return typeVariable(name, asList(boundMatchers));
-    }
-
-    private static Matcher<JavaType> typeVariable(String name, List<Matcher<JavaType>> boundMatchers) {
+    public static Matcher<JavaType> typeVariable(String name) {
         return new JavaTypeMatcher() {
 
             @Override
             protected boolean matchTypeVariable(JavaTypeVariable item) {
-                return name.equals(item.getName())
-                        && matchList(item.getBounds(), boundMatchers);
+                return name.equals(item.getName());
             }
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("type variable ").appendValue(name).appendText(" with " + boundMatchers.size() + " bounds");
+                description.appendText("type variable ").appendValue(name);
             }
         };
     }
@@ -101,6 +97,34 @@ final class JavaTypeMatchers {
             @Override
             public void describeTo(Description description) {
                 description.appendText("type represented by ").appendValue(typeRepresentation);
+            }
+        };
+    }
+
+    @SafeVarargs
+    public static Matcher<TypeSchema> singletonSchema(String var, Matcher<JavaType>... types) {
+        return schema(singletonMap(new JavaTypeVariable(var), asList(types)));
+    }
+
+    public static Matcher<TypeSchema> schema(Map<JavaTypeVariable, List<Matcher<JavaType>>> map) {
+        return new TypeSafeMatcher<TypeSchema>() {
+            @Override
+            protected boolean matchesSafely(TypeSchema item) {
+                List<JavaTypeVariable> variables = item.getVariables();
+
+                if (variables.size() != map.size() || !map.keySet().containsAll(variables))
+                    return false;
+
+                for (Map.Entry<JavaTypeVariable, List<Matcher<JavaType>>> entry : map.entrySet())
+                    if (!matchList(item.getTypeBounds(entry.getKey()), entry.getValue()))
+                        return false;
+
+                return true;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendValue(map);
             }
         };
     }

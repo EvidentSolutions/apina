@@ -1,6 +1,7 @@
 package fi.evident.apina.java.model;
 
 import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.TypeSchema;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -18,13 +19,15 @@ public final class JavaMethod implements JavaAnnotatedElement {
     private final JavaType returnType;
     private final List<JavaParameter> parameters;
     private final int modifiers;
+    private final TypeSchema schema;
 
-    public JavaMethod(String name, JavaVisibility visibility, JavaType returnType, List<JavaParameter> parameters, int modifiers) {
+    public JavaMethod(String name, JavaVisibility visibility, JavaType returnType, List<JavaParameter> parameters, int modifiers, TypeSchema schema) {
         this.name = requireNonNull(name);
         this.visibility = requireNonNull(visibility);
         this.returnType = requireNonNull(returnType);
         this.parameters = unmodifiableList(requireNonNull(parameters));
         this.modifiers = modifiers;
+        this.schema = requireNonNull(schema);
     }
 
     public String getName() {
@@ -37,6 +40,10 @@ public final class JavaMethod implements JavaAnnotatedElement {
 
     public JavaType getReturnType() {
         return returnType;
+    }
+
+    public TypeSchema getSchema() {
+        return schema;
     }
 
     public List<JavaParameter> getParameters() {

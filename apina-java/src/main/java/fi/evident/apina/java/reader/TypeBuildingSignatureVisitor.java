@@ -7,7 +7,6 @@ import org.objectweb.asm.signature.SignatureVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -22,11 +21,9 @@ final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Sup
     private Function<List<JavaType>, JavaType> builder;
 
     private final List<Supplier<JavaType>> arguments = new ArrayList<>();
-    private final Map<String, JavaTypeVariable> typeVariableMap;
 
-    public TypeBuildingSignatureVisitor(Map<String, JavaTypeVariable> typeVariableMap) {
+    public TypeBuildingSignatureVisitor() {
         super(Opcodes.ASM5);
-        this.typeVariableMap = typeVariableMap;
     }
 
     private void initBuilder(Function<List<JavaType>, JavaType> builder) {
@@ -59,18 +56,13 @@ final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Sup
     public void visitTypeVariable(String name) {
         initBuilder(args -> {
             assert args.isEmpty();
-
-            JavaTypeVariable typeVariable = typeVariableMap.get(name);
-            if (typeVariable != null)
-                return typeVariable;
-            else
-                throw new IllegalArgumentException("could not resolve type variable " + name + " from " + typeVariableMap);
+            return new JavaTypeVariable(name);
         });
     }
 
     @Override
     public SignatureVisitor visitArrayType() {
-        TypeBuildingSignatureVisitor nestedVisitor = new TypeBuildingSignatureVisitor(typeVariableMap);
+        TypeBuildingSignatureVisitor nestedVisitor = new TypeBuildingSignatureVisitor();
 
         initBuilder(args -> {
             assert args.isEmpty();
@@ -99,7 +91,7 @@ final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Sup
 
     @Override
     public SignatureVisitor visitTypeArgument(char wildcard) {
-        TypeBuildingSignatureVisitor nestedVisitor = new TypeBuildingSignatureVisitor(typeVariableMap);
+        TypeBuildingSignatureVisitor nestedVisitor = new TypeBuildingSignatureVisitor();
         arguments.add(typeBuilderForWildcard(wildcard, nestedVisitor));
         return nestedVisitor;
     }

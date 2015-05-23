@@ -1,6 +1,7 @@
 package fi.evident.apina.java.model;
 
 import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.TypeSchema;
 import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
@@ -21,12 +22,14 @@ public final class JavaClass implements JavaAnnotatedElement {
     private final List<JavaField> fields = new ArrayList<>();
     private final List<JavaMethod> methods = new ArrayList<>();
     private final int modifiers;
+    private final TypeSchema schema;
 
-    public JavaClass(JavaType type, JavaType superClass, List<JavaType> interfaces, int modifiers) {
+    public JavaClass(JavaType type, JavaType superClass, List<JavaType> interfaces, int modifiers, TypeSchema schema) {
         this.modifiers = modifiers;
         this.type = requireNonNull(type);
         this.superClass = requireNonNull(superClass);
         this.interfaces = unmodifiableList(requireNonNull(interfaces));
+        this.schema = requireNonNull(schema);
     }
 
     public boolean isEnum() {
@@ -85,5 +88,9 @@ public final class JavaClass implements JavaAnnotatedElement {
             return field;
         else
             throw new RuntimeException("field not found " + name);
+    }
+
+    public TypeSchema getSchema() {
+        return schema;
     }
 }

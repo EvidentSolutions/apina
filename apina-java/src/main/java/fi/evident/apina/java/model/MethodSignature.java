@@ -1,6 +1,7 @@
 package fi.evident.apina.java.model;
 
 import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.TypeSchema;
 
 import java.util.List;
 
@@ -15,10 +16,12 @@ public final class MethodSignature {
 
     private final JavaType returnType;
     private final List<JavaType> argumentTypes;
+    private final TypeSchema schema;
 
-    public MethodSignature(JavaType returnType, List<JavaType> argumentTypes) {
+    public MethodSignature(JavaType returnType, List<JavaType> argumentTypes, TypeSchema schema) {
         this.returnType = requireNonNull(returnType);
         this.argumentTypes = unmodifiableList(requireNonNull(argumentTypes));
+        this.schema = requireNonNull(schema);
     }
 
     public JavaType getReturnType() {
@@ -31,5 +34,9 @@ public final class MethodSignature {
 
     public List<JavaParameter> getParameters() {
         return argumentTypes.stream().map(JavaParameter::new).collect(toList());
+    }
+
+    public TypeSchema getSchema() {
+        return schema;
     }
 }

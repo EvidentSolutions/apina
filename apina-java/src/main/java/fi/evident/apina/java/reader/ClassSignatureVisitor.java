@@ -1,6 +1,7 @@
 package fi.evident.apina.java.reader;
 
 import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.TypeSchema;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureReader;
@@ -23,7 +24,7 @@ import static java.util.stream.Collectors.toList;
  */
 final class ClassSignatureVisitor extends SignatureVisitor {
 
-    private final TypeVariableCollection typeVariableCollection = new TypeVariableCollection();
+    private final TypeSchemaBuilder typeSchemaBuilder = new TypeSchemaBuilder();
 
     private Optional<Supplier<JavaType>> superClassBuilder = Optional.empty();
 
@@ -35,7 +36,7 @@ final class ClassSignatureVisitor extends SignatureVisitor {
 
     @Override
     public void visitFormalTypeParameter(String name) {
-        typeVariableCollection.addTypeParameter(name);
+        typeSchemaBuilder.addTypeParameter(name);
     }
 
     @Override
@@ -50,13 +51,9 @@ final class ClassSignatureVisitor extends SignatureVisitor {
 
     @NotNull
     private SignatureVisitor visitBound() {
-        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor(typeVariableCollection.getTypeVariableMap());
-        typeVariableCollection.addBoundBuilderForLastTypeParameter(visitor);
+        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor();
+        typeSchemaBuilder.addBoundBuilderForLastTypeParameter(visitor);
         return visitor;
-    }
-
-    public TypeVariableCollection getTypeVariables() {
-        return typeVariableCollection;
     }
 
     public Optional<JavaType> getSuperClass() {
@@ -69,24 +66,32 @@ final class ClassSignatureVisitor extends SignatureVisitor {
 
     @Override
     public SignatureVisitor visitSuperclass() {
-        typeVariableCollection.finishFormalTypes();
-        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor(typeVariableCollection.getTypeVariableMap());
+        typeSchemaBuilder.finishFormalTypes();
+        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor();
         superClassBuilder = Optional.of(visitor);
         return visitor;
     }
 
     @Override
     public SignatureVisitor visitInterface() {
-        typeVariableCollection.finishFormalTypes();
-        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor(typeVariableCollection.getTypeVariableMap());
+        typeSchemaBuilder.finishFormalTypes();
+        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor();
         interfaceBuilders.add(visitor);
         return visitor;
+    }
+
+    @Override
+    public void visitEnd() {
+        typeSchemaBuilder.finishFormalTypes();
     }
 
     public static ClassSignatureVisitor parse(String signature) {
         ClassSignatureVisitor visitor = new ClassSignatureVisitor();
         new SignatureReader(signature).accept(visitor);
-        visitor.getTypeVariables().finishFormalTypes();
         return visitor;
+    }
+
+    public TypeSchema getSchema() {
+        return typeSchemaBuilder.getSchema();
     }
 }

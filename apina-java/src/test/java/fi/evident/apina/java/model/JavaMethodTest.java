@@ -1,6 +1,7 @@
 package fi.evident.apina.java.model;
 
 import fi.evident.apina.java.model.type.JavaBasicType;
+import fi.evident.apina.java.model.type.TypeSchema;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 
@@ -17,6 +18,6 @@ public class JavaMethodTest {
     }
 
     private static JavaMethod methodWithModifiers(int modifiers) {
-        return new JavaMethod("foo", JavaVisibility.PUBLIC, new JavaBasicType("java.lang.String"), emptyList(), modifiers);
+        return new JavaMethod("foo", JavaVisibility.PUBLIC, new JavaBasicType("java.lang.String"), emptyList(), modifiers, new TypeSchema());
     }
 }

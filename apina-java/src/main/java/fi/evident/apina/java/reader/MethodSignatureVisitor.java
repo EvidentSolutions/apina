@@ -2,7 +2,6 @@ package fi.evident.apina.java.reader;
 
 import fi.evident.apina.java.model.MethodSignature;
 import fi.evident.apina.java.model.type.JavaType;
-import fi.evident.apina.java.model.type.JavaTypeVariable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
@@ -10,7 +9,6 @@ import org.objectweb.asm.signature.SignatureVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
@@ -25,17 +23,15 @@ final class MethodSignatureVisitor extends SignatureVisitor implements Supplier<
 
     private final List<Supplier<JavaType>> parameterTypeBuilders = new ArrayList<>();
 
-    private final TypeVariableCollection typeVariableCollection;
+    private final TypeSchemaBuilder typeSchemaBuilder = new TypeSchemaBuilder();
 
-    public MethodSignatureVisitor(Map<String, JavaTypeVariable> typeVariableMap) {
+    public MethodSignatureVisitor() {
         super(Opcodes.ASM5);
-
-        typeVariableCollection = new TypeVariableCollection(typeVariableMap);
     }
 
     @Override
     public void visitFormalTypeParameter(String name) {
-        typeVariableCollection.addTypeParameter(name);
+        typeSchemaBuilder.addTypeParameter(name);
     }
 
     @Override
@@ -50,23 +46,23 @@ final class MethodSignatureVisitor extends SignatureVisitor implements Supplier<
 
     @NotNull
     private SignatureVisitor visitBound() {
-        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor(typeVariableCollection.getTypeVariableMap());
-        typeVariableCollection.addBoundBuilderForLastTypeParameter(visitor);
+        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor();
+        typeSchemaBuilder.addBoundBuilderForLastTypeParameter(visitor);
         return visitor;
     }
 
     @Override
     public SignatureVisitor visitParameterType() {
-        typeVariableCollection.finishFormalTypes();
-        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor(typeVariableCollection.getTypeVariableMap());
+        typeSchemaBuilder.finishFormalTypes();
+        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor();
         parameterTypeBuilders.add(visitor);
         return visitor;
     }
 
     @Override
     public SignatureVisitor visitReturnType() {
-        typeVariableCollection.finishFormalTypes();
-        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor(typeVariableCollection.getTypeVariableMap());
+        typeSchemaBuilder.finishFormalTypes();
+        TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor();
         returnTypeBuilder = visitor;
         return visitor;
     }
@@ -78,7 +74,8 @@ final class MethodSignatureVisitor extends SignatureVisitor implements Supplier<
 
         return new MethodSignature(
                 returnTypeBuilder.get(),
-                parameterTypeBuilders.stream().map(Supplier::get).collect(toList()));
+                parameterTypeBuilders.stream().map(Supplier::get).collect(toList()),
+                typeSchemaBuilder.getSchema());
     }
 
 }
