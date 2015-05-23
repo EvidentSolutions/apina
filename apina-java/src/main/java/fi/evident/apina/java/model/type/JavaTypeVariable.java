@@ -1,56 +1,44 @@
 package fi.evident.apina.java.model.type;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
 
 public final class JavaTypeVariable extends JavaType {
 
     private final String name;
-    private final List<JavaType> bounds;
+    private final List<JavaType> bounds = new ArrayList<>();
 
     public JavaTypeVariable(String name) {
-        this(name, emptyList());
+        this.name = requireNonNull(name);
     }
 
-    public JavaTypeVariable(String name, List<JavaType> bounds) {
-        this.name = requireNonNull(name);
-        this.bounds = unmodifiableList(requireNonNull(bounds));
+    public List<JavaType> getBounds() {
+        return unmodifiableList(bounds);
+    }
+
+    public void addBound(JavaType bound) {
+        bounds.add(requireNonNull(bound));
     }
 
     public String getName() {
         return name;
     }
 
-    public List<JavaType> getBounds() {
-        return bounds;
-    }
-
     @Override
     public String toString() {
-        if (bounds.isEmpty())
-            return name;
-        else
-            return name + " extends " + bounds.stream().map(JavaType::toString).collect(joining(" & "));
+        return name;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        JavaTypeVariable that = (JavaTypeVariable) o;
-
-        return name.equals(that.name)
-            && bounds.equals(that.bounds);
+        return o == this;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, bounds);
+        return System.identityHashCode(this);
     }
 }

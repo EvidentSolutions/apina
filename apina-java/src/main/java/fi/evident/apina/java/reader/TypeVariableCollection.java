@@ -10,24 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static java.util.stream.Collectors.toList;
-
 /**
  * Support for building a collection of type variables.
  *
- * When we start processing a method signature, we will first get type variables,
- * followed by their bounds. Since the bounds are available only after the name,
- * we delay the process a bit by collecting the current name and builders for
- * current bounds.
- *
- * Whenever a new item is started with {@link #addTypeParameter(String)} or when
- * we finally ask for results with {@link #getTypeVariables()}, we can finish
- * the current item add add it to mapping of type variables.
+ * Since self bounds require variable to be created before the bound is
+ * translated, the type variables are now built immediately when they are
+ * encountered in bytecode and bounds are then added to the existing
+ * variable.
  */
 final class TypeVariableCollection {
-
-    @Nullable
-    private String currentName;
 
     @Nullable
     private List<Supplier<JavaType>> currentBounds;
@@ -46,7 +37,9 @@ final class TypeVariableCollection {
     public void addTypeParameter(String name) {
         finishFormalTypes();
 
-        currentName = name;
+        JavaTypeVariable var = new JavaTypeVariable(name);
+        typeVariables.add(var);
+        typeVariableMap.put(var.getName(), var);
         currentBounds = new ArrayList<>();
     }
 
@@ -69,12 +62,12 @@ final class TypeVariableCollection {
     }
 
     public void finishFormalTypes() {
-        if (currentName != null) {
-            assert currentBounds != null;
-            JavaTypeVariable var = new JavaTypeVariable(currentName, currentBounds.stream().map(Supplier::get).collect(toList()));
-            typeVariables.add(var);
-            typeVariableMap.put(var.getName(), var);
-            currentName = null;
+        if (currentBounds != null) {
+            JavaTypeVariable var = typeVariables.get(typeVariables.size() - 1);
+
+            for (Supplier<JavaType> bound : currentBounds)
+                var.addBound(bound.get());
+
             currentBounds = null;
         }
     }

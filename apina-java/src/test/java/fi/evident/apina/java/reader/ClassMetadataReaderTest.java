@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import static fi.evident.apina.java.reader.JavaTypeMatchers.typeWithRepresentation;
+import static fi.evident.apina.java.reader.JavaTypeMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -24,7 +24,7 @@ public class ClassMetadataReaderTest {
         assertThat(fields.size(), is(3));
         assertThat(javaClass.getField("field1").getType(), is(typeWithRepresentation("java.lang.String")));
         assertThat(javaClass.getField("field2").getType(), is(typeWithRepresentation("java.util.List<java.lang.String>")));
-        assertThat(javaClass.getField("field3").getType(), is(typeWithRepresentation("T extends java.lang.CharSequence")));
+        assertThat(javaClass.getField("field3").getType(), is(typeVariable("T", basicType(CharSequence.class))));
     }
 
     private static JavaClass loadClass(Class<?> cl) {
