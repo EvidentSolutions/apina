@@ -14,7 +14,12 @@ import java.util.function.Supplier;
 import static java.util.stream.Collectors.toList;
 
 /**
- * {@link SignatureVisitor} that builds method signature for generic methods.
+ * {@link SignatureVisitor} that resolves generic types for a class:
+ * <ul>
+ *     <li>generic variables with their bounds if class defines any</li>
+ *     <li>generic super-class signature</li>
+ *     <li>generic ignatures of implemented interfaces</li>
+ * </ul>
  */
 final class ClassSignatureVisitor extends SignatureVisitor {
 
