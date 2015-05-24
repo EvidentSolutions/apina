@@ -13,6 +13,7 @@ import static java.util.stream.Collectors.joining;
 
 public final class JavaMethod implements JavaAnnotatedElement {
 
+    private final JavaClass owningClass;
     private final String name;
     private final JavaVisibility visibility;
     private final List<JavaAnnotation> annotations = new ArrayList<>();
@@ -21,13 +22,18 @@ public final class JavaMethod implements JavaAnnotatedElement {
     private final int modifiers;
     private final TypeSchema schema;
 
-    public JavaMethod(String name, JavaVisibility visibility, JavaType returnType, List<JavaParameter> parameters, int modifiers, TypeSchema schema) {
+    public JavaMethod(JavaClass owningClass, String name, JavaVisibility visibility, JavaType returnType, List<JavaParameter> parameters, int modifiers, TypeSchema schema) {
+        this.owningClass = requireNonNull(owningClass);
         this.name = requireNonNull(name);
         this.visibility = requireNonNull(visibility);
         this.returnType = requireNonNull(returnType);
         this.parameters = unmodifiableList(requireNonNull(parameters));
         this.modifiers = modifiers;
         this.schema = requireNonNull(schema);
+    }
+
+    public JavaClass getOwningClass() {
+        return owningClass;
     }
 
     public String getName() {
@@ -44,6 +50,10 @@ public final class JavaMethod implements JavaAnnotatedElement {
 
     public TypeSchema getSchema() {
         return schema;
+    }
+
+    public TypeSchema getEffectiveSchema() {
+        return schema.mergeWithParent(owningClass.getSchema());
     }
 
     public List<JavaParameter> getParameters() {

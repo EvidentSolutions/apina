@@ -18,6 +18,10 @@ public class JavaMethodTest {
     }
 
     private static JavaMethod methodWithModifiers(int modifiers) {
-        return new JavaMethod("foo", JavaVisibility.PUBLIC, new JavaBasicType("java.lang.String"), emptyList(), modifiers, new TypeSchema());
+        return new JavaMethod(arbitraryClass(), "foo", JavaVisibility.PUBLIC, new JavaBasicType("java.lang.String"), emptyList(), modifiers, new TypeSchema());
+    }
+
+    private static JavaClass arbitraryClass() {
+        return new JavaClass(new JavaBasicType("test.Bar"), new JavaBasicType(Object.class), emptyList(), 0, new TypeSchema());
     }
 }

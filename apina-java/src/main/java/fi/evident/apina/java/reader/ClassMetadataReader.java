@@ -104,15 +104,16 @@ final class ClassMetadataReader {
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-            if (getJavaClass().isEnum() && name.equals("<init>")) {
+            JavaClass javaClass = getJavaClass();
+            if (javaClass.isEnum() && name.equals("<init>")) {
                 // Skip constructors of enums
                 return null;
             }
 
             MethodSignature methodSignature = TypeParser.parseMethodSignature(desc, signature);
 
-            JavaMethod method = new JavaMethod(name, parseVisibility(access), methodSignature.getReturnType(), methodSignature.getParameters(), access, methodSignature.getSchema());
-            getJavaClass().addMethod(method);
+            JavaMethod method = new JavaMethod(javaClass, name, parseVisibility(access), methodSignature.getReturnType(), methodSignature.getParameters(), access, methodSignature.getSchema());
+            javaClass.addMethod(method);
             return new MyMethodVisitor(method);
         }
 
