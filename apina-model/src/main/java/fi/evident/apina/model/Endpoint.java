@@ -1,5 +1,7 @@
 package fi.evident.apina.model;
 
+import fi.evident.apina.model.type.ApiType;
+
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
@@ -17,14 +19,14 @@ public final class Endpoint {
     /** URI template for the endpoint */
     private final URITemplate uriTemplate;
 
-    private final Optional<TypeName> requestBody;
+    private final Optional<ApiType> requestBody;
 
-    private final Optional<TypeName> responseBody;
+    private final Optional<ApiType> responseBody;
 
     /** HTTP method for accessing the endpoint */
     private HTTPMethod method = HTTPMethod.GET;
 
-    public Endpoint(String name, URITemplate uriTemplate, Optional<TypeName> requestBody, Optional<TypeName> responseBody) {
+    public Endpoint(String name, URITemplate uriTemplate, Optional<ApiType> requestBody, Optional<ApiType> responseBody) {
         this.name = requireNonNull(name);
         this.uriTemplate = requireNonNull(uriTemplate);
         this.requestBody = requireNonNull(requestBody);
@@ -49,6 +51,6 @@ public final class Endpoint {
 
     @Override
     public String toString() {
-        return name + ": " + uriTemplate + " - " + requestBody.map(TypeName::toString).orElse("{}") + " -> " + responseBody.map(TypeName::toString).orElse("{}");
+        return name + ": " + uriTemplate + " - " + requestBody.map(ApiType::toString).orElse("{}") + " -> " + responseBody.map(ApiType::toString).orElse("{}");
     }
 }

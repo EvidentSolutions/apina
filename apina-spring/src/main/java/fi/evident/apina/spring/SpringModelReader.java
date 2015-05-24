@@ -5,7 +5,11 @@ import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 import fi.evident.apina.java.reader.ClassMetadataCollectionLoader;
 import fi.evident.apina.java.reader.Classpath;
-import fi.evident.apina.model.*;
+import fi.evident.apina.model.ApiDefinition;
+import fi.evident.apina.model.Endpoint;
+import fi.evident.apina.model.EndpointGroup;
+import fi.evident.apina.model.URITemplate;
+import fi.evident.apina.model.type.ApiType;
 
 import java.io.IOException;
 import java.util.List;
@@ -56,32 +60,30 @@ public final class SpringModelReader {
     }
 
     private Endpoint createEndpointForMethod(JavaClass javaClass, JavaMethod method) {
-        Optional<TypeName> requestBody = resolveRequestBody(method);
-        Optional<TypeName> responseBody = resolveResponseBody(method);
+        Optional<ApiType> requestBody = resolveRequestBody(method);
+        Optional<ApiType> responseBody = resolveResponseBody(method);
 
         return new Endpoint(method.getName(), resolveUriTemplate(javaClass, method), requestBody, responseBody);
     }
 
-    private Optional<TypeName> resolveResponseBody(JavaMethod method) {
+    private Optional<ApiType> resolveResponseBody(JavaMethod method) {
         JavaType returnType = method.getReturnType();
 
-        if (!returnType.isVoid())
-            return Optional.of(resolveDataType(returnType));
-        else
+        if (!returnType.isVoid()) {
+            TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema());
+            return Optional.of(typeTranslator.resolveDataType(returnType));
+        } else {
             return Optional.empty();
+        }
     }
 
-    private Optional<TypeName> resolveRequestBody(JavaMethod method) {
+    private Optional<ApiType> resolveRequestBody(JavaMethod method) {
+        TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema());
         return method.getParameters().stream()
                 .filter(p -> p.hasAnnotation(REQUEST_BODY))
                 .map(JavaParameter::getType)
-                .map(this::resolveDataType)
+                .map(typeTranslator::resolveDataType)
                 .findAny();
-    }
-
-    private TypeName resolveDataType(JavaType javaType) {
-        // TODO: resolve the JavaClass based on javaType, build apina-model -compatible representation for it, and register it
-        return new TypeName(javaType.toString());
     }
 
     private static URITemplate resolveUriTemplate(JavaClass javaClass, JavaMethod method) {

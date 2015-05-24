@@ -1,15 +1,15 @@
-package fi.evident.apina.model;
+package fi.evident.apina.model.type;
 
 import static java.util.Objects.requireNonNull;
 
 /**
  * Qualified name for a type.
  */
-public final class TypeName {
+public final class ApiBasicType extends ApiType {
 
     private final String name;
 
-    public TypeName(String name) {
+    public ApiBasicType(String name) {
         this.name = requireNonNull(name);
     }
 
@@ -18,9 +18,9 @@ public final class TypeName {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TypeName typeName = (TypeName) o;
+        ApiBasicType apiBasicType = (ApiBasicType) o;
 
-        return name.equals(typeName.name);
+        return name.equals(apiBasicType.name);
     }
 
     @Override
