@@ -17,6 +17,10 @@ public final class JavaBasicType extends JavaType {
         this.name = requireNonNull(cl.getName());
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public <C, R> R accept(JavaTypeVisitor<C, R> visitor, C ctx) {
         return visitor.visit(this, ctx);
