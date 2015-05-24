@@ -15,6 +15,11 @@ public final class JavaTypeVariable extends JavaType {
     }
 
     @Override
+    public <C, R> R accept(JavaTypeVisitor<C, R> visitor, C ctx) {
+        return visitor.visit(this, ctx);
+    }
+
+    @Override
     public String toString() {
         return name;
     }

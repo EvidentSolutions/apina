@@ -15,6 +15,11 @@ public final class JavaArrayType extends JavaType {
     }
 
     @Override
+    public <C, R> R accept(JavaTypeVisitor<C, R> visitor, C ctx) {
+        return visitor.visit(this, ctx);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

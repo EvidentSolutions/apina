@@ -16,6 +16,8 @@ public abstract class JavaType {
         return false;
     }
 
+    public abstract <C,R> R accept(JavaTypeVisitor<C,R> visitor, C ctx);
+
     // Force subclass to implement equals, hashCode and toString since we really want them for all types
 
     @Override
