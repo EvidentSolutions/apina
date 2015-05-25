@@ -50,21 +50,8 @@ configure(subprojects) { project ->
     }
 }
 
-project(':apina-tsang') {
-    dependencies {
-        compile project(':apina-model')
-    }
-}
-
-project(':apina-java') {
+project(':apina-core') {
     dependencies {
         compile "org.ow2.asm:asm:5.0.4"
-    }
-}
-
-project(':apina-spring') {
-    dependencies {
-        compile project(':apina-model')
-        compile project(':apina-java')
     }
 }

@@ -4,9 +4,7 @@ plugins {
 }
 
 dependencies {
-    compile project(':apina-model')
-    compile project(':apina-spring')
-    compile project(':apina-tsang')
+    compile project(':apina-core')
     compile "ch.qos.logback:logback-classic:1.1.3"
 }
 

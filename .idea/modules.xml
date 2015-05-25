@@ -4,10 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/apina.iml" filepath="$PROJECT_DIR$/apina.iml" />
       <module fileurl="file://$PROJECT_DIR$/apina-cli/apina-cli.iml" filepath="$PROJECT_DIR$/apina-cli/apina-cli.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apina-java/apina-java.iml" filepath="$PROJECT_DIR$/apina-java/apina-java.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apina-model/apina-model.iml" filepath="$PROJECT_DIR$/apina-model/apina-model.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apina-spring/apina-spring.iml" filepath="$PROJECT_DIR$/apina-spring/apina-spring.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apina-tsang/apina-tsang.iml" filepath="$PROJECT_DIR$/apina-tsang/apina-tsang.iml" />
+      <module fileurl="file://$PROJECT_DIR$/apina-core/apina-core.iml" filepath="$PROJECT_DIR$/apina-core/apina-core.iml" />
     </modules>
   </component>
 </project>
