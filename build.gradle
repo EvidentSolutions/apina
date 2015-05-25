@@ -68,12 +68,3 @@ project(':apina-spring') {
         compile project(':apina-java')
     }
 }
-
-project(':apina-cli') {
-    dependencies {
-        compile project(':apina-model')
-        compile project(':apina-spring')
-        compile project(':apina-tsang')
-        compile "ch.qos.logback:logback-classic:1.1.3"
-    }
-}
