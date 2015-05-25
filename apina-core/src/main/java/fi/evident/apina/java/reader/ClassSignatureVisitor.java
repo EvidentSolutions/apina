@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static java.util.stream.Collectors.toList;
+import static fi.evident.apina.utils.CollectionUtils.map;
 
 /**
  * {@link SignatureVisitor} that resolves generic types for a class:
@@ -61,7 +61,7 @@ final class ClassSignatureVisitor extends SignatureVisitor {
     }
 
     public List<JavaType> getInterfaces() {
-        return interfaceBuilders.stream().map(Supplier::get).collect(toList());
+        return map(interfaceBuilders, Supplier::get);
     }
 
     @Override

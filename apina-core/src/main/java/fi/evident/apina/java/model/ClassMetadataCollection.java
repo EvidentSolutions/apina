@@ -5,7 +5,7 @@ import fi.evident.apina.java.model.type.JavaType;
 
 import java.util.*;
 
-import static java.util.stream.Collectors.toList;
+import static fi.evident.apina.utils.CollectionUtils.filter;
 
 /**
  * Contains metadata for all loaded classes.
@@ -24,9 +24,7 @@ public final class ClassMetadataCollection {
     }
 
     public List<JavaClass> findClassesWithAnnotation(JavaBasicType annotationType) {
-        return classes.values().stream()
-                .filter(c -> c.hasAnnotation(annotationType))
-                .collect(toList());
+        return filter(classes.values(), c -> c.hasAnnotation(annotationType));
     }
 
     public boolean isInstanceOf(JavaType type, Class<?> requiredType) {

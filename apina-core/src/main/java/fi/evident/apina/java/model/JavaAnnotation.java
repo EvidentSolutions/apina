@@ -3,13 +3,12 @@ package fi.evident.apina.java.model;
 import fi.evident.apina.java.model.type.JavaBasicType;
 
 import java.util.*;
-import java.util.stream.Stream;
 
+import static fi.evident.apina.utils.CollectionUtils.join;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
 
 public final class JavaAnnotation {
 
@@ -107,7 +106,7 @@ public final class JavaAnnotation {
             if (array.length == 1)
                 writePrimitive(sb, array[0]);
             else
-                sb.append(Stream.of(array).map(Object::toString).collect(joining(",", "{", "}")));
+                sb.append(join(array, ",", "{", "}"));
         } else {
             writePrimitive(sb, value);
         }

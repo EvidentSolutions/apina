@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static fi.evident.apina.utils.CollectionUtils.join;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
 
 /**
  * API endpoint reachable at an URL using given method and parameters. An example
@@ -63,6 +63,11 @@ public final class Endpoint {
 
     @Override
     public String toString() {
-        return responseBody.map(ApiType::toString).orElse("void") + " " + name + parameters.stream().map(EndpointParameter::toString).collect(joining(", ", "(", ")")) + ": " + method + " " + uriTemplate;
+        return String.format("%s %s(%s): %s %s",
+                responseBody.map(ApiType::toString).orElse("void"),
+                name,
+                join(parameters, ", "),
+                method,
+                uriTemplate);
     }
 }

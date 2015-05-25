@@ -12,10 +12,9 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
+import static fi.evident.apina.utils.CollectionUtils.map;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Reads class metadata.
@@ -80,7 +79,7 @@ final class ClassMetadataReader {
 
             } else {
                 superType = TypeParser.parseObjectType(superName);
-                interfaceTypes = Stream.of(interfaces).map(TypeParser::parseObjectType).collect(toList());
+                interfaceTypes = map(interfaces, TypeParser::parseObjectType);
                 schema = new TypeSchema();
             }
 

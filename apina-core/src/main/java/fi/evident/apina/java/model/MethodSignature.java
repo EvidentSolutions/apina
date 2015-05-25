@@ -5,9 +5,9 @@ import fi.evident.apina.java.model.type.TypeSchema;
 
 import java.util.List;
 
+import static fi.evident.apina.utils.CollectionUtils.map;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Contains parameter types and return types of a method.
@@ -33,7 +33,7 @@ public final class MethodSignature {
     }
 
     public List<JavaParameter> getParameters() {
-        return argumentTypes.stream().map(JavaParameter::new).collect(toList());
+        return map(argumentTypes, JavaParameter::new);
     }
 
     public TypeSchema getSchema() {

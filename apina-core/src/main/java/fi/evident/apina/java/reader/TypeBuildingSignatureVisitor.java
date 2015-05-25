@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static java.util.stream.Collectors.toList;
+import static fi.evident.apina.utils.CollectionUtils.map;
 
 /**
  * {@link SignatureVisitor} implementation that visits the type hierarchy to build generic types.
@@ -38,7 +38,7 @@ final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Sup
         if (builder == null)
             throw new IllegalStateException("no builder defined for visitor");
 
-        List<JavaType> argumentTypes = arguments.stream().map(Supplier::get).collect(toList());
+        List<JavaType> argumentTypes = map(arguments, Supplier::get);
 
         return builder.apply(argumentTypes);
     }

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static fi.evident.apina.utils.CollectionUtils.join;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
 
 /**
  * Represents a generic Java type, like {@link java.lang.reflect.ParameterizedType}.
@@ -54,6 +54,6 @@ public final class JavaParameterizedType extends JavaType {
 
     @Override
     public String toString() {
-        return baseType + arguments.stream().map(JavaType::toString).collect(joining(", ", "<", ">"));
+        return baseType + join(arguments, ", ", "<", ">");
     }
 }

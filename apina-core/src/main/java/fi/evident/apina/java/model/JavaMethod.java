@@ -7,9 +7,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fi.evident.apina.utils.CollectionUtils.join;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
 
 public final class JavaMethod implements JavaAnnotatedElement {
 
@@ -83,6 +83,6 @@ public final class JavaMethod implements JavaAnnotatedElement {
 
     @Override
     public String toString() {
-        return visibility + " " + returnType + " " + name + parameters.stream().map(JavaParameter::toString).collect(joining(", ", "(", ")"));
+        return visibility + " " + returnType + " " + name + join(parameters, ",", "(", ")");
     }
 }

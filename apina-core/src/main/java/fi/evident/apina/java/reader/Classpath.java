@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static fi.evident.apina.utils.CollectionUtils.join;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
 
 public final class Classpath {
 
@@ -35,8 +35,6 @@ public final class Classpath {
 
     @Override
     public String toString() {
-        return roots.stream()
-                .map(Path::toString)
-                .collect(joining(File.pathSeparator));
+        return join(roots, File.pathSeparator);
     }
 }

@@ -11,9 +11,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 
 import java.util.List;
-import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
+import static fi.evident.apina.utils.CollectionUtils.map;
 
 /**
  * Parses Java's internal type names, descriptors and signatures into
@@ -67,9 +66,7 @@ final class TypeParser {
         Type methodType = Type.getMethodType(methodDescriptor);
 
         JavaType returnType = javaType(methodType.getReturnType());
-        List<JavaType> argumentTypes = Stream.of(methodType.getArgumentTypes())
-                .map(TypeParser::javaType)
-                .collect(toList());
+        List<JavaType> argumentTypes = map(methodType.getArgumentTypes(), TypeParser::javaType);
 
         return new MethodSignature(returnType, argumentTypes, new TypeSchema());
     }

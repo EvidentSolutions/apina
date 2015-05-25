@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static java.util.stream.Collectors.toList;
+import static fi.evident.apina.utils.CollectionUtils.map;
 
 /**
  * {@link SignatureVisitor} that builds method signature for generic methods.
@@ -74,7 +74,7 @@ final class MethodSignatureVisitor extends SignatureVisitor implements Supplier<
 
         return new MethodSignature(
                 returnTypeBuilder.get(),
-                parameterTypeBuilders.stream().map(Supplier::get).collect(toList()),
+                map(parameterTypeBuilders, Supplier::get),
                 typeSchemaBuilder.getSchema());
     }
 
