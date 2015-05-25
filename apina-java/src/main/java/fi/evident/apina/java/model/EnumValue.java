@@ -15,6 +15,10 @@ public final class EnumValue {
         this.constant = requireNonNull(constant);
     }
 
+    public String getConstant() {
+        return constant;
+    }
+
     @Override
     public String toString() {
         return enumType + "." + constant;

@@ -63,6 +63,6 @@ public final class Endpoint {
 
     @Override
     public String toString() {
-        return responseBody.map(ApiType::toString).orElse("void") + " " + name + parameters.stream().map(EndpointParameter::toString).collect(joining(", ", "(", ")")) + ": " + uriTemplate;
+        return responseBody.map(ApiType::toString).orElse("void") + " " + name + parameters.stream().map(EndpointParameter::toString).collect(joining(", ", "(", ")")) + ": " + method + " " + uriTemplate;
     }
 }

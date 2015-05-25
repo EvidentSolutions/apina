@@ -5,10 +5,7 @@ import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 import fi.evident.apina.java.reader.ClassMetadataCollectionLoader;
 import fi.evident.apina.java.reader.Classpath;
-import fi.evident.apina.model.ApiDefinition;
-import fi.evident.apina.model.Endpoint;
-import fi.evident.apina.model.EndpointGroup;
-import fi.evident.apina.model.URITemplate;
+import fi.evident.apina.model.*;
 import fi.evident.apina.model.parameters.EndpointParameter;
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
 import fi.evident.apina.model.parameters.EndpointRequestBodyParameter;
@@ -16,11 +13,9 @@ import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
 import fi.evident.apina.model.type.ApiType;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 import static fi.evident.apina.spring.SpringUriTemplateParser.parseUriTemplate;
-import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -70,6 +65,7 @@ public final class SpringModelReader {
         Optional<ApiType> responseBody = resolveResponseBody(method);
 
         Endpoint endpoint = new Endpoint(method.getName(), resolveUriTemplate(method), responseBody);
+        resolveRequestMethod(method).ifPresent(endpoint::setMethod);
 
         TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema());
         for (JavaParameter parameter : method.getParameters())
@@ -109,6 +105,19 @@ public final class SpringModelReader {
         }
     }
 
+    private static Optional<HTTPMethod> resolveRequestMethod(JavaMethod javaMethod) {
+        Optional<HTTPMethod> method = findHttpMethod(javaMethod);
+        if (method.isPresent())
+            return method;
+        else
+            return findHttpMethod(javaMethod.getOwningClass());
+    }
+
+    private static Optional<HTTPMethod> findHttpMethod(JavaAnnotatedElement element) {
+        return element.findUniqueAnnotationAttributeValue(REQUEST_MAPPING, "method", EnumValue.class)
+                .map(v -> HTTPMethod.valueOf(v.getConstant()));
+    }
+
     private static URITemplate resolveUriTemplate(JavaMethod method) {
         String classUrl = findRequestMappingPath(method.getOwningClass());
         String methodUrl = findRequestMappingPath(method);
@@ -117,13 +126,6 @@ public final class SpringModelReader {
     }
 
     private static String findRequestMappingPath(JavaAnnotatedElement element) {
-        List<Object> values = element.findAnnotation(REQUEST_MAPPING).map(a -> a.getAttributeValues("value")).orElse(emptyList());
-
-        if (values.isEmpty())
-            return "";
-        else if (values.size() == 1)
-            return (String) values.get(0);
-        else
-            throw new RuntimeException("@RequestMapping -annotations with multiple values are not supported");
+        return element.findUniqueAnnotationAttributeValue(REQUEST_MAPPING, "value", String.class).orElse("");
     }
 }
