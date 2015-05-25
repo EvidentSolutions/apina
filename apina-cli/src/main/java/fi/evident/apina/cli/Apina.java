@@ -7,23 +7,20 @@ import fi.evident.apina.tsang.AngularTypeScriptWriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public final class Apina {
 
     public static void main(String[] args) {
-        if (args.length < 2) {
-            System.err.printf("usage: apina INPUT1%sINPUT2%s... OUTPUT\n", File.pathSeparator, File.pathSeparator);
+        if (args.length != 1) {
+            System.err.printf("usage: apina INPUT1%sINPUT2%s...\n", File.pathSeparator, File.pathSeparator);
             System.exit(1);
         }
 
         try {
             Classpath classpath = Classpath.parse(args[0]);
-            Path output = Paths.get(args[1]);
 
             ApiDefinition api = SpringModelReader.readApiDefinition(classpath);
-            AngularTypeScriptWriter.writeModel(output, api);
+            AngularTypeScriptWriter.printModel(api);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
