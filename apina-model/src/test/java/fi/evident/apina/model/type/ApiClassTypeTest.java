@@ -6,11 +6,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-public class ApiBasicTypeTest {
+public class ApiClassTypeTest {
 
     @Test
     public void equality() {
-        assertThat(new ApiBasicType("foo.Bar"), is(new ApiBasicType("foo.Bar")));
-        assertThat(new ApiBasicType("foo.Bar"), is(not(new ApiBasicType("foo.Baz"))));
+        assertThat(new ApiClassType("foo.Bar"), is(new ApiClassType("foo.Bar")));
+        assertThat(new ApiClassType("foo.Bar"), is(not(new ApiClassType("foo.Baz"))));
     }
 }

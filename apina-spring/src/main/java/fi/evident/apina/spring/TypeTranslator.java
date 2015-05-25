@@ -3,7 +3,7 @@ package fi.evident.apina.spring;
 import fi.evident.apina.java.model.ClassMetadataCollection;
 import fi.evident.apina.java.model.type.*;
 import fi.evident.apina.model.type.ApiArrayType;
-import fi.evident.apina.model.type.ApiBasicType;
+import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.model.type.ApiPrimitiveType;
 import fi.evident.apina.model.type.ApiType;
 
@@ -52,7 +52,7 @@ final class TypeTranslator {
                     return ApiPrimitiveType.VOID;
 
                 } else {
-                    return new ApiBasicType(translateName(type.getName()));
+                    return new ApiClassType(translateName(type.getName()));
                 }
             }
 

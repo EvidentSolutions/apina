@@ -3,13 +3,13 @@ package fi.evident.apina.model.type;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Qualified name for a type.
+ * Represents class types.
  */
-public final class ApiBasicType extends ApiType {
+public final class ApiClassType extends ApiType {
 
     private final String name;
 
-    public ApiBasicType(String name) {
+    public ApiClassType(String name) {
         this.name = requireNonNull(name);
     }
 
@@ -18,9 +18,9 @@ public final class ApiBasicType extends ApiType {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ApiBasicType apiBasicType = (ApiBasicType) o;
+        ApiClassType apiClassType = (ApiClassType) o;
 
-        return name.equals(apiBasicType.name);
+        return name.equals(apiClassType.name);
     }
 
     @Override
