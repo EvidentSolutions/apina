@@ -59,17 +59,17 @@ public final class SpringModelReader {
 
         for (JavaMethod method : javaClass.getMethods()) {
             if (method.getVisibility() == JavaVisibility.PUBLIC && !method.isStatic() && method.hasAnnotation(REQUEST_MAPPING)) {
-                endpointGroup.addEndpoint(createEndpointForMethod(javaClass, method));
+                endpointGroup.addEndpoint(createEndpointForMethod(method));
             }
         }
 
         return endpointGroup;
     }
 
-    private Endpoint createEndpointForMethod(JavaClass javaClass, JavaMethod method) {
+    private Endpoint createEndpointForMethod(JavaMethod method) {
         Optional<ApiType> responseBody = resolveResponseBody(method);
 
-        Endpoint endpoint = new Endpoint(method.getName(), resolveUriTemplate(javaClass, method), responseBody);
+        Endpoint endpoint = new Endpoint(method.getName(), resolveUriTemplate(method), responseBody);
 
         TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema());
         for (JavaParameter parameter : method.getParameters())
@@ -78,7 +78,7 @@ public final class SpringModelReader {
         return endpoint;
     }
 
-    private Optional<EndpointParameter> parseParameter(TypeTranslator typeTranslator, JavaParameter parameter) {
+    private static Optional<EndpointParameter> parseParameter(TypeTranslator typeTranslator, JavaParameter parameter) {
         String name = parameter.getName().orElse("?");
         ApiType type = typeTranslator.resolveDataType(parameter.getType());
 
@@ -109,8 +109,8 @@ public final class SpringModelReader {
         }
     }
 
-    private static URITemplate resolveUriTemplate(JavaClass javaClass, JavaMethod method) {
-        String classUrl = findRequestMappingPath(javaClass);
+    private static URITemplate resolveUriTemplate(JavaMethod method) {
+        String classUrl = findRequestMappingPath(method.getOwningClass());
         String methodUrl = findRequestMappingPath(method);
 
         return parseUriTemplate(classUrl + methodUrl);
