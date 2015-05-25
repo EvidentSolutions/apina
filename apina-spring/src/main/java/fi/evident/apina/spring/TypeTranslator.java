@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Math.max;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -84,11 +85,11 @@ final class TypeTranslator {
         }, schema);
     }
 
-    private static String translateName(String qualifiedName) {
+    static String translateName(String qualifiedName) {
         // TODO: smarter translation
-        int lastDot = qualifiedName.lastIndexOf('.');
+        int lastDot = max(qualifiedName.lastIndexOf('.'), qualifiedName.lastIndexOf('$'));
         if (lastDot != -1)
-            return qualifiedName.substring(lastDot+1);
+            return qualifiedName.substring(lastDot + 1);
         else
             return qualifiedName;
     }
