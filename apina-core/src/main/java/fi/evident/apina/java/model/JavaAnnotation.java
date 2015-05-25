@@ -100,7 +100,7 @@ public final class JavaAnnotation {
         return sb.toString();
     }
 
-    private void writeValue(StringBuilder sb, Object value) {
+    private static void writeValue(StringBuilder sb, Object value) {
         if (value instanceof Object[]) {
             Object[] array = (Object[]) value;
 
@@ -113,7 +113,7 @@ public final class JavaAnnotation {
         }
     }
 
-    private void writePrimitive(StringBuilder sb, Object value) {
+    private static void writePrimitive(StringBuilder sb, Object value) {
         if (value instanceof String) {
             String s = (String) value;
             sb.append('"').append(s.replace("\"", "\\\"")).append('"');
