@@ -12,13 +12,16 @@ import static java.util.Objects.requireNonNull;
  */
 public final class EndpointGroup {
 
-    /** Name of the original source element that specifies this endpoint group */
     private final String name;
+
+    /** Name of the original source element that specifies this endpoint group */
+    private final String originalName;
 
     private final Collection<Endpoint> endpoints = new ArrayList<>();
 
-    public EndpointGroup(String name) {
+    public EndpointGroup(String name, String originalName) {
         this.name = requireNonNull(name);
+        this.originalName = requireNonNull(originalName);
     }
 
     public void addEndpoint(Endpoint endpoint) {
@@ -31,6 +34,10 @@ public final class EndpointGroup {
 
     public String getName() {
         return name;
+    }
+
+    public String getOriginalName() {
+        return originalName;
     }
 
     @Override

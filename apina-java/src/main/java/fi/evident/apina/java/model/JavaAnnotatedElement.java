@@ -18,4 +18,8 @@ public interface JavaAnnotatedElement {
                 .filter(a -> annotationType.equals(a.getName()))
                 .findFirst();
     }
+
+    default JavaAnnotation getAnnotation(JavaBasicType annotationType) {
+        return findAnnotation(annotationType).orElseThrow(() -> new IllegalArgumentException("annotation not present : " + annotationType));
+    }
 }

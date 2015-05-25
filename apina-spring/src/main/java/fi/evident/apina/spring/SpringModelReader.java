@@ -9,6 +9,10 @@ import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.Endpoint;
 import fi.evident.apina.model.EndpointGroup;
 import fi.evident.apina.model.URITemplate;
+import fi.evident.apina.model.parameters.EndpointParameter;
+import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
+import fi.evident.apina.model.parameters.EndpointRequestBodyParameter;
+import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
 import fi.evident.apina.model.type.ApiType;
 
 import java.io.IOException;
@@ -29,6 +33,8 @@ public final class SpringModelReader {
     private static final JavaBasicType REST_CONTROLLER = new JavaBasicType("org.springframework.web.bind.annotation.RestController");
     private static final JavaBasicType REQUEST_MAPPING = new JavaBasicType("org.springframework.web.bind.annotation.RequestMapping");
     private static final JavaBasicType REQUEST_BODY = new JavaBasicType("org.springframework.web.bind.annotation.RequestBody");
+    private static final JavaBasicType REQUEST_PARAM = new JavaBasicType("org.springframework.web.bind.annotation.RequestParam");
+    private static final JavaBasicType PATH_VARIABLE = new JavaBasicType("org.springframework.web.bind.annotation.PathVariable");
 
     private SpringModelReader(ClassMetadataCollection classes) {
         this.classes = requireNonNull(classes);
@@ -48,7 +54,7 @@ public final class SpringModelReader {
     }
 
     private EndpointGroup createEndpointGroupForController(JavaClass javaClass) {
-        EndpointGroup endpointGroup = new EndpointGroup(javaClass.getName());
+        EndpointGroup endpointGroup = new EndpointGroup(TypeTranslator.translateName(javaClass.getName()), javaClass.getName());
 
         for (JavaMethod method : javaClass.getMethods()) {
             if (method.getVisibility() == JavaVisibility.PUBLIC && !method.isStatic() && method.hasAnnotation(REQUEST_MAPPING)) {
@@ -60,10 +66,35 @@ public final class SpringModelReader {
     }
 
     private Endpoint createEndpointForMethod(JavaClass javaClass, JavaMethod method) {
-        Optional<ApiType> requestBody = resolveRequestBody(method);
         Optional<ApiType> responseBody = resolveResponseBody(method);
 
-        return new Endpoint(method.getName(), resolveUriTemplate(javaClass, method), requestBody, responseBody);
+        Endpoint endpoint = new Endpoint(method.getName(), resolveUriTemplate(javaClass, method), responseBody);
+
+        TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema());
+        for (JavaParameter parameter : method.getParameters())
+            parseParameter(typeTranslator, parameter).ifPresent(endpoint::addParameter);
+
+        return endpoint;
+    }
+
+    private Optional<EndpointParameter> parseParameter(TypeTranslator typeTranslator, JavaParameter parameter) {
+        String name = parameter.getName().orElse("?");
+        ApiType type = typeTranslator.resolveDataType(parameter.getType());
+
+        if (parameter.hasAnnotation(REQUEST_BODY)) {
+            return Optional.of(new EndpointRequestBodyParameter(name, type));
+
+        } else if (parameter.hasAnnotation(REQUEST_PARAM)) {
+            Optional<String> requestParam = parameter.getAnnotation(REQUEST_PARAM).getAttribute("value", String.class);
+            return Optional.of(new EndpointRequestParamParameter(name, requestParam, type));
+
+        } else if (parameter.hasAnnotation(PATH_VARIABLE)) {
+            Optional<String> pathVariable = parameter.getAnnotation(PATH_VARIABLE).getAttribute("value", String.class);
+            return Optional.of(new EndpointPathVariableParameter(name, pathVariable, type));
+
+        } else {
+            return Optional.empty();
+        }
     }
 
     private Optional<ApiType> resolveResponseBody(JavaMethod method) {
@@ -75,15 +106,6 @@ public final class SpringModelReader {
         } else {
             return Optional.empty();
         }
-    }
-
-    private Optional<ApiType> resolveRequestBody(JavaMethod method) {
-        TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema());
-        return method.getParameters().stream()
-                .filter(p -> p.hasAnnotation(REQUEST_BODY))
-                .map(JavaParameter::getType)
-                .map(typeTranslator::resolveDataType)
-                .findAny();
     }
 
     private static URITemplate resolveUriTemplate(JavaClass javaClass, JavaMethod method) {

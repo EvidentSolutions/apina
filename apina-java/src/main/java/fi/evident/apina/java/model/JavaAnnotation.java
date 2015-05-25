@@ -45,6 +45,10 @@ public final class JavaAnnotation {
         return Optional.ofNullable(attributes.get(name));
     }
 
+    public <T> Optional<T> getAttribute(String name, Class<T> type) {
+        return Optional.ofNullable(type.cast(attributes.get(name)));
+    }
+
     public List<Object> getAttributeValues(String name) {
         Object value = attributes.get(name);
         if (value == null)
