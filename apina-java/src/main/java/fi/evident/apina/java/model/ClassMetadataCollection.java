@@ -3,10 +3,7 @@ package fi.evident.apina.java.model;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -20,6 +17,10 @@ public final class ClassMetadataCollection {
     public ClassMetadataCollection(Collection<JavaClass> classes) {
         for (JavaClass aClass : classes)
             this.classes.put(aClass.getType(), aClass);
+    }
+
+    public Optional<JavaClass> findClass(JavaType type) {
+        return Optional.ofNullable(classes.get(type));
     }
 
     public List<JavaClass> findClassesWithAnnotation(JavaBasicType annotationType) {

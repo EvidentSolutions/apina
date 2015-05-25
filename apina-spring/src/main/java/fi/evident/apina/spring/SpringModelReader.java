@@ -52,11 +52,10 @@ public final class SpringModelReader {
     private EndpointGroup createEndpointGroupForController(JavaClass javaClass) {
         EndpointGroup endpointGroup = new EndpointGroup(TypeTranslator.translateName(javaClass.getName()), javaClass.getName());
 
-        for (JavaMethod method : javaClass.getMethods()) {
-            if (method.getVisibility() == JavaVisibility.PUBLIC && !method.isStatic() && method.hasAnnotation(REQUEST_MAPPING)) {
-                endpointGroup.addEndpoint(createEndpointForMethod(method));
-            }
-        }
+        javaClass.getPublicMethods()
+                .filter(m -> !m.isStatic() && m.hasAnnotation(REQUEST_MAPPING))
+                .map(this::createEndpointForMethod)
+                .forEach(endpointGroup::addEndpoint);
 
         return endpointGroup;
     }
@@ -67,7 +66,7 @@ public final class SpringModelReader {
         Endpoint endpoint = new Endpoint(method.getName(), resolveUriTemplate(method), responseBody);
         resolveRequestMethod(method).ifPresent(endpoint::setMethod);
 
-        TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema());
+        TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema(), api);
         for (JavaParameter parameter : method.getParameters())
             parseParameter(typeTranslator, parameter).ifPresent(endpoint::addParameter);
 
@@ -98,7 +97,7 @@ public final class SpringModelReader {
         JavaType returnType = method.getReturnType();
 
         if (!returnType.isVoid()) {
-            TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema());
+            TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema(), api);
             return Optional.of(typeTranslator.resolveDataType(returnType));
         } else {
             return Optional.empty();

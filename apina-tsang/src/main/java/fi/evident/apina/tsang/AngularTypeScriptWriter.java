@@ -1,17 +1,34 @@
 package fi.evident.apina.tsang;
 
-import fi.evident.apina.model.ApiDefinition;
-import fi.evident.apina.model.Endpoint;
-import fi.evident.apina.model.EndpointGroup;
+import fi.evident.apina.model.*;
+
+import java.util.Collection;
 
 public final class AngularTypeScriptWriter {
 
     public static void printModel(ApiDefinition api) {
-        for (EndpointGroup endpointGroup : api.getEndpointGroups()) {
+        printEndpoints(api.getEndpointGroups());
+        System.out.println();
+        printClassDefinitions(api.getClassDefinitions());
+    }
+
+    private static void printEndpoints(Collection<EndpointGroup> endpointGroups) {
+        for (EndpointGroup endpointGroup : endpointGroups) {
             System.out.println(endpointGroup.getName());
             for (Endpoint endpoint : endpointGroup.getEndpoints()) {
                 System.out.println("    " + endpoint);
             }
+        }
+    }
+
+    private static void printClassDefinitions(Collection<ClassDefinition> classDefinitions) {
+        for (ClassDefinition classDefinition : classDefinitions) {
+            System.out.println("interface " + classDefinition.getType() + " {");
+            for (PropertyDefinition property : classDefinition.getProperties()) {
+                System.out.println("    " + property);
+            }
+            System.out.println("}");
+            System.out.println();
         }
     }
 }
