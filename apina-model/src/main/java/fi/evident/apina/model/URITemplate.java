@@ -14,6 +14,20 @@ public final class URITemplate {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        URITemplate that = (URITemplate) o;
+
+        return template.equals(that.template);
+    }
+
+    @Override
+    public int hashCode() {
+        return template.hashCode();
+    }
+
+    @Override
     public String toString() {
         return template;
     }
