@@ -40,6 +40,14 @@ public final class JavaMethod implements JavaAnnotatedElement {
         return name;
     }
 
+    public boolean isPublic() {
+        return visibility == JavaVisibility.PUBLIC;
+    }
+
+    public boolean isGetter() {
+        return !isStatic() && parameters.isEmpty() && name.startsWith("get");
+    }
+
     public JavaVisibility getVisibility() {
         return visibility;
     }

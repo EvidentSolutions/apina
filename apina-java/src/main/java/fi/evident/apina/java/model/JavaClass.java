@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
@@ -56,8 +57,16 @@ public final class JavaClass implements JavaAnnotatedElement {
         return unmodifiableList(fields);
     }
 
+    public Stream<JavaField> getPublicFields() {
+        return fields.stream().filter(JavaField::isPublic);
+    }
+
     public List<JavaMethod> getMethods() {
         return unmodifiableList(methods);
+    }
+
+    public Stream<JavaMethod> getPublicMethods() {
+        return methods.stream().filter(JavaMethod::isPublic);
     }
 
     @Override

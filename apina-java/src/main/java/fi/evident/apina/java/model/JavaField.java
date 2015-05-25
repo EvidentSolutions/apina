@@ -32,6 +32,10 @@ public final class JavaField implements JavaAnnotatedElement {
         return visibility;
     }
 
+    public boolean isPublic() {
+        return visibility == JavaVisibility.PUBLIC;
+    }
+
     public JavaType getType() {
         return type;
     }
