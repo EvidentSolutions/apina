@@ -22,4 +22,9 @@ public interface JavaAnnotatedElement {
     default JavaAnnotation getAnnotation(JavaBasicType annotationType) {
         return findAnnotation(annotationType).orElseThrow(() -> new IllegalArgumentException("annotation not present : " + annotationType));
     }
+
+    default <T> Optional<T> findUniqueAnnotationAttributeValue(JavaBasicType annotationType, String attributeName, Class<T> type) {
+        return findAnnotation(annotationType).flatMap(a -> a.findUniqueAttributeValue(attributeName, type));
+    }
+
 }

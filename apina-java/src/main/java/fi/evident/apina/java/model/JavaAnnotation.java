@@ -59,6 +59,17 @@ public final class JavaAnnotation {
             return singletonList(value);
     }
 
+    public <T> Optional<T> findUniqueAttributeValue(String name, Class<T> type) {
+        List<Object> values = getAttributeValues(name);
+
+        if (values.isEmpty())
+            return Optional.empty();
+        else if (values.size() == 1)
+            return Optional.of(type.cast(values.get(0)));
+        else
+            throw new IllegalArgumentException("multiple values for " + name + " in " + this);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
