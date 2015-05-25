@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import static fi.evident.apina.spring.SpringUriTemplateParser.parseUriTemplate;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
@@ -111,11 +112,8 @@ public final class SpringModelReader {
     private static URITemplate resolveUriTemplate(JavaClass javaClass, JavaMethod method) {
         String classUrl = findRequestMappingPath(javaClass);
         String methodUrl = findRequestMappingPath(method);
-        String springPathTemplate = classUrl + methodUrl;
 
-        // TODO: parse spring-templates so that we can create a proper URITemplate
-
-        return new URITemplate(springPathTemplate);
+        return parseUriTemplate(classUrl + methodUrl);
     }
 
     private static String findRequestMappingPath(JavaAnnotatedElement element) {
