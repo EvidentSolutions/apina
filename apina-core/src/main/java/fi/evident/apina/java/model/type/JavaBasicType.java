@@ -7,6 +7,12 @@ import static java.util.Objects.requireNonNull;
  */
 public final class JavaBasicType extends JavaType {
 
+    public static JavaBasicType INT = new JavaBasicType("int");
+    public static JavaBasicType SHORT = new JavaBasicType("short");
+    public static JavaBasicType LONG = new JavaBasicType("long");
+    public static JavaBasicType FLOAT = new JavaBasicType("float");
+    public static JavaBasicType DOUBLE = new JavaBasicType("double");
+
     public final String name;
 
     public JavaBasicType(String name) {
@@ -48,6 +54,14 @@ public final class JavaBasicType extends JavaType {
 
     public JavaBasicType toBasicType() {
         return this;
+    }
+
+    public boolean isPrimitiveNumber() {
+        return this.equals(INT)
+                || this.equals(SHORT)
+                || this.equals(LONG)
+                || this.equals(FLOAT)
+                || this.equals(DOUBLE);
     }
 
     @Override

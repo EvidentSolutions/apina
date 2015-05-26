@@ -47,4 +47,8 @@ public final class ClassMetadataCollection {
             return false;
         }
     }
+
+    public boolean isNumber(JavaBasicType type) {
+        return type.isPrimitiveNumber() || isInstanceOf(type, Number.class);
+    }
 }
