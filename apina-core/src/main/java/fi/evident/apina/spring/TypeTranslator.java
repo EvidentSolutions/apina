@@ -45,7 +45,7 @@ final class TypeTranslator {
             @Override
             public ApiType visit(JavaBasicType type, TypeSchema ctx) {
                 if (classes.isInstanceOf(type, Collection.class)) {
-                    return new ApiArrayType(ApiPrimitiveType.UNKNOWN);
+                    return new ApiArrayType(ApiPrimitiveType.ANY);
 
                 } else if (classes.isInstanceOf(type, Map.class)) {
                     return ApiPrimitiveType.DICTIONARY;
@@ -60,7 +60,7 @@ final class TypeTranslator {
                     return ApiPrimitiveType.NUMBER;
 
                 } else if (type.equals(new JavaBasicType(Object.class))) {
-                    return ApiPrimitiveType.UNKNOWN;
+                    return ApiPrimitiveType.ANY;
 
                 } else if (type.isVoid()) {
                     return ApiPrimitiveType.VOID;
@@ -89,12 +89,12 @@ final class TypeTranslator {
                 if (!bounds.isEmpty())
                     return translateType(bounds.get(0));
                 else
-                    return ApiPrimitiveType.UNKNOWN;
+                    return ApiPrimitiveType.ANY;
             }
 
             @Override
             public ApiType visit(JavaWildcardType type, TypeSchema ctx) {
-                return type.getLowerBound().map(TypeTranslator.this::translateType).orElse(ApiPrimitiveType.UNKNOWN);
+                return type.getLowerBound().map(TypeTranslator.this::translateType).orElse(ApiPrimitiveType.ANY);
             }
         }, schema);
     }

@@ -2,7 +2,7 @@ package fi.evident.apina.model.type;
 
 public final class ApiPrimitiveType extends ApiType {
 
-    public static final ApiType UNKNOWN = new ApiPrimitiveType("unknown");
+    public static final ApiType ANY = new ApiPrimitiveType("any");
     public static final ApiType STRING = new ApiPrimitiveType("string");
     public static final ApiType BOOLEAN = new ApiPrimitiveType("boolean");
     public static final ApiType NUMBER = new ApiPrimitiveType("number");
