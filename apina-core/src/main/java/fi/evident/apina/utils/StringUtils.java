@@ -1,12 +1,15 @@
 package fi.evident.apina.utils;
 
+import static java.lang.Character.isUpperCase;
+import static java.lang.Character.toLowerCase;
+
 public final class StringUtils {
 
     private StringUtils() { }
 
     public static String uncapitalize(String s) {
-        if (!s.isEmpty() && Character.isUpperCase(s.charAt(0)))
-            return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+        if (!s.isEmpty() && isUpperCase(s.charAt(0)))
+            return toLowerCase(s.charAt(0)) + s.substring(1);
         else
             return s;
     }
