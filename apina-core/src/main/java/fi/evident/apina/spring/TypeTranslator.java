@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Math.max;
+import static fi.evident.apina.spring.NameTranslator.translateClassName;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -100,7 +100,7 @@ final class TypeTranslator {
     }
 
     private ApiType translateClassType(JavaBasicType type) {
-        ApiClassType classType = new ApiClassType(translateName(type.getName()));
+        ApiClassType classType = new ApiClassType(translateClassName(type.getName()));
 
         if (!api.containsClassType(classType)) {
             JavaClass aClass = classes.findClass(type).orElse(null);
@@ -139,15 +139,6 @@ final class TypeTranslator {
 
                     classDefinition.addProperty(new PropertyDefinition(name, type));
                 });
-    }
-
-    static String translateName(String qualifiedName) {
-        // TODO: smarter translation
-        int lastDot = max(qualifiedName.lastIndexOf('.'), qualifiedName.lastIndexOf('$'));
-        if (lastDot != -1)
-            return qualifiedName.substring(lastDot + 1);
-        else
-            return qualifiedName;
     }
 
 }

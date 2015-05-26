@@ -10,4 +10,8 @@ public final class StringUtils {
         else
             return s;
     }
+
+    public static String stripSuffix(String s, String suffix) {
+        return s.endsWith(suffix) ? s.substring(0, s.length() - suffix.length()) : s;
+    }
 }

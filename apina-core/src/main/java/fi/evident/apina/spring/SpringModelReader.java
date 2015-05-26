@@ -15,6 +15,7 @@ import fi.evident.apina.model.type.ApiType;
 import java.io.IOException;
 import java.util.Optional;
 
+import static fi.evident.apina.spring.NameTranslator.translateEndpointGroupName;
 import static fi.evident.apina.spring.SpringUriTemplateParser.parseUriTemplate;
 import static java.util.Objects.requireNonNull;
 
@@ -50,7 +51,7 @@ public final class SpringModelReader {
     }
 
     private EndpointGroup createEndpointGroupForController(JavaClass javaClass) {
-        EndpointGroup endpointGroup = new EndpointGroup(TypeTranslator.translateName(javaClass.getName()), javaClass.getName());
+        EndpointGroup endpointGroup = new EndpointGroup(translateEndpointGroupName(javaClass.getName()), javaClass.getName());
 
         javaClass.getPublicMethods()
                 .filter(m -> !m.isStatic() && m.hasAnnotation(REQUEST_MAPPING))
