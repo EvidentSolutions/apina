@@ -1,13 +1,16 @@
 package fi.evident.apina.model;
 
 import fi.evident.apina.model.parameters.EndpointParameter;
+import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
 import fi.evident.apina.model.parameters.EndpointRequestBodyParameter;
+import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
 import fi.evident.apina.model.type.ApiType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static fi.evident.apina.utils.CollectionUtils.filterByType;
 import static fi.evident.apina.utils.CollectionUtils.join;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
@@ -42,12 +45,21 @@ public final class Endpoint {
         parameters.add(requireNonNull(parameter));
     }
 
-    public Optional<ApiType> getRequestBody() {
+
+    public Optional<EndpointRequestBodyParameter> getRequestBody() {
         for (EndpointParameter parameter : parameters)
             if (parameter instanceof EndpointRequestBodyParameter)
-                return Optional.of(parameter.getType());
+                return Optional.of((EndpointRequestBodyParameter) parameter);
 
         return Optional.empty();
+    }
+
+    public List<EndpointPathVariableParameter> getPathVariables() {
+        return filterByType(parameters, EndpointPathVariableParameter.class);
+    }
+
+    public List<EndpointRequestParamParameter> getRequestParameters() {
+        return filterByType(parameters, EndpointRequestParamParameter.class);
     }
 
     public List<EndpointParameter> getParameters() {
