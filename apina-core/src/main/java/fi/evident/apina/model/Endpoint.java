@@ -1,6 +1,7 @@
 package fi.evident.apina.model;
 
 import fi.evident.apina.model.parameters.EndpointParameter;
+import fi.evident.apina.model.parameters.EndpointRequestBodyParameter;
 import fi.evident.apina.model.type.ApiType;
 
 import java.util.ArrayList;
@@ -41,8 +42,20 @@ public final class Endpoint {
         parameters.add(requireNonNull(parameter));
     }
 
+    public Optional<ApiType> getRequestBody() {
+        for (EndpointParameter parameter : parameters)
+            if (parameter instanceof EndpointRequestBodyParameter)
+                return Optional.of(parameter.getType());
+
+        return Optional.empty();
+    }
+
     public List<EndpointParameter> getParameters() {
         return unmodifiableList(parameters);
+    }
+
+    public Optional<ApiType> getResponseBody() {
+        return responseBody;
     }
 
     public URITemplate getUriTemplate() {
