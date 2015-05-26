@@ -34,11 +34,11 @@ final class TypeTranslator {
         this.api = requireNonNull(api);
     }
 
-    public ApiType resolveDataType(JavaType javaType) {
+    public ApiType translateType(JavaType javaType) {
         return javaType.accept(new JavaTypeVisitor<TypeSchema, ApiType>() {
             @Override
             public ApiType visit(JavaArrayType type, TypeSchema ctx) {
-                return new ApiArrayType(resolveDataType(type.getElementType()));
+                return new ApiArrayType(translateType(type.getElementType()));
             }
 
             @Override
@@ -72,9 +72,9 @@ final class TypeTranslator {
                 List<JavaType> arguments = type.getArguments();
 
                 if (classes.isInstanceOf(baseType, Collection.class) && arguments.size() == 1)
-                    return new ApiArrayType(resolveDataType(arguments.get(0)));
+                    return new ApiArrayType(translateType(arguments.get(0)));
                 else
-                    return resolveDataType(baseType);
+                    return translateType(baseType);
             }
 
             @Override
@@ -83,14 +83,14 @@ final class TypeTranslator {
 
                 // TODO: merge the bounds instead of picking the first one
                 if (!bounds.isEmpty())
-                    return resolveDataType(bounds.get(0));
+                    return translateType(bounds.get(0));
                 else
                     return ApiPrimitiveType.UNKNOWN;
             }
 
             @Override
             public ApiType visit(JavaWildcardType type, TypeSchema ctx) {
-                return type.getLowerBound().map(TypeTranslator.this::resolveDataType).orElse(ApiPrimitiveType.UNKNOWN);
+                return type.getLowerBound().map(TypeTranslator.this::translateType).orElse(ApiPrimitiveType.UNKNOWN);
             }
         }, schema);
     }
@@ -122,7 +122,7 @@ final class TypeTranslator {
             .filter(f -> !f.isStatic())
             .forEach(field -> {
                 String name = field.getName();
-                ApiType type = resolveDataType(field.getType());
+                ApiType type = translateType(field.getType());
 
                 classDefinition.addProperty(new PropertyDefinition(name, type));
             });
@@ -131,7 +131,7 @@ final class TypeTranslator {
                 .filter(JavaMethod::isGetter)
                 .forEach(method -> {
                     String name = uncapitalize(method.getName().substring(3));
-                    ApiType type = resolveDataType(method.getReturnType());
+                    ApiType type = translateType(method.getReturnType());
 
                     classDefinition.addProperty(new PropertyDefinition(name, type));
                 });
