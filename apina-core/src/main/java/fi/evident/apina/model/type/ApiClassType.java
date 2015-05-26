@@ -1,11 +1,13 @@
 package fi.evident.apina.model.type;
 
+import org.jetbrains.annotations.NotNull;
+
 import static java.util.Objects.requireNonNull;
 
 /**
  * Represents class types.
  */
-public final class ApiClassType extends ApiType {
+public final class ApiClassType extends ApiType implements Comparable<ApiClassType> {
 
     private final String name;
 
@@ -31,5 +33,10 @@ public final class ApiClassType extends ApiType {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public int compareTo(@NotNull ApiClassType o) {
+        return name.compareTo(o.name);
     }
 }
