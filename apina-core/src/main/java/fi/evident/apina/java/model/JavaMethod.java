@@ -1,5 +1,6 @@
 package fi.evident.apina.java.model;
 
+import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 import fi.evident.apina.java.model.type.TypeSchema;
 
@@ -45,7 +46,10 @@ public final class JavaMethod implements JavaAnnotatedElement {
     }
 
     public boolean isGetter() {
-        return !isStatic() && parameters.isEmpty() && name.startsWith("get");
+        if (isStatic() || !parameters.isEmpty()) return false;
+
+        return name.startsWith("get")
+                || (name.startsWith("is") && returnType.equals(JavaBasicType.BOOLEAN));
     }
 
     public JavaVisibility getVisibility() {

@@ -10,13 +10,13 @@ import fi.evident.apina.model.type.ApiArrayType;
 import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.model.type.ApiPrimitiveType;
 import fi.evident.apina.model.type.ApiType;
-import fi.evident.apina.utils.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import static fi.evident.apina.spring.NameTranslator.translateClassName;
+import static fi.evident.apina.utils.PropertyUtils.propertyNameForGetter;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -134,7 +134,7 @@ final class TypeTranslator {
         javaClass.getPublicMethods()
                 .filter(m -> m.isGetter() && !m.hasAnnotation(JSON_IGNORE))
                 .forEach(method -> {
-                    String name = StringUtils.uncapitalize(method.getName().substring(3));
+                    String name = propertyNameForGetter(method.getName());
                     ApiType type = translateType(method.getReturnType());
 
                     classDefinition.addProperty(new PropertyDefinition(name, type));
