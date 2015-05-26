@@ -35,4 +35,11 @@ public final class CollectionUtils {
     public static String join(Object[] objects, String delimiter, String prefix, String suffix) {
         return join(asList(objects), delimiter, prefix, suffix);
     }
+
+    public static <T> List<T> filterByType(Collection<? super T> objects, Class<T> type) {
+        return objects.stream()
+                .filter(type::isInstance)
+                .map(type::cast)
+                .collect(toList());
+    }
 }
