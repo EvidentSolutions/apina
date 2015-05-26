@@ -53,7 +53,7 @@ final class TypeTranslator {
                     return ApiPrimitiveType.STRING;
 
                 } else if (type.equals(new JavaBasicType(Integer.class)) || type.equals(new JavaBasicType(int.class))) {
-                    return ApiPrimitiveType.INTEGER;
+                    return ApiPrimitiveType.NUMBER;
 
                 } else if (type.equals(new JavaBasicType(Object.class))) {
                     return ApiPrimitiveType.UNKNOWN;
