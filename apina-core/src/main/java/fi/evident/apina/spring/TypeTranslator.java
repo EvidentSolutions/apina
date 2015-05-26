@@ -11,6 +11,7 @@ import fi.evident.apina.model.type.ApiArrayType;
 import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.model.type.ApiPrimitiveType;
 import fi.evident.apina.model.type.ApiType;
+import fi.evident.apina.utils.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -133,7 +134,7 @@ final class TypeTranslator {
         javaClass.getPublicMethods()
                 .filter(JavaMethod::isGetter)
                 .forEach(method -> {
-                    String name = uncapitalize(method.getName().substring(3));
+                    String name = StringUtils.uncapitalize(method.getName().substring(3));
                     ApiType type = translateType(method.getReturnType());
 
                     classDefinition.addProperty(new PropertyDefinition(name, type));
@@ -149,10 +150,4 @@ final class TypeTranslator {
             return qualifiedName;
     }
 
-    private static String uncapitalize(String s) {
-        if (!s.isEmpty() && Character.isUpperCase(s.charAt(0)))
-            return Character.toLowerCase(s.charAt(0)) + s.substring(1);
-        else
-            return s;
-    }
 }
