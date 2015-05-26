@@ -2,7 +2,6 @@ package fi.evident.apina.spring;
 
 import fi.evident.apina.java.model.ClassMetadataCollection;
 import fi.evident.apina.java.model.JavaClass;
-import fi.evident.apina.java.model.JavaMethod;
 import fi.evident.apina.java.model.type.*;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.ClassDefinition;
@@ -25,6 +24,7 @@ import static java.util.Objects.requireNonNull;
  */
 final class TypeTranslator {
 
+    private static final JavaBasicType JSON_IGNORE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonIgnore");
     private final ClassMetadataCollection classes;
     private final TypeSchema schema;
     private final ApiDefinition api;
@@ -123,7 +123,7 @@ final class TypeTranslator {
         // TODO: support Jackson's annotations to override default mappings
 
         javaClass.getPublicFields()
-            .filter(f -> !f.isStatic())
+            .filter(f -> !f.isStatic() && !f.hasAnnotation(JSON_IGNORE))
             .forEach(field -> {
                 String name = field.getName();
                 ApiType type = translateType(field.getType());
@@ -132,7 +132,7 @@ final class TypeTranslator {
             });
 
         javaClass.getPublicMethods()
-                .filter(JavaMethod::isGetter)
+                .filter(m -> m.isGetter() && !m.hasAnnotation(JSON_IGNORE))
                 .forEach(method -> {
                     String name = StringUtils.uncapitalize(method.getName().substring(3));
                     ApiType type = translateType(method.getReturnType());
