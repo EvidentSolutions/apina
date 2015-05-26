@@ -23,10 +23,9 @@ public final class AngularTypeScriptWriter {
 
     private static void printClassDefinitions(Collection<ClassDefinition> classDefinitions) {
         for (ClassDefinition classDefinition : classDefinitions) {
-            System.out.println("interface " + classDefinition.getType() + " {");
-            for (PropertyDefinition property : classDefinition.getProperties()) {
-                System.out.println("    " + property);
-            }
+            System.out.println("export interface " + classDefinition.getType() + " {");
+            for (PropertyDefinition property : classDefinition.getProperties())
+                System.out.println("    " + property.getName() + ": " + property.getType());
             System.out.println("}");
             System.out.println();
         }

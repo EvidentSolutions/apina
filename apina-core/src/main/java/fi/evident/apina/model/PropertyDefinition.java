@@ -15,6 +15,14 @@ public final class PropertyDefinition {
         this.type = requireNonNull(type);
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public ApiType getType() {
+        return type;
+    }
+
     @Override
     public String toString() {
         return type + " " + name;
