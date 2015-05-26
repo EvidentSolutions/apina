@@ -55,6 +55,9 @@ final class TypeTranslator {
                 } else if (classes.isNumber(type)) {
                     return ApiPrimitiveType.NUMBER;
 
+                } else if (type.equals(JavaBasicType.BOOLEAN) || type.equals(new JavaBasicType(Boolean.class))) {
+                    return ApiPrimitiveType.NUMBER;
+
                 } else if (type.equals(new JavaBasicType(Object.class))) {
                     return ApiPrimitiveType.UNKNOWN;
 

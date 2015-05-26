@@ -7,6 +7,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class JavaBasicType extends JavaType {
 
+    public static JavaBasicType BOOLEAN = new JavaBasicType("boolean");
     public static JavaBasicType INT = new JavaBasicType("int");
     public static JavaBasicType SHORT = new JavaBasicType("short");
     public static JavaBasicType LONG = new JavaBasicType("long");
