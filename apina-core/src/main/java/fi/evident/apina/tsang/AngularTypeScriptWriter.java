@@ -5,7 +5,6 @@ import fi.evident.apina.model.parameters.EndpointParameter;
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
 import fi.evident.apina.model.type.ApiType;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -131,7 +130,6 @@ public final class AngularTypeScriptWriter {
                 .collect(joining(", "));
     }
 
-    @NotNull
     private static Map<String, Object> createConfig(Endpoint endpoint) {
         Map<String,Object> config = new LinkedHashMap<>();
 
