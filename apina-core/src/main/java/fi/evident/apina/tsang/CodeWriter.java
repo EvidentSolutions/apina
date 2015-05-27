@@ -64,30 +64,37 @@ final class CodeWriter {
         return this;
     }
 
+    public CodeWriter writeBlock(WriteCallback block) throws IOException {
+        writeLine("{");
+        indent();
+
+        block.write();
+
+        dedent();
+        write("}");
+
+        return this;
+    }
+
     private void writeMap(Map<?, ?> obj) throws IOException {
         if (obj.isEmpty()) {
             write("{}");
             return;
         }
 
-        write("{");
-        writeLine();
-        indent();
+        writeBlock(() -> {
+            for (Iterator<? extends Map.Entry<?, ?>> it = obj.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<?, ?> entry = it.next();
+                writeValue(entry.getKey());
+                write(": ");
+                writeValue(entry.getValue());
 
-        for (Iterator<? extends Map.Entry<?, ?>> it = obj.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<?, ?> entry = it.next();
-            writeValue(entry.getKey());
-            write(": ");
-            writeValue(entry.getValue());
+                if (it.hasNext())
+                    write(", ");
 
-            if (it.hasNext())
-                write(", ");
-
-            writeLine();
-        }
-
-        dedent();
-        write("}");
+                writeLine();
+            }
+        });
     }
 
     private void writeString(String s) throws IOException {
@@ -123,5 +130,9 @@ final class CodeWriter {
     private void writeIndent() throws IOException {
         for (int i = 0; i < level; i++)
             out.append("    ");
+    }
+
+    public interface WriteCallback {
+        void write() throws IOException;
     }
 }
