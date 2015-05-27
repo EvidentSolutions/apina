@@ -13,7 +13,7 @@ import static java.util.Objects.requireNonNull;
 final class CodeWriter {
 
     private final Appendable out;
-    private int level = 0;
+    private int indentationLevel = 0;
     private boolean beginningOfLine = true;
 
     CodeWriter(Appendable out) {
@@ -116,19 +116,19 @@ final class CodeWriter {
     }
 
     public CodeWriter indent() {
-        level++;
+        indentationLevel++;
         return this;
     }
 
     public CodeWriter dedent() {
-        if (level == 0) throw new IllegalStateException();
+        if (indentationLevel == 0) throw new IllegalStateException();
 
-        level--;
+        indentationLevel--;
         return this;
     }
 
     private void writeIndent() throws IOException {
-        for (int i = 0; i < level; i++)
+        for (int i = 0; i < indentationLevel; i++)
             out.append("    ");
     }
 
