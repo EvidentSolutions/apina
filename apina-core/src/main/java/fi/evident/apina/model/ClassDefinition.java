@@ -2,17 +2,18 @@ package fi.evident.apina.model;
 
 import fi.evident.apina.model.type.ApiClassType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableCollection;
 import static java.util.Objects.requireNonNull;
 
 public final class ClassDefinition {
 
     private final ApiClassType type;
 
-    private final List<PropertyDefinition> properties = new ArrayList<>();
+    private final HashMap<String, PropertyDefinition> properties = new LinkedHashMap<>();
 
     public ClassDefinition(ApiClassType type) {
         this.type = requireNonNull(type);
@@ -22,12 +23,18 @@ public final class ClassDefinition {
         return type;
     }
 
-    public List<PropertyDefinition> getProperties() {
-        return unmodifiableList(properties);
+    public Collection<PropertyDefinition> getProperties() {
+        return unmodifiableCollection(properties.values());
     }
 
     public void addProperty(PropertyDefinition property) {
-        properties.add(requireNonNull(property));
+        PropertyDefinition old = properties.putIfAbsent(property.getName(), property);
+        if (old != null)
+            throw new IllegalArgumentException("duplicate property: " + property.getName());
+    }
+
+    public boolean hasProperty(String name) {
+        return properties.containsKey(requireNonNull(name));
     }
 
     @Override

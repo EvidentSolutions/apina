@@ -137,7 +137,10 @@ final class TypeTranslator {
                     String name = propertyNameForGetter(method.getName());
                     ApiType type = translateType(method.getReturnType());
 
-                    classDefinition.addProperty(new PropertyDefinition(name, type));
+                    // We might have the property already because it was added by a public field.
+                    // If so, ignore this redefinition.
+                    if (!classDefinition.hasProperty(name))
+                        classDefinition.addProperty(new PropertyDefinition(name, type));
                 });
     }
 
