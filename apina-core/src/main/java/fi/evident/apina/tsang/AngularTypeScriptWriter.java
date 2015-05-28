@@ -112,6 +112,8 @@ public final class AngularTypeScriptWriter {
                 out.writeLine();
             }
         });
+
+        out.writeLine();
     }
 
     private void writeEndpoint(Endpoint endpoint) {
