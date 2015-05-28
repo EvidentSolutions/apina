@@ -20,13 +20,12 @@ import static java.util.stream.Collectors.joining;
  */
 public final class AngularTypeScriptWriter {
 
-    private final CodeWriter out;
+    private final CodeWriter out = new CodeWriter();
     private final ApiDefinition api;
     private final List<String> startDeclarations = new ArrayList<>();
 
-    public AngularTypeScriptWriter(ApiDefinition api, Appendable out) {
+    public AngularTypeScriptWriter(ApiDefinition api) {
         this.api = requireNonNull(api);
-        this.out = new CodeWriter(out);
     }
 
     public void addStartDeclaration(String declaration) {
@@ -49,12 +48,16 @@ public final class AngularTypeScriptWriter {
         out.writeLine();
     }
 
+    public String getOutput() {
+        return out.getOutput();
+    }
+
     private void writeRuntime() throws IOException {
         out.write(readResourceAsString("typescript/runtime.ts", UTF_8));
         out.writeLine();
     }
 
-    private void writeStartDeclarations() throws IOException {
+    private void writeStartDeclarations() {
         if (!startDeclarations.isEmpty()) {
             for (String declaration : startDeclarations)
                 out.writeLine(declaration);
@@ -63,7 +66,7 @@ public final class AngularTypeScriptWriter {
         }
     }
 
-    private void writeEndpointInterfaces(Collection<EndpointGroup> endpointGroups) throws IOException {
+    private void writeEndpointInterfaces(Collection<EndpointGroup> endpointGroups) {
         out.write("export module Endpoints ").writeBlock(() -> {
             for (EndpointGroup endpointGroup : endpointGroups) {
                 out.write("export interface I" + endpointGroup.getName() + " ").writeBlock(() -> {
@@ -86,7 +89,7 @@ public final class AngularTypeScriptWriter {
         out.writeLine().writeLine();
     }
 
-    private void writeEndpoints(Collection<EndpointGroup> endpointGroups) throws IOException {
+    private void writeEndpoints(Collection<EndpointGroup> endpointGroups) {
         out.writeLine();
 
         out.write("return ").writeBlock(() -> {
@@ -111,7 +114,7 @@ public final class AngularTypeScriptWriter {
         });
     }
 
-    private void writeEndpoint(Endpoint endpoint) throws IOException {
+    private void writeEndpoint(Endpoint endpoint) {
         out.write(endpointSignature(endpoint)).write(" ").writeBlock(() ->
                 out.write("return context.request(").writeValue(createConfig(endpoint)).writeLine(");"));
     }
@@ -181,7 +184,7 @@ public final class AngularTypeScriptWriter {
         return type.toString();
     }
 
-    private void writeClassDefinitions(Collection<ClassDefinition> classDefinitions) throws IOException {
+    private void writeClassDefinitions(Collection<ClassDefinition> classDefinitions) {
         for (ClassDefinition classDefinition : classDefinitions) {
             out.write("export interface " + classDefinition.getType() + " ").writeBlock(() -> {
                 for (PropertyDefinition property : classDefinition.getProperties())
@@ -192,7 +195,7 @@ public final class AngularTypeScriptWriter {
         }
     }
 
-    private void writeSerializerDefinitions(Collection<ClassDefinition> classDefinitions) throws IOException {
+    private void writeSerializerDefinitions(Collection<ClassDefinition> classDefinitions) {
         for (ClassDefinition classDefinition : classDefinitions) {
             Map<String, String> defs = new LinkedHashMap<>();
 

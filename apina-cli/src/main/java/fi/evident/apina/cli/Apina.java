@@ -21,7 +21,7 @@ public final class Apina {
 
             ApiDefinition api = SpringModelReader.readApiDefinition(classpath);
 
-            AngularTypeScriptWriter writer = new AngularTypeScriptWriter(api, System.out);
+            AngularTypeScriptWriter writer = new AngularTypeScriptWriter(api);
 
             // TODO: don't hard code these. these are here temporarily so that translating Yoke produces correct code
             writer.addStartDeclaration("type ResultTable = {}");
@@ -30,6 +30,8 @@ public final class Apina {
             writer.addStartDeclaration("type Duration = String");
 
             writer.writeApi();
+
+            System.out.println(writer.getOutput());
 
         } catch (IOException e) {
             e.printStackTrace();

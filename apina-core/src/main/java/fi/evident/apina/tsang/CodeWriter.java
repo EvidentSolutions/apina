@@ -1,10 +1,7 @@
 package fi.evident.apina.tsang;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Helper for generating TypeScript code. Keeps track of indentation level
@@ -12,21 +9,21 @@ import static java.util.Objects.requireNonNull;
  */
 final class CodeWriter {
 
-    private final Appendable out;
+    private final StringBuilder out = new StringBuilder();
     private int indentationLevel = 0;
     private boolean beginningOfLine = true;
 
-    CodeWriter(Appendable out) {
-        this.out = requireNonNull(out);
-    }
-
-    public CodeWriter writeLine(String s) throws IOException {
+    public CodeWriter writeLine(String s) {
         write(s);
         writeLine();
         return this;
     }
 
-    public CodeWriter write(String s) throws IOException {
+    public String getOutput() {
+        return out.toString();
+    }
+
+    public CodeWriter write(String s) {
         if (!s.isEmpty()) {
             writeIndentIfAtBegin();
             out.append(s);
@@ -35,20 +32,20 @@ final class CodeWriter {
         return this;
     }
 
-    private void writeIndentIfAtBegin() throws IOException {
+    private void writeIndentIfAtBegin() {
         if (beginningOfLine) {
             writeIndent();
             beginningOfLine = false;
         }
     }
 
-    public CodeWriter writeLine() throws IOException {
+    public CodeWriter writeLine() {
         out.append('\n');
         beginningOfLine = true;
         return this;
     }
 
-    public CodeWriter writeValue(Object obj) throws IOException {
+    public CodeWriter writeValue(Object obj) {
         writeIndentIfAtBegin();
 
         if (obj instanceof Number) {
@@ -64,11 +61,11 @@ final class CodeWriter {
         return this;
     }
 
-    public CodeWriter writeBlock(WriteCallback block) throws IOException {
+    public CodeWriter writeBlock(Runnable block) {
         writeLine("{");
         indent();
 
-        block.write();
+        block.run();
 
         dedent();
         write("}");
@@ -76,7 +73,7 @@ final class CodeWriter {
         return this;
     }
 
-    private void writeMap(Map<?, ?> obj) throws IOException {
+    private void writeMap(Map<?, ?> obj) {
         if (obj.isEmpty()) {
             write("{}");
             return;
@@ -97,7 +94,7 @@ final class CodeWriter {
         });
     }
 
-    private void writeString(String s) throws IOException {
+    private void writeString(String s) {
         out.append('\'');
         for (int i = 0, len = s.length(); i < len; i++) {
             char c = s.charAt(i);
@@ -127,12 +124,8 @@ final class CodeWriter {
         return this;
     }
 
-    private void writeIndent() throws IOException {
+    private void writeIndent() {
         for (int i = 0; i < indentationLevel; i++)
             out.append("    ");
-    }
-
-    public interface WriteCallback {
-        void write() throws IOException;
     }
 }
