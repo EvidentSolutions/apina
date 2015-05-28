@@ -67,26 +67,19 @@ public final class AngularTypeScriptWriter {
     }
 
     private void writeEndpointInterfaces(Collection<EndpointGroup> endpointGroups) {
-        out.write("export module Endpoints ").writeBlock(() -> {
+        out.writeExportedModule("Endpoints", () -> {
             for (EndpointGroup endpointGroup : endpointGroups) {
-                out.write("export interface I" + endpointGroup.getName() + " ").writeBlock(() -> {
+                out.writeExportedInterface("I" + endpointGroup.getName(), () -> {
                     for (Endpoint endpoint : endpointGroup.getEndpoints())
                         out.writeLine(endpointSignature(endpoint));
-
-
                 });
-
-                out.writeLine().writeLine();
             }
 
-            out.write("export interface IEndpointGroups ").writeBlock(() -> {
+            out.writeExportedInterface("IEndpointGroups", () -> {
                 for (EndpointGroup endpointGroup : endpointGroups)
                     out.writeLine(endpointGroup.getName() + ": I" + endpointGroup.getName());
             });
-            out.writeLine();
         });
-
-        out.writeLine().writeLine();
     }
 
     private void writeEndpoints(Collection<EndpointGroup> endpointGroups) {
@@ -188,12 +181,10 @@ public final class AngularTypeScriptWriter {
 
     private void writeClassDefinitions(Collection<ClassDefinition> classDefinitions) {
         for (ClassDefinition classDefinition : classDefinitions) {
-            out.write("export interface " + classDefinition.getType() + " ").writeBlock(() -> {
+            out.writeExportedInterface(classDefinition.getType().getName(), () -> {
                 for (PropertyDefinition property : classDefinition.getProperties())
                     out.writeLine(property.getName() + ": " + property.getType());
             });
-
-            out.writeLine().writeLine();
         }
     }
 

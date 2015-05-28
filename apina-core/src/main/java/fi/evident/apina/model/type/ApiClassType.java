@@ -15,6 +15,10 @@ public final class ApiClassType extends ApiType implements Comparable<ApiClassTy
         this.name = requireNonNull(name);
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -34,7 +38,6 @@ public final class ApiClassType extends ApiType implements Comparable<ApiClassTy
     public String toString() {
         return name;
     }
-
     @Override
     public int compareTo(@NotNull ApiClassType o) {
         return name.compareTo(o.name);

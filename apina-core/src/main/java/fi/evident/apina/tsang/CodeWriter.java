@@ -50,7 +50,7 @@ final class CodeWriter {
 
         if (obj instanceof Number) {
             out.append(obj.toString());
-        } else if (obj instanceof Map<?,?>) {
+        } else if (obj instanceof Map<?, ?>) {
             writeMap((Map<?, ?>) obj);
         } else if (obj instanceof String) {
             writeString((String) obj);
@@ -59,6 +59,18 @@ final class CodeWriter {
         }
 
         return this;
+    }
+
+    public CodeWriter writeExportedModule(String module, Runnable moduleWriter) {
+        return writeNamedBlock("export module", module, moduleWriter);
+    }
+
+    public CodeWriter writeExportedInterface(String name, Runnable moduleWriter) {
+        return writeNamedBlock("export interface", name, moduleWriter);
+    }
+
+    private CodeWriter writeNamedBlock(String type, String name, Runnable moduleWriter) {
+        return write(type + " " + name + " ").writeBlock(moduleWriter).writeLine().writeLine();
     }
 
     public CodeWriter writeBlock(Runnable block) {
