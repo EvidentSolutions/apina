@@ -4,6 +4,8 @@ import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.spring.SpringModelReader;
 import fi.evident.apina.tsang.AngularTypeScriptWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public final class Apina {
+
+    private static final Logger log = LoggerFactory.getLogger(Apina.class);
 
     public static void main(String[] args) {
         if (args.length != 1 && args.length != 2) {
@@ -25,12 +29,20 @@ public final class Apina {
 
             ApiDefinition api = SpringModelReader.readApiDefinition(classpath);
 
+            log.debug("Loaded {} endpoint groups with {} endpoints.", api.getEndpointGroupCount(), api.getEndpointCount());
+            log.trace("Loaded endpoint groups: {}", api.getEndpointGroups());
+
+            log.debug("Loaded {} class definitions", api.getClassDefinitionCount());
+            log.trace("Loaded class definitions: {}", api.getClassDefinitions());
+
             AngularTypeScriptWriter writer = new AngularTypeScriptWriter(api);
             writer.writeApi();
             String output = writer.getOutput();
 
             if (args.length == 2) {
                 Path outputFile = Paths.get(args[1]);
+
+                log.debug("Writing API to '{}'", outputFile);
                 Files.write(outputFile, output.getBytes(StandardCharsets.UTF_8));
             } else {
                 System.out.println(output);

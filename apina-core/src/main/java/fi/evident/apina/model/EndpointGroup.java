@@ -44,4 +44,8 @@ public final class EndpointGroup {
     public String toString() {
         return name;
     }
+
+    public int getEndpointCount() {
+        return endpoints.size();
+    }
 }

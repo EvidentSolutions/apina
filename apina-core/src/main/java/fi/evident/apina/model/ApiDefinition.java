@@ -39,4 +39,18 @@ public final class ApiDefinition {
     public Collection<ClassDefinition> getClassDefinitions() {
         return unmodifiableCollection(classDefinitions.values());
     }
+
+    public int getEndpointGroupCount() {
+        return endpointGroups.size();
+    }
+
+    public int getEndpointCount() {
+        return endpointGroups.stream()
+                .mapToInt(EndpointGroup::getEndpointCount)
+                .sum();
+    }
+
+    public int getClassDefinitionCount() {
+        return classDefinitions.size();
+    }
 }
