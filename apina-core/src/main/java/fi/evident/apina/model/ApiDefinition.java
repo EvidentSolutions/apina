@@ -1,14 +1,16 @@
 package fi.evident.apina.model;
 
+import fi.evident.apina.model.type.ApiArrayType;
 import fi.evident.apina.model.type.ApiClassType;
+import fi.evident.apina.model.type.ApiType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Stream;
 
+import static fi.evident.apina.utils.CollectionUtils.optionalToStream;
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Represents the whole API of the program: i.e. all {@link EndpointGroup}s.
@@ -52,5 +54,33 @@ public final class ApiDefinition {
 
     public int getClassDefinitionCount() {
         return classDefinitions.size();
+    }
+
+    /**
+     * Returns all class types that refer to unknown classes.
+     */
+    public Set<ApiClassType> getUnknownTypeReferences() {
+        Stream<ApiType> resultTypes = endpointGroups.stream()
+                .flatMap(e -> e.getEndpoints().stream())
+                .flatMap(e -> optionalToStream(e.getResponseBody()));
+
+        Stream<ApiType> propertyTypes = classDefinitions.values().stream()
+                .flatMap(c -> c.getProperties().stream())
+                .map(PropertyDefinition::getType);
+
+        return Stream.concat(resultTypes, propertyTypes)
+                .flatMap(ApiDefinition::referencedClassTypes)
+                .filter(c -> !containsClassType(c))
+                .collect(toSet());
+    }
+
+    private static Stream<ApiClassType> referencedClassTypes(ApiType type) {
+        if (type instanceof ApiClassType) {
+            return Stream.of((ApiClassType) type);
+        } else if (type instanceof ApiArrayType) {
+            return referencedClassTypes(((ApiArrayType) type).getElementType());
+        } else {
+            return Stream.empty();
+        }
     }
 }

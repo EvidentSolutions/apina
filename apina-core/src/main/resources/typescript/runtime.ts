@@ -83,6 +83,10 @@ export module Support {
             this.registerSerializer(name, this.classSerializer(fields));
         }
 
+        registerIdentitySerializer(name: string) {
+            this.registerSerializer(name, identitySerializer);
+        }
+
         private classSerializer(fields: any): ISerializer {
             function mapProperties(obj: any, propertyMapper: (value: any, type: string) => any) {
                 var result = {};
@@ -137,13 +141,7 @@ export module Support {
         return {
             string: identitySerializer,
             number: identitySerializer,
-            boolean: identitySerializer,
-
-            // TODO: these hard-coded serializers are needed for test app. provide a way to register them in app
-            ResultTable: identitySerializer,
-            LocalDate: identitySerializer,
-            LocalDateTime: identitySerializer,
-            Duration: identitySerializer
+            boolean: identitySerializer
         };
     }
 

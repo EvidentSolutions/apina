@@ -2,6 +2,7 @@ package fi.evident.apina.cli;
 
 import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.ApiDefinition;
+import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.spring.SpringModelReader;
 import fi.evident.apina.tsang.AngularTypeScriptWriter;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 
 public final class Apina {
 
@@ -34,6 +36,11 @@ public final class Apina {
 
             log.debug("Loaded {} class definitions", api.getClassDefinitionCount());
             log.trace("Loaded class definitions: {}", api.getClassDefinitions());
+
+            Set<ApiClassType> unknownTypes = api.getUnknownTypeReferences();
+            if (!unknownTypes.isEmpty()) {
+                log.warn("Writing {} unknown class definitions as black boxes: {}", unknownTypes.size(), unknownTypes);
+            }
 
             AngularTypeScriptWriter writer = new AngularTypeScriptWriter(api);
             writer.writeApi();

@@ -5,6 +5,7 @@ import fi.evident.apina.model.parameters.EndpointParameter;
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
 import fi.evident.apina.model.type.ApiArrayType;
+import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.model.type.ApiPrimitiveType;
 import fi.evident.apina.model.type.ApiType;
 
@@ -37,12 +38,12 @@ public final class AngularTypeScriptWriter {
     public void writeApi() throws IOException {
         writeStartDeclarations();
         writeRuntime();
-        writeTypes(api.getClassDefinitions());
+        writeTypes();
 
         writeEndpointInterfaces(api.getEndpointGroups());
 
         out.write("export function createEndpointGroups(context: Support.Context): Endpoints.IEndpointGroups ").writeBlock(() -> {
-            writeSerializerDefinitions(api.getClassDefinitions());
+            writeSerializerDefinitions();
             writeEndpoints(api.getEndpointGroups());
         });
 
@@ -193,15 +194,15 @@ public final class AngularTypeScriptWriter {
         return type.toString();
     }
 
-    private void writeTypes(Collection<ClassDefinition> classDefinitions) {
+    private void writeTypes() {
         out.writeExportedModule("Types", () -> {
-            // TODO: don't hard code these. these are here temporarily so that translating Yoke produces correct code
-            out.writeLine("export type ResultTable = {}");
-            out.writeLine("export type LocalDate = String");
-            out.writeLine("export type LocalDateTime = String");
-            out.writeLine("export type Duration = String");
+            for (ApiClassType unknownType : api.getUnknownTypeReferences()) {
+                out.writeLine(format("export type %s = {};", unknownType.getName()));
+            }
 
-            for (ClassDefinition classDefinition : classDefinitions) {
+            out.writeLine();
+
+            for (ClassDefinition classDefinition : api.getClassDefinitions()) {
                 out.writeExportedInterface(classDefinition.getType().getName(), () -> {
                     for (PropertyDefinition property : classDefinition.getProperties())
                         out.writeLine(property.getName() + ": " + property.getType());
@@ -210,8 +211,13 @@ public final class AngularTypeScriptWriter {
         });
     }
 
-    private void writeSerializerDefinitions(Collection<ClassDefinition> classDefinitions) {
-        for (ClassDefinition classDefinition : classDefinitions) {
+    private void writeSerializerDefinitions() {
+        for (ApiClassType unknownType : api.getUnknownTypeReferences()) {
+            out.write("context.registerIdentitySerializer(").writeValue(unknownType.getName()).writeLine(");");
+        }
+        out.writeLine();
+
+        for (ClassDefinition classDefinition : api.getClassDefinitions()) {
             Map<String, String> defs = new LinkedHashMap<>();
 
             for (PropertyDefinition property : classDefinition.getProperties())
