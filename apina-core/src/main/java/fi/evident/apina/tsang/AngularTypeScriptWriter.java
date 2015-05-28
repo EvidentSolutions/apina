@@ -4,6 +4,8 @@ import fi.evident.apina.model.*;
 import fi.evident.apina.model.parameters.EndpointParameter;
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
+import fi.evident.apina.model.type.ApiArrayType;
+import fi.evident.apina.model.type.ApiPrimitiveType;
 import fi.evident.apina.model.type.ApiType;
 
 import java.io.IOException;
@@ -35,7 +37,7 @@ public final class AngularTypeScriptWriter {
     public void writeApi() throws IOException {
         writeStartDeclarations();
         writeRuntime();
-        writeClassDefinitions(api.getClassDefinitions());
+        writeTypes(api.getClassDefinitions());
 
         writeEndpointInterfaces(api.getEndpointGroups());
 
@@ -117,19 +119,19 @@ public final class AngularTypeScriptWriter {
     private static String endpointSignature(Endpoint endpoint) {
         String name = endpoint.getName();
         String parameters = parameterListCode(endpoint.getParameters());
-        String resultType = endpoint.getResponseBody().map(ApiType::toString).orElse("void");
+        String resultType = endpoint.getResponseBody().map(AngularTypeScriptWriter::qualifiedTypeName).orElse("void");
 
-        return format("%s(%s): Support.IPromise<%s>", name, parameters, resultType);
+        return format("%s(%s): Promise<%s>", name, parameters, resultType);
     }
 
     private static String parameterListCode(List<EndpointParameter> parameters) {
         return parameters.stream()
-                .map(p -> p.getName() + ": " + p.getType())
+                .map(p -> p.getName() + ": " + qualifiedTypeName(p.getType()))
                 .collect(joining(", "));
     }
 
     private static Map<String, Object> createConfig(Endpoint endpoint) {
-        Map<String,Object> config = new LinkedHashMap<>();
+        Map<String, Object> config = new LinkedHashMap<>();
 
         config.put("uriTemplate", endpoint.getUriTemplate().toString());
         config.put("method", endpoint.getMethod().toString());
@@ -143,13 +145,13 @@ public final class AngularTypeScriptWriter {
             config.put("requestParams", createRequestParamMap(requestParameters));
 
         endpoint.getRequestBody().ifPresent(body -> config.put("requestBody", serialize(body.getName(), body.getType())));
-        endpoint.getResponseBody().ifPresent(body -> config.put("responseType", createTypeDescriptor(body)));
+        endpoint.getResponseBody().ifPresent(body -> config.put("responseType", typeDescriptor(body)));
 
         return config;
     }
 
-    private static Map<String,Object> createRequestParamMap(Collection<EndpointRequestParamParameter> parameters) {
-        Map<String,Object> result = new LinkedHashMap<>();
+    private static Map<String, Object> createRequestParamMap(Collection<EndpointRequestParamParameter> parameters) {
+        Map<String, Object> result = new LinkedHashMap<>();
 
         for (EndpointRequestParamParameter param : parameters)
             result.put(param.getQueryParameter(), serialize(param.getName(), param.getType()));
@@ -157,8 +159,8 @@ public final class AngularTypeScriptWriter {
         return result;
     }
 
-    private static Map<String,Object> createPathVariablesMap(List<EndpointPathVariableParameter> pathVariables) {
-        Map<String,Object> result = new LinkedHashMap<>();
+    private static Map<String, Object> createPathVariablesMap(List<EndpointPathVariableParameter> pathVariables) {
+        Map<String, Object> result = new LinkedHashMap<>();
 
         for (EndpointPathVariableParameter param : pathVariables)
             result.put(param.getPathVariable(), serialize(param.getName(), param.getType()));
@@ -171,21 +173,40 @@ public final class AngularTypeScriptWriter {
      * to transfer representation.
      */
     private static RawCode serialize(String variable, ApiType type) {
-        return new RawCode("context.serialize(" + variable + ", '" + createTypeDescriptor(type) + "')");
+        return new RawCode("context.serialize(" + variable + ", '" + typeDescriptor(type) + "')");
     }
 
-    private static String createTypeDescriptor(ApiType type) {
-        // TODO: write proper type descriptors, e.g. handle arrays
+    private static String qualifiedTypeName(ApiType type) {
+        if (type instanceof ApiPrimitiveType) {
+            return type.toString();
+        } else if (type instanceof ApiArrayType) {
+            ApiArrayType arrayType = (ApiArrayType) type;
+            return qualifiedTypeName(arrayType.getElementType()) + "[]";
+        } else {
+            return "Types." + type;
+        }
+    }
+
+    private static String typeDescriptor(ApiType type) {
+        // Just use ApiType's native representation, but keep this method for clarity.
         return type.toString();
     }
 
-    private void writeClassDefinitions(Collection<ClassDefinition> classDefinitions) {
-        for (ClassDefinition classDefinition : classDefinitions) {
-            out.writeExportedInterface(classDefinition.getType().getName(), () -> {
-                for (PropertyDefinition property : classDefinition.getProperties())
-                    out.writeLine(property.getName() + ": " + property.getType());
-            });
-        }
+    private void writeTypes(Collection<ClassDefinition> classDefinitions) {
+        out.writeExportedModule("Types", () -> {
+            // TODO: don't hard code these. these are here temporarily so that translating Yoke produces correct code
+            out.writeLine("export type ResultTable = {}");
+            out.writeLine("export type LocalDate = String");
+            out.writeLine("export type LocalDateTime = String");
+            out.writeLine("export type Duration = String");
+
+            for (ClassDefinition classDefinition : classDefinitions) {
+                out.writeExportedInterface(classDefinition.getType().getName(), () -> {
+                    for (PropertyDefinition property : classDefinition.getProperties())
+                        out.writeLine(property.getName() + ": " + property.getType());
+                });
+            }
+        });
     }
 
     private void writeSerializerDefinitions(Collection<ClassDefinition> classDefinitions) {
@@ -193,7 +214,7 @@ public final class AngularTypeScriptWriter {
             Map<String, String> defs = new LinkedHashMap<>();
 
             for (PropertyDefinition property : classDefinition.getProperties())
-                defs.put(property.getName(), createTypeDescriptor(property.getType()));
+                defs.put(property.getName(), typeDescriptor(property.getType()));
 
             out.write("context.registerClassSerializer(").writeValue(classDefinition.getType().toString()).write(", ");
             out.writeValue(defs).writeLine(");");
