@@ -188,7 +188,8 @@ public final class AngularTypeScriptWriter {
     }
 
     private static String typeDescriptor(ApiType type) {
-        // Just use ApiType's native representation, but keep this method for clarity.
+        // Use ApiType's native representation - i.e. ApiType.toString() - as type descriptor.
+        // This method encapsulates the call to make it meaningful in this context.
         return type.toString();
     }
 
