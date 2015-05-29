@@ -8,3 +8,4 @@ Modules
 
   - `apina-core` main apina code
   - `apina-cli` command line interface for running conversion
+  - `apina-gradle` plugin for Gradle
