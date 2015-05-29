@@ -41,16 +41,4 @@ configure(subprojects) { project ->
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
-
-    dependencies {
-        compile "org.slf4j:slf4j-api"
-        compile "org.jetbrains:annotations:13.0"
-        testCompile "junit:junit:4.12"
-    }
-}
-
-project(':apina-core') {
-    dependencies {
-        compile "org.ow2.asm:asm:5.0.4"
-    }
 }
