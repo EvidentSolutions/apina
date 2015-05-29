@@ -35,21 +35,23 @@ publishing {
     }
 }
 
-bintray {
-    user = bintrayUser
-    key = bintrayApiKey
+if (hasProperty('bintrayUser')) {
+    bintray {
+        user = bintrayUser
+        key = bintrayApiKey
 
-    publications = ['mavenJava']
+        publications = ['mavenJava']
 
-    pkg {
-        repo = 'gradle-plugins'
-        name = 'apina-core'
-        userOrg = 'evident'
+        pkg {
+            repo = 'gradle-plugins'
+            name = 'apina-core'
+            userOrg = 'evident'
 
-        licenses = ['MIT']
-        websiteUrl = 'https://github.com/EvidentSolutions/apina'
-        vcsUrl = 'https://github.com/EvidentSolutions/apina.git'
-        desc = 'Tool for generating TypeScript client code from Spring controllers and Jackson classes'
-        labels = ['typescript', 'tsd', 'angularjs', 'jackson', 'spring']
+            licenses = ['MIT']
+            websiteUrl = 'https://github.com/EvidentSolutions/apina'
+            vcsUrl = 'https://github.com/EvidentSolutions/apina.git'
+            desc = 'Tool for generating TypeScript client code from Spring controllers and Jackson classes'
+            labels = ['typescript', 'tsd', 'angularjs', 'jackson', 'spring']
+        }
     }
 }
