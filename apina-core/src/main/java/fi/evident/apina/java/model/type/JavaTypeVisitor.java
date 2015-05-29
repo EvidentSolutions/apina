@@ -7,4 +7,5 @@ public interface JavaTypeVisitor<C, R> {
     R visit(JavaParameterizedType type, C ctx);
     R visit(JavaTypeVariable type, C ctx);
     R visit(JavaWildcardType type, C ctx);
+    R visit(JavaInnerClassType type, C ctx);
 }

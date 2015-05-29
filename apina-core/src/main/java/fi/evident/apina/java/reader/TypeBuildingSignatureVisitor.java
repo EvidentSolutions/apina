@@ -80,8 +80,10 @@ final class TypeBuildingSignatureVisitor extends SignatureVisitor implements Sup
 
     @Override
     public void visitInnerClassType(String name) {
-        // TODO implement parsing inner class types
-        throw new UnsupportedOperationException("visitInnerClassType " + name);
+        Function<List<JavaType>, JavaType> originalBuilder = builder;
+        if (originalBuilder == null) throw new IllegalStateException("no builder");
+
+        builder = types -> new JavaInnerClassType(originalBuilder.apply(types), name);
     }
 
     @Override

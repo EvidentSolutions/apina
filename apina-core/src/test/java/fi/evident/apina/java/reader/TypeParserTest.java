@@ -14,6 +14,7 @@ import java.util.function.Function;
 import static fi.evident.apina.java.reader.JavaTypeMatchers.*;
 import static fi.evident.apina.java.reader.TypeParser.*;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class TypeParserTest {
@@ -41,44 +42,44 @@ public class TypeParserTest {
 
     @Test
     public void parsingGenericPrimitiveSignatures() {
-        assertThat(parseGenericType2("I"), is(basicType(int.class)));
-        assertThat(parseGenericType2("V"), is(basicType(void.class)));
+        assertThat(parseGenericType("I"), is(basicType(int.class)));
+        assertThat(parseGenericType("V"), is(basicType(void.class)));
     }
 
     @Test
     public void parsingConcreteGenericSignatures() {
-        assertThat(parseGenericType2("Ljava/util/List<Ljava/lang/Integer;>;"),
+        assertThat(parseGenericType("Ljava/util/List<Ljava/lang/Integer;>;"),
                 is(genericType(List.class, basicType(Integer.class))));
 
-        assertThat(parseGenericType2("Ljava/util/Map<Ljava/lang/Integer;Ljava/lang/String;>;"),
+        assertThat(parseGenericType("Ljava/util/Map<Ljava/lang/Integer;Ljava/lang/String;>;"),
                 is(genericType(Map.class, basicType(Integer.class), basicType(String.class))));
     }
 
     @Test
     public void parsingWildcardTypes() {
-        assertThat(parseGenericType2("Ljava/util/List<*>;"), is(genericType(List.class, is(JavaWildcardType.unbounded()))));
-        assertThat(parseGenericType2("Ljava/util/List<+Ljava/lang/String;>;"), is(genericType(List.class, is(JavaWildcardType.extending(new JavaBasicType(String.class))))));
-        assertThat(parseGenericType2("Ljava/util/List<-Ljava/lang/String;>;"), is(genericType(List.class, is(JavaWildcardType.withSuper(new JavaBasicType(String.class))))));
+        assertThat(parseGenericType("Ljava/util/List<*>;"), is(genericType(List.class, is(JavaWildcardType.unbounded()))));
+        assertThat(parseGenericType("Ljava/util/List<+Ljava/lang/String;>;"), is(genericType(List.class, is(JavaWildcardType.extending(new JavaBasicType(String.class))))));
+        assertThat(parseGenericType("Ljava/util/List<-Ljava/lang/String;>;"), is(genericType(List.class, is(JavaWildcardType.withSuper(new JavaBasicType(String.class))))));
     }
 
     @Test
     public void parsingTypeVariables() {
         schema.add(new JavaTypeVariable("T"));
 
-        assertThat(parseGenericType2("TT;"), is(typeVariable("T")));
-        assertThat(parseGenericType2("Ljava/util/List<TT;>;"), is(genericType(List.class, typeVariable("T"))));
+        assertThat(parseGenericType("TT;"), is(typeVariable("T")));
+        assertThat(parseGenericType("Ljava/util/List<TT;>;"), is(genericType(List.class, typeVariable("T"))));
     }
 
     @Test
     public void parsingGenericArrayTypes() {
-        assertThat(parseGenericType2("[Ljava/lang/String;"), is(arrayType(basicType(String.class))));
+        assertThat(parseGenericType("[Ljava/lang/String;"), is(arrayType(basicType(String.class))));
     }
 
     @Test
     public void parsingGenericArrayTypeForTypeVariable() {
         schema.add(new JavaTypeVariable("A"));
 
-        assertThat(parseGenericType2("[TA;"), is(arrayType(typeVariable("A"))));
+        assertThat(parseGenericType("[TA;"), is(arrayType(typeVariable("A"))));
     }
 
     @Test
@@ -135,7 +136,14 @@ public class TypeParserTest {
         assertThat(signature.getReturnType(), is(genericType(List.class, typeVariable("T"))));
     }
 
-    private JavaType parseGenericType2(String signature) {
+    @Test
+    public void innerClassesInsideGenericClasses() {
+        MethodSignature signature = parseGenericMethodSignature("()Lfoo/Bar$Baz<TT;>.Bar;");
+
+        assertThat(signature.getReturnType(), is(notNullValue()));
+    }
+
+    private static JavaType parseGenericType(String signature) {
         TypeBuildingSignatureVisitor visitor = new TypeBuildingSignatureVisitor();
 
         new SignatureReader(signature).acceptType(visitor);

@@ -96,6 +96,11 @@ final class TypeTranslator {
             public ApiType visit(JavaWildcardType type, TypeSchema ctx) {
                 return type.getLowerBound().map(TypeTranslator.this::translateType).orElse(ApiPrimitiveType.ANY);
             }
+
+            @Override
+            public ApiType visit(JavaInnerClassType type, TypeSchema ctx) {
+                throw new UnsupportedOperationException("translating inner class types is not supported: " + type);
+            }
         }, schema);
     }
 
