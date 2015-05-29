@@ -1,0 +1,24 @@
+plugins {
+    id "com.gradle.plugin-publish" version "0.9.0"
+    id 'com.github.johnrengelman.shadow' version '1.2.1'
+}
+
+apply plugin: 'java-gradle-plugin'
+
+dependencies {
+    compile project(':apina-core')
+}
+
+pluginBundle {
+    website = 'https://github.com/EvidentSolutions/apina'
+    vcsUrl = 'https://github.com/EvidentSolutions/apina'
+    description = 'Gradle plugin for creating TypeScript client code from Spring controllers and Jackson classes'
+    tags = ['typescript', 'tsd', 'angularjs', 'jackson', 'spring']
+
+    plugins {
+        apinaPlugin {
+            id = 'fi.evident.apina'
+            displayName = 'Gradle Apina plugin'
+        }
+    }
+}

@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/apina.iml" filepath="$PROJECT_DIR$/apina.iml" />
       <module fileurl="file://$PROJECT_DIR$/apina-cli/apina-cli.iml" filepath="$PROJECT_DIR$/apina-cli/apina-cli.iml" />
       <module fileurl="file://$PROJECT_DIR$/apina-core/apina-core.iml" filepath="$PROJECT_DIR$/apina-core/apina-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/apina-gradle/apina-gradle.iml" filepath="$PROJECT_DIR$/apina-gradle/apina-gradle.iml" />
     </modules>
   </component>
 </project>
