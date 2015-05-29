@@ -1,4 +1,4 @@
-interface Promise<T> extends ng.IPromise<T> {
+interface Promise<T> extends angular.IPromise<T> {
 }
 
 export module Support {
@@ -153,7 +153,7 @@ export module Support {
     module Angular {
         class AngularHttpProvider implements Support.IHttpProvider {
 
-            constructor(private $http: ng.IHttpService) {
+            constructor(private $http: angular.IHttpService) {
             }
 
             request(url: string, method: string, params: any, data: any): Promise<any> {
@@ -167,7 +167,7 @@ export module Support {
         }
 
         var apinaModule = angular.module('apina.api', []);
-        apinaModule.service('endpointGroups', ['$http', $http =>
+        apinaModule.service('endpointGroups', ['$http', ($http: angular.IHttpService) =>
             createEndpointGroups(new Support.Context(new AngularHttpProvider($http)))]);
     }
 }
