@@ -89,6 +89,10 @@ export module Support {
 
         private classSerializer(fields: any): ISerializer {
             function mapProperties(obj: any, propertyMapper: (value: any, type: string) => any) {
+                if (obj === null || obj === undefined) {
+                    return obj;
+                }
+
                 var result = {};
 
                 for (var name in obj) {
