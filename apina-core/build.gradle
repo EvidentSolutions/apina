@@ -42,6 +42,8 @@ if (hasProperty('bintrayUser')) {
 
         publications = ['mavenJava']
 
+        publish = true
+
         pkg {
             repo = 'gradle-plugins'
             name = 'apina-core'
