@@ -1,7 +1,55 @@
+plugins {
+    id 'maven-publish'
+    id "com.jfrog.bintray" version "1.2"
+}
+
 dependencies {
-    compile "org.slf4j:slf4j-api"
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
     compile "org.jetbrains:annotations:13.0"
     compile "org.ow2.asm:asm:5.0.4"
 
     testCompile "junit:junit:4.12"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+
+bintray {
+    user = bintrayUser
+    key = bintrayApiKey
+
+    publications = ['mavenJava']
+
+    pkg {
+        repo = 'gradle-plugins'
+        name = 'apina-core'
+        userOrg = 'evident'
+
+        licenses = ['MIT']
+        websiteUrl = 'https://github.com/EvidentSolutions/apina'
+        vcsUrl = 'https://github.com/EvidentSolutions/apina.git'
+        desc = 'Tool for generating TypeScript client code from Spring controllers and Jackson classes'
+        labels = ['typescript', 'tsd', 'angularjs', 'jackson', 'spring']
+    }
 }
