@@ -42,3 +42,12 @@ configure(subprojects) { project ->
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 }
+
+task publish {
+    group = 'publishing'
+    description = 'Publishes all artifatcs'
+
+    dependsOn tasks.findByPath(':apina-gradle:publishPlugins')
+    dependsOn tasks.findByPath(':apina-core:bintrayUpload')
+}
+
