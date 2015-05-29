@@ -24,6 +24,9 @@ public class ApinaPlugin implements Plugin<Project> {
         ApinaTask apina = project.getTasks().create(GENERATE_API_CLIENT_TASK_NAME, ApinaTask.class);
         apina.setDescription("Generates TypeScript client code from Spring controllers and Jackson classes");
         apina.setGroup(BUILD_GROUP);
+
+        // TODO: resolve the build directory from project. however we can't simply say project.getBuildDir()
+        // here since it's not yet overridden when plugin is applied
         apina.setTarget(project.file("build/apina/apina.ts"));
         apina.setClasspath(mainSourceSet.getOutput().plus(mainSourceSet.getCompileClasspath()));
         project.getTasks().findByName(ASSEMBLE_TASK_NAME).dependsOn(GENERATE_API_CLIENT_TASK_NAME);
