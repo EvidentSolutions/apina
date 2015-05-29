@@ -44,6 +44,10 @@ public class ApinaTask extends DefaultTask {
         log.debug("Loaded {} endpoint groups with {} endpoints.", api.getEndpointGroupCount(), api.getEndpointCount());
         log.trace("Loaded endpoint groups: {}", api.getEndpointGroups());
 
+        if (api.getEndpointCount() == 0) {
+            log.warn("Did not find any endpoints");
+        }
+
         log.debug("Loaded {} class definitions", api.getClassDefinitionCount());
         log.trace("Loaded class definitions: {}", api.getClassDefinitions());
 
