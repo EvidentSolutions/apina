@@ -139,6 +139,7 @@ export module Support {
 
     function defaultSerializers(): ISerializerMap {
         return {
+            any: identitySerializer,
             string: identitySerializer,
             number: identitySerializer,
             boolean: identitySerializer
