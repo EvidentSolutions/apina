@@ -35,9 +35,11 @@ public class ApinaTask extends DefaultTask {
         requireNonNull(classpath, "classpath not initialized");
         requireNonNull(target, "target not initialized");
 
-        Classpath classpath = new Classpath();
+        Classpath myClasspath = new Classpath();
+        for (File file : classpath)
+            myClasspath.addRoot(file.toPath());
 
-        ApiDefinition api = SpringModelReader.readApiDefinition(classpath);
+        ApiDefinition api = SpringModelReader.readApiDefinition(myClasspath);
 
         log.debug("Loaded {} endpoint groups with {} endpoints.", api.getEndpointGroupCount(), api.getEndpointCount());
         log.trace("Loaded endpoint groups: {}", api.getEndpointGroups());
