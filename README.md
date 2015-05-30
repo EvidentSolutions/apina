@@ -1,13 +1,11 @@
-Apina
-=====
+# Apina
 
 Apina creates client-side TypeScript from server-side APIs. Apina reads Spring Web MVC's
 `@RestController` annotated classes and their related Jackson classes and creates related
 data type and endpoint interfaces. It also creates implementation for the interfaces using
 AngularJS' `$http` service.
 
-Using the Gradle-plugin
------------------------
+## Using the Gradle-plugin
 
 Include something like the following in your web application project:
 
@@ -26,8 +24,7 @@ apina {
 tasks.findByPath(":frontend:setup").dependsOn apina
 ```
 
-Using generated code
---------------------
+## Using generated code
 
 When you import the generated code, it will automatically add an AngularJS module
 named `apina.api`. You need to add that as a dependency:
@@ -47,7 +44,9 @@ There's an interface named `Endpoints.IEndpointGroups` which contains references
 all endpoint groups and an instance of this interface is registered to AngularJS as
 `endpointGroups`.
 
-So if you have a Spring controller named `DocumentsController` with a method
+### Example
+
+If you have a Spring controller named `DocumentsController` with a method
 `Document findDocument(int id)`, you can say the following:
 
 ```typescript
@@ -66,8 +65,7 @@ class MyController {
 angular.controller('MyController', MyController);
 ```
 
-Modules
--------
+## Modules
 
   - `apina-core` main apina code
   - `apina-cli` command line interface for running conversion
