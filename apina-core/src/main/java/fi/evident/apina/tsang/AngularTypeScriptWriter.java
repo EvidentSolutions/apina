@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static fi.evident.apina.utils.ResourceUtils.readResourceAsString;
+import static fi.evident.apina.utils.StringUtils.uncapitalize;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
@@ -72,15 +73,22 @@ public final class AngularTypeScriptWriter {
     private void writeEndpointInterfaces(Collection<EndpointGroup> endpointGroups) {
         out.writeExportedModule("Endpoints", () -> {
             for (EndpointGroup endpointGroup : endpointGroups) {
-                out.writeExportedInterface("I" + endpointGroup.getName(), () -> {
-                    for (Endpoint endpoint : endpointGroup.getEndpoints())
-                        out.writeLine(endpointSignature(endpoint));
+                out.writeBlock("export class " + endpointGroup.getName(), () -> {
+
+                    out.writeBlock("constructor(private context: Support.EndpointContext)", () -> {
+
+                    });
+
+                    for (Endpoint endpoint : endpointGroup.getEndpoints()) {
+                        writeEndpoint(endpoint);
+                        out.writeLine().writeLine();
+                    }
                 });
             }
 
             out.writeExportedInterface("IEndpointGroups", () -> {
                 for (EndpointGroup endpointGroup : endpointGroups)
-                    out.writeLine(endpointGroup.getName() + ": I" + endpointGroup.getName());
+                    out.writeLine(uncapitalize(endpointGroup.getName()) + ": " + endpointGroup.getName());
             });
         });
     }
@@ -90,20 +98,13 @@ public final class AngularTypeScriptWriter {
 
         out.write("return ").writeBlock(() -> {
 
-            for (Iterator<EndpointGroup> groupIterator = endpointGroups.iterator(); groupIterator.hasNext(); ) {
-                EndpointGroup endpointGroup = groupIterator.next();
+            for (Iterator<EndpointGroup> it = endpointGroups.iterator(); it.hasNext(); ) {
+                EndpointGroup endpointGroup = it.next();
 
-                out.write(endpointGroup.getName() + ": ").writeBlock(() -> {
-                    for (Iterator<Endpoint> it = endpointGroup.getEndpoints().iterator(); it.hasNext(); ) {
-                        writeEndpoint(it.next());
-                        if (it.hasNext())
-                            out.writeLine(", ");
-                        out.writeLine();
-                    }
-                });
+                out.write(String.format("%s: new Endpoints.%s(context)", uncapitalize(endpointGroup.getName()), endpointGroup.getName()));
 
-                if (groupIterator.hasNext())
-                    out.writeLine(", ");
+                if (it.hasNext())
+                    out.write(", ");
 
                 out.writeLine();
             }
@@ -114,7 +115,7 @@ public final class AngularTypeScriptWriter {
 
     private void writeEndpoint(Endpoint endpoint) {
         out.write(endpointSignature(endpoint)).write(" ").writeBlock(() ->
-                out.write("return context.request(").writeValue(createConfig(endpoint)).writeLine(");"));
+                out.write("return this.context.request(").writeValue(createConfig(endpoint)).writeLine(");"));
     }
 
     private static String endpointSignature(Endpoint endpoint) {
@@ -174,7 +175,7 @@ public final class AngularTypeScriptWriter {
      * to transfer representation.
      */
     private static RawCode serialize(String variable, ApiType type) {
-        return new RawCode("context.serialize(" + variable + ", '" + typeDescriptor(type) + "')");
+        return new RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type) + "')");
     }
 
     private static String qualifiedTypeName(ApiType type) {
