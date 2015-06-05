@@ -1,7 +1,10 @@
-interface Promise<T> extends angular.IPromise<T> {
-}
-
 export module Support {
+
+    export interface IPromise<T> {
+        then<TResult>(successCallback: (promiseValue: T) => IPromise<TResult>|TResult, errorCallback?: (reason: any) => any, notifyCallback?: (state: any) => any): IPromise<TResult>;
+        catch<TResult>(onRejected: (reason: any) => IPromise<TResult>|TResult): IPromise<TResult>;
+        finally<TResult>(finallyCallback: () => any): IPromise<TResult>;
+    }
 
     export interface IRequestData {
         uriTemplate: string
@@ -13,7 +16,7 @@ export module Support {
     }
 
     export interface IHttpProvider {
-        request(url: string, method: string, params: any, data: any): Promise<any>
+        request(url: string, method: string, params: any, data: any): IPromise<any>
     }
 
     export interface ISerializer {
@@ -41,7 +44,7 @@ export module Support {
         constructor(private httpProvider: IHttpProvider) {
         }
 
-        request(data: IRequestData): Promise<any> {
+        request(data: IRequestData): IPromise<any> {
             var url = this.buildUrl(data.uriTemplate, data.pathVariables);
 
             var responsePromise = this.httpProvider.request(url, data.method, data.requestParams, data.requestBody);
@@ -156,7 +159,7 @@ export module Support {
             constructor(private $http: angular.IHttpService) {
             }
 
-            request(url: string, method: string, params: any, data: any): Promise<any> {
+            request(url: string, method: string, params: any, data: any): IPromise<any> {
                 return this.$http({
                     url: url,
                     method: method,

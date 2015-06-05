@@ -122,7 +122,7 @@ public final class AngularTypeScriptWriter {
         String parameters = parameterListCode(endpoint.getParameters());
         String resultType = endpoint.getResponseBody().map(AngularTypeScriptWriter::qualifiedTypeName).orElse("void");
 
-        return format("%s(%s): Promise<%s>", name, parameters, resultType);
+        return format("%s(%s): Support.IPromise<%s>", name, parameters, resultType);
     }
 
     private static String parameterListCode(List<EndpointParameter> parameters) {
