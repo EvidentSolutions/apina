@@ -1,5 +1,6 @@
 package fi.evident.apina.output.ts;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -54,6 +55,8 @@ final class CodeWriter {
             writeMap((Map<?, ?>) obj);
         } else if (obj instanceof String) {
             writeString((String) obj);
+        } else if (obj instanceof Collection<?>) {
+            writeCollection((Collection<?>) obj);
         } else {
             out.append(String.valueOf(obj));
         }
@@ -104,6 +107,19 @@ final class CodeWriter {
                 writeLine();
             }
         });
+    }
+
+    private void writeCollection(Collection<?> obj) {
+        write("[");
+
+        for (Iterator<?> it = obj.iterator(); it.hasNext(); ) {
+            writeValue(it.next());
+
+            if (it.hasNext())
+                write(", ");
+        }
+
+        write("]");
     }
 
     private void writeString(String s) {
