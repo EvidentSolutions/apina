@@ -4,7 +4,7 @@ import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.spring.SpringModelReader;
-import fi.evident.apina.tsang.AngularTypeScriptWriter;
+import fi.evident.apina.tsang.TypeScriptGenerator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.InputFiles;
@@ -56,7 +56,7 @@ public class ApinaTask extends DefaultTask {
             log.warn("Writing {} unknown class definitions as black boxes: {}", unknownTypes.size(), unknownTypes);
         }
 
-        AngularTypeScriptWriter writer = new AngularTypeScriptWriter(api);
+        TypeScriptGenerator writer = new TypeScriptGenerator(api);
         writer.writeApi();
 
         writeFile(writer.getOutput(), target, "UTF-8");

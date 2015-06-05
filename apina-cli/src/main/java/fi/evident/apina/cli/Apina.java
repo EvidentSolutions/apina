@@ -4,7 +4,7 @@ import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.spring.SpringModelReader;
-import fi.evident.apina.tsang.AngularTypeScriptWriter;
+import fi.evident.apina.tsang.TypeScriptGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public final class Apina {
                 log.warn("Writing {} unknown class definitions as black boxes: {}", unknownTypes.size(), unknownTypes);
             }
 
-            AngularTypeScriptWriter writer = new AngularTypeScriptWriter(api);
+            TypeScriptGenerator writer = new TypeScriptGenerator(api);
             writer.writeApi();
             String output = writer.getOutput();
 

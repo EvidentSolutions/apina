@@ -22,13 +22,13 @@ import static java.util.stream.Collectors.joining;
 /**
  * Generates TypeScript code for client side.
  */
-public final class AngularTypeScriptWriter {
+public final class TypeScriptGenerator {
 
     private final CodeWriter out = new CodeWriter();
     private final ApiDefinition api;
     private final List<String> startDeclarations = new ArrayList<>();
 
-    public AngularTypeScriptWriter(ApiDefinition api) {
+    public TypeScriptGenerator(ApiDefinition api) {
         this.api = requireNonNull(api);
     }
 
@@ -121,7 +121,7 @@ public final class AngularTypeScriptWriter {
     private static String endpointSignature(Endpoint endpoint) {
         String name = endpoint.getName();
         String parameters = parameterListCode(endpoint.getParameters());
-        String resultType = endpoint.getResponseBody().map(AngularTypeScriptWriter::qualifiedTypeName).orElse("void");
+        String resultType = endpoint.getResponseBody().map(TypeScriptGenerator::qualifiedTypeName).orElse("void");
 
         return format("%s(%s): Support.IPromise<%s>", name, parameters, resultType);
     }
