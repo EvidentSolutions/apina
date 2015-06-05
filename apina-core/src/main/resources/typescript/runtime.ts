@@ -172,10 +172,14 @@ export module Support {
         }
 
         var apinaModule = angular.module('apina.api', []);
-        apinaModule.service('endpointGroups', ['$http', ($http: angular.IHttpService) => {
-            var context = new Support.EndpointContext(new AngularHttpProvider($http));
+
+        apinaModule.service('endpointContext', ['$http', ($http: angular.IHttpService) => {
+            var context = new EndpointContext(new AngularHttpProvider($http));
             Types.registerDefaultSerializers(context);
-            return Endpoints.createEndpointGroups(context);
+            return context;
         }]);
+
+        apinaModule.service('endpointGroups', ['endpointContext', (endpointContext: EndpointContext) =>
+            Endpoints.createEndpointGroups(endpointContext)]);
     }
 }
