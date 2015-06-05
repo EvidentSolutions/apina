@@ -42,7 +42,7 @@ public final class AngularTypeScriptWriter {
 
         writeEndpointInterfaces(api.getEndpointGroups());
 
-        out.write("export function createEndpointGroups(context: Support.Context): Endpoints.IEndpointGroups ").writeBlock(() -> {
+        out.write("export function createEndpointGroups(context: Support.EndpointContext): Endpoints.IEndpointGroups ").writeBlock(() -> {
             writeSerializerDefinitions();
             writeEndpoints(api.getEndpointGroups());
         });

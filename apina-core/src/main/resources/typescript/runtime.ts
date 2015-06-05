@@ -37,7 +37,7 @@ export module Support {
         [name: string]: ISerializer
     }
 
-    export class Context {
+    export class EndpointContext {
 
         private serializers: ISerializerMap = defaultSerializers();
 
@@ -171,6 +171,6 @@ export module Support {
 
         var apinaModule = angular.module('apina.api', []);
         apinaModule.service('endpointGroups', ['$http', ($http: angular.IHttpService) =>
-            createEndpointGroups(new Support.Context(new AngularHttpProvider($http)))]);
+            createEndpointGroups(new Support.EndpointContext(new AngularHttpProvider($http)))]);
     }
 }
