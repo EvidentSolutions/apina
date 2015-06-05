@@ -100,8 +100,8 @@ export module Support {
 
                 var result = {};
 
-                for (var name in obj) {
-                    if (obj.hasOwnProperty(name)) {
+                for (var name in fields) {
+                    if (fields.hasOwnProperty(name)) {
                         var value = obj[name];
                         var type = fields[name];
                         result[name] = propertyMapper(value, type);
