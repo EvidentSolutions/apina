@@ -39,6 +39,8 @@ public class ApinaTask extends DefaultTask {
         for (File file : classpath)
             myClasspath.addRoot(file.toPath());
 
+        // TODO: this code is duplication from Apina.java
+
         ApiDefinition api = SpringModelReader.readApiDefinition(myClasspath);
 
         log.debug("Loaded {} endpoint groups with {} endpoints.", api.getEndpointGroupCount(), api.getEndpointCount());
