@@ -37,24 +37,13 @@ export module Support {
         [name: string]: ISerializer
     }
 
-    export class EndpointContext {
-
-        private serializers: ISerializerMap = defaultSerializers();
-
-        constructor(private httpProvider: IHttpProvider) {
-        }
-
-        request(data: IRequestData): IPromise<any> {
-            var url = this.buildUrl(data.uriTemplate, data.pathVariables);
-
-            var responsePromise = this.httpProvider.request(url, data.method, data.requestParams, data.requestBody);
-            if (data.responseType) {
-                var serializer = this.lookupSerializer(data.responseType);
-                return responsePromise.then(r => serializer.deserialize(r));
-            } else {
-                return responsePromise;
-            }
-        }
+    export class SerializationConfig {
+        private serializers: ISerializerMap = {
+            any: identitySerializer,
+            string: identitySerializer,
+            number: identitySerializer,
+            boolean: identitySerializer
+        };
 
         serialize(value: any, type: string): any {
             return this.lookupSerializer(type).serialize(value);
@@ -62,22 +51,6 @@ export module Support {
 
         deserialize(value: any, type: string): any {
             return this.lookupSerializer(type).deserialize(value);
-        }
-
-        private lookupSerializer(type: string): ISerializer {
-            if (!type) throw new Error("no type given");
-
-            if (type.indexOf('[]', type.length - 2) !== -1) { // type.endsWith('[]')
-                var elementType = type.substring(0, type.length - 2);
-                var elementSerializer = this.lookupSerializer(elementType);
-                return arraySerializer(elementSerializer);
-            }
-            var serializer = this.serializers[type];
-            if (serializer) {
-                return serializer;
-            } else {
-                throw new Error(`could not find serializer for type '${type}'`);
-            }
         }
 
         registerSerializer(name: string, serializer: ISerializer) {
@@ -123,6 +96,47 @@ export module Support {
             };
         }
 
+        private lookupSerializer(type: string): ISerializer {
+            if (!type) throw new Error("no type given");
+
+            if (type.indexOf('[]', type.length - 2) !== -1) { // type.endsWith('[]')
+                var elementType = type.substring(0, type.length - 2);
+                var elementSerializer = this.lookupSerializer(elementType);
+                return arraySerializer(elementSerializer);
+            }
+            var serializer = this.serializers[type];
+            if (serializer) {
+                return serializer;
+            } else {
+                throw new Error(`could not find serializer for type '${type}'`);
+            }
+        }
+    }
+
+    export class EndpointContext {
+
+        constructor(private httpProvider: IHttpProvider, private serializationConfig: SerializationConfig) {
+        }
+
+        request(data: IRequestData): IPromise<any> {
+            var url = this.buildUrl(data.uriTemplate, data.pathVariables);
+
+            var responsePromise = this.httpProvider.request(url, data.method, data.requestParams, data.requestBody);
+            if (data.responseType) {
+                return responsePromise.then(r => this.deserialize(r, data.responseType));
+            } else {
+                return responsePromise;
+            }
+        }
+
+        serialize(value: any, type: string): any {
+            return this.serializationConfig.serialize(value, type);
+        }
+
+        deserialize(value: any, type: string): any {
+            return this.serializationConfig.deserialize(value, type);
+        }
+
         private buildUrl(uriTemplate: String, pathVariables: any): string {
             return uriTemplate.replace(/\{([^}]+)}/g, (match, name) => pathVariables[name]);
         }
@@ -146,15 +160,6 @@ export module Support {
         }
     }
 
-    function defaultSerializers(): ISerializerMap {
-        return {
-            any: identitySerializer,
-            string: identitySerializer,
-            number: identitySerializer,
-            boolean: identitySerializer
-        };
-    }
-
     module Angular {
         class AngularHttpProvider implements Support.IHttpProvider {
 
@@ -171,15 +176,17 @@ export module Support {
             }
         }
 
+        var serializationConfig = new SerializationConfig();
+        Types.registerDefaultSerializers(serializationConfig);
+
         var apinaModule = angular.module('apina.api', []);
 
-        apinaModule.service('endpointContext', ['$http', ($http: angular.IHttpService) => {
-            var context = new EndpointContext(new AngularHttpProvider($http));
-            Types.registerDefaultSerializers(context);
-            return context;
-        }]);
+        apinaModule.constant('apinaSerializationConfig', serializationConfig);
 
-        apinaModule.service('endpointGroups', ['endpointContext', (endpointContext: EndpointContext) =>
-            Endpoints.createEndpointGroups(endpointContext)]);
+        apinaModule.service('apinaEndpointContext', ['$http', 'apinaSerializationConfig', ($http: angular.IHttpService, apinaSerializationConfig: SerializationConfig) =>
+            new EndpointContext(new AngularHttpProvider($http), apinaSerializationConfig)]);
+
+        apinaModule.service('endpointGroups', ['apinaEndpointContext', (apinaEndpointContext: EndpointContext) =>
+            Endpoints.createEndpointGroups(apinaEndpointContext)]);
     }
 }

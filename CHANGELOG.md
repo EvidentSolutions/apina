@@ -2,7 +2,8 @@
 
 ### New features
 
-- Expose `Support.EndpointContext` as angular-service `endpointContext`. This allows us to override serializers.
+- Expose `Support.EndpointContext` as angular-service `apinaEndpointContext` and `Support.SerializationConfig` as
+  `apinaSerializationConfig`. This allows us to override serializers.
   ([#3](https://github.com/EvidentSolutions/apina/issues/3))
 
 ### Breaking changes

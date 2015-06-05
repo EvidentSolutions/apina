@@ -38,10 +38,9 @@ public final class TypeScriptGenerator {
 
     public void writeApi() throws IOException {
         writeStartDeclarations();
-        writeRuntime();
         writeTypes();
-
         writeEndpointInterfaces(api.getEndpointGroups());
+        writeRuntime();
     }
 
     private void writeCreateEndpointGroups() {
@@ -211,9 +210,9 @@ public final class TypeScriptGenerator {
     }
 
     private void writeSerializerDefinitions() {
-        out.write("export function registerDefaultSerializers(context: Support.EndpointContext) ").writeBlock(() -> {
+        out.write("export function registerDefaultSerializers(config: Support.SerializationConfig) ").writeBlock(() -> {
             for (ApiClassType unknownType : api.getUnknownTypeReferences()) {
-                out.write("context.registerIdentitySerializer(").writeValue(unknownType.getName()).writeLine(");");
+                out.write("config.registerIdentitySerializer(").writeValue(unknownType.getName()).writeLine(");");
             }
             out.writeLine();
 
@@ -223,7 +222,7 @@ public final class TypeScriptGenerator {
                 for (PropertyDefinition property : classDefinition.getProperties())
                     defs.put(property.getName(), typeDescriptor(property.getType()));
 
-                out.write("context.registerClassSerializer(").writeValue(classDefinition.getType().toString()).write(", ");
+                out.write("config.registerClassSerializer(").writeValue(classDefinition.getType().toString()).write(", ");
                 out.writeValue(defs).writeLine(");");
                 out.writeLine();
             }
