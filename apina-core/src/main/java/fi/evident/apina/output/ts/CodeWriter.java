@@ -1,4 +1,4 @@
-package fi.evident.apina.tsang;
+package fi.evident.apina.output.ts;
 
 import java.util.Iterator;
 import java.util.Map;

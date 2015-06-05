@@ -1,4 +1,4 @@
-package fi.evident.apina.tsang;
+package fi.evident.apina.output.ts;
 
 import fi.evident.apina.model.*;
 import fi.evident.apina.model.parameters.EndpointParameter;

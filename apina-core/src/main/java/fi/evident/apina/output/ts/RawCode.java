@@ -1,4 +1,4 @@
-package fi.evident.apina.tsang;
+package fi.evident.apina.output.ts;
 
 /**
  * Represents raw piece of code written as it is when passed to {@link CodeWriter#writeValue(Object)}.
