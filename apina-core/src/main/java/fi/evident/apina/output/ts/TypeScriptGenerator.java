@@ -42,10 +42,24 @@ public final class TypeScriptGenerator {
         writeTypes();
 
         writeEndpointInterfaces(api.getEndpointGroups());
+    }
 
+    private void writeCreateEndpointGroups() {
         out.write("export function createEndpointGroups(context: Support.EndpointContext): Endpoints.IEndpointGroups ").writeBlock(() -> {
-            writeSerializerDefinitions();
-            writeEndpoints(api.getEndpointGroups());
+            out.write("return ").writeBlock(() -> {
+                for (Iterator<EndpointGroup> it = api.getEndpointGroups().iterator(); it.hasNext(); ) {
+                    EndpointGroup endpointGroup = it.next();
+
+                    out.write(String.format("%s: new Endpoints.%s(context)", uncapitalize(endpointGroup.getName()), endpointGroup.getName()));
+
+                    if (it.hasNext())
+                        out.write(", ");
+
+                    out.writeLine();
+                }
+            });
+
+            out.writeLine();
         });
 
         out.writeLine();
@@ -90,27 +104,9 @@ public final class TypeScriptGenerator {
                 for (EndpointGroup endpointGroup : endpointGroups)
                     out.writeLine(uncapitalize(endpointGroup.getName()) + ": " + endpointGroup.getName());
             });
+
+            writeCreateEndpointGroups();
         });
-    }
-
-    private void writeEndpoints(Collection<EndpointGroup> endpointGroups) {
-        out.writeLine();
-
-        out.write("return ").writeBlock(() -> {
-
-            for (Iterator<EndpointGroup> it = endpointGroups.iterator(); it.hasNext(); ) {
-                EndpointGroup endpointGroup = it.next();
-
-                out.write(String.format("%s: new Endpoints.%s(context)", uncapitalize(endpointGroup.getName()), endpointGroup.getName()));
-
-                if (it.hasNext())
-                    out.write(", ");
-
-                out.writeLine();
-            }
-        });
-
-        out.writeLine();
     }
 
     private void writeEndpoint(Endpoint endpoint) {
@@ -209,24 +205,30 @@ public final class TypeScriptGenerator {
                         out.writeLine(property.getName() + ": " + property.getType());
                 });
             }
+
+            writeSerializerDefinitions();
         });
     }
 
     private void writeSerializerDefinitions() {
-        for (ApiClassType unknownType : api.getUnknownTypeReferences()) {
-            out.write("context.registerIdentitySerializer(").writeValue(unknownType.getName()).writeLine(");");
-        }
-        out.writeLine();
-
-        for (ClassDefinition classDefinition : api.getClassDefinitions()) {
-            Map<String, String> defs = new LinkedHashMap<>();
-
-            for (PropertyDefinition property : classDefinition.getProperties())
-                defs.put(property.getName(), typeDescriptor(property.getType()));
-
-            out.write("context.registerClassSerializer(").writeValue(classDefinition.getType().toString()).write(", ");
-            out.writeValue(defs).writeLine(");");
+        out.write("export function registerDefaultSerializers(context: Support.EndpointContext) ").writeBlock(() -> {
+            for (ApiClassType unknownType : api.getUnknownTypeReferences()) {
+                out.write("context.registerIdentitySerializer(").writeValue(unknownType.getName()).writeLine(");");
+            }
             out.writeLine();
-        }
+
+            for (ClassDefinition classDefinition : api.getClassDefinitions()) {
+                Map<String, String> defs = new LinkedHashMap<>();
+
+                for (PropertyDefinition property : classDefinition.getProperties())
+                    defs.put(property.getName(), typeDescriptor(property.getType()));
+
+                out.write("context.registerClassSerializer(").writeValue(classDefinition.getType().toString()).write(", ");
+                out.writeValue(defs).writeLine(");");
+                out.writeLine();
+            }
+        });
+
+        out.writeLine().writeLine();
     }
 }

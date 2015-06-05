@@ -65,6 +65,8 @@ export module Support {
         }
 
         private lookupSerializer(type: string): ISerializer {
+            if (!type) throw new Error("no type given");
+
             if (type.indexOf('[]', type.length - 2) !== -1) { // type.endsWith('[]')
                 var elementType = type.substring(0, type.length - 2);
                 var elementSerializer = this.lookupSerializer(elementType);
@@ -170,7 +172,10 @@ export module Support {
         }
 
         var apinaModule = angular.module('apina.api', []);
-        apinaModule.service('endpointGroups', ['$http', ($http: angular.IHttpService) =>
-            createEndpointGroups(new Support.EndpointContext(new AngularHttpProvider($http)))]);
+        apinaModule.service('endpointGroups', ['$http', ($http: angular.IHttpService) => {
+            var context = new Support.EndpointContext(new AngularHttpProvider($http));
+            Types.registerDefaultSerializers(context);
+            return Endpoints.createEndpointGroups(context);
+        }]);
     }
 }
