@@ -71,12 +71,12 @@ export module Support {
                     return obj;
                 }
 
-                var result = {};
+                var result: any = {};
 
                 for (var name in fields) {
                     if (fields.hasOwnProperty(name)) {
-                        var value = obj[name];
-                        var type = fields[name];
+                        var value: any = obj[name];
+                        var type: string = fields[name];
                         result[name] = propertyMapper(value, type);
                     }
                 }
@@ -143,7 +143,7 @@ export module Support {
     }
 
     function arraySerializer(elementSerializer: ISerializer): ISerializer {
-        function safeMap(value, mapper) {
+        function safeMap(value: any[], mapper: (a: any) => any) {
             if (!value)
                 return value;
             else
@@ -192,7 +192,7 @@ export module Support {
         var endpointsModule = angular.module('apina.endpoints', ['apina.api']);
 
         Endpoints.endpointGroupNames.forEach(name => {
-            endpointsModule.factory(name + 'Endpoints', ['endpointGroups', (endpointGroups: Endpoints.IEndpointGroups) => endpointGroups[name]]);
+            endpointsModule.factory(name + 'Endpoints', ['endpointGroups', (endpointGroups: any) => endpointGroups[name]]);
         });
     }
 }
