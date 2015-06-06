@@ -5,6 +5,9 @@
 - Expose `Support.EndpointContext` as angular-service `apinaEndpointContext` and `Support.SerializationConfig` as
   `apinaSerializationConfig`. This allows us to override serializers.
   ([#3](https://github.com/EvidentSolutions/apina/issues/3))
+- Expose `apina.endpoints` module that directly binds all endpoint groups to angular module so that we don't need 
+  to inject `endpointGroups.` The keys are available as constants of form `Endpoints.Foo.KEY`.
+  ([#7](https://github.com/EvidentSolutions/apina/issues/7))
 
 ### Breaking changes
 

@@ -188,5 +188,11 @@ export module Support {
 
         apinaModule.service('endpointGroups', ['apinaEndpointContext', (apinaEndpointContext: EndpointContext) =>
             Endpoints.createEndpointGroups(apinaEndpointContext)]);
+
+        var endpointsModule = angular.module('apina.endpoints', ['apina.api']);
+
+        Endpoints.endpointGroupNames.forEach(name => {
+            endpointsModule.factory(name + 'Endpoints', ['endpointGroups', (endpointGroups: Endpoints.IEndpointGroups) => endpointGroups[name]]);
+        });
     }
 }

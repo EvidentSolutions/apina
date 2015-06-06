@@ -12,6 +12,7 @@ import fi.evident.apina.model.type.ApiType;
 import java.io.IOException;
 import java.util.*;
 
+import static fi.evident.apina.utils.CollectionUtils.map;
 import static fi.evident.apina.utils.ResourceUtils.readResourceAsString;
 import static fi.evident.apina.utils.StringUtils.uncapitalize;
 import static java.lang.String.format;
@@ -39,7 +40,7 @@ public final class TypeScriptGenerator {
     public void writeApi() throws IOException {
         writeStartDeclarations();
         writeTypes();
-        writeEndpointInterfaces(api.getEndpointGroups());
+        writeEndpoints(api.getEndpointGroups());
         writeRuntime();
     }
 
@@ -83,13 +84,18 @@ public final class TypeScriptGenerator {
         }
     }
 
-    private void writeEndpointInterfaces(Collection<EndpointGroup> endpointGroups) {
+    private void writeEndpoints(Collection<EndpointGroup> endpointGroups) {
         out.writeExportedModule("Endpoints", () -> {
+
+            List<String> names = map(endpointGroups, e -> uncapitalize(e.getName()));
+            out.write("export const endpointGroupNames = ").writeValue(names).writeLine(";").writeLine();
+
             for (EndpointGroup endpointGroup : endpointGroups) {
                 out.writeBlock("export class " + endpointGroup.getName(), () -> {
 
-                    out.writeBlock("constructor(private context: Support.EndpointContext)", () -> {
+                    out.write("static KEY = ").writeValue(uncapitalize(endpointGroup.getName()) + "Endpoints").writeLine(";").writeLine();
 
+                    out.writeBlock("constructor(private context: Support.EndpointContext)", () -> {
                     });
 
                     for (Endpoint endpoint : endpointGroup.getEndpoints()) {
