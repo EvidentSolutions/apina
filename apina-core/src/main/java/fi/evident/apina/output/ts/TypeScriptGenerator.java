@@ -205,9 +205,9 @@ public final class TypeScriptGenerator {
             out.writeLine();
 
             for (ClassDefinition classDefinition : api.getClassDefinitions()) {
-                out.writeExportedInterface(classDefinition.getType().getName(), () -> {
+                out.writeExportedClass(classDefinition.getType().getName(), () -> {
                     for (PropertyDefinition property : classDefinition.getProperties())
-                        out.writeLine(property.getName() + ": " + property.getType());
+                        out.writeLine(property.getName() + ": " + property.getType() + ";");
                 });
             }
 

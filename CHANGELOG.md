@@ -2,6 +2,8 @@
 
 ### New features
 
+- Write types as classes instead of interfaces. This means that they can be instantiated with a constructor
+  to get an instance with all properties.
 - Expose `Support.EndpointContext` as angular-service `apinaEndpointContext` and `Support.SerializationConfig` as
   `apinaSerializationConfig`. This allows us to override serializers.
   ([#3](https://github.com/EvidentSolutions/apina/issues/3))

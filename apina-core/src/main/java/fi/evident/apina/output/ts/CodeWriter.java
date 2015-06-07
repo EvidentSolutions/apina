@@ -72,6 +72,10 @@ final class CodeWriter {
         return writeBlock("export interface " + name, moduleWriter);
     }
 
+    public CodeWriter writeExportedClass(String name, Runnable moduleWriter) {
+        return writeBlock("export class " + name, moduleWriter);
+    }
+
     public CodeWriter writeBlock(String prefix, Runnable moduleWriter) {
         return write(prefix + " ").writeBlock(moduleWriter).writeLine().writeLine();
     }
