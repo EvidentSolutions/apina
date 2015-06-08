@@ -45,7 +45,7 @@ configure(subprojects) { project ->
 
 task publish {
     group = 'publishing'
-    description = 'Publishes all artifatcs'
+    description = 'Publishes all artifacts'
 
     dependsOn tasks.findByPath(':apina-gradle:publishPlugins')
     dependsOn tasks.findByPath(':apina-core:bintrayUpload')
