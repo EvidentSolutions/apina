@@ -42,7 +42,8 @@ single Spring controller and each endpoint to a single request handler method.
 
 There's an interface named `Endpoints.IEndpointGroups` which contains references to
 all endpoint groups and an instance of this interface is registered to AngularJS as
-`endpointGroups`.
+`endpointGroups`. If you include the Angular module `apina.endpoints`, each
+endpoint will be registered directly with key `Endpoints.MyEndpoint.KEY`.
 
 ### Example
 
@@ -52,13 +53,13 @@ If you have a Spring controller named `DocumentsController` with a method
 ```typescript
 import { Types, Endpoints } from 'apina-api';
 
-angular.factory('documents', (endpointGroups: Endpoints.IEndpointGroups) => endpointGroups.Documents));
-
 class MyController {
     document: Types.Document
     
-    constructor(documents: Endpoints.IDocuments) {
-        documents.findDocument(42).then(document => this.document = document);
+    static $inject = [Endpoints.Documents.KEY];
+    
+    constructor(documents: Endpoints.Documents) {
+        documents.findDocument(42).then(doc => this.document = doc);
     }
 }
 
