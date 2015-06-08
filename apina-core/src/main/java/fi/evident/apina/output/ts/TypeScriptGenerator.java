@@ -228,7 +228,7 @@ public final class TypeScriptGenerator {
                 for (PropertyDefinition property : classDefinition.getProperties())
                     defs.put(property.getName(), typeDescriptor(property.getType()));
 
-                out.write("config.registerClassSerializer(").writeValue(classDefinition.getType().toString()).write(", ");
+                out.write("config.registerClassSerializer(").writeValue(classDefinition.getType().getName()).write(", ");
                 out.writeValue(defs).writeLine(");");
                 out.writeLine();
             }
