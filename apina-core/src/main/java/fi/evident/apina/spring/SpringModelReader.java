@@ -67,14 +67,14 @@ public final class SpringModelReader {
         Endpoint endpoint = new Endpoint(method.getName(), resolveUriTemplate(method), responseBody);
         resolveRequestMethod(method).ifPresent(endpoint::setMethod);
 
-        TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema(), api);
+        JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(classes, method.getEffectiveSchema(), api);
         for (JavaParameter parameter : method.getParameters())
             parseParameter(typeTranslator, parameter).ifPresent(endpoint::addParameter);
 
         return endpoint;
     }
 
-    private static Optional<EndpointParameter> parseParameter(TypeTranslator typeTranslator, JavaParameter parameter) {
+    private static Optional<EndpointParameter> parseParameter(JacksonTypeTranslator typeTranslator, JavaParameter parameter) {
         String name = parameter.getName().orElse("?");
         ApiType type = typeTranslator.translateType(parameter.getType());
 
@@ -98,7 +98,7 @@ public final class SpringModelReader {
         JavaType returnType = method.getReturnType();
 
         if (!returnType.isVoid()) {
-            TypeTranslator typeTranslator = new TypeTranslator(classes, method.getEffectiveSchema(), api);
+            JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(classes, method.getEffectiveSchema(), api);
             return Optional.of(typeTranslator.translateType(returnType));
         } else {
             return Optional.empty();

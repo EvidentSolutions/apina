@@ -22,14 +22,14 @@ import static java.util.Objects.requireNonNull;
 /**
  * Translates Java types to model types.
  */
-final class TypeTranslator {
+final class JacksonTypeTranslator {
 
     private static final JavaBasicType JSON_IGNORE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonIgnore");
     private final ClassMetadataCollection classes;
     private final TypeSchema schema;
     private final ApiDefinition api;
 
-    public TypeTranslator(ClassMetadataCollection classes, TypeSchema schema, ApiDefinition api) {
+    public JacksonTypeTranslator(ClassMetadataCollection classes, TypeSchema schema, ApiDefinition api) {
         this.classes = requireNonNull(classes);
         this.schema = requireNonNull(schema);
         this.api = requireNonNull(api);
@@ -94,7 +94,7 @@ final class TypeTranslator {
 
             @Override
             public ApiType visit(JavaWildcardType type, TypeSchema ctx) {
-                return type.getLowerBound().map(TypeTranslator.this::translateType).orElse(ApiPrimitiveType.ANY);
+                return type.getLowerBound().map(JacksonTypeTranslator.this::translateType).orElse(ApiPrimitiveType.ANY);
             }
 
             @Override
