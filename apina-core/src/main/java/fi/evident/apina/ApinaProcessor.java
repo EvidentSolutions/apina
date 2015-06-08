@@ -2,6 +2,7 @@ package fi.evident.apina;
 
 import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.ApiDefinition;
+import fi.evident.apina.model.settings.TranslationSettings;
 import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.output.ts.TypeScriptGenerator;
 import fi.evident.apina.spring.SpringModelReader;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 public final class ApinaProcessor {
 
+    public final TranslationSettings settings = new TranslationSettings();
     private final Classpath classpath;
     private static final Logger log = LoggerFactory.getLogger(ApinaProcessor.class);
 
@@ -21,7 +23,7 @@ public final class ApinaProcessor {
     }
 
     public String process() throws IOException {
-        ApiDefinition api = SpringModelReader.readApiDefinition(classpath);
+        ApiDefinition api = SpringModelReader.readApiDefinition(classpath, settings);
 
         log.debug("Loaded {} endpoint groups with {} endpoints.", api.getEndpointGroupCount(), api.getEndpointCount());
         log.trace("Loaded endpoint groups: {}", api.getEndpointGroups());

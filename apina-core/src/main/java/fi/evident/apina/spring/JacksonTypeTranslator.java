@@ -6,10 +6,10 @@ import fi.evident.apina.java.model.type.*;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.ClassDefinition;
 import fi.evident.apina.model.PropertyDefinition;
-import fi.evident.apina.model.type.ApiArrayType;
-import fi.evident.apina.model.type.ApiClassType;
-import fi.evident.apina.model.type.ApiPrimitiveType;
-import fi.evident.apina.model.type.ApiType;
+import fi.evident.apina.model.settings.TranslationSettings;
+import fi.evident.apina.model.type.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,11 +25,14 @@ import static java.util.Objects.requireNonNull;
 final class JacksonTypeTranslator {
 
     private static final JavaBasicType JSON_IGNORE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonIgnore");
+    private final TranslationSettings settings;
     private final ClassMetadataCollection classes;
     private final TypeSchema schema;
     private final ApiDefinition api;
+    private static final Logger log = LoggerFactory.getLogger(JacksonTypeTranslator.class);
 
-    public JacksonTypeTranslator(ClassMetadataCollection classes, TypeSchema schema, ApiDefinition api) {
+    public JacksonTypeTranslator(TranslationSettings settings, ClassMetadataCollection classes, TypeSchema schema, ApiDefinition api) {
+        this.settings = requireNonNull(settings);
         this.classes = requireNonNull(classes);
         this.schema = requireNonNull(schema);
         this.api = requireNonNull(api);
@@ -105,7 +108,17 @@ final class JacksonTypeTranslator {
     }
 
     private ApiType translateClassType(JavaBasicType type) {
-        ApiClassType classType = new ApiClassType(translateClassName(type.getName()));
+        String translatedName = translateClassName(type.getName());
+
+        if (settings.isBlackBoxClass(type.getName())) {
+            log.debug("Translating {} as black box", type.getName());
+
+            ApiBlackBoxType blackBoxType = new ApiBlackBoxType(translatedName);
+            api.addBlackBox(blackBoxType);
+            return blackBoxType;
+        }
+
+        ApiClassType classType = new ApiClassType(translatedName);
 
         if (!api.containsClassType(classType)) {
             JavaClass aClass = classes.findClass(type).orElse(null);

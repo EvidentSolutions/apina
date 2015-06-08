@@ -10,6 +10,7 @@ import fi.evident.apina.model.parameters.EndpointParameter;
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
 import fi.evident.apina.model.parameters.EndpointRequestBodyParameter;
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
+import fi.evident.apina.model.settings.TranslationSettings;
 import fi.evident.apina.model.type.ApiType;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ import static java.util.Objects.requireNonNull;
 public final class SpringModelReader {
 
     private final ClassMetadataCollection classes;
+    private final TranslationSettings settings;
     private final ApiDefinition api = new ApiDefinition();
 
     private static final JavaBasicType REST_CONTROLLER = new JavaBasicType("org.springframework.web.bind.annotation.RestController");
@@ -33,12 +35,13 @@ public final class SpringModelReader {
     private static final JavaBasicType REQUEST_PARAM = new JavaBasicType("org.springframework.web.bind.annotation.RequestParam");
     private static final JavaBasicType PATH_VARIABLE = new JavaBasicType("org.springframework.web.bind.annotation.PathVariable");
 
-    private SpringModelReader(ClassMetadataCollection classes) {
+    private SpringModelReader(ClassMetadataCollection classes, TranslationSettings settings) {
         this.classes = requireNonNull(classes);
+        this.settings = requireNonNull(settings);
     }
 
-    public static ApiDefinition readApiDefinition(Classpath classpath) throws IOException {
-        SpringModelReader reader = new SpringModelReader(ClassMetadataCollectionLoader.load(classpath));
+    public static ApiDefinition readApiDefinition(Classpath classpath, TranslationSettings settings) throws IOException {
+        SpringModelReader reader = new SpringModelReader(ClassMetadataCollectionLoader.load(classpath), settings);
 
         reader.createEndpointsForControllers();
 
@@ -67,7 +70,7 @@ public final class SpringModelReader {
         Endpoint endpoint = new Endpoint(method.getName(), resolveUriTemplate(method), responseBody);
         resolveRequestMethod(method).ifPresent(endpoint::setMethod);
 
-        JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(classes, method.getEffectiveSchema(), api);
+        JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(settings, classes, method.getEffectiveSchema(), api);
         for (JavaParameter parameter : method.getParameters())
             parseParameter(typeTranslator, parameter).ifPresent(endpoint::addParameter);
 
@@ -98,7 +101,7 @@ public final class SpringModelReader {
         JavaType returnType = method.getReturnType();
 
         if (!returnType.isVoid()) {
-            JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(classes, method.getEffectiveSchema(), api);
+            JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(settings, classes, method.getEffectiveSchema(), api);
             return Optional.of(typeTranslator.translateType(returnType));
         } else {
             return Optional.empty();
