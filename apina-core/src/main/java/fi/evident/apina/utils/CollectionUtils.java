@@ -1,5 +1,6 @@
 package fi.evident.apina.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -46,5 +47,12 @@ public final class CollectionUtils {
 
     public static <T> Stream<T> optionalToStream(Optional<T> optional) {
         return optional.map(Stream::of).orElse(Stream.empty());
+    }
+
+    public static <T> List<T> concat(Collection<? extends T> xs, Collection<? extends T> ys) {
+        ArrayList<T> result = new ArrayList<>(xs.size() + ys.size());
+        result.addAll(xs);
+        result.addAll(ys);
+        return result;
     }
 }
