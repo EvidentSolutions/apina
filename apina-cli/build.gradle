@@ -9,3 +9,5 @@ dependencies {
 }
 
 mainClassName = 'fi.evident.apina.cli.Apina'
+
+assemble.dependsOn shadowJar
