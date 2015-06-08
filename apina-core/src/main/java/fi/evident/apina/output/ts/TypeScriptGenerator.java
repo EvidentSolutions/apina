@@ -5,7 +5,6 @@ import fi.evident.apina.model.parameters.EndpointParameter;
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
 import fi.evident.apina.model.type.ApiArrayType;
-import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.model.type.ApiPrimitiveType;
 import fi.evident.apina.model.type.ApiType;
 
@@ -198,8 +197,8 @@ public final class TypeScriptGenerator {
 
     private void writeTypes() {
         out.writeExportedModule("Types", () -> {
-            for (ApiClassType unknownType : api.getUnknownTypeReferences()) {
-                out.writeLine(format("export type %s = {};", unknownType.getName()));
+            for (ApiType unknownType : api.getAllBlackBoxClasses()) {
+                out.writeLine(format("export type %s = {};", unknownType.toString()));
             }
 
             out.writeLine();
@@ -217,8 +216,8 @@ public final class TypeScriptGenerator {
 
     private void writeSerializerDefinitions() {
         out.write("export function registerDefaultSerializers(config: Support.SerializationConfig) ").writeBlock(() -> {
-            for (ApiClassType unknownType : api.getUnknownTypeReferences()) {
-                out.write("config.registerIdentitySerializer(").writeValue(unknownType.getName()).writeLine(");");
+            for (ApiType unknownType : api.getAllBlackBoxClasses()) {
+                out.write("config.registerIdentitySerializer(").writeValue(unknownType.toString()).writeLine(");");
             }
             out.writeLine();
 

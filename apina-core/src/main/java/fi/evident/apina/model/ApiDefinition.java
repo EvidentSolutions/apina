@@ -1,12 +1,14 @@
 package fi.evident.apina.model;
 
 import fi.evident.apina.model.type.ApiArrayType;
+import fi.evident.apina.model.type.ApiBlackBoxType;
 import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.model.type.ApiType;
 
 import java.util.*;
 import java.util.stream.Stream;
 
+import static fi.evident.apina.utils.CollectionUtils.concat;
 import static fi.evident.apina.utils.CollectionUtils.optionalToStream;
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Objects.requireNonNull;
@@ -19,6 +21,7 @@ public final class ApiDefinition {
 
     private final Collection<EndpointGroup> endpointGroups = new ArrayList<>();
     private final Map<ApiClassType, ClassDefinition> classDefinitions = new TreeMap<>();
+    private final Set<ApiBlackBoxType> blackBoxTypes = new LinkedHashSet<>();
 
     public Collection<EndpointGroup> getEndpointGroups() {
         return unmodifiableCollection(endpointGroups);
@@ -56,6 +59,10 @@ public final class ApiDefinition {
         return classDefinitions.size();
     }
 
+    public Collection<ApiType> getAllBlackBoxClasses() {
+        return concat(blackBoxTypes, getUnknownTypeReferences());
+    }
+
     /**
      * Returns all class types that refer to unknown classes.
      */
@@ -82,5 +89,9 @@ public final class ApiDefinition {
         } else {
             return Stream.empty();
         }
+    }
+
+    public void addBlackBox(ApiBlackBoxType type) {
+        blackBoxTypes.add(requireNonNull(type));
     }
 }
