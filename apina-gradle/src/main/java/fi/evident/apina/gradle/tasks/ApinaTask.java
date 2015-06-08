@@ -1,10 +1,7 @@
 package fi.evident.apina.gradle.tasks;
 
+import fi.evident.apina.ApinaProcessor;
 import fi.evident.apina.java.reader.Classpath;
-import fi.evident.apina.model.ApiDefinition;
-import fi.evident.apina.model.type.ApiClassType;
-import fi.evident.apina.output.ts.TypeScriptGenerator;
-import fi.evident.apina.spring.SpringModelReader;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.InputFiles;
@@ -15,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 import static org.gradle.util.GFileUtils.writeFile;
@@ -39,29 +35,10 @@ public class ApinaTask extends DefaultTask {
         for (File file : classpath)
             myClasspath.addRoot(file.toPath());
 
-        // TODO: this code is duplication from Apina.java
+        ApinaProcessor processor = new ApinaProcessor(myClasspath);
+        String output = processor.process();
 
-        ApiDefinition api = SpringModelReader.readApiDefinition(myClasspath);
-
-        log.debug("Loaded {} endpoint groups with {} endpoints.", api.getEndpointGroupCount(), api.getEndpointCount());
-        log.trace("Loaded endpoint groups: {}", api.getEndpointGroups());
-
-        if (api.getEndpointCount() == 0) {
-            log.warn("Did not find any endpoints");
-        }
-
-        log.debug("Loaded {} class definitions", api.getClassDefinitionCount());
-        log.trace("Loaded class definitions: {}", api.getClassDefinitions());
-
-        Set<ApiClassType> unknownTypes = api.getUnknownTypeReferences();
-        if (!unknownTypes.isEmpty()) {
-            log.warn("Writing {} unknown class definitions as black boxes: {}", unknownTypes.size(), unknownTypes);
-        }
-
-        TypeScriptGenerator writer = new TypeScriptGenerator(api);
-        writer.writeApi();
-
-        writeFile(writer.getOutput(), target, "UTF-8");
+        writeFile(output, target, "UTF-8");
     }
 
     @InputFiles
