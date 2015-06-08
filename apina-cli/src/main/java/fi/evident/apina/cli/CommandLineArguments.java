@@ -10,7 +10,7 @@ final class CommandLineArguments {
     public final List<String> blackBoxPatterns = new ArrayList<>();
 
     private void parse(String arg) {
-        // The could be more general, but this is all we need for now.
+        // This could be more general, but this is all we need for now.
 
         Optional<String> blackBox = parseOptionalWithValue("black-box", arg);
 
