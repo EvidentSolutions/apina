@@ -197,6 +197,9 @@ public final class TypeScriptGenerator {
 
     private void writeTypes() {
         out.writeExportedModule("Types", () -> {
+            out.writeExportedInterface("IDictionary<V>", () ->
+                    out.writeLine("[key: string]: V"));
+
             for (ApiType unknownType : api.getAllBlackBoxClasses()) {
                 out.writeLine(format("export type %s = {};", unknownType.toString()));
             }
