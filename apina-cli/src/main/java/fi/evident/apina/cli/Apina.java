@@ -2,6 +2,7 @@ package fi.evident.apina.cli;
 
 import fi.evident.apina.ApinaProcessor;
 import fi.evident.apina.java.reader.Classpath;
+import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,19 +18,25 @@ public final class Apina {
     private static final Logger log = LoggerFactory.getLogger(Apina.class);
 
     public static void main(String[] args) {
-        if (args.length != 1 && args.length != 2) {
+        CommandLineArguments arguments = CommandLineArguments.parse(args);
+
+        if (arguments.files.size() != 1 && arguments.files.size() != 2) {
             System.err.printf("usage: apina INPUT1%sINPUT2%s... [OUTPUT]\n", File.pathSeparator, File.pathSeparator);
             System.exit(1);
         }
 
         try {
-            Classpath classpath = Classpath.parse(args[0]);
+            Classpath classpath = Classpath.parse(arguments.files.get(0));
 
             ApinaProcessor processor = new ApinaProcessor(classpath);
+
+            for (@Language("RegExp") String blackBoxPattern : arguments.blackBoxPatterns)
+                processor.settings.blackBoxClasses.addPattern(blackBoxPattern);
+
             String output = processor.process();
 
-            if (args.length == 2) {
-                Path outputFile = Paths.get(args[1]);
+            if (arguments.files.size() == 2) {
+                Path outputFile = Paths.get(arguments.files.get(1));
 
                 log.debug("Writing API to '{}'", outputFile);
                 Files.write(outputFile, output.getBytes(StandardCharsets.UTF_8));
