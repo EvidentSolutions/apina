@@ -51,7 +51,7 @@ final class JacksonTypeTranslator {
                     return new ApiArrayType(ApiPrimitiveType.ANY);
 
                 } else if (classes.isInstanceOf(type, Map.class)) {
-                    return ApiPrimitiveType.DICTIONARY;
+                    return new ApiDictionaryType(ApiPrimitiveType.ANY, ApiPrimitiveType.ANY);
 
                 } else if (type.equals(new JavaBasicType(String.class))) {
                     return ApiPrimitiveType.STRING;
@@ -80,6 +80,8 @@ final class JacksonTypeTranslator {
 
                 if (classes.isInstanceOf(baseType, Collection.class) && arguments.size() == 1)
                     return new ApiArrayType(translateType(arguments.get(0)));
+                else if (classes.isInstanceOf(baseType, Map.class) && arguments.size() == 2)
+                    return new ApiDictionaryType(translateType(arguments.get(0)), translateType(arguments.get(1)));
                 else
                     return translateType(baseType);
             }

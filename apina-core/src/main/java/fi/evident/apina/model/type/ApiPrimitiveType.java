@@ -6,7 +6,6 @@ public final class ApiPrimitiveType extends ApiType {
     public static final ApiType STRING = new ApiPrimitiveType("string");
     public static final ApiType BOOLEAN = new ApiPrimitiveType("boolean");
     public static final ApiType NUMBER = new ApiPrimitiveType("number");
-    public static final ApiType DICTIONARY = new ApiPrimitiveType("dictionary");
     public static final ApiType VOID = new ApiPrimitiveType("void");
     private final String name;
 
