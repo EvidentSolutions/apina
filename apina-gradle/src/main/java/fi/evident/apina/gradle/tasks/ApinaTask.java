@@ -4,14 +4,16 @@ import fi.evident.apina.ApinaProcessor;
 import fi.evident.apina.java.reader.Classpath;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.intellij.lang.annotations.Language;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static org.gradle.util.GFileUtils.writeFile;
@@ -22,7 +24,7 @@ public class ApinaTask extends DefaultTask {
 
     private FileCollection classpath;
 
-    private static final Logger log = LoggerFactory.getLogger(ApinaTask.class);
+    private List<String> blackBoxClasses = new ArrayList<>();
 
     public static final String GENERATE_API_CLIENT_TASK_NAME = "apina";
 
@@ -36,6 +38,10 @@ public class ApinaTask extends DefaultTask {
             myClasspath.addRoot(file.toPath());
 
         ApinaProcessor processor = new ApinaProcessor(myClasspath);
+
+        for (@Language("RegExp") String pattern : blackBoxClasses)
+            processor.settings.blackBoxClasses.addPattern(pattern);
+
         String output = processor.process();
 
         writeFile(output, target, "UTF-8");
@@ -57,5 +63,14 @@ public class ApinaTask extends DefaultTask {
 
     public void setTarget(File target) {
         this.target = target;
+    }
+
+    @Input
+    public List<String> getBlackBoxClasses() {
+        return blackBoxClasses;
+    }
+
+    public void setBlackBoxClasses(List<String> blackBoxTypePatterns) {
+        this.blackBoxClasses = blackBoxTypePatterns;
     }
 }
