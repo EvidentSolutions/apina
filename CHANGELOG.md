@@ -1,3 +1,10 @@
+## 0.2.1 (2015-06-10)
+
+### Bug fixes
+
+- Parse Spring path patterns with braces in regular expressions properly. (e.g. `/{id:[0-9a-zA-Z]{16}}`).
+  ([#14](https://github.com/EvidentSolutions/apina/issues/14))
+
 ## 0.2.0 (2015-06-08)
 
 ### New features

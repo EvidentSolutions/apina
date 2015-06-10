@@ -25,4 +25,14 @@ public class SpringUriTemplateParserTest {
     public void templateWithVariableConstraints() {
         assertThat(parseUriTemplate("foo/{bar:\\d+}/{baz:[ab]}"), is(new URITemplate("foo/{bar}/{baz}")));
     }
+
+    @Test
+    public void templatesWithClosingBracesInsideConstraints() {
+        assertThat(parseUriTemplate("/{id:[a-z]{16}[0-9]{4}}/foo"), is(new URITemplate("/{id}/foo")));
+    }
+
+    @Test
+    public void templatesWithEscapedBraces() {
+        assertThat(parseUriTemplate("/{id:\\}}/foo"), is(new URITemplate("/{id}/foo")));
+    }
 }

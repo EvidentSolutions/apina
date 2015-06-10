@@ -2,37 +2,80 @@ package fi.evident.apina.spring;
 
 import fi.evident.apina.model.URITemplate;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import static java.util.Objects.requireNonNull;
 
 final class SpringUriTemplateParser {
 
-    private static final Pattern TEMPLATE_VARS_PATTERN = Pattern.compile("\\{([^/]+?)\\}");
+    private final String template;
+    private int pos = 0;
+    private final StringBuilder result = new StringBuilder();
+
+    private SpringUriTemplateParser(String template) {
+        this.template = requireNonNull(template);
+    }
 
     /**
      * Converts URI-template in Spring format to plain URI-template, removing
      * the specified regex constraints from variables.
      */
     static URITemplate parseUriTemplate(String template) {
-        StringBuilder result = new StringBuilder();
+        SpringUriTemplateParser parser = new SpringUriTemplateParser(template);
+        parser.parse();
+        return new URITemplate(parser.result.toString());
+    }
 
-        Matcher matcher = TEMPLATE_VARS_PATTERN.matcher(template);
-        int end = 0;
+    private void parse() {
+        while (hasMore()) {
+            readPlainText();
 
-        while (matcher.find()) {
-            result.append(template.substring(end, matcher.start()));
-            result.append('{');
+            if (hasMore())
+                readVariable();
+        }
+    }
 
-            String match = matcher.group(1);
-            int colonIndex = match.indexOf(':');
-            result.append(colonIndex == -1 ? match : match.substring(0, colonIndex));
+    private char readChar() {
+        if (!hasMore()) throw new IllegalStateException("unexpected end of input");
 
-            result.append('}');
-            end = matcher.end();
+        return template.charAt(pos++);
+    }
+
+    private void readVariable() {
+        if (readChar() != '{') throw new IllegalStateException("expected '{'");
+
+        int braceLevel = 0;
+        int start = pos;
+
+        while (hasMore()) {
+            switch (template.charAt(pos++)) {
+                case '\\':
+                    readChar(); // skip next
+                    break;
+                case '{':
+                    braceLevel++;
+                    break;
+                case '}':
+                    if (braceLevel == 0) {
+                        String var = template.substring(start, pos - 1);
+                        int colonIndex = var.indexOf(':');
+
+                        result.append('{').append((colonIndex == -1) ? var : var.substring(0, colonIndex)).append('}');
+                        return;
+                    } else {
+                        braceLevel--;
+                    }
+                    break;
+            }
         }
 
-        result.append(template.substring(end, template.length()));
+        throw new IllegalStateException("unexpected end of input for template '" + template + '\'');
+    }
 
-        return new URITemplate(result.toString());
+    private void readPlainText() {
+        while (hasMore() && template.charAt(pos) != '{')
+            result.append(template.charAt(pos++));
+    }
+
+    private boolean hasMore() {
+        return pos < template.length();
     }
 }
