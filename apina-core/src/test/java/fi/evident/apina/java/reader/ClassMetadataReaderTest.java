@@ -4,12 +4,10 @@ import fi.evident.apina.java.model.JavaClass;
 import fi.evident.apina.java.model.JavaField;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 
+import static fi.evident.apina.java.reader.ClassReaderUtils.loadClass;
 import static fi.evident.apina.java.reader.JavaTypeMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -33,23 +31,6 @@ public class ClassMetadataReaderTest {
     @Test
     public void innerClassWithOuterBounds() {
         loadClass(AnonymousInnerClassWithOuterBounds.createInnerClassInstance().getClass());
-    }
-
-    private static JavaClass loadClass(Class<?> cl) {
-        try (InputStream in = openInputStreamForClassBytes(cl)) {
-            return ClassMetadataReader.loadMetadata(in);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static InputStream openInputStreamForClassBytes(Class<?> cl) throws IOException {
-        String resourceName = cl.getName().replace('.', '/') + ".class";
-        InputStream inputStream = cl.getClassLoader().getResourceAsStream(resourceName);
-        if (inputStream != null)
-            return inputStream;
-        else
-            throw new FileNotFoundException(resourceName);
     }
 
     @SuppressWarnings("unused")
