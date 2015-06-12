@@ -13,6 +13,7 @@ public final class JavaBasicType extends JavaType {
     public static JavaBasicType LONG = new JavaBasicType("long");
     public static JavaBasicType FLOAT = new JavaBasicType("float");
     public static JavaBasicType DOUBLE = new JavaBasicType("double");
+    public static JavaBasicType VOID = new JavaBasicType("void");
 
     public final String name;
 
