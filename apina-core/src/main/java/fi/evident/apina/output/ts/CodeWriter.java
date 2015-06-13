@@ -106,7 +106,7 @@ final class CodeWriter {
                 writeValue(entry.getValue());
 
                 if (it.hasNext())
-                    write(", ");
+                    write(",");
 
                 writeLine();
             }
