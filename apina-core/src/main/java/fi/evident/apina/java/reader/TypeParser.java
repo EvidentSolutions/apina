@@ -12,6 +12,7 @@ import org.objectweb.asm.signature.SignatureReader;
 
 import java.util.List;
 
+import static fi.evident.apina.utils.CollectionUtils.cons;
 import static fi.evident.apina.utils.CollectionUtils.map;
 
 /**
@@ -47,10 +48,28 @@ final class TypeParser {
     }
 
     public static MethodSignature parseMethodSignature(String methodDescriptor, @Nullable String signature) {
-        if (signature != null)
-            return parseGenericMethodSignature(signature);
-        else
-            return parseMethodDescriptor(methodDescriptor);
+        MethodSignature legacySignature = parseMethodDescriptor(methodDescriptor);
+        if (signature != null) {
+            MethodSignature genericSignature = parseGenericMethodSignature(signature);
+
+            // There are classes in the wild with differing argument counts for the two signatures.
+            // At least guava-jdk5-13.0's com/google/common/collect/AbstractMultimap$WrappedSortedSet
+            // is like this. All of the cases are the same: the implicit parent-class argument as the
+            // first argument is left out. If we detect that, create a new argument list mostly based
+            // on the generic signature, but using the parent type from non-generic descriptor.
+            if (legacySignature.getArgumentCount() == genericSignature.getArgumentCount() + 1) {
+                JavaType implicitParentType = legacySignature.getArgumentTypes().get(0);
+                return new MethodSignature(
+                        genericSignature.getReturnType(),
+                        cons(implicitParentType, genericSignature.getArgumentTypes()),
+                        genericSignature.getSchema());
+            } else {
+                assert legacySignature.getArgumentCount() == genericSignature.getArgumentCount();
+                return genericSignature;
+            }
+        }
+
+        return legacySignature;
     }
 
     static MethodSignature parseGenericMethodSignature(String signature) {

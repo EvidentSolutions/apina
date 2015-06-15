@@ -28,6 +28,10 @@ public final class MethodSignature {
         return returnType;
     }
 
+    public int getArgumentCount() {
+        return argumentTypes.size();
+    }
+
     public List<JavaType> getArgumentTypes() {
         return argumentTypes;
     }

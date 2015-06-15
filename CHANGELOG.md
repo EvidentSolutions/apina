@@ -1,3 +1,11 @@
+## 0.2.2 (yyyy-mm-dd)
+
+### Bug fixes
+
+- Support parsing method descriptors with differing argument counts for 
+  generic and non-generic signatures. These are not common, yet are present
+  in some legacy class files.
+
 ## 0.2.1 (2015-06-10)
 
 ### Bug fixes
