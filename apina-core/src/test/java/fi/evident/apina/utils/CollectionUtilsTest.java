@@ -4,8 +4,7 @@ import org.junit.Test;
 
 import java.util.Optional;
 
-import static fi.evident.apina.utils.CollectionUtils.concat;
-import static fi.evident.apina.utils.CollectionUtils.optionalToStream;
+import static fi.evident.apina.utils.CollectionUtils.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.toList;
@@ -25,5 +24,11 @@ public class CollectionUtilsTest {
         assertThat(concat(emptyList(), emptySet()), is(emptyList()));
         assertThat(concat(asList("foo", "bar"), asList("baz", "quux", "xyzzy")),
                 is(asList("foo", "bar", "baz", "quux", "xyzzy")));
+    }
+
+    @Test
+    public void consing() {
+        assertThat(cons("foo", emptyList()), is(singletonList("foo")));
+        assertThat(cons("foo", asList("bar", "baz")), is(asList("foo", "bar", "baz")));
     }
 }

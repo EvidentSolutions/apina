@@ -55,4 +55,11 @@ public final class CollectionUtils {
         result.addAll(ys);
         return result;
     }
+
+    public static <T> List<T> cons(T x, Collection<? extends T> xs) {
+        ArrayList<T> result = new ArrayList<>(xs.size() + 1);
+        result.add(x);
+        result.addAll(xs);
+        return result;
+    }
 }
