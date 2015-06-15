@@ -53,8 +53,10 @@ final class ClassPathScanner {
                 if (entry == null)
                     break;
 
-                if (entry.getName().endsWith(".class"))
+                if (entry.getName().endsWith(".class")) {
+                    log.trace("Processing class-file {} from {}", entry.getName(), archivePath);
                     processor.process(jar);
+                }
             }
         }
     }
@@ -64,6 +66,7 @@ final class ClassPathScanner {
             Files.walk(directory)
                     .filter(p -> isRegularFile(p) && p.toString().endsWith(".class"))
                     .forEach(file -> {
+                        log.trace("Processing class-file {}", file);
                         try (InputStream in = new BufferedInputStream(Files.newInputStream(file))) {
                             processor.process(in);
                         } catch (IOException e) {
