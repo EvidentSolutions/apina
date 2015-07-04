@@ -12,9 +12,7 @@ import fi.evident.apina.model.settings.TranslationSettings;
 import fi.evident.apina.model.type.*;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static fi.evident.apina.model.ModelMatchers.hasProperties;
 import static fi.evident.apina.model.ModelMatchers.property;
@@ -79,6 +77,18 @@ public class JacksonTypeTranslatorTest {
         assertThat(translateType(new JavaBasicType("foo.bar.Baz")), is(new ApiBlackBoxType("Baz")));
     }
 
+    @Test
+    public void translatingOptionalTypes() {
+        ClassDefinition classDefinition = translateClass(ClassWithOptionalTypes.class);
+
+        assertThat(classDefinition.getType(), is(new ApiClassType(ClassWithOptionalTypes.class.getSimpleName())));
+        assertThat(classDefinition.getProperties(), hasProperties(
+                property("optionalString", ApiPrimitiveType.STRING),
+                property("optionalInt", ApiPrimitiveType.NUMBER),
+                property("optionalLong", ApiPrimitiveType.NUMBER),
+                property("optionalDouble", ApiPrimitiveType.NUMBER)));
+    }
+
     private ApiType translateType(JavaType type) {
         ClassMetadataCollection classes = new ClassMetadataCollection(emptyList());
         ApiDefinition api = new ApiDefinition();
@@ -114,6 +124,13 @@ public class JacksonTypeTranslatorTest {
         public Map<String,Integer> stringIntegerMapField;
         public Map rawMapField;
         public Object objectField;
+    }
+
+    public static final class ClassWithOptionalTypes {
+        public Optional<String> optionalString;
+        public OptionalInt optionalInt;
+        public OptionalLong optionalLong;
+        public OptionalDouble optionalDouble;
     }
 
     @SuppressWarnings("unused")

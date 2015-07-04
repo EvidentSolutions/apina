@@ -1,3 +1,10 @@
+## x.y.z (yyyy-mm-dd)
+
+### New features
+
+- Support translation of optional types (`Optional<T>`, `OptionalInt`, `OptionalLong` and `OptionalDouble`).
+  ([#15](https://github.com/EvidentSolutions/apina/issues/15))
+
 ## 0.2.2 (2015-06-15)
 
 ### Bug fixes

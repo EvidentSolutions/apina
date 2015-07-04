@@ -11,12 +11,11 @@ import fi.evident.apina.model.type.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static fi.evident.apina.spring.NameTranslator.translateClassName;
 import static fi.evident.apina.utils.PropertyUtils.propertyNameForGetter;
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -24,12 +23,15 @@ import static java.util.Objects.requireNonNull;
  */
 final class JacksonTypeTranslator {
 
-    private static final JavaBasicType JSON_IGNORE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonIgnore");
     private final TranslationSettings settings;
     private final ClassMetadataCollection classes;
     private final TypeSchema schema;
     private final ApiDefinition api;
     private static final Logger log = LoggerFactory.getLogger(JacksonTypeTranslator.class);
+
+    private static final JavaBasicType JSON_IGNORE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonIgnore");
+    private static final List<JavaBasicType> OPTIONAL_NUMBER_TYPES =
+            asList(new JavaBasicType(OptionalInt.class), new JavaBasicType(OptionalLong.class), new JavaBasicType(OptionalDouble.class));
 
     public JacksonTypeTranslator(TranslationSettings settings, ClassMetadataCollection classes, TypeSchema schema, ApiDefinition api) {
         this.settings = requireNonNull(settings);
@@ -62,6 +64,9 @@ final class JacksonTypeTranslator {
                 } else if (type.equals(JavaBasicType.BOOLEAN) || type.equals(new JavaBasicType(Boolean.class))) {
                     return ApiPrimitiveType.BOOLEAN;
 
+                } else if (OPTIONAL_NUMBER_TYPES.contains(type)) {
+                    return ApiPrimitiveType.NUMBER;
+
                 } else if (type.equals(new JavaBasicType(Object.class))) {
                     return ApiPrimitiveType.ANY;
 
@@ -82,6 +87,8 @@ final class JacksonTypeTranslator {
                     return new ApiArrayType(translateType(arguments.get(0)));
                 else if (classes.isInstanceOf(baseType, Map.class) && arguments.size() == 2 && classes.isInstanceOf(arguments.get(0), String.class))
                     return new ApiDictionaryType(translateType(arguments.get(1)));
+                else if (classes.isInstanceOf(baseType, Optional.class) && arguments.size() == 1)
+                    return translateType(arguments.get(0));
                 else
                     return translateType(baseType);
             }
