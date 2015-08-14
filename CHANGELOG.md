@@ -4,6 +4,7 @@
 
 - Support translation of optional types (`Optional<T>`, `OptionalInt`, `OptionalLong` and `OptionalDouble`).
   ([#15](https://github.com/EvidentSolutions/apina/issues/15))
+- Support configuring base URL for API calls. ([#13](https://github.com/EvidentSolutions/apina/issues/13))
 
 ## Breaking changes
 
