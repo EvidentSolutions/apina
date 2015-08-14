@@ -37,7 +37,7 @@ export module Support {
         [name: string]: ISerializer
     }
 
-    export class SerializationConfig {
+    export class ApinaConfig {
         private serializers: ISerializerMap = {
             any: identitySerializer,
             string: identitySerializer,
@@ -115,7 +115,7 @@ export module Support {
 
     export class EndpointContext {
 
-        constructor(private httpProvider: IHttpProvider, private serializationConfig: SerializationConfig) {
+        constructor(private httpProvider: IHttpProvider, private config: ApinaConfig) {
         }
 
         request(data: IRequestData): IPromise<any> {
@@ -130,11 +130,11 @@ export module Support {
         }
 
         serialize(value: any, type: string): any {
-            return this.serializationConfig.serialize(value, type);
+            return this.config.serialize(value, type);
         }
 
         deserialize(value: any, type: string): any {
-            return this.serializationConfig.deserialize(value, type);
+            return this.config.deserialize(value, type);
         }
 
         private buildUrl(uriTemplate: String, pathVariables: any): string {
@@ -176,15 +176,15 @@ export module Support {
             }
         }
 
-        var serializationConfig = new SerializationConfig();
-        Types.registerDefaultSerializers(serializationConfig);
+        var apinaConfig = new ApinaConfig();
+        Types.registerDefaultSerializers(apinaConfig);
 
         var apinaModule = angular.module('apina.api', []);
 
-        apinaModule.constant('apinaSerializationConfig', serializationConfig);
+        apinaModule.constant('apinaConfig', apinaConfig);
 
-        apinaModule.service('apinaEndpointContext', ['$http', 'apinaSerializationConfig', ($http: angular.IHttpService, apinaSerializationConfig: SerializationConfig) =>
-            new EndpointContext(new AngularHttpProvider($http), apinaSerializationConfig)]);
+        apinaModule.service('apinaEndpointContext', ['$http', 'apinaConfig', ($http: angular.IHttpService, apinaConfig: ApinaConfig) =>
+            new EndpointContext(new AngularHttpProvider($http), apinaConfig)]);
 
         apinaModule.service('endpointGroups', ['apinaEndpointContext', (apinaEndpointContext: EndpointContext) =>
             Endpoints.createEndpointGroups(apinaEndpointContext)]);
