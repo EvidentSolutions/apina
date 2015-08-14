@@ -38,6 +38,10 @@ export module Support {
     }
 
     export class ApinaConfig {
+
+        /** Prefix added for all API calls */
+        baseUrl: string = "";
+
         private serializers: ISerializerMap = {
             any: identitySerializer,
             string: identitySerializer,
@@ -163,12 +167,12 @@ export module Support {
     module Angular {
         class AngularHttpProvider implements Support.IHttpProvider {
 
-            constructor(private $http: angular.IHttpService) {
+            constructor(private $http: angular.IHttpService, private config: Support.ApinaConfig) {
             }
 
             request(url: string, method: string, params: any, data: any): IPromise<any> {
                 return this.$http({
-                    url: url,
+                    url: this.config.baseUrl + url,
                     method: method,
                     params: params,
                     data: data
@@ -183,8 +187,8 @@ export module Support {
 
         apinaModule.constant('apinaConfig', apinaConfig);
 
-        apinaModule.service('apinaEndpointContext', ['$http', 'apinaConfig', ($http: angular.IHttpService, apinaConfig: ApinaConfig) =>
-            new EndpointContext(new AngularHttpProvider($http), apinaConfig)]);
+        apinaModule.service('apinaEndpointContext', ['$http', ($http: angular.IHttpService) =>
+            new EndpointContext(new AngularHttpProvider($http, apinaConfig), apinaConfig)]);
 
         apinaModule.service('endpointGroups', ['apinaEndpointContext', (apinaEndpointContext: EndpointContext) =>
             Endpoints.createEndpointGroups(apinaEndpointContext)]);
