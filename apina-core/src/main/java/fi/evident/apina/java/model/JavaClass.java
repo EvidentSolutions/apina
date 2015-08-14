@@ -1,5 +1,6 @@
 package fi.evident.apina.java.model;
 
+import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 import fi.evident.apina.java.model.type.TypeSchema;
 import org.objectweb.asm.Opcodes;
@@ -101,5 +102,9 @@ public final class JavaClass implements JavaAnnotatedElement {
 
     public TypeSchema getSchema() {
         return schema;
+    }
+
+    public boolean hasMethodWithAnnotation(JavaBasicType annotationType) {
+        return methods.stream().anyMatch(m -> m.hasAnnotation(annotationType));
     }
 }

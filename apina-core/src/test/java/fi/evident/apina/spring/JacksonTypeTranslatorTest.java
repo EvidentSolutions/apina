@@ -1,5 +1,6 @@
 package fi.evident.apina.spring;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import fi.evident.apina.java.model.ClassMetadataCollection;
 import fi.evident.apina.java.model.JavaClass;
 import fi.evident.apina.java.model.type.JavaBasicType;
@@ -89,6 +90,13 @@ public class JacksonTypeTranslatorTest {
                 property("optionalDouble", ApiPrimitiveType.NUMBER)));
     }
 
+    @Test
+    public void typesWithJsonValueShouldBeBlackBoxes() {
+        ApiType apiType = translateClass(ClassWithJsonValue.class, new ApiDefinition());
+
+        assertThat(apiType, is(new ApiBlackBoxType("ClassWithJsonValue")));
+    }
+
     private ApiType translateType(JavaType type) {
         ClassMetadataCollection classes = new ClassMetadataCollection(emptyList());
         ApiDefinition api = new ApiDefinition();
@@ -98,16 +106,19 @@ public class JacksonTypeTranslatorTest {
     }
 
     private ClassDefinition translateClass(Class<?> cl) {
-        JavaClass javaClass = ClassReaderUtils.loadClass(cl);
-
-        ClassMetadataCollection classes = new ClassMetadataCollection(singleton(javaClass));
         ApiDefinition api = new ApiDefinition();
-        JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), api);
-
-        ApiType apiType = translator.translateType(javaClass.getType());
+        ApiType apiType = translateClass(cl, api);
 
         Optional<ClassDefinition> definition = api.getClassDefinitions().stream().filter(d -> d.getType().equals(apiType)).findAny();
         return definition.orElseThrow(() -> new AssertionError("could not find definition for " + apiType));
+    }
+
+    private ApiType translateClass(Class<?> cl, ApiDefinition api) {
+        JavaClass javaClass = ClassReaderUtils.loadClass(cl);
+        ClassMetadataCollection classes = new ClassMetadataCollection(singleton(javaClass));
+        JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), api);
+
+        return translator.translateType(javaClass.getType());
     }
 
     @SuppressWarnings({"unused", "rawtypes"})
@@ -131,6 +142,16 @@ public class JacksonTypeTranslatorTest {
         public OptionalInt optionalInt;
         public OptionalLong optionalLong;
         public OptionalDouble optionalDouble;
+    }
+
+    public static final class ClassWithJsonValue {
+        public String bar;
+        public String baz;
+
+        @JsonValue
+        public String foo() {
+            return "foo";
+        }
     }
 
     @SuppressWarnings("unused")

@@ -9,6 +9,7 @@ dependencies {
     compile "org.ow2.asm:asm:5.0.4"
 
     testCompile "junit:junit:4.12"
+    testCompile "com.fasterxml.jackson.core:jackson-annotations:2.6.1"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

@@ -30,6 +30,7 @@ final class JacksonTypeTranslator {
     private static final Logger log = LoggerFactory.getLogger(JacksonTypeTranslator.class);
 
     private static final JavaBasicType JSON_IGNORE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonIgnore");
+    private static final JavaBasicType JSON_VALUE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonValue");
     private static final List<JavaBasicType> OPTIONAL_NUMBER_TYPES =
             asList(new JavaBasicType(OptionalInt.class), new JavaBasicType(OptionalLong.class), new JavaBasicType(OptionalDouble.class));
 
@@ -119,7 +120,7 @@ final class JacksonTypeTranslator {
     private ApiType translateClassType(JavaBasicType type) {
         String translatedName = translateClassName(type.getName());
 
-        if (settings.isBlackBoxClass(type.getName())) {
+        if (settings.isBlackBoxClass(type.getName()) || hasJsonValueAnnotation(type)) {
             log.debug("Translating {} as black box", type.getName());
 
             ApiBlackBoxType blackBoxType = new ApiBlackBoxType(translatedName);
@@ -144,6 +145,10 @@ final class JacksonTypeTranslator {
         }
 
         return classType;
+    }
+
+    private boolean hasJsonValueAnnotation(JavaBasicType type) {
+        return classes.findClass(type).map(cl -> cl.hasMethodWithAnnotation(JSON_VALUE)).orElse(false);
     }
 
     private void initClassDefinition(ClassDefinition classDefinition, JavaClass javaClass) {
