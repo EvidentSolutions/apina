@@ -180,7 +180,7 @@ public final class TypeScriptGenerator {
 
     private static String qualifiedTypeName(ApiType type) {
         if (type instanceof ApiPrimitiveType) {
-            return type.toString();
+            return type.typeRepresentation();
         } else if (type instanceof ApiArrayType) {
             ApiArrayType arrayType = (ApiArrayType) type;
             return qualifiedTypeName(arrayType.getElementType()) + "[]";
@@ -190,9 +190,9 @@ public final class TypeScriptGenerator {
     }
 
     private static String typeDescriptor(ApiType type) {
-        // Use ApiType's native representation - i.e. ApiType.toString() - as type descriptor.
+        // Use ApiType's native representation as type descriptor.
         // This method encapsulates the call to make it meaningful in this context.
-        return type.toString();
+        return type.typeRepresentation();
     }
 
     private void writeTypes() {
@@ -201,7 +201,7 @@ public final class TypeScriptGenerator {
                     out.writeLine("[key: string]: V"));
 
             for (ApiType unknownType : api.getAllBlackBoxClasses()) {
-                out.writeLine(format("export type %s = {};", unknownType.toString()));
+                out.writeLine(format("export type %s = {};", unknownType.typeRepresentation()));
             }
 
             out.writeLine();
@@ -220,7 +220,7 @@ public final class TypeScriptGenerator {
     private void writeSerializerDefinitions() {
         out.write("export function registerDefaultSerializers(config: Support.ApinaConfig) ").writeBlock(() -> {
             for (ApiType unknownType : api.getAllBlackBoxClasses()) {
-                out.write("config.registerIdentitySerializer(").writeValue(unknownType.toString()).writeLine(");");
+                out.write("config.registerIdentitySerializer(").writeValue(unknownType.typeRepresentation()).writeLine(");");
             }
             out.writeLine();
 

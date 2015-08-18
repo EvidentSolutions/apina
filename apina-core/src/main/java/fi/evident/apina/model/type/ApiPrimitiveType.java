@@ -14,7 +14,7 @@ public final class ApiPrimitiveType extends ApiType {
     }
 
     @Override
-    public String toString() {
+    public String typeRepresentation() {
         return name;
     }
 

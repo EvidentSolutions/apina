@@ -32,7 +32,7 @@ public final class ApiDictionaryType extends ApiType {
     }
 
     @Override
-    public String toString() {
+    public String typeRepresentation() {
         return "IDictionary<" + valueType + '>';
     }
 }

@@ -35,9 +35,10 @@ public final class ApiClassType extends ApiType implements Comparable<ApiClassTy
     }
 
     @Override
-    public String toString() {
+    public String typeRepresentation() {
         return name;
     }
+
     @Override
     public int compareTo(@NotNull ApiClassType o) {
         return name.compareTo(o.name);

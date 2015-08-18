@@ -12,5 +12,9 @@ public abstract class ApiType {
     public abstract boolean equals(Object obj);
 
     @Override
-    public abstract String toString();
+    public final String toString() {
+        return typeRepresentation();
+    }
+
+    public abstract String typeRepresentation();
 }

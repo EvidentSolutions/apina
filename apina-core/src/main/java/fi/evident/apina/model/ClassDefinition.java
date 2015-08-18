@@ -39,6 +39,6 @@ public final class ClassDefinition {
 
     @Override
     public String toString() {
-        return type.toString();
+        return type.typeRepresentation();
     }
 }

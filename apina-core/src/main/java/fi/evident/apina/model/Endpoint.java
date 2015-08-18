@@ -89,7 +89,7 @@ public final class Endpoint {
     @Override
     public String toString() {
         return String.format("%s %s(%s): %s %s",
-                responseBody.map(ApiType::toString).orElse("void"),
+                responseBody.map(ApiType::typeRepresentation).orElse("void"),
                 name,
                 join(parameters, ", "),
                 method,

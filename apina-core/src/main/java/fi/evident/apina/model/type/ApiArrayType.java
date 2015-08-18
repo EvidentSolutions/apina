@@ -15,7 +15,7 @@ public final class ApiArrayType extends ApiType {
     }
 
     @Override
-    public String toString() {
+    public String typeRepresentation() {
         return elementType + "[]";
     }
 
