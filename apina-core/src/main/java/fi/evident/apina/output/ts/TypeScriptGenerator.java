@@ -218,7 +218,7 @@ public final class TypeScriptGenerator {
     }
 
     private void writeSerializerDefinitions() {
-        out.write("export function registerDefaultSerializers(config: Support.SerializationConfig) ").writeBlock(() -> {
+        out.write("export function registerDefaultSerializers(config: Support.ApinaConfig) ").writeBlock(() -> {
             for (ApiType unknownType : api.getAllBlackBoxClasses()) {
                 out.write("config.registerIdentitySerializer(").writeValue(unknownType.toString()).writeLine(");");
             }
