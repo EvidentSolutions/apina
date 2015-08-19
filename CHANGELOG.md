@@ -6,6 +6,7 @@
   ([#15](https://github.com/EvidentSolutions/apina/issues/15))
 - Support configuring base URL for API calls. ([#13](https://github.com/EvidentSolutions/apina/issues/13))
 - Use black-box translation for classes with `@JsonValue` ([#11](https://github.com/EvidentSolutions/apina/issues/11))
+- Support importing classes to be used instead of generated classes.
 
 ## Breaking changes
 
