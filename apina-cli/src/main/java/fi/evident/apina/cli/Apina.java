@@ -33,6 +33,9 @@ public final class Apina {
             for (@Language("RegExp") String blackBoxPattern : arguments.blackBoxPatterns)
                 processor.settings.blackBoxClasses.addPattern(blackBoxPattern);
 
+            for (CommandLineArguments.ImportArgument anImport : arguments.imports)
+                processor.settings.addImport(anImport.module, anImport.types);
+
             String output = processor.process();
 
             if (arguments.files.size() == 2) {
