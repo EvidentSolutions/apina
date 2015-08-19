@@ -22,11 +22,15 @@ public final class TranslationSettings {
         return blackBoxClasses.test(name);
     }
 
-    public void addImport(String typeName, String moduleName) {
-        if (!importedTypes.add(typeName))
-            throw new IllegalArgumentException("type " + typeName + " is already imported");
+    public void addImport(String moduleName, Collection<String> types) {
+        ImportDefinition importDefinition = importsByModule.computeIfAbsent(moduleName, ImportDefinition::new);
 
-        importsByModule.computeIfAbsent(moduleName, ImportDefinition::new).addType(typeName);
+        for (String type : types) {
+            if (!importedTypes.add(type))
+                throw new IllegalArgumentException("type " + type + " is already imported");
+
+            importDefinition.addType(type);
+        }
     }
 
     public Collection<ImportDefinition> getImports() {
