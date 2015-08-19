@@ -40,7 +40,7 @@ public final class ApinaProcessor {
             log.warn("Writing {} unknown class definitions as black boxes: {}", unknownTypes.size(), unknownTypes);
         }
 
-        TypeScriptGenerator writer = new TypeScriptGenerator(api);
+        TypeScriptGenerator writer = new TypeScriptGenerator(api, settings);
         writer.writeApi();
 
         return writer.getOutput();

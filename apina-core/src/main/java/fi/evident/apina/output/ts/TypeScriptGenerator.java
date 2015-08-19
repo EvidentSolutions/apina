@@ -4,6 +4,8 @@ import fi.evident.apina.model.*;
 import fi.evident.apina.model.parameters.EndpointParameter;
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
+import fi.evident.apina.model.settings.ImportDefinition;
+import fi.evident.apina.model.settings.TranslationSettings;
 import fi.evident.apina.model.type.ApiArrayType;
 import fi.evident.apina.model.type.ApiPrimitiveType;
 import fi.evident.apina.model.type.ApiType;
@@ -26,18 +28,15 @@ public final class TypeScriptGenerator {
 
     private final CodeWriter out = new CodeWriter();
     private final ApiDefinition api;
-    private final List<String> startDeclarations = new ArrayList<>();
+    private final TranslationSettings settings;
 
-    public TypeScriptGenerator(ApiDefinition api) {
+    public TypeScriptGenerator(ApiDefinition api, TranslationSettings settings) {
         this.api = requireNonNull(api);
-    }
-
-    public void addStartDeclaration(String declaration) {
-        startDeclarations.add(requireNonNull(declaration));
+        this.settings = requireNonNull(settings);
     }
 
     public void writeApi() throws IOException {
-        writeStartDeclarations();
+        writeImports();
         writeTypes();
         writeEndpoints(api.getEndpointGroups());
         writeRuntime();
@@ -74,10 +73,12 @@ public final class TypeScriptGenerator {
         out.writeLine();
     }
 
-    private void writeStartDeclarations() {
-        if (!startDeclarations.isEmpty()) {
-            for (String declaration : startDeclarations)
-                out.writeLine(declaration);
+    private void writeImports() {
+        Collection<ImportDefinition> imports = settings.getImports();
+
+        if (!imports.isEmpty()) {
+            for (ImportDefinition anImport : imports)
+                out.writeLine("import { " + String.join(", ", anImport.getTypes()) + " } from '" + anImport.getModuleName() + "';");
 
             out.writeLine();
         }
@@ -118,15 +119,15 @@ public final class TypeScriptGenerator {
                 out.write("return this.context.request(").writeValue(createConfig(endpoint)).writeLine(");"));
     }
 
-    private static String endpointSignature(Endpoint endpoint) {
+    private String endpointSignature(Endpoint endpoint) {
         String name = endpoint.getName();
         String parameters = parameterListCode(endpoint.getParameters());
-        String resultType = endpoint.getResponseBody().map(TypeScriptGenerator::qualifiedTypeName).orElse("void");
+        String resultType = endpoint.getResponseBody().map(this::qualifiedTypeName).orElse("void");
 
         return format("%s(%s): Support.IPromise<%s>", name, parameters, resultType);
     }
 
-    private static String parameterListCode(List<EndpointParameter> parameters) {
+    private String parameterListCode(List<EndpointParameter> parameters) {
         return parameters.stream()
                 .map(p -> p.getName() + ": " + qualifiedTypeName(p.getType()))
                 .collect(joining(", "));
@@ -178,14 +179,16 @@ public final class TypeScriptGenerator {
         return new RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type) + "')");
     }
 
-    private static String qualifiedTypeName(ApiType type) {
+    private String qualifiedTypeName(ApiType type) {
         if (type instanceof ApiPrimitiveType) {
             return type.typeRepresentation();
         } else if (type instanceof ApiArrayType) {
             ApiArrayType arrayType = (ApiArrayType) type;
             return qualifiedTypeName(arrayType.getElementType()) + "[]";
+        } else if (settings.isImported(type.typeRepresentation())) {
+            return type.typeRepresentation();
         } else {
-            return "Types." + type;
+            return "Types." + type.typeRepresentation();
         }
     }
 

@@ -120,6 +120,9 @@ final class JacksonTypeTranslator {
     private ApiType translateClassType(JavaBasicType type) {
         String translatedName = translateClassName(type.getName());
 
+        if (settings.isImported(translatedName))
+            return new ApiBlackBoxType(translatedName);
+
         if (settings.isBlackBoxClass(type.getName()) || hasJsonValueAnnotation(type)) {
             log.debug("Translating {} as black box", type.getName());
 
