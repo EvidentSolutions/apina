@@ -13,7 +13,9 @@ import org.intellij.lang.annotations.Language;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 import static org.gradle.util.GFileUtils.writeFile;
@@ -25,6 +27,8 @@ public class ApinaTask extends DefaultTask {
     private FileCollection classpath;
 
     private List<String> blackBoxClasses = new ArrayList<>();
+
+    private Map<String,List<String>> imports = new HashMap<>();
 
     public static final String GENERATE_API_CLIENT_TASK_NAME = "apina";
 
@@ -41,6 +45,9 @@ public class ApinaTask extends DefaultTask {
 
         for (@Language("RegExp") String pattern : blackBoxClasses)
             processor.settings.blackBoxClasses.addPattern(pattern);
+
+        for (Map.Entry<String, List<String>> anImport : imports.entrySet())
+            processor.settings.addImport(anImport.getKey(), anImport.getValue());
 
         String output = processor.process();
 
@@ -72,5 +79,14 @@ public class ApinaTask extends DefaultTask {
 
     public void setBlackBoxClasses(List<String> blackBoxTypePatterns) {
         this.blackBoxClasses = blackBoxTypePatterns;
+    }
+
+    @Input
+    public Map<String, List<String>> getImports() {
+        return imports;
+    }
+
+    public void setImports(Map<String, List<String>> imports) {
+        this.imports = imports;
     }
 }
