@@ -17,6 +17,7 @@ import java.util.*;
 
 import static fi.evident.apina.model.ModelMatchers.hasProperties;
 import static fi.evident.apina.model.ModelMatchers.property;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.hamcrest.Matchers.is;
@@ -95,6 +96,18 @@ public class JacksonTypeTranslatorTest {
         ApiType apiType = translateClass(ClassWithJsonValue.class, new ApiDefinition());
 
         assertThat(apiType, is(new ApiBlackBoxType("ClassWithJsonValue")));
+    }
+
+    @Test(expected = DuplicateClassNameException.class)
+    public void duplicateClassNames() {
+        JavaClass class1 = new JavaClass(new JavaBasicType("foo.MyClass"), new JavaBasicType("java.lang.Object"), emptyList(), 0, new TypeSchema());
+        JavaClass class2 = new JavaClass(new JavaBasicType("bar.MyClass"), new JavaBasicType("java.lang.Object"), emptyList(), 0, new TypeSchema());
+
+        ClassMetadataCollection classes = new ClassMetadataCollection(asList(class1, class2));
+        JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), new ApiDefinition());
+
+        translator.translateType(class1.getType());
+        translator.translateType(class2.getType());
     }
 
     private ApiType translateType(JavaType type) {

@@ -27,6 +27,13 @@ final class JacksonTypeTranslator {
     private final ClassMetadataCollection classes;
     private final TypeSchema schema;
     private final ApiDefinition api;
+
+    /**
+     * Maps translated simple names back to their original types.
+     * Needed to make sure that our mapping remains unique.
+     */
+    private final Map<String,JavaBasicType> translatedNames = new HashMap<>();
+
     private static final Logger log = LoggerFactory.getLogger(JacksonTypeTranslator.class);
 
     private static final JavaBasicType JSON_IGNORE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonIgnore");
@@ -118,7 +125,7 @@ final class JacksonTypeTranslator {
     }
 
     private ApiType translateClassType(JavaBasicType type) {
-        String translatedName = translateClassName(type.getName());
+        String translatedName = classNameForType(type);
 
         if (settings.isImported(translatedName))
             return new ApiBlackBoxType(translatedName);
@@ -148,6 +155,16 @@ final class JacksonTypeTranslator {
         }
 
         return classType;
+    }
+
+    private String classNameForType(JavaBasicType type) {
+        String translatedName = translateClassName(type.getName());
+
+        JavaBasicType existingType = translatedNames.putIfAbsent(translatedName, type);
+        if (existingType != null && !type.equals(existingType))
+            throw new DuplicateClassNameException(type.getName(), existingType.getName());
+
+        return translatedName;
     }
 
     private boolean hasJsonValueAnnotation(JavaBasicType type) {
