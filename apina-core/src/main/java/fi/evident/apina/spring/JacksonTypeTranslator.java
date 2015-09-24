@@ -2,6 +2,8 @@ package fi.evident.apina.spring;
 
 import fi.evident.apina.java.model.ClassMetadataCollection;
 import fi.evident.apina.java.model.JavaClass;
+import fi.evident.apina.java.model.JavaField;
+import fi.evident.apina.java.model.JavaMethod;
 import fi.evident.apina.java.model.type.*;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.ClassDefinition;
@@ -12,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static fi.evident.apina.spring.NameTranslator.translateClassName;
 import static fi.evident.apina.utils.PropertyUtils.propertyNameForGetter;
@@ -172,28 +175,67 @@ final class JacksonTypeTranslator {
     }
 
     private void initClassDefinition(ClassDefinition classDefinition, JavaClass javaClass) {
-        // TODO: support Jackson's annotations to override default mappings
+        Set<String> ignoredProperties = ignoredProperties(javaClass);
 
-        javaClass.getPublicFields()
-            .filter(f -> !f.isStatic() && !f.hasAnnotation(JSON_IGNORE))
-            .forEach(field -> {
-                String name = field.getName();
-                ApiType type = translateType(field.getType());
+        Predicate<String> acceptProperty = name -> !classDefinition.hasProperty(name) && !ignoredProperties.contains(name);
 
-                classDefinition.addProperty(new PropertyDefinition(name, type));
-            });
-
-        javaClass.getPublicMethods()
-                .filter(m -> m.isGetter() && !m.hasAnnotation(JSON_IGNORE))
-                .forEach(method -> {
-                    String name = propertyNameForGetter(method.getName());
-                    ApiType type = translateType(method.getReturnType());
-
-                    // We might have the property already because it was added by a public field.
-                    // If so, ignore this redefinition.
-                    if (!classDefinition.hasProperty(name))
-                        classDefinition.addProperty(new PropertyDefinition(name, type));
-                });
+        for (JavaClass cl : classesUpwardsFrom(javaClass)) {
+            addPropertiesFromGetters(cl, classDefinition, acceptProperty);
+            addPropertiesFromFields(cl, classDefinition, acceptProperty);
+        }
     }
 
+    private void addPropertiesFromFields(JavaClass aClass, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
+        for (JavaField field : aClass.getPublicInstanceFields()) {
+            String name = field.getName();
+            if (acceptProperty.test(name)) {
+                ApiType type = translateType(field.getType());
+                classDefinition.addProperty(new PropertyDefinition(name, type));
+            }
+        }
+    }
+
+    private void addPropertiesFromGetters(JavaClass aClass, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
+        for (JavaMethod getter : aClass.getGetters()) {
+            String name = propertyNameForGetter(getter.getName());
+            if (acceptProperty.test(name)) {
+                ApiType type = translateType(getter.getReturnType());
+                classDefinition.addProperty(new PropertyDefinition(name, type));
+            }
+        }
+    }
+
+    private Set<String> ignoredProperties(JavaClass type) {
+        Set<String> ignores = new HashSet<>();
+
+        List<JavaClass> classes = classesUpwardsFrom(type);
+
+        for (int i = classes.size() - 1; i >= 0; i--) {
+            JavaClass aClass = classes.get(i);
+
+            for (JavaField field : aClass.getPublicInstanceFields()) {
+                if (field.hasAnnotation(JSON_IGNORE))
+                    ignores.add(field.getName());
+                else
+                    ignores.remove(field.getName());
+            }
+
+            for (JavaMethod getter : aClass.getGetters()) {
+                if (getter.hasAnnotation(JSON_IGNORE))
+                    ignores.add(propertyNameForGetter(getter.getName()));
+            }
+        }
+
+        return ignores;
+    }
+
+    private List<JavaClass> classesUpwardsFrom(JavaClass javaClass) {
+        List<JavaClass> result = new ArrayList<>();
+
+        for (JavaClass c = javaClass; c != null; c = classes.findClass(c.getSuperClass()).orElse(null)) {
+            result.add(c);
+        }
+
+        return result;
+    }
 }

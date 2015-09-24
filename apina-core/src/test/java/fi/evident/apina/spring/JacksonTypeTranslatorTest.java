@@ -1,5 +1,6 @@
 package fi.evident.apina.spring;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import fi.evident.apina.java.model.ClassMetadataCollection;
 import fi.evident.apina.java.model.JavaClass;
@@ -19,10 +20,10 @@ import static fi.evident.apina.model.ModelMatchers.hasProperties;
 import static fi.evident.apina.model.ModelMatchers.property;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings("unused")
 public class JacksonTypeTranslatorTest {
 
     private final TranslationSettings settings = new TranslationSettings();
@@ -110,6 +111,15 @@ public class JacksonTypeTranslatorTest {
         translator.translateType(class2.getType());
     }
 
+    @Test
+    public void classHierarchyWithIgnores() {
+        ClassDefinition classDefinition = translateClass(TypeWithIgnoresAndSuperClass.class);
+
+        assertThat(classDefinition.getProperties(), hasProperties(
+                property("bar", ApiPrimitiveType.STRING),
+                property("baz", ApiPrimitiveType.STRING)));
+    }
+
     private ApiType translateType(JavaType type) {
         ClassMetadataCollection classes = new ClassMetadataCollection(emptyList());
         ApiDefinition api = new ApiDefinition();
@@ -128,13 +138,21 @@ public class JacksonTypeTranslatorTest {
 
     private ApiType translateClass(Class<?> cl, ApiDefinition api) {
         JavaClass javaClass = ClassReaderUtils.loadClass(cl);
-        ClassMetadataCollection classes = new ClassMetadataCollection(singleton(javaClass));
+
+        List<JavaClass> javaClasses = new ArrayList<>();
+        javaClasses.add(javaClass);
+
+        for (Class<?> s = cl.getSuperclass(); s != null && Object.class != s; s = s.getSuperclass()) {
+            javaClasses.add(ClassReaderUtils.loadClass(s));
+        }
+
+        ClassMetadataCollection classes = new ClassMetadataCollection(javaClasses);
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), api);
 
         return translator.translateType(javaClass.getType());
     }
 
-    @SuppressWarnings({"unused", "rawtypes"})
+    @SuppressWarnings("rawtypes")
     public static final class ClassWithFieldProperties {
 
         public int intField;
@@ -195,6 +213,31 @@ public class JacksonTypeTranslatorTest {
 
         public String foo;
 
+        public String getFoo() {
+            return foo;
+        }
+    }
+
+    public static class SuperClass {
+        public String foo;
+        public String bar;
+
+        @JsonIgnore
+        public String baz;
+        public String quux;
+
+        @JsonIgnore
+        public String getFoo() {
+            return foo;
+        }
+    }
+
+    public static final class TypeWithIgnoresAndSuperClass extends SuperClass {
+        public String baz;
+        @JsonIgnore
+        public String quux;
+
+        @Override
         public String getFoo() {
             return foo;
         }
