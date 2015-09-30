@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Contains all information read about class.
@@ -60,6 +61,14 @@ public final class JavaClass implements JavaAnnotatedElement {
 
     public Stream<JavaField> getPublicFields() {
         return fields.stream().filter(JavaField::isPublic);
+    }
+
+    public List<JavaField> getPublicInstanceFields() {
+        return getPublicFields().filter(f -> !f.isStatic()).collect(toList());
+    }
+
+    public List<JavaMethod> getGetters() {
+        return getPublicMethods().filter(JavaMethod::isGetter).collect(toList());
     }
 
     public List<JavaMethod> getMethods() {
