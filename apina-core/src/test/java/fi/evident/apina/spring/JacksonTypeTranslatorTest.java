@@ -7,7 +7,6 @@ import fi.evident.apina.java.model.JavaClass;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 import fi.evident.apina.java.model.type.TypeSchema;
-import fi.evident.apina.java.reader.ClassReaderUtils;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.ClassDefinition;
 import fi.evident.apina.model.settings.TranslationSettings;
@@ -18,6 +17,7 @@ import java.util.*;
 
 import static fi.evident.apina.model.ModelMatchers.hasProperties;
 import static fi.evident.apina.model.ModelMatchers.property;
+import static fi.evident.apina.spring.ReflectionClassMetadataLoader.loadClassesFromInheritanceTree;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.is;
@@ -120,6 +120,15 @@ public class JacksonTypeTranslatorTest {
                 property("baz", ApiPrimitiveType.STRING)));
     }
 
+    @Test
+    public void interfaceWithProperties() {
+        ClassDefinition classDefinition = translateClass(TypeWithPropertiesFromInterface.class);
+
+        assertThat(classDefinition.getProperties(), hasProperties(
+                property("foo", ApiPrimitiveType.STRING),
+                property("bar", ApiPrimitiveType.STRING)));
+    }
+
     private ApiType translateType(JavaType type) {
         ClassMetadataCollection classes = new ClassMetadataCollection(emptyList());
         ApiDefinition api = new ApiDefinition();
@@ -137,19 +146,10 @@ public class JacksonTypeTranslatorTest {
     }
 
     private ApiType translateClass(Class<?> cl, ApiDefinition api) {
-        JavaClass javaClass = ClassReaderUtils.loadClass(cl);
-
-        List<JavaClass> javaClasses = new ArrayList<>();
-        javaClasses.add(javaClass);
-
-        for (Class<?> s = cl.getSuperclass(); s != null && Object.class != s; s = s.getSuperclass()) {
-            javaClasses.add(ClassReaderUtils.loadClass(s));
-        }
-
-        ClassMetadataCollection classes = new ClassMetadataCollection(javaClasses);
+        ClassMetadataCollection classes = loadClassesFromInheritanceTree(cl);
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), api);
 
-        return translator.translateType(javaClass.getType());
+        return translator.translateType(new JavaBasicType(cl));
     }
 
     @SuppressWarnings("rawtypes")
@@ -241,5 +241,20 @@ public class JacksonTypeTranslatorTest {
         public String getFoo() {
             return foo;
         }
+    }
+
+    public interface ParentInterfaceWithProperties {
+        default String getFoo() {
+            return "foo";
+        }
+    }
+
+    public interface ChildInterfaceWithProperties extends ParentInterfaceWithProperties {
+        default String getBar() {
+            return "bar";
+        }
+    }
+
+    public static final class TypeWithPropertiesFromInterface implements ChildInterfaceWithProperties {
     }
 }

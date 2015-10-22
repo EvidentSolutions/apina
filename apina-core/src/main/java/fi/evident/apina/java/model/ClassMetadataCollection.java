@@ -14,9 +14,22 @@ public final class ClassMetadataCollection {
 
     private final Map<JavaType,JavaClass> classes = new LinkedHashMap<>();
 
+    public ClassMetadataCollection() {
+    }
+
     public ClassMetadataCollection(Collection<JavaClass> classes) {
         for (JavaClass aClass : classes)
-            this.classes.put(aClass.getType(), aClass);
+            addClass(aClass);
+    }
+
+    public void addClass(JavaClass aClass) {
+        JavaClass old = classes.putIfAbsent(aClass.getType(), aClass);
+        if (old != null)
+            throw new IllegalStateException("class was " + aClass + " already added");
+    }
+
+    public boolean containsClass(JavaType type) {
+        return classes.containsKey(type);
     }
 
     public Optional<JavaClass> findClass(JavaType type) {

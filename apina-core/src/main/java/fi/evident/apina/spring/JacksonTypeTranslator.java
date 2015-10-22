@@ -232,10 +232,22 @@ final class JacksonTypeTranslator {
     private List<JavaClass> classesUpwardsFrom(JavaClass javaClass) {
         List<JavaClass> result = new ArrayList<>();
 
-        for (JavaClass c = javaClass; c != null; c = classes.findClass(c.getSuperClass()).orElse(null)) {
-            result.add(c);
-        }
+        for (JavaClass cl = javaClass; cl != null; cl = classes.findClass(cl.getSuperClass()).orElse(null))
+            addClassAndInterfacesAt(cl, result);
 
         return result;
+    }
+
+    private void addClassAndInterfacesAt(JavaClass c, List<JavaClass> result) {
+        if (result.contains(c))
+            return;
+
+        result.add(c);
+
+        for (JavaType interfaceType : c.getInterfaces()) {
+            JavaClass interfaceClass = classes.findClass(interfaceType).orElse(null);
+            if (interfaceClass != null)
+                addClassAndInterfacesAt(interfaceClass, result);
+        }
     }
 }
