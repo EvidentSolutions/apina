@@ -22,15 +22,13 @@ configure(allprojects) { project ->
     }
 
     configurations.all {
-        resolutionStrategy.dependencySubstitution.eachModule { ModuleDependencySubstitution details ->
-            if (details.requested.group == 'org.slf4j') {
-                details.useVersion slf4jVersion
-            }
-        }
-
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.name == 'hamcrest-core') {
-                details.useTarget group: details.requested.group, name: 'hamcrest-all', version: details.requested.version
+        resolutionStrategy {
+            eachDependency { DependencyResolveDetails details ->
+                if (details.requested.group == 'org.slf4j') {
+                    details.useVersion slf4jVersion
+                } else if (details.requested.name == 'hamcrest-core') {
+                    details.useTarget group: details.requested.group, name: 'hamcrest-all', version: details.requested.version
+                }
             }
         }
     }
