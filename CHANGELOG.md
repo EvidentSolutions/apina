@@ -1,3 +1,9 @@
+## 0.3.2 (2015-10-23)
+
+### Bug fixes
+
+- If class is found multiple times from classpath, ignore the redefinitions and just log them.
+
 ## 0.3.1 (2015-10-23)
 
 ### New features
