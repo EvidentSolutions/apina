@@ -3,7 +3,10 @@ package fi.evident.apina.java.model;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static fi.evident.apina.utils.CollectionUtils.filter;
 
@@ -13,14 +16,6 @@ import static fi.evident.apina.utils.CollectionUtils.filter;
 public final class ClassMetadataCollection {
 
     private final Map<JavaType,JavaClass> classes = new LinkedHashMap<>();
-
-    public ClassMetadataCollection() {
-    }
-
-    public ClassMetadataCollection(Collection<JavaClass> classes) {
-        for (JavaClass aClass : classes)
-            addClass(aClass);
-    }
 
     public void addClass(JavaClass aClass) {
         JavaClass old = classes.putIfAbsent(aClass.getType(), aClass);

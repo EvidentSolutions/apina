@@ -18,7 +18,6 @@ import java.util.*;
 import static fi.evident.apina.model.ModelMatchers.hasProperties;
 import static fi.evident.apina.model.ModelMatchers.property;
 import static fi.evident.apina.spring.ReflectionClassMetadataLoader.loadClassesFromInheritanceTree;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -104,7 +103,9 @@ public class JacksonTypeTranslatorTest {
         JavaClass class1 = new JavaClass(new JavaBasicType("foo.MyClass"), new JavaBasicType("java.lang.Object"), emptyList(), 0, new TypeSchema());
         JavaClass class2 = new JavaClass(new JavaBasicType("bar.MyClass"), new JavaBasicType("java.lang.Object"), emptyList(), 0, new TypeSchema());
 
-        ClassMetadataCollection classes = new ClassMetadataCollection(asList(class1, class2));
+        ClassMetadataCollection classes = new ClassMetadataCollection();
+        classes.addClass(class1);
+        classes.addClass(class2);
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), new ApiDefinition());
 
         translator.translateType(class1.getType());
@@ -130,7 +131,7 @@ public class JacksonTypeTranslatorTest {
     }
 
     private ApiType translateType(JavaType type) {
-        ClassMetadataCollection classes = new ClassMetadataCollection(emptyList());
+        ClassMetadataCollection classes = new ClassMetadataCollection();
         ApiDefinition api = new ApiDefinition();
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), api);
 
