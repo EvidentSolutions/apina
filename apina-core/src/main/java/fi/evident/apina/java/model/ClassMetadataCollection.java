@@ -25,7 +25,7 @@ public final class ClassMetadataCollection {
     public void addClass(JavaClass aClass) {
         JavaClass old = classes.putIfAbsent(aClass.getType(), aClass);
         if (old != null)
-            throw new IllegalStateException("class was " + aClass + " already added");
+            throw new IllegalStateException("Class " + aClass.getType() + " was already added");
     }
 
     public boolean containsClass(JavaType type) {
