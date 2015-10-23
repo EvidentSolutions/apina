@@ -1,4 +1,10 @@
-## x.y.z (yyyy-mm-dd)
+## 0.3.1 (2015-10-23)
+
+### New features
+
+- Support inherited fields when translating data types. Inheritance is not exposed in the
+  generated API, but rather everything is flattened to single type.
+  ([#23](https://github.com/EvidentSolutions/apina/issues/23))
 
 ### Bug fixes
 
