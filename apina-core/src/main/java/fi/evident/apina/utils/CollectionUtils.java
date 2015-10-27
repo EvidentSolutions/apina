@@ -1,9 +1,6 @@
 package fi.evident.apina.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -61,5 +58,15 @@ public final class CollectionUtils {
         result.add(x);
         result.addAll(xs);
         return result;
+    }
+
+    public static <T> boolean hasDuplicates(Collection<? extends T> xs) {
+        HashSet<T> ys = new HashSet<>(xs.size());
+
+        for (T x : xs)
+            if (!ys.add(x))
+                return true;
+
+        return false;
     }
 }

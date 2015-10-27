@@ -31,4 +31,12 @@ public class CollectionUtilsTest {
         assertThat(cons("foo", emptyList()), is(singletonList("foo")));
         assertThat(cons("foo", asList("bar", "baz")), is(asList("foo", "bar", "baz")));
     }
+
+    @Test
+    public void duplicates() {
+        assertThat(hasDuplicates(emptyList()), is(false));
+        assertThat(hasDuplicates(singleton("x")), is(false));
+        assertThat(hasDuplicates(asList("x", "y")), is(false));
+        assertThat(hasDuplicates(asList("x", "y", "x")), is(true));
+    }
 }
