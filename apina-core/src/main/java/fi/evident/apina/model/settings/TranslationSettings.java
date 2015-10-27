@@ -1,5 +1,6 @@
 package fi.evident.apina.model.settings;
 
+import fi.evident.apina.model.type.ApiTypeName;
 import fi.evident.apina.utils.PatternSet;
 
 import java.util.Collection;
@@ -16,7 +17,7 @@ public final class TranslationSettings {
 
     public final PatternSet blackBoxClasses = new PatternSet();
     private final TreeMap<String, ImportDefinition> importsByModule = new TreeMap<>();
-    private final Set<String> importedTypes = new TreeSet<>();
+    private final Set<ApiTypeName> importedTypes = new TreeSet<>();
 
     public boolean isBlackBoxClass(String name) {
         return blackBoxClasses.test(name);
@@ -26,10 +27,11 @@ public final class TranslationSettings {
         ImportDefinition importDefinition = importsByModule.computeIfAbsent(moduleName, ImportDefinition::new);
 
         for (String type : types) {
-            if (!importedTypes.add(type))
-                throw new IllegalArgumentException("type " + type + " is already imported");
+            ApiTypeName typeName = new ApiTypeName(type);
+            if (!importedTypes.add(typeName))
+                throw new IllegalArgumentException("type " + typeName + " is already imported");
 
-            importDefinition.addType(type);
+            importDefinition.addType(typeName);
         }
     }
 
@@ -37,7 +39,7 @@ public final class TranslationSettings {
         return unmodifiableCollection(importsByModule.values());
     }
 
-    public boolean isImported(String typeName) {
+    public boolean isImported(ApiTypeName typeName) {
         return importedTypes.contains(typeName);
     }
 }

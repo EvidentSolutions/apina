@@ -1,6 +1,6 @@
 package fi.evident.apina.model;
 
-import fi.evident.apina.model.type.ApiClassType;
+import fi.evident.apina.model.type.ApiTypeName;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,15 +11,15 @@ import static java.util.Objects.requireNonNull;
 
 public final class ClassDefinition {
 
-    private final ApiClassType type;
+    private final ApiTypeName type;
 
     private final HashMap<String, PropertyDefinition> properties = new LinkedHashMap<>();
 
-    public ClassDefinition(ApiClassType type) {
+    public ClassDefinition(ApiTypeName type) {
         this.type = requireNonNull(type);
     }
 
-    public ApiClassType getType() {
+    public ApiTypeName getType() {
         return type;
     }
 
@@ -39,6 +39,6 @@ public final class ClassDefinition {
 
     @Override
     public String toString() {
-        return type.typeRepresentation();
+        return type.toString();
     }
 }

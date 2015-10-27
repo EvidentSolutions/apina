@@ -128,25 +128,25 @@ final class JacksonTypeTranslator {
     }
 
     private ApiType translateClassType(JavaBasicType type) {
-        String translatedName = classNameForType(type);
+        ApiTypeName typeName = classNameForType(type);
 
-        if (settings.isImported(translatedName))
-            return new ApiBlackBoxType(translatedName);
+        if (settings.isImported(typeName))
+            return new ApiBlackBoxType(typeName);
 
         if (settings.isBlackBoxClass(type.getName()) || hasJsonValueAnnotation(type)) {
             log.debug("Translating {} as black box", type.getName());
 
-            ApiBlackBoxType blackBoxType = new ApiBlackBoxType(translatedName);
-            api.addBlackBox(blackBoxType);
+            ApiBlackBoxType blackBoxType = new ApiBlackBoxType(typeName);
+            api.addBlackBox(typeName);
             return blackBoxType;
         }
 
-        ApiClassType classType = new ApiClassType(translatedName);
+        ApiClassType classType = new ApiClassType(typeName);
 
-        if (!api.containsClassType(classType)) {
+        if (!api.containsType(typeName)) {
             JavaClass aClass = classes.findClass(type).orElse(null);
             if (aClass != null) {
-                ClassDefinition classDefinition = new ClassDefinition(classType);
+                ClassDefinition classDefinition = new ClassDefinition(typeName);
 
                 // We must first add the definition to api and only then proceed to
                 // initialize it because initialization of properties could refer
@@ -160,14 +160,14 @@ final class JacksonTypeTranslator {
         return classType;
     }
 
-    private String classNameForType(JavaBasicType type) {
+    private ApiTypeName classNameForType(JavaBasicType type) {
         String translatedName = translateClassName(type.getName());
 
         JavaBasicType existingType = translatedNames.putIfAbsent(translatedName, type);
         if (existingType != null && !type.equals(existingType))
             throw new DuplicateClassNameException(type.getName(), existingType.getName());
 
-        return translatedName;
+        return new ApiTypeName(translatedName);
     }
 
     private boolean hasJsonValueAnnotation(JavaBasicType type) {

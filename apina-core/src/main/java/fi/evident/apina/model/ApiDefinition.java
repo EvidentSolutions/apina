@@ -1,9 +1,9 @@
 package fi.evident.apina.model;
 
 import fi.evident.apina.model.type.ApiArrayType;
-import fi.evident.apina.model.type.ApiBlackBoxType;
 import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.model.type.ApiType;
+import fi.evident.apina.model.type.ApiTypeName;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -20,8 +20,8 @@ import static java.util.stream.Collectors.toSet;
 public final class ApiDefinition {
 
     private final Collection<EndpointGroup> endpointGroups = new ArrayList<>();
-    private final Map<ApiClassType, ClassDefinition> classDefinitions = new TreeMap<>();
-    private final Set<ApiBlackBoxType> blackBoxTypes = new LinkedHashSet<>();
+    private final Map<ApiTypeName, ClassDefinition> classDefinitions = new TreeMap<>();
+    private final Set<ApiTypeName> blackBoxTypes = new LinkedHashSet<>();
 
     public Collection<EndpointGroup> getEndpointGroups() {
         return unmodifiableCollection(endpointGroups);
@@ -31,8 +31,8 @@ public final class ApiDefinition {
         endpointGroups.add(requireNonNull(group));
     }
 
-    public boolean containsClassType(ApiClassType classType) {
-        return classDefinitions.containsKey(classType);
+    public boolean containsType(ApiTypeName typeName) {
+        return classDefinitions.containsKey(typeName);
     }
 
     public void addClassDefinition(ClassDefinition classDefinition) {
@@ -59,14 +59,14 @@ public final class ApiDefinition {
         return classDefinitions.size();
     }
 
-    public Collection<ApiType> getAllBlackBoxClasses() {
+    public Collection<ApiTypeName> getAllBlackBoxClasses() {
         return concat(blackBoxTypes, getUnknownTypeReferences());
     }
 
     /**
      * Returns all class types that refer to unknown classes.
      */
-    public Set<ApiClassType> getUnknownTypeReferences() {
+    public Set<ApiTypeName> getUnknownTypeReferences() {
         Stream<ApiType> resultTypes = endpointGroups.stream()
                 .flatMap(e -> e.getEndpoints().stream())
                 .flatMap(e -> optionalToStream(e.getResponseBody()));
@@ -77,13 +77,13 @@ public final class ApiDefinition {
 
         return Stream.concat(resultTypes, propertyTypes)
                 .flatMap(ApiDefinition::referencedClassTypes)
-                .filter(c -> !containsClassType(c))
+                .filter(c -> !containsType(c))
                 .collect(toSet());
     }
 
-    private static Stream<ApiClassType> referencedClassTypes(ApiType type) {
+    private static Stream<ApiTypeName> referencedClassTypes(ApiType type) {
         if (type instanceof ApiClassType) {
-            return Stream.of((ApiClassType) type);
+            return Stream.of(((ApiClassType) type).getName());
         } else if (type instanceof ApiArrayType) {
             return referencedClassTypes(((ApiArrayType) type).getElementType());
         } else {
@@ -91,7 +91,7 @@ public final class ApiDefinition {
         }
     }
 
-    public void addBlackBox(ApiBlackBoxType type) {
+    public void addBlackBox(ApiTypeName type) {
         blackBoxTypes.add(requireNonNull(type));
     }
 }

@@ -4,19 +4,12 @@ import org.jetbrains.annotations.NotNull;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Represents class types.
- */
-public final class ApiClassType extends ApiType implements Comparable<ApiClassType> {
+public final class ApiTypeName implements Comparable<ApiTypeName> {
 
-    private final ApiTypeName name;
+    private final String name;
 
-    public ApiClassType(ApiTypeName name) {
+    public ApiTypeName(String name) {
         this.name = requireNonNull(name);
-    }
-
-    public ApiTypeName getName() {
-        return name;
     }
 
     @Override
@@ -24,9 +17,10 @@ public final class ApiClassType extends ApiType implements Comparable<ApiClassTy
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ApiClassType apiClassType = (ApiClassType) o;
+        ApiTypeName that = (ApiTypeName) o;
 
-        return name.equals(apiClassType.name);
+        return name.equals(that.name);
+
     }
 
     @Override
@@ -35,12 +29,12 @@ public final class ApiClassType extends ApiType implements Comparable<ApiClassTy
     }
 
     @Override
-    public String typeRepresentation() {
-        return name.toString();
+    public String toString() {
+        return name;
     }
 
     @Override
-    public int compareTo(@NotNull ApiClassType o) {
+    public int compareTo(@NotNull ApiTypeName o) {
         return name.compareTo(o.name);
     }
 }

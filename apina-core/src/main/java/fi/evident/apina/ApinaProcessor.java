@@ -3,7 +3,7 @@ package fi.evident.apina;
 import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.settings.TranslationSettings;
-import fi.evident.apina.model.type.ApiClassType;
+import fi.evident.apina.model.type.ApiTypeName;
 import fi.evident.apina.output.ts.TypeScriptGenerator;
 import fi.evident.apina.spring.SpringModelReader;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public final class ApinaProcessor {
         log.debug("Loaded {} class definitions", api.getClassDefinitionCount());
         log.trace("Loaded class definitions: {}", api.getClassDefinitions());
 
-        Set<ApiClassType> unknownTypes = api.getUnknownTypeReferences();
+        Set<ApiTypeName> unknownTypes = api.getUnknownTypeReferences();
         if (!unknownTypes.isEmpty()) {
             log.warn("Writing {} unknown class definitions as black boxes: {}", unknownTypes.size(), unknownTypes);
         }

@@ -10,7 +10,7 @@ public class ApiClassTypeTest {
 
     @Test
     public void equality() {
-        assertThat(new ApiClassType("foo.Bar"), is(new ApiClassType("foo.Bar")));
-        assertThat(new ApiClassType("foo.Bar"), is(not(new ApiClassType("foo.Baz"))));
+        assertThat(new ApiClassType(new ApiTypeName("foo.Bar")), is(new ApiClassType(new ApiTypeName("foo.Bar"))));
+        assertThat(new ApiClassType(new ApiTypeName("foo.Bar")), is(not(new ApiClassType(new ApiTypeName("foo.Baz")))));
     }
 }

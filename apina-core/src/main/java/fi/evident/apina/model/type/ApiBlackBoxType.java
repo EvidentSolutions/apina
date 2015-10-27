@@ -4,13 +4,13 @@ import static java.util.Objects.requireNonNull;
 
 public final class ApiBlackBoxType extends ApiType {
 
-    private final String name;
+    private final ApiTypeName name;
 
-    public ApiBlackBoxType(String name) {
+    public ApiBlackBoxType(ApiTypeName name) {
         this.name = requireNonNull(name);
     }
 
-    public String getName() {
+    public ApiTypeName getName() {
         return name;
     }
 
@@ -31,6 +31,6 @@ public final class ApiBlackBoxType extends ApiType {
 
     @Override
     public String typeRepresentation() {
-        return name;
+        return name.toString();
     }
 }

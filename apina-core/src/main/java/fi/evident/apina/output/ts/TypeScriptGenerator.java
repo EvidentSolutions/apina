@@ -9,10 +9,12 @@ import fi.evident.apina.model.settings.TranslationSettings;
 import fi.evident.apina.model.type.ApiArrayType;
 import fi.evident.apina.model.type.ApiPrimitiveType;
 import fi.evident.apina.model.type.ApiType;
+import fi.evident.apina.model.type.ApiTypeName;
 
 import java.io.IOException;
 import java.util.*;
 
+import static fi.evident.apina.utils.CollectionUtils.join;
 import static fi.evident.apina.utils.CollectionUtils.map;
 import static fi.evident.apina.utils.ResourceUtils.readResourceAsString;
 import static fi.evident.apina.utils.StringUtils.uncapitalize;
@@ -78,7 +80,7 @@ public final class TypeScriptGenerator {
 
         if (!imports.isEmpty()) {
             for (ImportDefinition anImport : imports)
-                out.writeLine("import { " + String.join(", ", anImport.getTypes()) + " } from '" + anImport.getModuleName() + "';");
+                out.writeLine("import { " + join(anImport.getTypes(), ", ") + " } from '" + anImport.getModuleName() + "';");
 
             out.writeLine();
         }
@@ -185,7 +187,7 @@ public final class TypeScriptGenerator {
         } else if (type instanceof ApiArrayType) {
             ApiArrayType arrayType = (ApiArrayType) type;
             return qualifiedTypeName(arrayType.getElementType()) + "[]";
-        } else if (settings.isImported(type.typeRepresentation())) {
+        } else if (settings.isImported(new ApiTypeName(type.typeRepresentation()))) {
             return type.typeRepresentation();
         } else {
             return "Types." + type.typeRepresentation();
@@ -203,14 +205,14 @@ public final class TypeScriptGenerator {
             out.writeExportedInterface("IDictionary<V>", () ->
                     out.writeLine("[key: string]: V"));
 
-            for (ApiType unknownType : api.getAllBlackBoxClasses()) {
-                out.writeLine(format("export type %s = {};", unknownType.typeRepresentation()));
+            for (ApiTypeName unknownType : api.getAllBlackBoxClasses()) {
+                out.writeLine(format("export type %s = {};", unknownType));
             }
 
             out.writeLine();
 
             for (ClassDefinition classDefinition : api.getClassDefinitions()) {
-                out.writeExportedClass(classDefinition.getType().getName(), () -> {
+                out.writeExportedClass(classDefinition.getType().toString(), () -> {
                     for (PropertyDefinition property : classDefinition.getProperties())
                         out.writeLine(property.getName() + ": " + property.getType() + ";");
                 });
@@ -222,8 +224,8 @@ public final class TypeScriptGenerator {
 
     private void writeSerializerDefinitions() {
         out.write("export function registerDefaultSerializers(config: Support.ApinaConfig) ").writeBlock(() -> {
-            for (ApiType unknownType : api.getAllBlackBoxClasses()) {
-                out.write("config.registerIdentitySerializer(").writeValue(unknownType.typeRepresentation()).writeLine(");");
+            for (ApiTypeName unknownType : api.getAllBlackBoxClasses()) {
+                out.write("config.registerIdentitySerializer(").writeValue(unknownType.toString()).writeLine(");");
             }
             out.writeLine();
 
@@ -233,7 +235,7 @@ public final class TypeScriptGenerator {
                 for (PropertyDefinition property : classDefinition.getProperties())
                     defs.put(property.getName(), typeDescriptor(property.getType()));
 
-                out.write("config.registerClassSerializer(").writeValue(classDefinition.getType().getName()).write(", ");
+                out.write("config.registerClassSerializer(").writeValue(classDefinition.getType().toString()).write(", ");
                 out.writeValue(defs).writeLine(");");
                 out.writeLine();
             }

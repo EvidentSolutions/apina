@@ -1,7 +1,7 @@
 package fi.evident.apina.model;
 
-import fi.evident.apina.model.type.ApiClassType;
 import fi.evident.apina.model.type.ApiPrimitiveType;
+import fi.evident.apina.model.type.ApiTypeName;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -9,7 +9,7 @@ import static org.junit.Assert.assertThat;
 
 public class ClassDefinitionTest {
 
-    private final ClassDefinition classDefinition = new ClassDefinition(new ApiClassType("foo.Bar"));
+    private final ClassDefinition classDefinition = new ClassDefinition(new ApiTypeName("foo.Bar"));
 
     @Test(expected = IllegalArgumentException.class)
     public void duplicatePropertiesAreDisallowed() {

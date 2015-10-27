@@ -31,7 +31,7 @@ public class JacksonTypeTranslatorTest {
     public void translatingClassWithFieldProperties() {
         ClassDefinition classDefinition = translateClass(ClassWithFieldProperties.class);
 
-        assertThat(classDefinition.getType(), is(new ApiClassType(ClassWithFieldProperties.class.getSimpleName())));
+        assertThat(classDefinition.getType(), is(new ApiTypeName(ClassWithFieldProperties.class.getSimpleName())));
         assertThat(classDefinition.getProperties(), hasProperties(
                 property("intField", ApiPrimitiveType.NUMBER),
                 property("integerField", ApiPrimitiveType.NUMBER),
@@ -50,7 +50,7 @@ public class JacksonTypeTranslatorTest {
     public void translatingClassWithGetterProperties() {
         ClassDefinition classDefinition = translateClass(ClassWithGetters.class);
 
-        assertThat(classDefinition.getType(), is(new ApiClassType(ClassWithGetters.class.getSimpleName())));
+        assertThat(classDefinition.getType(), is(new ApiTypeName(ClassWithGetters.class.getSimpleName())));
         assertThat(classDefinition.getProperties(), hasProperties(
                 property("int", ApiPrimitiveType.NUMBER),
                 property("integer", ApiPrimitiveType.NUMBER),
@@ -76,14 +76,14 @@ public class JacksonTypeTranslatorTest {
     public void translateBlackBoxType() {
         settings.blackBoxClasses.addPattern("foo\\..+");
 
-        assertThat(translateType(new JavaBasicType("foo.bar.Baz")), is(new ApiBlackBoxType("Baz")));
+        assertThat(translateType(new JavaBasicType("foo.bar.Baz")), is(new ApiBlackBoxType(new ApiTypeName("Baz"))));
     }
 
     @Test
     public void translatingOptionalTypes() {
         ClassDefinition classDefinition = translateClass(ClassWithOptionalTypes.class);
 
-        assertThat(classDefinition.getType(), is(new ApiClassType(ClassWithOptionalTypes.class.getSimpleName())));
+        assertThat(classDefinition.getType(), is(new ApiTypeName(ClassWithOptionalTypes.class.getSimpleName())));
         assertThat(classDefinition.getProperties(), hasProperties(
                 property("optionalString", ApiPrimitiveType.STRING),
                 property("optionalInt", ApiPrimitiveType.NUMBER),
@@ -95,7 +95,7 @@ public class JacksonTypeTranslatorTest {
     public void typesWithJsonValueShouldBeBlackBoxes() {
         ApiType apiType = translateClass(ClassWithJsonValue.class, new ApiDefinition());
 
-        assertThat(apiType, is(new ApiBlackBoxType("ClassWithJsonValue")));
+        assertThat(apiType, is(new ApiBlackBoxType(new ApiTypeName("ClassWithJsonValue"))));
     }
 
     @Test(expected = DuplicateClassNameException.class)
@@ -142,7 +142,7 @@ public class JacksonTypeTranslatorTest {
         ApiDefinition api = new ApiDefinition();
         ApiType apiType = translateClass(cl, api);
 
-        Optional<ClassDefinition> definition = api.getClassDefinitions().stream().filter(d -> d.getType().equals(apiType)).findAny();
+        Optional<ClassDefinition> definition = api.getClassDefinitions().stream().filter(d -> d.getType().toString().equals(apiType.typeRepresentation())).findAny();
         return definition.orElseThrow(() -> new AssertionError("could not find definition for " + apiType));
     }
 
