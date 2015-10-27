@@ -33,6 +33,23 @@ export module Support {
         }
     };
 
+    function enumSerializer(enumObject: any): ISerializer {
+        return {
+            serialize(o) {
+                if (o === null || o === undefined)
+                    return o;
+                else
+                    return enumObject[o];
+            },
+            deserialize(o) {
+                if (o === null || o === undefined)
+                    return o;
+                else
+                    return enumObject[o];
+            }
+        }
+    }
+
     interface ISerializerMap {
         [name: string]: ISerializer
     }
@@ -59,6 +76,10 @@ export module Support {
 
         registerSerializer(name: string, serializer: ISerializer) {
             this.serializers[name] = serializer;
+        }
+
+        registerEnumSerializer(name: string, enumObject: any) {
+            this.registerSerializer(name, enumSerializer(enumObject));
         }
 
         registerClassSerializer(name: string, fields: any) {

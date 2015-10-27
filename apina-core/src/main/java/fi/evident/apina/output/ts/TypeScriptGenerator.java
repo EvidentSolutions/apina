@@ -211,6 +211,12 @@ public final class TypeScriptGenerator {
 
             out.writeLine();
 
+            for (EnumDefinition enumDefinition : api.getEnumDefinitions()) {
+                out.writeLine(format("export enum %s { %s };", enumDefinition.getType(), String.join(", ", enumDefinition.getConstants())));
+            }
+
+            out.writeLine();
+
             for (ClassDefinition classDefinition : api.getClassDefinitions()) {
                 out.writeExportedClass(classDefinition.getType().toString(), () -> {
                     for (PropertyDefinition property : classDefinition.getProperties())
@@ -226,6 +232,13 @@ public final class TypeScriptGenerator {
         out.write("export function registerDefaultSerializers(config: Support.ApinaConfig) ").writeBlock(() -> {
             for (ApiTypeName unknownType : api.getAllBlackBoxClasses()) {
                 out.write("config.registerIdentitySerializer(").writeValue(unknownType.toString()).writeLine(");");
+            }
+            out.writeLine();
+
+            for (EnumDefinition enumDefinition : api.getEnumDefinitions()) {
+                String enumName = enumDefinition.getType().toString();
+                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ");
+                out.write(enumName).writeLine(");");
             }
             out.writeLine();
 
