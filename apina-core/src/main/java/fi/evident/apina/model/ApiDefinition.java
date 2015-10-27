@@ -21,6 +21,7 @@ public final class ApiDefinition {
 
     private final Collection<EndpointGroup> endpointGroups = new ArrayList<>();
     private final Map<ApiTypeName, ClassDefinition> classDefinitions = new TreeMap<>();
+    private final Map<ApiTypeName, EnumDefinition> enumDefinitions = new TreeMap<>();
     private final Set<ApiTypeName> blackBoxTypes = new LinkedHashSet<>();
 
     public Collection<EndpointGroup> getEndpointGroups() {
@@ -32,17 +33,31 @@ public final class ApiDefinition {
     }
 
     public boolean containsType(ApiTypeName typeName) {
-        return classDefinitions.containsKey(typeName);
+        return classDefinitions.containsKey(typeName) || enumDefinitions.containsKey(typeName);
     }
 
     public void addClassDefinition(ClassDefinition classDefinition) {
-        ClassDefinition old = classDefinitions.putIfAbsent(classDefinition.getType(), classDefinition);
-        if (old != null)
-            throw new IllegalArgumentException("tried to add class-definition twice: " + classDefinition.getType());
+        verifyTypeDoesNotExist(classDefinition.getType());
+
+        classDefinitions.put(classDefinition.getType(), classDefinition);
     }
 
     public Collection<ClassDefinition> getClassDefinitions() {
         return unmodifiableCollection(classDefinitions.values());
+    }
+
+    public void addEnumDefinition(EnumDefinition enumDefinition) {
+        verifyTypeDoesNotExist(enumDefinition.getType());
+        enumDefinitions.put(enumDefinition.getType(), enumDefinition);
+    }
+
+    private void verifyTypeDoesNotExist(ApiTypeName type) {
+        if (containsType(type))
+            throw new IllegalArgumentException("tried to add type-definition twice: " + type);
+    }
+
+    public Collection<EnumDefinition> getEnumDefinitions() {
+        return unmodifiableCollection(enumDefinitions.values());
     }
 
     public int getEndpointGroupCount() {
@@ -57,6 +72,10 @@ public final class ApiDefinition {
 
     public int getClassDefinitionCount() {
         return classDefinitions.size();
+    }
+
+    public int getEnumDefinitionCount() {
+        return enumDefinitions.size();
     }
 
     public Collection<ApiTypeName> getAllBlackBoxClasses() {

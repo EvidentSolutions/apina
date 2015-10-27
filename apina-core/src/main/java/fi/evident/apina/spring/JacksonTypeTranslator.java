@@ -7,6 +7,7 @@ import fi.evident.apina.java.model.JavaMethod;
 import fi.evident.apina.java.model.type.*;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.ClassDefinition;
+import fi.evident.apina.model.EnumDefinition;
 import fi.evident.apina.model.PropertyDefinition;
 import fi.evident.apina.model.settings.TranslationSettings;
 import fi.evident.apina.model.type.*;
@@ -146,14 +147,19 @@ final class JacksonTypeTranslator {
         if (!api.containsType(typeName)) {
             JavaClass aClass = classes.findClass(type).orElse(null);
             if (aClass != null) {
-                ClassDefinition classDefinition = new ClassDefinition(typeName);
+                if (aClass.isEnum()) {
+                    api.addEnumDefinition(new EnumDefinition(typeName, aClass.getEnumConstants()));
 
-                // We must first add the definition to api and only then proceed to
-                // initialize it because initialization of properties could refer
-                // back to this same class and we'd get infinite recursion if the
-                // class is not already installed.
-                api.addClassDefinition(classDefinition);
-                initClassDefinition(classDefinition, aClass);
+                } else {
+                    ClassDefinition classDefinition = new ClassDefinition(typeName);
+
+                    // We must first add the definition to api and only then proceed to
+                    // initialize it because initialization of properties could refer
+                    // back to this same class and we'd get infinite recursion if the
+                    // class is not already installed.
+                    api.addClassDefinition(classDefinition);
+                    initClassDefinition(classDefinition, aClass);
+                }
             }
         }
 

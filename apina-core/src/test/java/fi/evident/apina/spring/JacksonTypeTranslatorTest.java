@@ -9,6 +9,7 @@ import fi.evident.apina.java.model.type.JavaType;
 import fi.evident.apina.java.model.type.TypeSchema;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.ClassDefinition;
+import fi.evident.apina.model.EnumDefinition;
 import fi.evident.apina.model.settings.TranslationSettings;
 import fi.evident.apina.model.type.*;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import java.util.*;
 import static fi.evident.apina.model.ModelMatchers.hasProperties;
 import static fi.evident.apina.model.ModelMatchers.property;
 import static fi.evident.apina.spring.ReflectionClassMetadataLoader.loadClassesFromInheritanceTree;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -130,6 +132,13 @@ public class JacksonTypeTranslatorTest {
                 property("bar", ApiPrimitiveType.STRING)));
     }
 
+    @Test
+    public void enumTranslation() {
+        EnumDefinition enumDefinition = translateEnum(TestEnum.class);
+
+        assertThat(enumDefinition.getConstants(), is(asList("FOO", "BAR", "BAZ")));
+    }
+
     private ApiType translateType(JavaType type) {
         ClassMetadataCollection classes = new ClassMetadataCollection();
         ApiDefinition api = new ApiDefinition();
@@ -143,6 +152,14 @@ public class JacksonTypeTranslatorTest {
         ApiType apiType = translateClass(cl, api);
 
         Optional<ClassDefinition> definition = api.getClassDefinitions().stream().filter(d -> d.getType().toString().equals(apiType.typeRepresentation())).findAny();
+        return definition.orElseThrow(() -> new AssertionError("could not find definition for " + apiType));
+    }
+
+    private EnumDefinition translateEnum(Class<?> cl) {
+        ApiDefinition api = new ApiDefinition();
+        ApiType apiType = translateClass(cl, api);
+
+        Optional<EnumDefinition> definition = api.getEnumDefinitions().stream().filter(d -> d.getType().toString().equals(apiType.typeRepresentation())).findAny();
         return definition.orElseThrow(() -> new AssertionError("could not find definition for " + apiType));
     }
 
@@ -257,5 +274,9 @@ public class JacksonTypeTranslatorTest {
     }
 
     public static final class TypeWithPropertiesFromInterface implements ChildInterfaceWithProperties {
+    }
+
+    public enum TestEnum {
+        FOO, BAR, BAZ
     }
 }

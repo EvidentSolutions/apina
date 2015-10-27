@@ -35,6 +35,9 @@ public final class ApinaProcessor {
         log.debug("Loaded {} class definitions", api.getClassDefinitionCount());
         log.trace("Loaded class definitions: {}", api.getClassDefinitions());
 
+        log.debug("Loaded {} enum definitions", api.getEnumDefinitionCount());
+        log.trace("Loaded enum definitions: {}", api.getEnumDefinitions());
+
         Set<ApiTypeName> unknownTypes = api.getUnknownTypeReferences();
         if (!unknownTypes.isEmpty()) {
             log.warn("Writing {} unknown class definitions as black boxes: {}", unknownTypes.size(), unknownTypes);
