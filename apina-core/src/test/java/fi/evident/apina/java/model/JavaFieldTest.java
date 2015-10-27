@@ -12,7 +12,9 @@ public class JavaFieldTest {
     @Test
     public void modifiers() {
         assertThat(fieldWithModifiers(0).isStatic(), is(false));
+        assertThat(fieldWithModifiers(0).isEnumConstant(), is(false));
         assertThat(fieldWithModifiers(Opcodes.ACC_STATIC).isStatic(), is(true));
+        assertThat(fieldWithModifiers(Opcodes.ACC_ENUM).isEnumConstant(), is(true));
     }
 
     private static JavaField fieldWithModifiers(int modifiers) {

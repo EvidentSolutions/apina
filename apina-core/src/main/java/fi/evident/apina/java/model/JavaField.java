@@ -1,6 +1,7 @@
 package fi.evident.apina.java.model;
 
 import fi.evident.apina.java.model.type.JavaType;
+import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -30,6 +31,10 @@ public final class JavaField implements JavaAnnotatedElement {
 
     public JavaVisibility getVisibility() {
         return visibility;
+    }
+
+    public boolean isEnumConstant() {
+        return (modifiers & Opcodes.ACC_ENUM) != 0;
     }
 
     public boolean isPublic() {

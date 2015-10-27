@@ -9,6 +9,7 @@ import java.util.List;
 
 import static fi.evident.apina.java.reader.ClassReaderUtils.loadClass;
 import static fi.evident.apina.java.reader.JavaTypeMatchers.*;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -31,6 +32,22 @@ public class ClassMetadataReaderTest {
     @Test
     public void innerClassWithOuterBounds() {
         loadClass(AnonymousInnerClassWithOuterBounds.createInnerClassInstance().getClass());
+    }
+
+    @Test
+    public void enumClasses() {
+        JavaClass javaClass = loadClass(TestEnum.class);
+
+        assertThat(javaClass.isEnum(), is(true));
+        assertThat(javaClass.getEnumConstants(), is(asList("FOO", "BAR", "BAZ")));
+    }
+
+    @SuppressWarnings("unused")
+    private enum TestEnum {
+        FOO, BAR, BAZ;
+
+        public String instanceField;
+        public static String staticField;
     }
 
     @SuppressWarnings("unused")

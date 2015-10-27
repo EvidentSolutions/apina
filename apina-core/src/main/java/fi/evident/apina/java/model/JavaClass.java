@@ -96,6 +96,22 @@ public final class JavaClass implements JavaAnnotatedElement {
         methods.add(requireNonNull(method));
     }
 
+    /**
+     * Returns enum constants defined by this class, if this class is an enum.
+     *
+     * @return Names of enum constants, in the order they appear
+     * @throws UnsupportedOperationException if the class is not an enum
+     */
+    public List<String> getEnumConstants() {
+        if (!isEnum()) throw new UnsupportedOperationException("not an enum: " + this);
+
+        List<String> result = new ArrayList<>(fields.size());
+        for (JavaField field : fields)
+            if (field.isEnumConstant())
+                result.add(field.getName());
+        return result;
+    }
+
     @Override
     public String toString() {
         return type.toString();
