@@ -20,7 +20,11 @@ public final class ClassReaderUtils {
 
     private static InputStream openInputStreamForClassBytes(Class<?> cl) throws IOException {
         String resourceName = cl.getName().replace('.', '/') + ".class";
-        InputStream inputStream = cl.getClassLoader().getResourceAsStream(resourceName);
+        ClassLoader classLoader = cl.getClassLoader();
+        if (classLoader == null)
+            classLoader = ClassLoader.getSystemClassLoader();
+
+        InputStream inputStream = classLoader.getResourceAsStream(resourceName);
         if (inputStream != null)
             return inputStream;
         else
