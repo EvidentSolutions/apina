@@ -128,7 +128,11 @@ public final class SpringModelReader {
         return parseUriTemplate(classUrl + methodUrl);
     }
 
-    private static String findRequestMappingPath(JavaAnnotatedElement element) {
-        return element.findUniqueAnnotationAttributeValue(REQUEST_MAPPING, "value", String.class).orElse("");
+    static String findRequestMappingPath(JavaAnnotatedElement element) {
+        String value = element.findUniqueAnnotationAttributeValue(REQUEST_MAPPING, "value", String.class).orElse("");
+        if (value.isEmpty() || value.startsWith("/"))
+            return value;
+        else
+            return '/' + value;
     }
 }
