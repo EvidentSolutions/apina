@@ -1,3 +1,9 @@
+## x.y.z (yyyy-mm-dd)
+
+### New features
+
+- Translate Java enums to TypeScript enums and register serializers for them. ([#18](https://github.com/EvidentSolutions/apina/issues/18))
+
 ## 0.3.2 (2015-10-23)
 
 ### Bug fixes
