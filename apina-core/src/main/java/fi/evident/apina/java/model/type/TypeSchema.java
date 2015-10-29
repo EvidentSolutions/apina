@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 public final class TypeSchema {
@@ -39,7 +40,7 @@ public final class TypeSchema {
         if (bounds != null)
             return bounds;
         else
-            throw new IllegalArgumentException("unknown var: " + var);
+            return emptyList();
     }
 
     @Override

@@ -15,20 +15,20 @@ import static fi.evident.apina.utils.CollectionUtils.filter;
  */
 public final class ClassMetadataCollection {
 
-    private final Map<JavaType,JavaClass> classes = new LinkedHashMap<>();
+    private final Map<String,JavaClass> classes = new LinkedHashMap<>();
 
     public void addClass(JavaClass aClass) {
-        JavaClass old = classes.putIfAbsent(aClass.getType(), aClass);
+        JavaClass old = classes.putIfAbsent(aClass.getName(), aClass);
         if (old != null)
-            throw new IllegalStateException("Class " + aClass.getType() + " was already added");
+            throw new IllegalStateException("Class " + aClass.getName() + " was already added");
     }
 
-    public boolean containsClass(JavaType type) {
-        return classes.containsKey(type);
+    public boolean containsClass(String name) {
+        return classes.containsKey(name);
     }
 
-    public Optional<JavaClass> findClass(JavaType type) {
-        return Optional.ofNullable(classes.get(type));
+    public Optional<JavaClass> findClass(String name) {
+        return Optional.ofNullable(classes.get(name));
     }
 
     public List<JavaClass> findClassesWithAnnotation(JavaBasicType annotationType) {
@@ -36,7 +36,7 @@ public final class ClassMetadataCollection {
     }
 
     public boolean isInstanceOf(JavaType type, Class<?> requiredType) {
-        JavaClass javaClass = classes.get(type);
+        JavaClass javaClass = classes.get(type.getNonGenericClassName());
 
         if (javaClass != null) {
             return javaClass.getName().equals(requiredType.getName())
@@ -58,5 +58,10 @@ public final class ClassMetadataCollection {
 
     public boolean isNumber(JavaBasicType type) {
         return type.isPrimitiveNumber() || isInstanceOf(type, Number.class);
+    }
+
+    @Override
+    public String toString() {
+        return classes.toString();
     }
 }

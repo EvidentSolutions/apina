@@ -15,6 +15,11 @@ public final class JavaInnerClassType extends JavaType {
     }
 
     @Override
+    public String getNonGenericClassName() {
+        return outer.getNonGenericClassName() + '$' + name;
+    }
+
+    @Override
     public <C, R> R accept(JavaTypeVisitor<C, R> visitor, C ctx) {
         return visitor.visit(this, ctx);
     }

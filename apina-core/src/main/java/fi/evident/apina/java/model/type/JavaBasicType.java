@@ -30,6 +30,11 @@ public final class JavaBasicType extends JavaType {
     }
 
     @Override
+    public String getNonGenericClassName() {
+        return name;
+    }
+
+    @Override
     public <C, R> R accept(JavaTypeVisitor<C, R> visitor, C ctx) {
         return visitor.visit(this, ctx);
     }

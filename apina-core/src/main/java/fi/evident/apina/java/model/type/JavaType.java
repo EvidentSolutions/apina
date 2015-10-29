@@ -12,6 +12,8 @@ public abstract class JavaType {
         throw new ClassCastException("can't cast " + getClass().getName() + " to JavaBasicType");
     }
 
+    public abstract String getNonGenericClassName();
+
     public boolean isVoid() {
         return false;
     }

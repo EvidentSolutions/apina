@@ -12,6 +12,7 @@ import fi.evident.apina.model.ClassDefinition;
 import fi.evident.apina.model.EnumDefinition;
 import fi.evident.apina.model.settings.TranslationSettings;
 import fi.evident.apina.model.type.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -139,6 +140,23 @@ public class JacksonTypeTranslatorTest {
         assertThat(enumDefinition.getConstants(), is(asList("FOO", "BAR", "BAZ")));
     }
 
+    @Test
+    public void genericTypeWithoutKnownParameters() {
+        ClassDefinition classDefinition = translateClass(GenericType.class);
+
+        assertThat(classDefinition.getProperties(), hasProperties(
+                property("genericField", ApiPrimitiveType.ANY)));
+    }
+
+    @Test
+    @Ignore
+    public void genericTypeInheritedByFixingParameters() {
+        ClassDefinition classDefinition = translateClass(SubTypeOfGenericType.class);
+
+        assertThat(classDefinition.getProperties(), hasProperties(
+                property("genericField", ApiPrimitiveType.STRING)));
+    }
+
     private ApiType translateType(JavaType type) {
         ClassMetadataCollection classes = new ClassMetadataCollection();
         ApiDefinition api = new ApiDefinition();
@@ -151,7 +169,7 @@ public class JacksonTypeTranslatorTest {
         ApiDefinition api = new ApiDefinition();
         ApiType apiType = translateClass(cl, api);
 
-        Optional<ClassDefinition> definition = api.getClassDefinitions().stream().filter(d -> d.getType().toString().equals(apiType.typeRepresentation())).findAny();
+        Optional<ClassDefinition> definition = api.getClassDefinitions().stream().filter(d -> apiType.typeRepresentation().startsWith(d.getType().toString())).findAny();
         return definition.orElseThrow(() -> new AssertionError("could not find definition for " + apiType));
     }
 
@@ -278,5 +296,12 @@ public class JacksonTypeTranslatorTest {
 
     public enum TestEnum {
         FOO, BAR, BAZ
+    }
+
+    public static class GenericType<T> {
+        public T genericField;
+    }
+
+    public static class SubTypeOfGenericType extends GenericType<String> {
     }
 }

@@ -40,7 +40,7 @@ public final class JavaClass implements JavaAnnotatedElement {
     }
 
     public String getName() {
-        return type.toString();
+        return type.getNonGenericClassName();
     }
 
     public JavaType getType() {

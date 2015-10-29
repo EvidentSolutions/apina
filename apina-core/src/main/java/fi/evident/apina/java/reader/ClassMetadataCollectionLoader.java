@@ -23,7 +23,7 @@ public final class ClassMetadataCollectionLoader {
 
         ClassPathScanner.processAllClasses(classpath, in -> {
             JavaClass aClass = ClassMetadataReader.loadMetadata(in);
-            if (!classes.containsClass(aClass.getType())) {
+            if (!classes.containsClass(aClass.getName())) {
                 classes.addClass(aClass);
             } else {
                 duplicates.add(aClass.getType());

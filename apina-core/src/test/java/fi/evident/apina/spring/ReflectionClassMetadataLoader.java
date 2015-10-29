@@ -1,8 +1,6 @@
 package fi.evident.apina.spring;
 
 import fi.evident.apina.java.model.ClassMetadataCollection;
-import fi.evident.apina.java.model.type.JavaBasicType;
-import fi.evident.apina.java.model.type.JavaType;
 
 import static fi.evident.apina.java.reader.ClassReaderUtils.loadClass;
 
@@ -18,9 +16,7 @@ final class ReflectionClassMetadataLoader {
     }
 
     private static void loadClassAndInterfacesAt(ClassMetadataCollection result, Class<?> cl) {
-        JavaType type = new JavaBasicType(cl);
-
-        if (!result.containsClass(type)) {
+        if (!result.containsClass(cl.getName())) {
             result.addClass(loadClass(cl));
 
             for (Class<?> interfaceClass : cl.getInterfaces())

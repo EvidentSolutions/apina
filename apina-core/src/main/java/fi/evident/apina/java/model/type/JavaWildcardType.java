@@ -39,6 +39,11 @@ public final class JavaWildcardType extends JavaType {
     }
 
     @Override
+    public String getNonGenericClassName() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public <C, R> R accept(JavaTypeVisitor<C, R> visitor, C ctx) {
         return visitor.visit(this, ctx);
     }

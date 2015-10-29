@@ -145,7 +145,7 @@ final class JacksonTypeTranslator {
         ApiClassType classType = new ApiClassType(typeName);
 
         if (!api.containsType(typeName)) {
-            JavaClass aClass = classes.findClass(type).orElse(null);
+            JavaClass aClass = classes.findClass(type.getName()).orElse(null);
             if (aClass != null) {
                 if (aClass.isEnum()) {
                     api.addEnumDefinition(new EnumDefinition(typeName, aClass.getEnumConstants()));
@@ -177,7 +177,7 @@ final class JacksonTypeTranslator {
     }
 
     private boolean hasJsonValueAnnotation(JavaBasicType type) {
-        return classes.findClass(type).map(cl -> cl.hasMethodWithAnnotation(JSON_VALUE)).orElse(false);
+        return classes.findClass(type.getName()).map(cl -> cl.hasMethodWithAnnotation(JSON_VALUE)).orElse(false);
     }
 
     private void initClassDefinition(ClassDefinition classDefinition, JavaClass javaClass) {
@@ -238,7 +238,7 @@ final class JacksonTypeTranslator {
     private List<JavaClass> classesUpwardsFrom(JavaClass javaClass) {
         List<JavaClass> result = new ArrayList<>();
 
-        for (JavaClass cl = javaClass; cl != null; cl = classes.findClass(cl.getSuperClass()).orElse(null))
+        for (JavaClass cl = javaClass; cl != null; cl = classes.findClass(cl.getSuperClass().getNonGenericClassName()).orElse(null))
             addClassAndInterfacesAt(cl, result);
 
         return result;
@@ -251,7 +251,7 @@ final class JacksonTypeTranslator {
         result.add(c);
 
         for (JavaType interfaceType : c.getInterfaces()) {
-            JavaClass interfaceClass = classes.findClass(interfaceType).orElse(null);
+            JavaClass interfaceClass = classes.findClass(interfaceType.getNonGenericClassName()).orElse(null);
             if (interfaceClass != null)
                 addClassAndInterfacesAt(interfaceClass, result);
         }

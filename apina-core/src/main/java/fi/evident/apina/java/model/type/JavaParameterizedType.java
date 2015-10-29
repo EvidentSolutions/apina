@@ -24,6 +24,11 @@ public final class JavaParameterizedType extends JavaType {
         this.arguments = unmodifiableList(new ArrayList<>(arguments));
     }
 
+    @Override
+    public String getNonGenericClassName() {
+        return baseType.getNonGenericClassName();
+    }
+
     public JavaType getBaseType() {
         return baseType;
     }
