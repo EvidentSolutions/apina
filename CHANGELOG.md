@@ -1,4 +1,4 @@
-## x.y.z (yyyy-mm-dd)
+## 0.4.0 (2015-10-29)
 
 ### New features
 
