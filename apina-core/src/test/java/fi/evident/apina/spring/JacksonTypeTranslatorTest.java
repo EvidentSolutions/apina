@@ -6,6 +6,7 @@ import fi.evident.apina.java.model.ClassMetadataCollection;
 import fi.evident.apina.java.model.JavaClass;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.TypeEnvironment;
 import fi.evident.apina.java.model.type.TypeSchema;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.ClassDefinition;
@@ -109,10 +110,11 @@ public class JacksonTypeTranslatorTest {
         ClassMetadataCollection classes = new ClassMetadataCollection();
         classes.addClass(class1);
         classes.addClass(class2);
-        JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), new ApiDefinition());
+        JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new ApiDefinition());
+        TypeEnvironment env = TypeEnvironment.empty();
 
-        translator.translateType(class1.getType());
-        translator.translateType(class2.getType());
+        translator.translateType(class1.getType(), env);
+        translator.translateType(class2.getType(), env);
     }
 
     @Test
@@ -160,9 +162,9 @@ public class JacksonTypeTranslatorTest {
     private ApiType translateType(JavaType type) {
         ClassMetadataCollection classes = new ClassMetadataCollection();
         ApiDefinition api = new ApiDefinition();
-        JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), api);
+        JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, api);
 
-        return translator.translateType(type);
+        return translator.translateType(type, TypeEnvironment.empty()); // TODO: create environment from type
     }
 
     private ClassDefinition translateClass(Class<?> cl) {
@@ -183,9 +185,9 @@ public class JacksonTypeTranslatorTest {
 
     private ApiType translateClass(Class<?> cl, ApiDefinition api) {
         ClassMetadataCollection classes = loadClassesFromInheritanceTree(cl);
-        JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new TypeSchema(), api);
+        JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, api);
 
-        return translator.translateType(new JavaBasicType(cl));
+        return translator.translateType(new JavaBasicType(cl), TypeEnvironment.empty());
     }
 
     @SuppressWarnings("rawtypes")

@@ -29,7 +29,6 @@ final class JacksonTypeTranslator {
 
     private final TranslationSettings settings;
     private final ClassMetadataCollection classes;
-    private final TypeSchema schema;
     private final ApiDefinition api;
 
     /**
@@ -45,22 +44,21 @@ final class JacksonTypeTranslator {
     private static final List<JavaBasicType> OPTIONAL_NUMBER_TYPES =
             asList(new JavaBasicType(OptionalInt.class), new JavaBasicType(OptionalLong.class), new JavaBasicType(OptionalDouble.class));
 
-    public JacksonTypeTranslator(TranslationSettings settings, ClassMetadataCollection classes, TypeSchema schema, ApiDefinition api) {
+    public JacksonTypeTranslator(TranslationSettings settings, ClassMetadataCollection classes, ApiDefinition api) {
         this.settings = requireNonNull(settings);
         this.classes = requireNonNull(classes);
-        this.schema = requireNonNull(schema);
         this.api = requireNonNull(api);
     }
 
-    public ApiType translateType(JavaType javaType) {
-        return javaType.accept(new JavaTypeVisitor<TypeSchema, ApiType>() {
+    public ApiType translateType(JavaType javaType, TypeEnvironment env) {
+        return javaType.accept(new JavaTypeVisitor<TypeEnvironment, ApiType>() {
             @Override
-            public ApiType visit(JavaArrayType type, TypeSchema ctx) {
-                return new ApiArrayType(translateType(type.getElementType()));
+            public ApiType visit(JavaArrayType type, TypeEnvironment ctx) {
+                return new ApiArrayType(translateType(type.getElementType(), ctx));
             }
 
             @Override
-            public ApiType visit(JavaBasicType type, TypeSchema ctx) {
+            public ApiType visit(JavaBasicType type, TypeEnvironment ctx) {
                 if (classes.isInstanceOf(type, Collection.class)) {
                     return new ApiArrayType(ApiPrimitiveType.ANY);
 
@@ -86,49 +84,43 @@ final class JacksonTypeTranslator {
                     return ApiPrimitiveType.VOID;
 
                 } else {
-                    return translateClassType(type);
+                    return translateClassType(type, ctx);
                 }
             }
 
             @Override
-            public ApiType visit(JavaParameterizedType type, TypeSchema ctx) {
+            public ApiType visit(JavaParameterizedType type, TypeEnvironment ctx) {
                 JavaType baseType = type.getBaseType();
                 List<JavaType> arguments = type.getArguments();
 
                 if (classes.isInstanceOf(baseType, Collection.class) && arguments.size() == 1)
-                    return new ApiArrayType(translateType(arguments.get(0)));
+                    return new ApiArrayType(translateType(arguments.get(0), ctx));
                 else if (classes.isInstanceOf(baseType, Map.class) && arguments.size() == 2 && classes.isInstanceOf(arguments.get(0), String.class))
-                    return new ApiDictionaryType(translateType(arguments.get(1)));
+                    return new ApiDictionaryType(translateType(arguments.get(1), ctx));
                 else if (classes.isInstanceOf(baseType, Optional.class) && arguments.size() == 1)
-                    return translateType(arguments.get(0));
+                    return translateType(arguments.get(0), ctx);
                 else
-                    return translateType(baseType);
+                    return translateType(baseType, ctx);
             }
 
             @Override
-            public ApiType visit(JavaTypeVariable type, TypeSchema ctx) {
-                List<JavaType> bounds = ctx.getTypeBounds(type);
-
-                // TODO: merge the bounds instead of picking the first one
-                if (!bounds.isEmpty())
-                    return translateType(bounds.get(0));
-                else
-                    return ApiPrimitiveType.ANY;
+            public ApiType visit(JavaTypeVariable type, TypeEnvironment ctx) {
+                return ctx.lookup(type).map(t -> translateType(t, ctx)).orElse(ApiPrimitiveType.ANY);
             }
 
             @Override
-            public ApiType visit(JavaWildcardType type, TypeSchema ctx) {
-                return type.getLowerBound().map(JacksonTypeTranslator.this::translateType).orElse(ApiPrimitiveType.ANY);
+            public ApiType visit(JavaWildcardType type, TypeEnvironment ctx) {
+                return type.getLowerBound().map(t -> translateType(t, ctx)).orElse(ApiPrimitiveType.ANY);
             }
 
             @Override
-            public ApiType visit(JavaInnerClassType type, TypeSchema ctx) {
+            public ApiType visit(JavaInnerClassType type, TypeEnvironment ctx) {
                 throw new UnsupportedOperationException("translating inner class types is not supported: " + type);
             }
-        }, schema);
+        }, env);
     }
 
-    private ApiType translateClassType(JavaBasicType type) {
+    private ApiType translateClassType(JavaBasicType type, TypeEnvironment schema) {
         ApiTypeName typeName = classNameForType(type);
 
         if (settings.isImported(typeName))
@@ -158,7 +150,7 @@ final class JacksonTypeTranslator {
                     // back to this same class and we'd get infinite recursion if the
                     // class is not already installed.
                     api.addClassDefinition(classDefinition);
-                    initClassDefinition(classDefinition, aClass);
+                    initClassDefinition(classDefinition, aClass, schema);
                 }
             }
         }
@@ -180,32 +172,32 @@ final class JacksonTypeTranslator {
         return classes.findClass(type.getName()).map(cl -> cl.hasMethodWithAnnotation(JSON_VALUE)).orElse(false);
     }
 
-    private void initClassDefinition(ClassDefinition classDefinition, JavaClass javaClass) {
+    private void initClassDefinition(ClassDefinition classDefinition, JavaClass javaClass, TypeEnvironment env) {
         Set<String> ignoredProperties = ignoredProperties(javaClass);
 
         Predicate<String> acceptProperty = name -> !classDefinition.hasProperty(name) && !ignoredProperties.contains(name);
 
         for (JavaClass cl : classesUpwardsFrom(javaClass)) {
-            addPropertiesFromGetters(cl, classDefinition, acceptProperty);
-            addPropertiesFromFields(cl, classDefinition, acceptProperty);
+            addPropertiesFromGetters(cl, env, classDefinition, acceptProperty);
+            addPropertiesFromFields(cl, env, classDefinition, acceptProperty);
         }
     }
 
-    private void addPropertiesFromFields(JavaClass aClass, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
+    private void addPropertiesFromFields(JavaClass aClass, TypeEnvironment env, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
         for (JavaField field : aClass.getPublicInstanceFields()) {
             String name = field.getName();
             if (acceptProperty.test(name)) {
-                ApiType type = translateType(field.getType());
+                ApiType type = translateType(field.getType(), env);
                 classDefinition.addProperty(new PropertyDefinition(name, type));
             }
         }
     }
 
-    private void addPropertiesFromGetters(JavaClass aClass, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
+    private void addPropertiesFromGetters(JavaClass aClass, TypeEnvironment env, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
         for (JavaMethod getter : aClass.getGetters()) {
             String name = propertyNameForGetter(getter.getName());
             if (acceptProperty.test(name)) {
-                ApiType type = translateType(getter.getReturnType());
+                ApiType type = translateType(getter.getReturnType(), env);
                 classDefinition.addProperty(new PropertyDefinition(name, type));
             }
         }

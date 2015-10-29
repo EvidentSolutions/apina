@@ -51,20 +51,4 @@ public final class TypeSchema {
     public boolean isEmpty() {
         return boundMap.isEmpty();
     }
-
-    public TypeSchema mergeWithParent(TypeSchema parent) {
-        TypeSchema mergedSchema = new TypeSchema();
-
-        // First create a new set of variables, avoiding duplicates
-        mergedSchema.variables.addAll(parent.variables);
-        for (JavaTypeVariable variable : variables)
-            if (!mergedSchema.variables.contains(variable))
-                mergedSchema.variables.add(variable);
-
-        // Next create a new boundMap, letting child override mappings defined in parent
-        mergedSchema.boundMap.putAll(parent.boundMap);
-        mergedSchema.boundMap.putAll(boundMap);
-
-        return mergedSchema;
-    }
 }

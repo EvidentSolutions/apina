@@ -2,6 +2,7 @@ package fi.evident.apina.java.model;
 
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.TypeEnvironment;
 import fi.evident.apina.java.model.type.TypeSchema;
 
 import java.lang.reflect.Modifier;
@@ -64,8 +65,8 @@ public final class JavaMethod implements JavaAnnotatedElement {
         return schema;
     }
 
-    public TypeSchema getEffectiveSchema() {
-        return schema.mergeWithParent(owningClass.getSchema());
+    public TypeEnvironment getEnvironment() {
+        return new TypeEnvironment(owningClass.getSchema(), schema);
     }
 
     public List<JavaParameter> getParameters() {

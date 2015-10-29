@@ -3,6 +3,7 @@ package fi.evident.apina.spring;
 import fi.evident.apina.java.model.*;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
+import fi.evident.apina.java.model.type.TypeEnvironment;
 import fi.evident.apina.java.reader.ClassMetadataCollectionLoader;
 import fi.evident.apina.java.reader.Classpath;
 import fi.evident.apina.model.*;
@@ -70,16 +71,17 @@ public final class SpringModelReader {
         Endpoint endpoint = new Endpoint(method.getName(), resolveUriTemplate(method), responseBody);
         resolveRequestMethod(method).ifPresent(endpoint::setMethod);
 
-        JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(settings, classes, method.getEffectiveSchema(), api);
+        JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(settings, classes, api);
+        TypeEnvironment env = method.getEnvironment();
         for (JavaParameter parameter : method.getParameters())
-            parseParameter(typeTranslator, parameter).ifPresent(endpoint::addParameter);
+            parseParameter(typeTranslator, parameter, env).ifPresent(endpoint::addParameter);
 
         return endpoint;
     }
 
-    private static Optional<EndpointParameter> parseParameter(JacksonTypeTranslator typeTranslator, JavaParameter parameter) {
+    private static Optional<EndpointParameter> parseParameter(JacksonTypeTranslator typeTranslator, JavaParameter parameter, TypeEnvironment env) {
         String name = parameter.getName().orElse("?");
-        ApiType type = typeTranslator.translateType(parameter.getType());
+        ApiType type = typeTranslator.translateType(parameter.getType(), env);
 
         if (parameter.hasAnnotation(REQUEST_BODY)) {
             return Optional.of(new EndpointRequestBodyParameter(name, type));
@@ -101,8 +103,8 @@ public final class SpringModelReader {
         JavaType returnType = method.getReturnType();
 
         if (!returnType.isVoid()) {
-            JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(settings, classes, method.getEffectiveSchema(), api);
-            return Optional.of(typeTranslator.translateType(returnType));
+            JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(settings, classes, api);
+            return Optional.of(typeTranslator.translateType(returnType, method.getEnvironment()));
         } else {
             return Optional.empty();
         }
