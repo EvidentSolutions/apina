@@ -3,6 +3,7 @@
 ### New features
 
 - Support type parameters in inheritance ([#27](https://github.com/EvidentSolutions/apina/issues/27))
+- Support overriding ignores in subclasses ([#26](https://github.com/EvidentSolutions/apina/issues/26))
 
 ### Improvements
 

@@ -1,9 +1,6 @@
 package fi.evident.apina.spring;
 
-import fi.evident.apina.java.model.ClassMetadataCollection;
-import fi.evident.apina.java.model.JavaClass;
-import fi.evident.apina.java.model.JavaField;
-import fi.evident.apina.java.model.JavaMethod;
+import fi.evident.apina.java.model.*;
 import fi.evident.apina.java.model.type.*;
 import fi.evident.apina.model.ApiDefinition;
 import fi.evident.apina.model.ClassDefinition;
@@ -212,19 +209,30 @@ final class JacksonTypeTranslator {
             JavaClass aClass = classes.get(i).getJavaClass();
 
             for (JavaField field : aClass.getPublicInstanceFields()) {
-                if (field.hasAnnotation(JSON_IGNORE))
+                if (field.findAnnotation(JSON_IGNORE).map(JacksonTypeTranslator::isIgnore).orElse(false))
                     ignores.add(field.getName());
                 else
                     ignores.remove(field.getName());
             }
 
             for (JavaMethod getter : aClass.getGetters()) {
-                if (getter.hasAnnotation(JSON_IGNORE))
-                    ignores.add(propertyNameForGetter(getter.getName()));
+                JavaAnnotation ignore = getter.findAnnotation(JSON_IGNORE).orElse(null);
+                if (ignore != null) {
+                    String name = propertyNameForGetter(getter.getName());
+                    if (isIgnore(ignore)) {
+                        ignores.add(name);
+                    } else {
+                        ignores.remove(name);
+                    }
+                }
             }
         }
 
         return ignores;
+    }
+
+    private static boolean isIgnore(JavaAnnotation ignore) {
+        return ignore.getAttribute("value", Boolean.class).orElse(true);
     }
 
     private List<BoundClass> classesUpwardsFrom(BoundClass javaClass) {

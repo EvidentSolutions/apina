@@ -126,6 +126,14 @@ public class JacksonTypeTranslatorTest {
     }
 
     @Test
+    public void ignoresOverriddenInSubClasses() {
+        ClassDefinition classDefinition = translateClass(TypeWithOverridingIgnore.class);
+
+        assertThat(classDefinition.getProperties(), hasProperties(
+                property("foo", ApiPrimitiveType.STRING)));
+    }
+
+    @Test
     public void interfaceWithProperties() {
         ClassDefinition classDefinition = translateClass(TypeWithPropertiesFromInterface.class);
 
@@ -284,6 +292,23 @@ public class JacksonTypeTranslatorTest {
         @Override
         public String getFoo() {
             return foo;
+        }
+    }
+
+    public static class SuperClassWithIgnore {
+
+        @JsonIgnore
+        public String getFoo() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public static final class TypeWithOverridingIgnore extends SuperClassWithIgnore {
+
+        @JsonIgnore(false)
+        @Override
+        public String getFoo() {
+            throw new UnsupportedOperationException();
         }
     }
 
