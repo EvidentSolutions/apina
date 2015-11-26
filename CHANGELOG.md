@@ -1,3 +1,9 @@
+## x.y.z
+
+### New features
+
+- Support type parameters in inheritance ([#27](https://github.com/EvidentSolutions/apina/issues/27))
+
 ## 0.4.0 (2015-10-29)
 
 ### New features
