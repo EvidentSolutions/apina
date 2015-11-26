@@ -13,7 +13,6 @@ import fi.evident.apina.model.ClassDefinition;
 import fi.evident.apina.model.EnumDefinition;
 import fi.evident.apina.model.settings.TranslationSettings;
 import fi.evident.apina.model.type.*;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -151,9 +150,16 @@ public class JacksonTypeTranslatorTest {
     }
 
     @Test
-    @Ignore
     public void genericTypeInheritedByFixingParameters() {
         ClassDefinition classDefinition = translateClass(SubTypeOfGenericType.class);
+
+        assertThat(classDefinition.getProperties(), hasProperties(
+                property("genericField", ApiPrimitiveType.STRING)));
+    }
+
+    @Test
+    public void genericTypeInheritedByThroughLevelParameters() {
+        ClassDefinition classDefinition = translateClass(SecondOrderSubTypeOfGenericType.class);
 
         assertThat(classDefinition.getProperties(), hasProperties(
                 property("genericField", ApiPrimitiveType.STRING)));
@@ -305,5 +311,11 @@ public class JacksonTypeTranslatorTest {
     }
 
     public static class SubTypeOfGenericType extends GenericType<String> {
+    }
+
+    public static class GenericMiddleType<A> extends GenericType<A> {
+    }
+
+    public static class SecondOrderSubTypeOfGenericType extends GenericMiddleType<String> {
     }
 }

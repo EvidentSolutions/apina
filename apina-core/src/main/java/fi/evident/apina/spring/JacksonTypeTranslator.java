@@ -100,7 +100,7 @@ final class JacksonTypeTranslator {
                 else if (classes.isInstanceOf(baseType, Optional.class) && arguments.size() == 1)
                     return translateType(arguments.get(0), ctx);
                 else
-                    return translateType(baseType, ctx);
+                    return translateType(baseType, ctx); // TODO: use arguments
             }
 
             @Override
@@ -120,7 +120,7 @@ final class JacksonTypeTranslator {
         }, env);
     }
 
-    private ApiType translateClassType(JavaBasicType type, TypeEnvironment schema) {
+    private ApiType translateClassType(JavaBasicType type, TypeEnvironment env) {
         ApiTypeName typeName = classNameForType(type);
 
         if (settings.isImported(typeName))
@@ -150,7 +150,7 @@ final class JacksonTypeTranslator {
                     // back to this same class and we'd get infinite recursion if the
                     // class is not already installed.
                     api.addClassDefinition(classDefinition);
-                    initClassDefinition(classDefinition, aClass, schema);
+                    initClassDefinition(classDefinition, new BoundClass(aClass, env));
                 }
             }
         }
@@ -172,44 +172,44 @@ final class JacksonTypeTranslator {
         return classes.findClass(type.getName()).map(cl -> cl.hasMethodWithAnnotation(JSON_VALUE)).orElse(false);
     }
 
-    private void initClassDefinition(ClassDefinition classDefinition, JavaClass javaClass, TypeEnvironment env) {
-        Set<String> ignoredProperties = ignoredProperties(javaClass);
+    private void initClassDefinition(ClassDefinition classDefinition, BoundClass boundClass) {
+        Set<String> ignoredProperties = ignoredProperties(boundClass);
 
         Predicate<String> acceptProperty = name -> !classDefinition.hasProperty(name) && !ignoredProperties.contains(name);
 
-        for (JavaClass cl : classesUpwardsFrom(javaClass)) {
-            addPropertiesFromGetters(cl, env, classDefinition, acceptProperty);
-            addPropertiesFromFields(cl, env, classDefinition, acceptProperty);
+        for (BoundClass cl : classesUpwardsFrom(boundClass)) {
+            addPropertiesFromGetters(cl, classDefinition, acceptProperty);
+            addPropertiesFromFields(cl, classDefinition, acceptProperty);
         }
     }
 
-    private void addPropertiesFromFields(JavaClass aClass, TypeEnvironment env, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
-        for (JavaField field : aClass.getPublicInstanceFields()) {
+    private void addPropertiesFromFields(BoundClass boundClass, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
+        for (JavaField field : boundClass.getJavaClass().getPublicInstanceFields()) {
             String name = field.getName();
             if (acceptProperty.test(name)) {
-                ApiType type = translateType(field.getType(), env);
+                ApiType type = translateType(field.getType(), boundClass.getEnvironment());
                 classDefinition.addProperty(new PropertyDefinition(name, type));
             }
         }
     }
 
-    private void addPropertiesFromGetters(JavaClass aClass, TypeEnvironment env, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
-        for (JavaMethod getter : aClass.getGetters()) {
+    private void addPropertiesFromGetters(BoundClass boundClass, ClassDefinition classDefinition, Predicate<String> acceptProperty) {
+        for (JavaMethod getter : boundClass.getJavaClass().getGetters()) {
             String name = propertyNameForGetter(getter.getName());
             if (acceptProperty.test(name)) {
-                ApiType type = translateType(getter.getReturnType(), env);
+                ApiType type = translateType(getter.getReturnType(), boundClass.getEnvironment());
                 classDefinition.addProperty(new PropertyDefinition(name, type));
             }
         }
     }
 
-    private Set<String> ignoredProperties(JavaClass type) {
+    private Set<String> ignoredProperties(BoundClass type) {
         Set<String> ignores = new HashSet<>();
 
-        List<JavaClass> classes = classesUpwardsFrom(type);
+        List<BoundClass> classes = classesUpwardsFrom(type);
 
         for (int i = classes.size() - 1; i >= 0; i--) {
-            JavaClass aClass = classes.get(i);
+            JavaClass aClass = classes.get(i).getJavaClass();
 
             for (JavaField field : aClass.getPublicInstanceFields()) {
                 if (field.hasAnnotation(JSON_IGNORE))
@@ -227,25 +227,37 @@ final class JacksonTypeTranslator {
         return ignores;
     }
 
-    private List<JavaClass> classesUpwardsFrom(JavaClass javaClass) {
-        List<JavaClass> result = new ArrayList<>();
+    private List<BoundClass> classesUpwardsFrom(BoundClass javaClass) {
+        List<BoundClass> result = new ArrayList<>();
 
-        for (JavaClass cl = javaClass; cl != null; cl = classes.findClass(cl.getSuperClass().getNonGenericClassName()).orElse(null))
+        for (BoundClass cl = javaClass; cl != null; cl = boundClassFor(cl.getJavaClass().getSuperClass(), cl.getEnvironment()).orElse(null))
             addClassAndInterfacesAt(cl, result);
 
         return result;
     }
 
-    private void addClassAndInterfacesAt(JavaClass c, List<JavaClass> result) {
-        if (result.contains(c))
+    private void addClassAndInterfacesAt(BoundClass c, List<BoundClass> result) {
+        if (result.stream().anyMatch(bc -> c.getJavaClass().equals(bc.getJavaClass())))
             return;
 
         result.add(c);
 
-        for (JavaType interfaceType : c.getInterfaces()) {
-            JavaClass interfaceClass = classes.findClass(interfaceType.getNonGenericClassName()).orElse(null);
+        for (JavaType interfaceType : c.getJavaClass().getInterfaces()) {
+            BoundClass interfaceClass = boundClassFor(interfaceType, c.getEnvironment()).orElse(null);
             if (interfaceClass != null)
                 addClassAndInterfacesAt(interfaceClass, result);
         }
+    }
+
+    private Optional<BoundClass> boundClassFor(JavaType type, TypeEnvironment env) {
+        return classes.findClass(type.getNonGenericClassName()).map(c -> {
+            if (type instanceof JavaParameterizedType) {
+                JavaParameterizedType parameterizedType = (JavaParameterizedType) type;
+                List<JavaType> args = env.resolve(parameterizedType.getArguments());
+                return new BoundClass(c, c.getSchema().apply(args));
+            } else {
+                return new BoundClass(c, TypeEnvironment.empty());
+            }
+        });
     }
 }

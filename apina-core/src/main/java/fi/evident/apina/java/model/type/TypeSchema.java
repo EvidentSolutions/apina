@@ -51,4 +51,17 @@ public final class TypeSchema {
     public boolean isEmpty() {
         return boundMap.isEmpty();
     }
+
+    @NotNull
+    public TypeEnvironment apply(List<JavaType> arguments) {
+        if (arguments.size() != variables.size())
+            throw new IllegalArgumentException("expected " + variables.size() + " arguments, but got " + arguments.size());
+
+        TypeEnvironment env = TypeEnvironment.empty();
+        int index = 0;
+        for (JavaTypeVariable var : variables)
+            env.bind(var, arguments.get(index++));
+
+        return env;
+    }
 }
