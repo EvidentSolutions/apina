@@ -2,6 +2,7 @@ package fi.evident.apina.cli;
 
 import fi.evident.apina.ApinaProcessor;
 import fi.evident.apina.java.reader.Classpath;
+import fi.evident.apina.spring.EndpointParameterNameNotDefinedException;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,10 @@ public final class Apina {
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
+
+        } catch (EndpointParameterNameNotDefinedException e) {
+            System.err.println(e.getMessage());
+            System.exit(2);
         }
     }
 }

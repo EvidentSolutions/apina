@@ -80,7 +80,7 @@ public final class SpringModelReader {
     }
 
     private static Optional<EndpointParameter> parseParameter(JacksonTypeTranslator typeTranslator, JavaParameter parameter, TypeEnvironment env) {
-        String name = parameter.getName().orElse("?");
+        String name = parameter.getName().orElseThrow(EndpointParameterNameNotDefinedException::new);
         ApiType type = typeTranslator.translateType(parameter.getType(), env);
 
         if (parameter.hasAnnotation(REQUEST_BODY)) {

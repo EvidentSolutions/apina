@@ -14,6 +14,10 @@ plugins {
     id "fi.evident.apina" version "0.4.0"
 }
 
+compileJava { 
+    options.compilerArgs = ['-parameters'] 
+}
+
 apina {
     // set the name of the created TypeScript file
     target = new File(project(":frontend").projectDir, 'app/apina-api.ts')

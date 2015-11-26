@@ -4,6 +4,10 @@
 
 - Support type parameters in inheritance ([#27](https://github.com/EvidentSolutions/apina/issues/27))
 
+### Improvements
+
+- Fail fast if endpoint parameter name can't be resolved ([#17](https://github.com/EvidentSolutions/apina/issues/17)) 
+
 ## 0.4.0 (2015-10-29)
 
 ### New features
