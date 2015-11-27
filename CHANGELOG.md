@@ -7,7 +7,8 @@
 
 ### Improvements
 
-- Fail fast if endpoint parameter name can't be resolved ([#17](https://github.com/EvidentSolutions/apina/issues/17)) 
+- Fail fast if endpoint parameter name can't be resolved ([#17](https://github.com/EvidentSolutions/apina/issues/17))
+- Support @RequestParam(name=...) ([#28](https://github.com/EvidentSolutions/apina/issues/28))
 
 ## 0.4.0 (2015-10-29)
 

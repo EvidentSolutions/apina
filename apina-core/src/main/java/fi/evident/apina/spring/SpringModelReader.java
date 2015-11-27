@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static fi.evident.apina.spring.NameTranslator.translateEndpointGroupName;
+import static fi.evident.apina.spring.SpringAnnotationUtils.getRequestParamName;
 import static fi.evident.apina.spring.SpringUriTemplateParser.parseUriTemplate;
 import static java.util.Objects.requireNonNull;
 
@@ -87,7 +88,7 @@ public final class SpringModelReader {
             return Optional.of(new EndpointRequestBodyParameter(name, type));
 
         } else if (parameter.hasAnnotation(REQUEST_PARAM)) {
-            Optional<String> requestParam = parameter.getAnnotation(REQUEST_PARAM).getAttribute("value", String.class);
+            Optional<String> requestParam = getRequestParamName(parameter.getAnnotation(REQUEST_PARAM));
             return Optional.of(new EndpointRequestParamParameter(name, requestParam, type));
 
         } else if (parameter.hasAnnotation(PATH_VARIABLE)) {
