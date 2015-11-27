@@ -25,6 +25,11 @@ public final class JavaArrayType extends JavaType {
     }
 
     @Override
+    public JavaType resolve(TypeEnvironment env) {
+        return new JavaArrayType(elementType.resolve(env));
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

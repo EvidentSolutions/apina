@@ -33,17 +33,8 @@ public final class TypeEnvironment {
         return new TypeEnvironment();
     }
 
-    public JavaType resolve(JavaType type) {
-        if (type instanceof JavaTypeVariable) {
-            JavaTypeVariable var = (JavaTypeVariable) type;
-            return lookup(var).orElseThrow(() -> new RuntimeException("unbound type variable: " + var));
-        } else {
-            return type;
-        }
-    }
-
     public List<JavaType> resolve(List<JavaType> arguments) {
-        return map(arguments, this::resolve);
+        return map(arguments, a -> a.resolve(this));
     }
 
     public Optional<JavaType> lookup(JavaTypeVariable type) {

@@ -166,11 +166,19 @@ public class JacksonTypeTranslatorTest {
     }
 
     @Test
-    public void genericTypeInheritedByThroughLevelParameters() {
+    public void genericTypeInheritedThroughMiddleType() {
         ClassDefinition classDefinition = translateClass(SecondOrderSubTypeOfGenericType.class);
 
         assertThat(classDefinition.getProperties(), hasProperties(
                 property("genericField", ApiPrimitiveType.STRING)));
+    }
+
+    @Test
+    public void genericTypeInheritedThroughMiddleTypeThatParameterizesWithVariable() {
+        ClassDefinition classDefinition = translateClass(SubTypeOfGenericTypeParameterizedWithVariable.class);
+
+        assertThat(classDefinition.getProperties(), hasProperties(
+                property("genericField", new ApiArrayType(ApiPrimitiveType.STRING))));
     }
 
     private ApiType translateType(JavaType type) {
@@ -342,5 +350,11 @@ public class JacksonTypeTranslatorTest {
     }
 
     public static class SecondOrderSubTypeOfGenericType extends GenericMiddleType<String> {
+    }
+
+    public static class GenericMiddleTypeParameterizedWithVariable<A> extends GenericType<List<A>> {
+    }
+
+    public static class SubTypeOfGenericTypeParameterizedWithVariable extends GenericMiddleTypeParameterizedWithVariable<String> {
     }
 }

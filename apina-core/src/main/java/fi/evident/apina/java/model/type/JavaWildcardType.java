@@ -49,6 +49,13 @@ public final class JavaWildcardType extends JavaType {
     }
 
     @Override
+    public JavaType resolve(TypeEnvironment env) {
+        return new JavaWildcardType(
+                upperBound.map(t -> t.resolve(env)),
+                lowerBound.map(t1 -> t1.resolve(env)));
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("?");
 

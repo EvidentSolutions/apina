@@ -20,6 +20,8 @@ public abstract class JavaType {
 
     public abstract <C,R> R accept(JavaTypeVisitor<C,R> visitor, C ctx);
 
+    public abstract JavaType resolve(TypeEnvironment env);
+
     // Force subclass to implement equals, hashCode and toString since we really want them for all types
 
     @Override

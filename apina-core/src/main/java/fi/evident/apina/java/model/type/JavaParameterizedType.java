@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static fi.evident.apina.utils.CollectionUtils.join;
+import static fi.evident.apina.utils.CollectionUtils.map;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
@@ -40,6 +41,11 @@ public final class JavaParameterizedType extends JavaType {
     @Override
     public <C, R> R accept(JavaTypeVisitor<C, R> visitor, C ctx) {
         return visitor.visit(this, ctx);
+    }
+
+    @Override
+    public JavaType resolve(TypeEnvironment env) {
+        return new JavaParameterizedType(baseType.resolve(env), map(arguments, a -> a.resolve(env)));
     }
 
     @Override

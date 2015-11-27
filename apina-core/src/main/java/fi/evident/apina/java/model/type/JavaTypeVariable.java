@@ -25,6 +25,11 @@ public final class JavaTypeVariable extends JavaType {
     }
 
     @Override
+    public JavaType resolve(TypeEnvironment env) {
+        return env.lookup(this).orElseThrow(() -> new RuntimeException("unbound type variable: " + name));
+    }
+
+    @Override
     public String toString() {
         return name;
     }
