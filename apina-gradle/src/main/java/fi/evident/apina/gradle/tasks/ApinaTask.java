@@ -2,6 +2,7 @@ package fi.evident.apina.gradle.tasks;
 
 import fi.evident.apina.ApinaProcessor;
 import fi.evident.apina.java.reader.Classpath;
+import fi.evident.apina.spring.EndpointParameterNameNotDefinedException;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Input;
@@ -34,24 +35,29 @@ public class ApinaTask extends DefaultTask {
 
     @TaskAction
     public void generateTypeScript() throws IOException {
-        requireNonNull(classpath, "classpath not initialized");
-        requireNonNull(target, "target not initialized");
+        try {
+            requireNonNull(classpath, "classpath not initialized");
+            requireNonNull(target, "target not initialized");
 
-        Classpath myClasspath = new Classpath();
-        for (File file : classpath)
-            myClasspath.addRoot(file.toPath());
+            Classpath myClasspath = new Classpath();
+            for (File file : classpath)
+                myClasspath.addRoot(file.toPath());
 
-        ApinaProcessor processor = new ApinaProcessor(myClasspath);
+            ApinaProcessor processor = new ApinaProcessor(myClasspath);
 
-        for (@Language("RegExp") String pattern : blackBoxClasses)
-            processor.settings.blackBoxClasses.addPattern(pattern);
+            for (@Language("RegExp") String pattern : blackBoxClasses)
+                processor.settings.blackBoxClasses.addPattern(pattern);
 
-        for (Map.Entry<String, List<String>> anImport : imports.entrySet())
-            processor.settings.addImport(anImport.getKey(), anImport.getValue());
+            for (Map.Entry<String, List<String>> anImport : imports.entrySet())
+                processor.settings.addImport(anImport.getKey(), anImport.getValue());
 
-        String output = processor.process();
+            String output = processor.process();
 
-        writeFile(output, target, "UTF-8");
+            writeFile(output, target, "UTF-8");
+        } catch (EndpointParameterNameNotDefinedException e) {
+            getLogger().error("{}\nConsider adding 'compileJava { options.compilerArgs = ['-parameters'] }' to your build file.", e.getMessage());
+            throw e;
+        }
     }
 
     @InputFiles
