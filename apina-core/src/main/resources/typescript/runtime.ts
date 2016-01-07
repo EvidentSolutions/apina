@@ -7,12 +7,12 @@ export module Support {
     }
 
     export interface IRequestData {
-        uriTemplate: string
-        method: string
-        pathVariables?: any
-        requestParams?: any
-        requestBody?: any
-        responseType?: string
+        uriTemplate: string;
+        method: string;
+        pathVariables?: any;
+        requestParams?: any;
+        requestBody?: any;
+        responseType?: string;
     }
 
     export interface IHttpProvider {
@@ -20,8 +20,8 @@ export module Support {
     }
 
     export interface ISerializer {
-        serialize(o: any): any
-        deserialize(o: any): any
+        serialize(o: any): any;
+        deserialize(o: any): any;
     }
 
     var identitySerializer: ISerializer = {
@@ -51,7 +51,7 @@ export module Support {
     }
 
     interface ISerializerMap {
-        [name: string]: ISerializer
+        [name: string]: ISerializer;
     }
 
     export class ApinaConfig {

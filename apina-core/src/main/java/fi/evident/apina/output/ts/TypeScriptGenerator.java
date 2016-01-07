@@ -53,13 +53,13 @@ public final class TypeScriptGenerator {
                     out.write(String.format("%s: new Endpoints.%s(context)", uncapitalize(endpointGroup.getName()), endpointGroup.getName()));
 
                     if (it.hasNext())
-                        out.write(", ");
+                        out.write(",");
 
                     out.writeLine();
                 }
             });
 
-            out.writeLine();
+            out.writeLine(";");
         });
 
         out.writeLine();
@@ -203,7 +203,7 @@ public final class TypeScriptGenerator {
     private void writeTypes() {
         out.writeExportedModule("Types", () -> {
             out.writeExportedInterface("IDictionary<V>", () ->
-                    out.writeLine("[key: string]: V"));
+                    out.writeLine("[key: string]: V;"));
 
             for (ApiTypeName unknownType : api.getAllBlackBoxClasses()) {
                 out.writeLine(format("export type %s = {};", unknownType));
