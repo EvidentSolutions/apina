@@ -1,3 +1,10 @@
+## 0.4.2 (2016-01-07)
+
+### Improvements
+
+- TSLint warnings are disabled for the generated TypeScript file so that it can be included in
+  a project regardless of TSLint configuration settings.
+
 ## 0.4.1 (2015-11-27)
 
 ### New features
