@@ -95,7 +95,7 @@ public final class TypeScriptGenerator {
     }
 
     private void writeEndpoints(Collection<EndpointGroup> endpointGroups) {
-        out.writeExportedModule("Endpoints", () -> {
+        out.writeExportedNamespace("Endpoints", () -> {
 
             List<String> names = map(endpointGroups, e -> uncapitalize(e.getName()));
             out.write("export const endpointGroupNames = ").writeValue(names).writeLine(";").writeLine();
@@ -209,7 +209,7 @@ public final class TypeScriptGenerator {
     }
 
     private void writeTypes() {
-        out.writeExportedModule("Types", () -> {
+        out.writeExportedNamespace("Types", () -> {
             out.writeExportedInterface("IDictionary<V>", () ->
                     out.writeLine("[key: string]: V;"));
 

@@ -1,4 +1,4 @@
-export module Support {
+export namespace Support {
 
     export interface IPromise<T> {
         then<TResult>(successCallback: (promiseValue: T) => IPromise<TResult>|TResult, errorCallback?: (reason: any) => any, notifyCallback?: (state: any) => any): IPromise<TResult>;
@@ -185,7 +185,7 @@ export module Support {
         }
     }
 
-    module Angular {
+    namespace Angular {
         class AngularHttpProvider implements Support.IHttpProvider {
 
             constructor(private $http: angular.IHttpService, private config: Support.ApinaConfig) {

@@ -64,20 +64,20 @@ final class CodeWriter {
         return this;
     }
 
-    public CodeWriter writeExportedModule(String module, Runnable moduleWriter) {
-        return writeBlock("export module " + module, moduleWriter);
+    public CodeWriter writeExportedNamespace(String name, Runnable bodyWriter) {
+        return writeBlock("export namespace " + name, bodyWriter);
     }
 
-    public CodeWriter writeExportedInterface(String name, Runnable moduleWriter) {
-        return writeBlock("export interface " + name, moduleWriter);
+    public CodeWriter writeExportedInterface(String name, Runnable bodyWriter) {
+        return writeBlock("export interface " + name, bodyWriter);
     }
 
-    public CodeWriter writeExportedClass(String name, Runnable moduleWriter) {
-        return writeBlock("export class " + name, moduleWriter);
+    public CodeWriter writeExportedClass(String name, Runnable bodyWriter) {
+        return writeBlock("export class " + name, bodyWriter);
     }
 
-    public CodeWriter writeBlock(String prefix, Runnable moduleWriter) {
-        return write(prefix + " ").writeBlock(moduleWriter).writeLine().writeLine();
+    public CodeWriter writeBlock(String prefix, Runnable bodyWriter) {
+        return write(prefix + " ").writeBlock(bodyWriter).writeLine().writeLine();
     }
 
     public CodeWriter writeBlock(Runnable block) {
