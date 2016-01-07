@@ -38,10 +38,18 @@ public final class TypeScriptGenerator {
     }
 
     public void writeApi() throws IOException {
+        writeHeader();
         writeImports();
         writeTypes();
         writeEndpoints(api.getEndpointGroups());
         writeRuntime();
+    }
+
+    private void writeHeader() {
+        // The project using our generated code might generate the code to directory where
+        // it's checked by TSLint and we don't know what settings are used so just disable
+        // TSLint for the whole file.
+        out.writeLine("/* tslint:disable */");
     }
 
     private void writeCreateEndpointGroups() {
