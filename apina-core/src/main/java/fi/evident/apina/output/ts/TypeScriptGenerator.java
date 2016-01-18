@@ -220,7 +220,7 @@ public final class TypeScriptGenerator {
             out.writeLine();
 
             for (EnumDefinition enumDefinition : api.getEnumDefinitions()) {
-                out.writeLine(format("export enum %s { %s };", enumDefinition.getType(), String.join(", ", enumDefinition.getConstants())));
+                out.writeLine(format("export enum %s { %s }", enumDefinition.getType(), String.join(", ", enumDefinition.getConstants())));
             }
 
             out.writeLine();
