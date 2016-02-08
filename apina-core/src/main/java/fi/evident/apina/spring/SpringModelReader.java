@@ -132,7 +132,8 @@ public final class SpringModelReader {
     }
 
     static String findRequestMappingPath(JavaAnnotatedElement element) {
-        String value = element.findUniqueAnnotationAttributeValue(REQUEST_MAPPING, "value", String.class).orElse("");
+        Optional<JavaAnnotation> annotation = element.findAnnotation(REQUEST_MAPPING);
+        String value = annotation.flatMap(SpringAnnotationUtils::getRequestMappingPath).orElse("");
         if (value.isEmpty() || value.startsWith("/"))
             return value;
         else

@@ -12,6 +12,7 @@ import static org.junit.Assert.assertThat;
 public class SpringAnnotationUtilsTest {
 
     private static final JavaBasicType REQUEST_PARAM = new JavaBasicType("org.springframework.web.bind.annotation.RequestParam");
+    private static final JavaBasicType REQUEST_MAPPING = new JavaBasicType("org.springframework.web.bind.annotation.RequestMapping");
 
     @Test
     public void undefinedRequestParamName() {
@@ -33,5 +34,21 @@ public class SpringAnnotationUtilsTest {
         annotation.setAttribute("name", "foo");
 
         assertThat(SpringAnnotationUtils.getRequestParamName(annotation), is(Optional.of("foo")));
+    }
+
+    @Test
+    public void requestMappingPathFromValue() {
+        JavaAnnotation annotation = new JavaAnnotation(REQUEST_MAPPING);
+        annotation.setAttribute("value", "/foo");
+
+        assertThat(SpringAnnotationUtils.getRequestMappingPath(annotation), is(Optional.of("/foo")));
+    }
+
+    @Test
+    public void requestMappingPathFromPath() {
+        JavaAnnotation annotation = new JavaAnnotation(REQUEST_MAPPING);
+        annotation.setAttribute("path", "/foo");
+
+        assertThat(SpringAnnotationUtils.getRequestMappingPath(annotation), is(Optional.of("/foo")));
     }
 }
