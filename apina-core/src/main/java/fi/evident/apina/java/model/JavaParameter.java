@@ -36,10 +36,7 @@ public final class JavaParameter implements JavaAnnotatedElement {
         return type + " "  + name.orElse("<unknown>");
     }
 
-    public void initName(String name) {
-        if (this.name.isPresent())
-            throw new IllegalStateException("name for parameter " + this.name.get() + " has already been initialized");
-
+    public void setName(String name) {
         this.name = Optional.of(name);
     }
 

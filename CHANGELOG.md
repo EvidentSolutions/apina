@@ -1,3 +1,9 @@
+## Unreleased
+
+### Improvements
+
+- Support reading parameter names from debug information.
+
 ## 0.4.2 (2016-01-07)
 
 ### Improvements

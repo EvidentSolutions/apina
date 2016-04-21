@@ -32,4 +32,8 @@ public abstract class JavaType {
 
     @Override
     public abstract String toString();
+
+    public boolean isWide() {
+        return false;
+    }
 }

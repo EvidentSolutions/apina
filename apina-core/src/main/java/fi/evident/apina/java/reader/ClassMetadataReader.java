@@ -27,7 +27,7 @@ final class ClassMetadataReader {
             MyClassVisitor visitor = new MyClassVisitor();
 
             ClassReader classReader = new ClassReader(in);
-            classReader.accept(visitor, ClassReader.SKIP_DEBUG);
+            classReader.accept(visitor, ClassReader.SKIP_FRAMES);
 
             return visitor.getJavaClass();
 
@@ -217,9 +217,13 @@ final class ClassMetadataReader {
         private final JavaMethod method;
         private int parameterIndex = 0;
 
+        /** For each parameter the table contains the index of local variable describing the parameter */
+        private final int[] parameterIndicesInLVT;
+
         public MyMethodVisitor(JavaMethod method) {
             super(Opcodes.ASM5);
             this.method = method;
+            this.parameterIndicesInLVT = initLVTParameterIndices(method.isStatic(), method.getParameters());
         }
 
         @Override
@@ -234,7 +238,16 @@ final class ClassMetadataReader {
             JavaParameter nextParameter = method.getParameters().get(parameterIndex++);
 
             if (name != null)
-                nextParameter.initName(name);
+                nextParameter.setName(name);
+        }
+
+        @Override
+        public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+            for (int i = 0; i < this.parameterIndicesInLVT.length; i++) {
+                if (this.parameterIndicesInLVT[i] == index) {
+                    method.getParameters().get(i).setName(name);
+                }
+            }
         }
 
         @Override
@@ -245,6 +258,20 @@ final class ClassMetadataReader {
             javaParameter.addAnnotation(annotation);
 
             return new MyAnnotationVisitor(annotation);
+        }
+
+        private static int[] initLVTParameterIndices(boolean isStatic, List<JavaParameter> parameters) {
+            int[] result = new int[parameters.size()];
+
+            int index = isStatic ? 0 : 1;
+            for (int i = 0; i < result.length; i++) {
+                result[i] = index;
+                if (parameters.get(i).getType().isWide())
+                    index += 2;
+                else
+                    index++;
+            }
+            return result;
         }
     }
 }

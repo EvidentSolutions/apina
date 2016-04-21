@@ -55,6 +55,11 @@ public final class JavaBasicType extends JavaType {
     }
 
     @Override
+    public boolean isWide() {
+        return this.equals(LONG) || this.equals(DOUBLE);
+    }
+
+    @Override
     public int hashCode() {
         return name.hashCode();
     }
