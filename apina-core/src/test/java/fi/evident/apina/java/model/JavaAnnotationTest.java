@@ -3,6 +3,8 @@ package fi.evident.apina.java.model;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -23,6 +25,14 @@ public class JavaAnnotationTest {
         annotation.setAttribute("value", 42);
 
         assertThat(annotation.toString(), is("@foo.bar.Baz(42)"));
+    }
+
+    @Test
+    public void unwrapArrayArgumentsIfNecessary() {
+        JavaAnnotation annotation = newAnnotation("foo.bar.Baz");
+        annotation.setAttribute("value", new Object[] { "foo" } );
+
+        assertThat(annotation.getAttribute("value", String.class), is(Optional.of("foo")));
     }
 
     @Test

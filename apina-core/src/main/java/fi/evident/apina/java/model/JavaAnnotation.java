@@ -2,6 +2,7 @@ package fi.evident.apina.java.model;
 
 import fi.evident.apina.java.model.type.JavaBasicType;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static fi.evident.apina.utils.CollectionUtils.join;
@@ -45,7 +46,14 @@ public final class JavaAnnotation {
     }
 
     public <T> Optional<T> getAttribute(String name, Class<T> type) {
-        return Optional.ofNullable(type.cast(attributes.get(name)));
+        Object value = attributes.get(name);
+        if (value == null)
+            return Optional.empty();
+
+        if (value.getClass().isArray() && Array.getLength(value) == 1 && !type.isArray())
+            return Optional.of(type.cast(Array.get(value, 0)));
+
+        return Optional.of(type.cast(value));
     }
 
     public List<Object> getAttributeValues(String name) {
