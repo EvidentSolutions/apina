@@ -19,5 +19,13 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="apina-cli_main" target="1.8" />
+      <module name="apina-cli_test" target="1.8" />
+      <module name="apina-core_main" target="1.8" />
+      <module name="apina-core_test" target="1.8" />
+      <module name="apina-gradle_main" target="1.8" />
+      <module name="apina-gradle_test" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

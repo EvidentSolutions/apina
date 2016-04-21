@@ -2,10 +2,16 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/apina.iml" filepath="$PROJECT_DIR$/apina.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apina-cli/apina-cli.iml" filepath="$PROJECT_DIR$/apina-cli/apina-cli.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apina-core/apina-core.iml" filepath="$PROJECT_DIR$/apina-core/apina-core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/apina-gradle/apina-gradle.iml" filepath="$PROJECT_DIR$/apina-gradle/apina-gradle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina.iml" filepath="$PROJECT_DIR$/.idea/modules/apina.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli.iml" group="apina-cli" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli_main.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli_main.iml" group="apina-cli" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli_test.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli_test.iml" group="apina-cli" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-core/apina-core.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-core/apina-core.iml" group="apina-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-core/apina-core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-core/apina-core_main.iml" group="apina-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-core/apina-core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-core/apina-core_test.iml" group="apina-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle.iml" group="apina-gradle" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle_main.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle_main.iml" group="apina-gradle" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle_test.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle_test.iml" group="apina-gradle" />
     </modules>
   </component>
 </project>
