@@ -75,13 +75,13 @@ public final class SpringModelReader {
         JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(settings, classes, api);
         TypeEnvironment env = method.getEnvironment();
         for (JavaParameter parameter : method.getParameters())
-            parseParameter(typeTranslator, parameter, env).ifPresent(endpoint::addParameter);
+            parseParameter(typeTranslator, parameter, env, method).ifPresent(endpoint::addParameter);
 
         return endpoint;
     }
 
-    private static Optional<EndpointParameter> parseParameter(JacksonTypeTranslator typeTranslator, JavaParameter parameter, TypeEnvironment env) {
-        String name = parameter.getName().orElseThrow(EndpointParameterNameNotDefinedException::new);
+    private static Optional<EndpointParameter> parseParameter(JacksonTypeTranslator typeTranslator, JavaParameter parameter, TypeEnvironment env, JavaMethod method) {
+        String name = parameter.getName().orElseThrow(() -> new EndpointParameterNameNotDefinedException(method));
         ApiType type = typeTranslator.translateType(parameter.getType(), env);
 
         if (parameter.hasAnnotation(REQUEST_BODY)) {
