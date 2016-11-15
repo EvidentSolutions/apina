@@ -1,3 +1,9 @@
+## 0.5.1 (2016-11-15)
+
+### Fixes
+
+- Provide default value for platform when using Gradle.
+
 ## 0.5.0 (2016-11-15)
 
 ### Improvements
