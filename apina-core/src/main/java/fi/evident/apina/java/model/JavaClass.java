@@ -5,6 +5,8 @@ import fi.evident.apina.java.model.type.JavaType;
 import fi.evident.apina.java.model.type.TypeSchema;
 import org.objectweb.asm.Opcodes;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -26,6 +28,7 @@ public final class JavaClass implements JavaAnnotatedElement {
     private final List<JavaMethod> methods = new ArrayList<>();
     private final int modifiers;
     private final TypeSchema schema;
+    private static final JavaBasicType ANNOTATION_TYPE = new JavaBasicType(Annotation.class);
 
     public JavaClass(JavaType type, JavaType superClass, List<JavaType> interfaces, int modifiers, TypeSchema schema) {
         this.modifiers = modifiers;
@@ -37,6 +40,14 @@ public final class JavaClass implements JavaAnnotatedElement {
 
     public boolean isEnum() {
         return (modifiers & Opcodes.ACC_ENUM) != 0;
+    }
+
+    public boolean isAnnotation() {
+        return isInterface() && interfaces.contains(ANNOTATION_TYPE);
+    }
+
+    public boolean isInterface() {
+        return Modifier.isInterface(modifiers);
     }
 
     public String getName() {

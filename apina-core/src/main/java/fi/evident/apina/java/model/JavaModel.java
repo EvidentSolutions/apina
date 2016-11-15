@@ -3,10 +3,7 @@ package fi.evident.apina.java.model;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static fi.evident.apina.utils.CollectionUtils.filter;
 
@@ -31,8 +28,34 @@ public final class JavaModel {
         return Optional.ofNullable(classes.get(name));
     }
 
+    public Optional<JavaClass> findClass(JavaBasicType type) {
+        return findClass(type.getName());
+    }
+
     public List<JavaClass> findClassesWithAnnotation(JavaBasicType annotationType) {
         return filter(classes.values(), c -> c.hasAnnotation(annotationType));
+    }
+
+    /**
+     * Return types for annotations implied by given annotation using same logic as Spring does.
+     * E.g. if annotation {@code @Foo} is itself annotated by {@code @Bar}, then annotating an
+     * element with {@code @Foo} has the same effect as annotation by {@code @Bar}.
+     */
+    public Set<JavaBasicType> findAnnotationsImpliedBy(JavaBasicType annotationType) {
+        LinkedHashSet<JavaBasicType> result = new LinkedHashSet<>();
+
+        findAnnotationsImpliedBy(annotationType, result);
+
+        return result;
+    }
+
+    private void findAnnotationsImpliedBy(JavaBasicType annotationType, Set<JavaBasicType> result) {
+        if (result.add(annotationType)) {
+
+            for (JavaClass cl : classes.values())
+                if (cl.isAnnotation() && cl.hasAnnotation(annotationType))
+                    findAnnotationsImpliedBy(cl.getType().toBasicType(), result);
+        }
     }
 
     public boolean isInstanceOf(JavaType type, Class<?> requiredType) {
