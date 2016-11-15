@@ -29,7 +29,7 @@ public final class ApinaProcessor {
         log.trace("Loaded endpoint groups: {}", api.getEndpointGroups());
 
         if (api.getEndpointCount() == 0) {
-            log.warn("Did not find any endpoints");
+            log.warn("Apina could not find any endpoints to process");
         }
 
         log.debug("Loaded {} class definitions", api.getClassDefinitionCount());
