@@ -3,6 +3,7 @@
 .idea/workspace.xml
 .idea/uiDesigner.xml
 .idea/libraries
+/classes
 /build
 /*/build
 .gradle
