@@ -24,15 +24,15 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
 /**
- * Generates TypeScript code for client side.
+ * Generates Angular 1 TypeScript code for client side.
  */
-public final class TypeScriptGenerator {
+public final class TypeScriptAngular1Generator {
 
     private final CodeWriter out = new CodeWriter();
     private final ApiDefinition api;
     private final TranslationSettings settings;
 
-    public TypeScriptGenerator(ApiDefinition api, TranslationSettings settings) {
+    public TypeScriptAngular1Generator(ApiDefinition api, TranslationSettings settings) {
         this.api = requireNonNull(api);
         this.settings = requireNonNull(settings);
     }
@@ -79,7 +79,7 @@ public final class TypeScriptGenerator {
     }
 
     private void writeRuntime() throws IOException {
-        out.write(readResourceAsString("typescript/runtime.ts", UTF_8));
+        out.write(readResourceAsString("typescript/runtime-angular1.ts", UTF_8));
         out.writeLine();
     }
 
