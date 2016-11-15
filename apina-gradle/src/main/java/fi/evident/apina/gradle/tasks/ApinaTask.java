@@ -31,6 +31,8 @@ public class ApinaTask extends DefaultTask {
 
     private Map<String,List<String>> imports = new HashMap<>();
 
+    private String platform;
+
     public static final String GENERATE_API_CLIENT_TASK_NAME = "apina";
 
     @TaskAction
@@ -44,6 +46,9 @@ public class ApinaTask extends DefaultTask {
                 myClasspath.addRoot(file.toPath());
 
             ApinaProcessor processor = new ApinaProcessor(myClasspath);
+
+            if (platform != null)
+                processor.settings.platform = platform;
 
             for (@Language("RegExp") String pattern : blackBoxClasses)
                 processor.settings.blackBoxClasses.addPattern(pattern);
@@ -94,5 +99,14 @@ public class ApinaTask extends DefaultTask {
 
     public void setImports(Map<String, List<String>> imports) {
         this.imports = imports;
+    }
+
+    @Input
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
 }

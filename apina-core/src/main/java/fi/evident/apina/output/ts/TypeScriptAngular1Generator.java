@@ -1,46 +1,35 @@
 package fi.evident.apina.output.ts;
 
-import fi.evident.apina.model.*;
-import fi.evident.apina.model.parameters.EndpointParameter;
-import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
-import fi.evident.apina.model.parameters.EndpointRequestParamParameter;
+import fi.evident.apina.model.ApiDefinition;
+import fi.evident.apina.model.Endpoint;
+import fi.evident.apina.model.EndpointGroup;
 import fi.evident.apina.model.settings.ImportDefinition;
 import fi.evident.apina.model.settings.TranslationSettings;
-import fi.evident.apina.model.type.ApiArrayType;
-import fi.evident.apina.model.type.ApiPrimitiveType;
-import fi.evident.apina.model.type.ApiType;
-import fi.evident.apina.model.type.ApiTypeName;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import static fi.evident.apina.utils.CollectionUtils.join;
 import static fi.evident.apina.utils.CollectionUtils.map;
 import static fi.evident.apina.utils.ResourceUtils.readResourceAsString;
 import static fi.evident.apina.utils.StringUtils.uncapitalize;
-import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
 
 /**
  * Generates Angular 1 TypeScript code for client side.
  */
-public final class TypeScriptAngular1Generator {
-
-    private final CodeWriter out = new CodeWriter();
-    private final ApiDefinition api;
-    private final TranslationSettings settings;
+public final class TypeScriptAngular1Generator extends AbstractTypeScriptGenerator {
 
     public TypeScriptAngular1Generator(ApiDefinition api, TranslationSettings settings) {
-        this.api = requireNonNull(api);
-        this.settings = requireNonNull(settings);
+        super(api, settings, "Types.", "Support.", "Support.IPromise");
     }
 
     public void writeApi() throws IOException {
         writeHeader();
         writeImports();
-        writeTypes();
+        out.writeExportedNamespace("Types", this::writeTypes);
         writeEndpoints(api.getEndpointGroups());
         writeRuntime();
     }
@@ -129,139 +118,5 @@ public final class TypeScriptAngular1Generator {
                 out.write("return this.context.request(").writeValue(createConfig(endpoint)).writeLine(");"));
     }
 
-    private String endpointSignature(Endpoint endpoint) {
-        String name = endpoint.getName();
-        String parameters = parameterListCode(endpoint.getParameters());
-        String resultType = endpoint.getResponseBody().map(this::qualifiedTypeName).orElse("void");
 
-        return format("%s(%s): Support.IPromise<%s>", name, parameters, resultType);
-    }
-
-    private String parameterListCode(List<EndpointParameter> parameters) {
-        return parameters.stream()
-                .map(p -> p.getName() + ": " + qualifiedTypeName(p.getType()))
-                .collect(joining(", "));
-    }
-
-    private static Map<String, Object> createConfig(Endpoint endpoint) {
-        Map<String, Object> config = new LinkedHashMap<>();
-
-        config.put("uriTemplate", endpoint.getUriTemplate().toString());
-        config.put("method", endpoint.getMethod().toString());
-
-        List<EndpointPathVariableParameter> pathVariables = endpoint.getPathVariables();
-        if (!pathVariables.isEmpty())
-            config.put("pathVariables", createPathVariablesMap(pathVariables));
-
-        List<EndpointRequestParamParameter> requestParameters = endpoint.getRequestParameters();
-        if (!requestParameters.isEmpty())
-            config.put("requestParams", createRequestParamMap(requestParameters));
-
-        endpoint.getRequestBody().ifPresent(body -> config.put("requestBody", serialize(body.getName(), body.getType())));
-        endpoint.getResponseBody().ifPresent(body -> config.put("responseType", typeDescriptor(body)));
-
-        return config;
-    }
-
-    private static Map<String, Object> createRequestParamMap(Collection<EndpointRequestParamParameter> parameters) {
-        Map<String, Object> result = new LinkedHashMap<>();
-
-        for (EndpointRequestParamParameter param : parameters)
-            result.put(param.getQueryParameter(), serialize(param.getName(), param.getType()));
-
-        return result;
-    }
-
-    private static Map<String, Object> createPathVariablesMap(List<EndpointPathVariableParameter> pathVariables) {
-        Map<String, Object> result = new LinkedHashMap<>();
-
-        for (EndpointPathVariableParameter param : pathVariables)
-            result.put(param.getPathVariable(), serialize(param.getName(), param.getType()));
-
-        return result;
-    }
-
-    /**
-     * Returns TypeScript code to serialize {@code variable} of given {@code type}
-     * to transfer representation.
-     */
-    private static RawCode serialize(String variable, ApiType type) {
-        return new RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type) + "')");
-    }
-
-    private String qualifiedTypeName(ApiType type) {
-        if (type instanceof ApiPrimitiveType) {
-            return type.typeRepresentation();
-        } else if (type instanceof ApiArrayType) {
-            ApiArrayType arrayType = (ApiArrayType) type;
-            return qualifiedTypeName(arrayType.getElementType()) + "[]";
-        } else if (settings.isImported(new ApiTypeName(type.typeRepresentation()))) {
-            return type.typeRepresentation();
-        } else {
-            return "Types." + type.typeRepresentation();
-        }
-    }
-
-    private static String typeDescriptor(ApiType type) {
-        // Use ApiType's native representation as type descriptor.
-        // This method encapsulates the call to make it meaningful in this context.
-        return type.typeRepresentation();
-    }
-
-    private void writeTypes() {
-        out.writeExportedNamespace("Types", () -> {
-            out.writeExportedInterface("IDictionary<V>", () ->
-                    out.writeLine("[key: string]: V;"));
-
-            for (ApiTypeName unknownType : api.getAllBlackBoxClasses()) {
-                out.writeLine(format("export type %s = {};", unknownType));
-            }
-
-            out.writeLine();
-
-            for (EnumDefinition enumDefinition : api.getEnumDefinitions()) {
-                out.writeLine(format("export enum %s { %s }", enumDefinition.getType(), String.join(", ", enumDefinition.getConstants())));
-            }
-
-            out.writeLine();
-
-            for (ClassDefinition classDefinition : api.getClassDefinitions()) {
-                out.writeExportedClass(classDefinition.getType().toString(), () -> {
-                    for (PropertyDefinition property : classDefinition.getProperties())
-                        out.writeLine(property.getName() + ": " + property.getType() + ";");
-                });
-            }
-
-            writeSerializerDefinitions();
-        });
-    }
-
-    private void writeSerializerDefinitions() {
-        out.write("export function registerDefaultSerializers(config: Support.ApinaConfig) ").writeBlock(() -> {
-            for (ApiTypeName unknownType : api.getAllBlackBoxClasses()) {
-                out.write("config.registerIdentitySerializer(").writeValue(unknownType.toString()).writeLine(");");
-            }
-            out.writeLine();
-
-            for (EnumDefinition enumDefinition : api.getEnumDefinitions()) {
-                String enumName = enumDefinition.getType().toString();
-                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ");
-                out.write(enumName).writeLine(");");
-            }
-            out.writeLine();
-
-            for (ClassDefinition classDefinition : api.getClassDefinitions()) {
-                Map<String, String> defs = new LinkedHashMap<>();
-
-                for (PropertyDefinition property : classDefinition.getProperties())
-                    defs.put(property.getName(), typeDescriptor(property.getType()));
-
-                out.write("config.registerClassSerializer(").writeValue(classDefinition.getType().toString()).write(", ");
-                out.writeValue(defs).writeLine(");");
-                out.writeLine();
-            }
-        });
-
-        out.writeLine().writeLine();
-    }
 }

@@ -1,3 +1,14 @@
+## 0.5.0 (2016-11-15)
+
+### Improvements
+
+- Add support for Angular 2.
+
+### Breaking changes
+
+- Code is now generated for Angular 2 by default, you need to specify `framework = 'angular1'` 
+  to build for AngularJS.
+
 ## 0.4.3 (2016-04-21)
 
 ### Improvements

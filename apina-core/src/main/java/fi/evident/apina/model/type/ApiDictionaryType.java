@@ -33,6 +33,6 @@ public final class ApiDictionaryType extends ApiType {
 
     @Override
     public String typeRepresentation() {
-        return "IDictionary<" + valueType + '>';
+        return "Dictionary<" + valueType + '>';
     }
 }

@@ -18,6 +18,7 @@ public final class TranslationSettings {
     public final PatternSet blackBoxClasses = new PatternSet();
     private final TreeMap<String, ImportDefinition> importsByModule = new TreeMap<>();
     private final Set<ApiTypeName> importedTypes = new TreeSet<>();
+    public String platform = "angular2";
 
     public boolean isBlackBoxClass(String name) {
         return blackBoxClasses.test(name);
