@@ -31,7 +31,7 @@ public class ApinaTask extends DefaultTask {
 
     private Map<String,List<String>> imports = new HashMap<>();
 
-    private String platform;
+    private String platform = "angular2";
 
     public static final String GENERATE_API_CLIENT_TASK_NAME = "apina";
 
