@@ -4,8 +4,8 @@ import fi.evident.apina.java.model.*;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 import fi.evident.apina.java.model.type.TypeEnvironment;
-import fi.evident.apina.java.reader.ClassMetadataCollectionLoader;
 import fi.evident.apina.java.reader.Classpath;
+import fi.evident.apina.java.reader.JavaModelLoader;
 import fi.evident.apina.model.*;
 import fi.evident.apina.model.parameters.EndpointParameter;
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter;
@@ -27,7 +27,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class SpringModelReader {
 
-    private final ClassMetadataCollection classes;
+    private final JavaModel classes;
     private final TranslationSettings settings;
     private final ApiDefinition api = new ApiDefinition();
 
@@ -37,13 +37,13 @@ public final class SpringModelReader {
     private static final JavaBasicType REQUEST_PARAM = new JavaBasicType("org.springframework.web.bind.annotation.RequestParam");
     private static final JavaBasicType PATH_VARIABLE = new JavaBasicType("org.springframework.web.bind.annotation.PathVariable");
 
-    private SpringModelReader(ClassMetadataCollection classes, TranslationSettings settings) {
+    private SpringModelReader(JavaModel classes, TranslationSettings settings) {
         this.classes = requireNonNull(classes);
         this.settings = requireNonNull(settings);
     }
 
     public static ApiDefinition readApiDefinition(Classpath classpath, TranslationSettings settings) throws IOException {
-        SpringModelReader reader = new SpringModelReader(ClassMetadataCollectionLoader.load(classpath), settings);
+        SpringModelReader reader = new SpringModelReader(JavaModelLoader.load(classpath), settings);
 
         reader.createEndpointsForControllers();
 

@@ -13,7 +13,7 @@ import static fi.evident.apina.utils.CollectionUtils.filter;
 /**
  * Contains metadata for all loaded classes.
  */
-public final class ClassMetadataCollection {
+public final class JavaModel {
 
     private final Map<String,JavaClass> classes = new LinkedHashMap<>();
 

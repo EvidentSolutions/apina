@@ -25,7 +25,7 @@ import static java.util.Objects.requireNonNull;
 final class JacksonTypeTranslator {
 
     private final TranslationSettings settings;
-    private final ClassMetadataCollection classes;
+    private final JavaModel classes;
     private final ApiDefinition api;
 
     /**
@@ -41,7 +41,7 @@ final class JacksonTypeTranslator {
     private static final List<JavaBasicType> OPTIONAL_NUMBER_TYPES =
             asList(new JavaBasicType(OptionalInt.class), new JavaBasicType(OptionalLong.class), new JavaBasicType(OptionalDouble.class));
 
-    public JacksonTypeTranslator(TranslationSettings settings, ClassMetadataCollection classes, ApiDefinition api) {
+    public JacksonTypeTranslator(TranslationSettings settings, JavaModel classes, ApiDefinition api) {
         this.settings = requireNonNull(settings);
         this.classes = requireNonNull(classes);
         this.api = requireNonNull(api);

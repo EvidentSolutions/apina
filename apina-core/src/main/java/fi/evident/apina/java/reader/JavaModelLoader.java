@@ -1,7 +1,7 @@
 package fi.evident.apina.java.reader;
 
-import fi.evident.apina.java.model.ClassMetadataCollection;
 import fi.evident.apina.java.model.JavaClass;
+import fi.evident.apina.java.model.JavaModel;
 import fi.evident.apina.java.model.type.JavaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,14 +10,14 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public final class ClassMetadataCollectionLoader {
+public final class JavaModelLoader {
 
-    private ClassMetadataCollectionLoader() { }
+    private JavaModelLoader() { }
 
-    private static final Logger log = LoggerFactory.getLogger(ClassMetadataCollectionLoader.class);
+    private static final Logger log = LoggerFactory.getLogger(JavaModelLoader.class);
 
-    public static ClassMetadataCollection load(Classpath classpath) throws IOException {
-        ClassMetadataCollection classes = new ClassMetadataCollection();
+    public static JavaModel load(Classpath classpath) throws IOException {
+        JavaModel classes = new JavaModel();
 
         Set<JavaType> duplicates = new LinkedHashSet<>();
 

@@ -2,8 +2,8 @@ package fi.evident.apina.spring;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import fi.evident.apina.java.model.ClassMetadataCollection;
 import fi.evident.apina.java.model.JavaClass;
+import fi.evident.apina.java.model.JavaModel;
 import fi.evident.apina.java.model.type.JavaBasicType;
 import fi.evident.apina.java.model.type.JavaType;
 import fi.evident.apina.java.model.type.TypeEnvironment;
@@ -106,7 +106,7 @@ public class JacksonTypeTranslatorTest {
         JavaClass class1 = new JavaClass(new JavaBasicType("foo.MyClass"), new JavaBasicType("java.lang.Object"), emptyList(), 0, new TypeSchema());
         JavaClass class2 = new JavaClass(new JavaBasicType("bar.MyClass"), new JavaBasicType("java.lang.Object"), emptyList(), 0, new TypeSchema());
 
-        ClassMetadataCollection classes = new ClassMetadataCollection();
+        JavaModel classes = new JavaModel();
         classes.addClass(class1);
         classes.addClass(class2);
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new ApiDefinition());
@@ -182,7 +182,7 @@ public class JacksonTypeTranslatorTest {
     }
 
     private ApiType translateType(JavaType type) {
-        ClassMetadataCollection classes = new ClassMetadataCollection();
+        JavaModel classes = new JavaModel();
         ApiDefinition api = new ApiDefinition();
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, api);
 
@@ -206,7 +206,7 @@ public class JacksonTypeTranslatorTest {
     }
 
     private ApiType translateClass(Class<?> cl, ApiDefinition api) {
-        ClassMetadataCollection classes = loadClassesFromInheritanceTree(cl);
+        JavaModel classes = loadClassesFromInheritanceTree(cl);
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, api);
 
         return translator.translateType(new JavaBasicType(cl), TypeEnvironment.empty());
