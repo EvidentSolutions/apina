@@ -17,9 +17,9 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static fi.evident.apina.java.reader.ReflectionClassMetadataLoader.loadClassesFromInheritanceTree;
 import static fi.evident.apina.model.ModelMatchers.hasProperties;
 import static fi.evident.apina.model.ModelMatchers.property;
-import static fi.evident.apina.spring.ReflectionClassMetadataLoader.loadClassesFromInheritanceTree;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.is;
