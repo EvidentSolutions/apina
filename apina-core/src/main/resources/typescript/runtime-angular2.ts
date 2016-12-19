@@ -141,8 +141,7 @@ export class ApinaEndpointContext {
         const url = this.buildUrl(data.uriTemplate, data.pathVariables);
 
         return this.http.request(url, { method: data.method, search: data.requestParams, body: data.requestBody })
-            .map(r => data.responseType ? this.deserialize(r.json(), data.responseType) : r)
-            .share();
+            .map(r => data.responseType ? this.deserialize(r.json(), data.responseType) : r);
     }
 
     serialize(value: any, type: string): any {

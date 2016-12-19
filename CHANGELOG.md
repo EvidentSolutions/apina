@@ -1,3 +1,11 @@
+## 0.5.2 (2016-12-19)
+
+### Breaking changes
+
+- Remove automatic `.share()` calls from returned `Observable`s in Angular 2 backend. Instead, return
+  the `Observable` exactly the same way that Angular's `Http` does, letting caller decide appropriate
+  strategy for sharing (if needed).
+
 ## 0.5.1 (2016-11-15)
 
 ### Fixes
