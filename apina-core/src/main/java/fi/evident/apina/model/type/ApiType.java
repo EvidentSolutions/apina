@@ -17,4 +17,8 @@ public abstract class ApiType {
     }
 
     public abstract String typeRepresentation();
+
+    public ApiType unwrapNullable() {
+        return this;
+    }
 }

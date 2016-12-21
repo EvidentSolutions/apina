@@ -63,7 +63,7 @@ abstract class AbstractTypeScriptGenerator {
         writeSerializerDefinitions();
     }
 
-    protected String qualifiedTypeName(ApiType type) {
+    private String qualifiedTypeName(ApiType type) {
         if (type instanceof ApiPrimitiveType) {
             return type.typeRepresentation();
         } else if (type instanceof ApiArrayType) {
@@ -75,7 +75,6 @@ abstract class AbstractTypeScriptGenerator {
             return typePrefix + type.typeRepresentation();
         }
     }
-
 
     private void writeSerializerDefinitions() {
         out.write("export function registerDefaultSerializers(config: " + supportPrefix + "ApinaConfig) ").writeBlock(() -> {
@@ -120,7 +119,7 @@ abstract class AbstractTypeScriptGenerator {
         if (!requestParameters.isEmpty())
             config.put("requestParams", createRequestParamMap(requestParameters));
 
-        endpoint.getRequestBody().ifPresent(body -> config.put("requestBody", serialize(body.getName(), body.getType())));
+        endpoint.getRequestBody().ifPresent(body -> config.put("requestBody", serialize(body.getName(), body.getType().unwrapNullable())));
         endpoint.getResponseBody().ifPresent(body -> config.put("responseType", typeDescriptor(body)));
 
         return config;
@@ -169,6 +168,6 @@ abstract class AbstractTypeScriptGenerator {
     private static String typeDescriptor(ApiType type) {
         // Use ApiType's native representation as type descriptor.
         // This method encapsulates the call to make it meaningful in this context.
-        return type.typeRepresentation();
+        return type.unwrapNullable().typeRepresentation();
     }
 }

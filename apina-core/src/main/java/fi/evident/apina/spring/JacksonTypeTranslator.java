@@ -36,6 +36,7 @@ final class JacksonTypeTranslator {
 
     private static final Logger log = LoggerFactory.getLogger(JacksonTypeTranslator.class);
 
+    private static final JavaBasicType NULLABLE = new JavaBasicType("org.jetbrains.annotations.Nullable");
     private static final JavaBasicType JSON_IGNORE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonIgnore");
     private static final JavaBasicType JSON_VALUE = new JavaBasicType("com.fasterxml.jackson.annotation.JsonValue");
     private static final List<JavaBasicType> OPTIONAL_NUMBER_TYPES =
@@ -47,7 +48,15 @@ final class JacksonTypeTranslator {
         this.api = requireNonNull(api);
     }
 
-    public ApiType translateType(JavaType javaType, TypeEnvironment env) {
+    public ApiType translateType(JavaType javaType, JavaAnnotatedElement element, TypeEnvironment env) {
+        ApiType type = translateType(javaType, env);
+        if (element.hasAnnotation(NULLABLE))
+            return new ApiNullableType(type);
+        else
+            return type;
+    }
+
+    private ApiType translateType(JavaType javaType, TypeEnvironment env) {
         return javaType.accept(new JavaTypeVisitor<TypeEnvironment, ApiType>() {
             @Override
             public ApiType visit(JavaArrayType type, TypeEnvironment ctx) {
@@ -72,7 +81,7 @@ final class JacksonTypeTranslator {
                     return ApiPrimitiveType.BOOLEAN;
 
                 } else if (OPTIONAL_NUMBER_TYPES.contains(type)) {
-                    return ApiPrimitiveType.NUMBER;
+                    return new ApiNullableType(ApiPrimitiveType.NUMBER);
 
                 } else if (type.equals(new JavaBasicType(Object.class))) {
                     return ApiPrimitiveType.ANY;
@@ -95,7 +104,7 @@ final class JacksonTypeTranslator {
                 else if (classes.isInstanceOf(baseType, Map.class) && arguments.size() == 2 && classes.isInstanceOf(arguments.get(0), String.class))
                     return new ApiDictionaryType(translateType(arguments.get(1), ctx));
                 else if (classes.isInstanceOf(baseType, Optional.class) && arguments.size() == 1)
-                    return translateType(arguments.get(0), ctx);
+                    return new ApiNullableType(translateType(arguments.get(0), ctx));
                 else
                     return translateType(baseType, ctx); // TODO: use arguments
             }
@@ -184,7 +193,7 @@ final class JacksonTypeTranslator {
         for (JavaField field : boundClass.getJavaClass().getPublicInstanceFields()) {
             String name = field.getName();
             if (acceptProperty.test(name)) {
-                ApiType type = translateType(field.getType(), boundClass.getEnvironment());
+                ApiType type = translateType(field.getType(), field, boundClass.getEnvironment());
                 classDefinition.addProperty(new PropertyDefinition(name, type));
             }
         }
@@ -194,7 +203,7 @@ final class JacksonTypeTranslator {
         for (JavaMethod getter : boundClass.getJavaClass().getGetters()) {
             String name = propertyNameForGetter(getter.getName());
             if (acceptProperty.test(name)) {
-                ApiType type = translateType(getter.getReturnType(), boundClass.getEnvironment());
+                ApiType type = translateType(getter.getReturnType(), getter, boundClass.getEnvironment());
                 classDefinition.addProperty(new PropertyDefinition(name, type));
             }
         }

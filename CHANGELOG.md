@@ -1,3 +1,9 @@
+## 0.5.3 (2016-12-21)
+
+### Improvements
+
+- Create nullable types in TypeScript output if `@Nullable` or `Optional<T>` is use in Jackson classes.
+
 ## 0.5.2 (2016-12-19)
 
 ### Breaking changes

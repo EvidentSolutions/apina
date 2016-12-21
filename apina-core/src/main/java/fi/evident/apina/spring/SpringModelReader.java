@@ -82,7 +82,7 @@ public final class SpringModelReader {
 
     private static Optional<EndpointParameter> parseParameter(JacksonTypeTranslator typeTranslator, JavaParameter parameter, TypeEnvironment env, JavaMethod method) {
         String name = parameter.getName().orElseThrow(() -> new EndpointParameterNameNotDefinedException(method));
-        ApiType type = typeTranslator.translateType(parameter.getType(), env);
+        ApiType type = typeTranslator.translateType(parameter.getType(), parameter, env);
 
         if (parameter.hasAnnotation(REQUEST_BODY)) {
             return Optional.of(new EndpointRequestBodyParameter(name, type));
@@ -105,7 +105,7 @@ public final class SpringModelReader {
 
         if (!returnType.isVoid()) {
             JacksonTypeTranslator typeTranslator = new JacksonTypeTranslator(settings, classes, api);
-            return Optional.of(typeTranslator.translateType(returnType, method.getEnvironment()));
+            return Optional.of(typeTranslator.translateType(returnType, method, method.getEnvironment()));
         } else {
             return Optional.empty();
         }

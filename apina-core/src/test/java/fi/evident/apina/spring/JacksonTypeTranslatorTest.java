@@ -25,7 +25,7 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class JacksonTypeTranslatorTest {
 
     private final TranslationSettings settings = new TranslationSettings();
@@ -88,10 +88,10 @@ public class JacksonTypeTranslatorTest {
 
         assertThat(classDefinition.getType(), is(new ApiTypeName(ClassWithOptionalTypes.class.getSimpleName())));
         assertThat(classDefinition.getProperties(), hasProperties(
-                property("optionalString", ApiPrimitiveType.STRING),
-                property("optionalInt", ApiPrimitiveType.NUMBER),
-                property("optionalLong", ApiPrimitiveType.NUMBER),
-                property("optionalDouble", ApiPrimitiveType.NUMBER)));
+                property("optionalString", new ApiNullableType(ApiPrimitiveType.STRING)),
+                property("optionalInt", new ApiNullableType(ApiPrimitiveType.NUMBER)),
+                property("optionalLong", new ApiNullableType(ApiPrimitiveType.NUMBER)),
+                property("optionalDouble", new ApiNullableType(ApiPrimitiveType.NUMBER))));
     }
 
     @Test
@@ -112,8 +112,8 @@ public class JacksonTypeTranslatorTest {
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, new ApiDefinition());
         TypeEnvironment env = TypeEnvironment.empty();
 
-        translator.translateType(class1.getType(), env);
-        translator.translateType(class2.getType(), env);
+        translator.translateType(class1.getType(), class1, env);
+        translator.translateType(class2.getType(), class2, env);
     }
 
     @Test
@@ -186,7 +186,7 @@ public class JacksonTypeTranslatorTest {
         ApiDefinition api = new ApiDefinition();
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, api);
 
-        return translator.translateType(type, TypeEnvironment.empty()); // TODO: create environment from type
+        return translator.translateType(type, new MockAnnotatedElement(), TypeEnvironment.empty()); // TODO: create environment from type
     }
 
     private ClassDefinition translateClass(Class<?> cl) {
@@ -209,7 +209,7 @@ public class JacksonTypeTranslatorTest {
         JavaModel classes = loadClassesFromInheritanceTree(cl);
         JacksonTypeTranslator translator = new JacksonTypeTranslator(settings, classes, api);
 
-        return translator.translateType(new JavaBasicType(cl), TypeEnvironment.empty());
+        return translator.translateType(new JavaBasicType(cl), new MockAnnotatedElement(), TypeEnvironment.empty());
     }
 
     @SuppressWarnings("rawtypes")
@@ -228,6 +228,7 @@ public class JacksonTypeTranslatorTest {
         public Object objectField;
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static final class ClassWithOptionalTypes {
         public Optional<String> optionalString;
         public OptionalInt optionalInt;
