@@ -6,6 +6,7 @@ apply plugin: 'java-gradle-plugin'
 
 dependencies {
     compile project(':apina-core')
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
 }
 
 pluginBundle {
