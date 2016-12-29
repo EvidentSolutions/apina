@@ -1,0 +1,51 @@
+package fi.evident.apina.model
+
+import fi.evident.apina.model.parameters.EndpointParameter
+import fi.evident.apina.model.parameters.EndpointPathVariableParameter
+import fi.evident.apina.model.parameters.EndpointRequestBodyParameter
+import fi.evident.apina.model.parameters.EndpointRequestParamParameter
+import fi.evident.apina.model.type.ApiType
+import java.util.*
+
+/**
+ * API endpoint reachable at an URL using given method and parameters. An example
+ * of an endpoint is a single method on a controller.
+ * Represents an single endpoint (e.g. a method in a controller)
+ */
+class Endpoint(/** Name of the original source element that specifies this endpoint  */
+               val name: String,
+
+               /** URI template for the endpoint  */
+               val uriTemplate: URITemplate,
+               val responseBody: ApiType?) {
+
+    private val _parameters = ArrayList<EndpointParameter>()
+
+    /** HTTP method for accessing the endpoint  */
+    var method = HTTPMethod.GET
+
+    val parameters: List<EndpointParameter>
+        get() = _parameters
+
+    fun addParameter(parameter: EndpointParameter) {
+        _parameters.add(parameter)
+    }
+
+    val requestBody: EndpointRequestBodyParameter?
+        get() = _parameters.asSequence().filterIsInstance<EndpointRequestBodyParameter>().firstOrNull()
+
+    val pathVariables: List<EndpointPathVariableParameter>
+        get() = _parameters.filterIsInstance<EndpointPathVariableParameter>()
+
+    val requestParameters: List<EndpointRequestParamParameter>
+        get() = _parameters.filterIsInstance<EndpointRequestParamParameter>()
+
+    override fun toString(): String {
+        return String.format("%s %s(%s): %s %s",
+                responseBody?.typeRepresentation() ?: "void",
+                name,
+                _parameters.joinToString(", "),
+                this.method,
+                uriTemplate)
+    }
+}

@@ -48,13 +48,13 @@ public class ApinaTask extends DefaultTask {
             ApinaProcessor processor = new ApinaProcessor(myClasspath);
 
             if (platform != null)
-                processor.settings.platform = platform;
+                processor.getSettings().setPlatform(platform);
 
             for (@Language("RegExp") String pattern : blackBoxClasses)
-                processor.settings.blackBoxClasses.addPattern(pattern);
+                processor.getSettings().getBlackBoxClasses().addPattern(pattern);
 
             for (Map.Entry<String, List<String>> anImport : imports.entrySet())
-                processor.settings.addImport(anImport.getKey(), anImport.getValue());
+                processor.getSettings().addImport(anImport.getKey(), anImport.getValue());
 
             String output = processor.process();
 

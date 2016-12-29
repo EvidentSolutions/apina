@@ -1,0 +1,146 @@
+package fi.evident.apina.output.ts
+
+import fi.evident.apina.model.ApiDefinition
+import fi.evident.apina.model.Endpoint
+import fi.evident.apina.model.parameters.EndpointParameter
+import fi.evident.apina.model.parameters.EndpointPathVariableParameter
+import fi.evident.apina.model.parameters.EndpointRequestParamParameter
+import fi.evident.apina.model.settings.TranslationSettings
+import fi.evident.apina.model.type.ApiType
+import fi.evident.apina.model.type.ApiTypeName
+import java.lang.String.format
+import java.util.*
+
+abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
+                                           val settings: TranslationSettings,
+                                           val typePrefix: String,
+                                           val supportPrefix: String,
+                                           val resultFunctor: String) {
+
+    internal val out = CodeWriter()
+
+    protected fun writeTypes() {
+
+        out.writeExportedInterface("Dictionary<V>") { out.writeLine("[key: string]: V;") }
+
+        for (unknownType in api.allBlackBoxClasses)
+            out.writeLine("export type $unknownType = {};")
+
+        out.writeLine()
+
+        for (enumDefinition in api.enumDefinitions)
+            out.writeLine(format("export enum %s { %s }", enumDefinition.type, enumDefinition.constants.joinToString(", ")))
+
+        out.writeLine()
+
+        for (classDefinition in api.classDefinitions) {
+            out.writeExportedClass(classDefinition.type.toString()) {
+                for (property in classDefinition.properties)
+                    out.writeLine("${property.name}: ${property.type};")
+            }
+        }
+
+        writeSerializerDefinitions()
+    }
+
+    private fun qualifiedTypeName(type: ApiType): String = when {
+        type is ApiType.Primitive -> type.typeRepresentation()
+        type is ApiType.Array -> qualifiedTypeName(type.elementType) + "[]"
+        settings.isImported(ApiTypeName(type.typeRepresentation())) -> type.typeRepresentation()
+        else -> typePrefix + type.typeRepresentation()
+    }
+
+    private fun writeSerializerDefinitions() {
+        out.write("export function registerDefaultSerializers(config: " + supportPrefix + "ApinaConfig) ").writeBlock {
+            for (unknownType in api.allBlackBoxClasses)
+                out.write("config.registerIdentitySerializer(").writeValue(unknownType.toString()).writeLine(");")
+            out.writeLine()
+
+            for (enumDefinition in api.enumDefinitions) {
+                val enumName = enumDefinition.type.toString()
+                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ")
+                out.write(enumName).writeLine(");")
+            }
+            out.writeLine()
+
+            for (classDefinition in api.classDefinitions) {
+                val defs = LinkedHashMap<String, String>()
+
+                for (property in classDefinition.properties)
+                    defs.put(property.name, typeDescriptor(property.type))
+
+                out.write("config.registerClassSerializer(").writeValue(classDefinition.type.toString()).write(", ")
+                out.writeValue(defs).writeLine(");")
+                out.writeLine()
+            }
+        }
+
+        out.writeLine().writeLine()
+    }
+
+    protected fun endpointSignature(endpoint: Endpoint): String {
+        val name = endpoint.name
+        val parameters = parameterListCode(endpoint.parameters)
+        val resultType = endpoint.responseBody?.let { this.qualifiedTypeName(it) } ?: "void"
+
+        return format("%s(%s): %s<%s>", name, parameters, resultFunctor, resultType)
+    }
+
+    private fun parameterListCode(parameters: List<EndpointParameter>) =
+            parameters.joinToString(", ") { p -> p.name + ": " + qualifiedTypeName(p.type) }
+
+    companion object {
+
+        @JvmStatic
+        protected fun createConfig(endpoint: Endpoint): Map<String, Any> {
+            val config = LinkedHashMap<String, Any>()
+
+            config["uriTemplate"] = endpoint.uriTemplate.toString()
+            config["method"] = endpoint.method.toString()
+
+            val pathVariables = endpoint.pathVariables
+            if (!pathVariables.isEmpty())
+                config["pathVariables"] = createPathVariablesMap(pathVariables)
+
+            val requestParameters = endpoint.requestParameters
+            if (!requestParameters.isEmpty())
+                config["requestParams"] = createRequestParamMap(requestParameters)
+
+            endpoint.requestBody?.let { body -> config["requestBody"] = serialize(body.name, body.type.unwrapNullable()) }
+            endpoint.responseBody?.let { body -> config["responseType"] = typeDescriptor(body) }
+
+            return config
+        }
+
+        private fun createRequestParamMap(parameters: Collection<EndpointRequestParamParameter>): Map<String, Any> {
+            val result = LinkedHashMap<String, Any>()
+
+            for (param in parameters)
+                result.put(param.queryParameter, serialize(param.name, param.type))
+
+            return result
+        }
+
+        private fun createPathVariablesMap(pathVariables: List<EndpointPathVariableParameter>): Map<String, Any> {
+            val result = LinkedHashMap<String, Any>()
+
+            for (param in pathVariables)
+                result.put(param.pathVariable, serialize(param.name, param.type))
+
+            return result
+        }
+
+        /**
+         * Returns TypeScript code to serialize `variable` of given `type`
+         * to transfer representation.
+         */
+        private fun serialize(variable: String, type: ApiType) =
+                RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type) + "')")
+
+        private fun typeDescriptor(type: ApiType): String {
+            // Use ApiType's native representation as type descriptor.
+            // This method encapsulates the call to make it meaningful in this context.
+            return type.unwrapNullable().typeRepresentation()
+        }
+    }
+}

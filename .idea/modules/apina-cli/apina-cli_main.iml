@@ -4,7 +4,7 @@
     <output url="file://$MODULE_DIR$/../../../apina-cli/build/classes/main" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../apina-cli/src/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../../apina-cli/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../apina-cli/src/main/kotlin" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../apina-cli/src/main/kotlin" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../apina-cli/src/main/resources" type="java-resource" />
     </content>
