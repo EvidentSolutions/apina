@@ -89,7 +89,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
                 parameter.hasAnnotation(REQUEST_PARAM) ->
                     EndpointRequestParamParameter(name, getRequestParamName(parameter.getAnnotation(REQUEST_PARAM)), type)
                 parameter.hasAnnotation(PATH_VARIABLE) ->
-                    EndpointPathVariableParameter(name, parameter.getAnnotation(PATH_VARIABLE).getAttribute("value", String::class.java), type)
+                    EndpointPathVariableParameter(name, parameter.getAnnotation(PATH_VARIABLE).getAttribute<String>("value"), type)
                 else ->
                     null
             }

@@ -27,8 +27,8 @@ class JavaAnnotation(
         attributes.put(name, value)
     }
 
-    fun getAttribute(name: String): Any? {
-        return attributes[name]
+    inline fun <reified T : Any> getAttribute(name: String): T? {
+        return getAttribute(name, T::class.java)
     }
 
     fun <T> getAttribute(name: String, type: Class<T>): T? {

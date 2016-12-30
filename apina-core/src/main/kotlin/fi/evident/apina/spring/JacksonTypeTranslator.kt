@@ -255,6 +255,6 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         private val OPTIONAL_NUMBER_TYPES = asList(JavaType.Basic(OptionalInt::class.java), JavaType.Basic(OptionalLong::class.java), JavaType.Basic(OptionalDouble::class.java))
 
         private fun isIgnore(ignore: JavaAnnotation) =
-                ignore.getAttribute("value", Boolean::class.javaObjectType) ?: true
+                ignore.getAttribute<Boolean>("value") ?: true
     }
 }

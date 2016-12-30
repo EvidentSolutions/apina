@@ -26,7 +26,7 @@ class JavaAnnotationTest {
         val annotation = newAnnotation("foo.bar.Baz")
         annotation.setAttribute("value", arrayOf<Any>("foo"))
 
-        assertEquals("foo", annotation.getAttribute("value", String::class.java))
+        assertEquals("foo", annotation.getAttribute<String>("value"))
     }
 
     @Test

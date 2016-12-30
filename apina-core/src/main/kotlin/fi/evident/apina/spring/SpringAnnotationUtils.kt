@@ -10,5 +10,5 @@ internal object SpringAnnotationUtils {
         valueOrSecondaryAttribute(annotation, "path")
 
     private fun valueOrSecondaryAttribute(annotation: JavaAnnotation, secondaryName: String): String? =
-        annotation.getAttribute("value", String::class.java) ?: annotation.getAttribute(secondaryName, String::class.java)
+        annotation.getAttribute<String>("value") ?: annotation.getAttribute<String>(secondaryName)
 }
