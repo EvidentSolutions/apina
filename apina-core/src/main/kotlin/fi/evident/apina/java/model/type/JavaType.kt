@@ -28,6 +28,9 @@ sealed class JavaType {
     open val isWide: Boolean
         get() = false
 
+    companion object {
+        inline fun <reified T : Any> basic() = Basic(T::class.java)
+    }
 
     /**
      * Represents a raw Java type, like [Class].

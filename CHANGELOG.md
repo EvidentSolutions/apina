@@ -1,3 +1,14 @@
+## 0.6.0 (2017-01-01)
+
+### Improvements
+
+- Add support for Spring's meta-annotations and `@AliasFor` when resolving annotations. 
+  ([#30](https://github.com/EvidentSolutions/apina/issues/30))
+
+### Other changes
+
+- Converted most of the codebase to Kotlin. 
+
 ## 0.5.3 (2016-12-21)
 
 ### Improvements

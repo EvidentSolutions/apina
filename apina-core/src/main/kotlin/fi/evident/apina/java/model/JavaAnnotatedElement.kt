@@ -11,11 +11,4 @@ interface JavaAnnotatedElement {
 
     fun findAnnotation(annotationType: JavaType.Basic): JavaAnnotation? =
             annotations.find { annotationType == it.name }
-
-    fun getAnnotation(annotationType: JavaType.Basic): JavaAnnotation =
-            findAnnotation(annotationType) ?: throw IllegalArgumentException("annotation not present: $annotationType")
-
-    fun <T> findUniqueAnnotationAttributeValue(annotationType: JavaType.Basic, attributeName: String, type: Class<T>): T? =
-            findAnnotation(annotationType)?.findUniqueAttributeValue(attributeName, type)
-
 }

@@ -13,7 +13,6 @@ import fi.evident.apina.model.parameters.EndpointRequestParamParameter
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.spring.NameTranslator.translateEndpointGroupName
-import fi.evident.apina.spring.SpringAnnotationUtils.getRequestParamName
 
 /**
  * Builds [ApiDefinition] by reading the classes of a Spring Web MVC application.
@@ -21,6 +20,7 @@ import fi.evident.apina.spring.SpringAnnotationUtils.getRequestParamName
 class SpringModelReader private constructor(private val classes: JavaModel, private val settings: TranslationSettings) {
 
     private val api = ApiDefinition()
+    private val annotationResolver = SpringAnnotationResolver(classes)
 
     private fun createEndpointsForControllers() {
         for (controllerMetadata in classes.findClassesWithAnnotation(REST_CONTROLLER))
@@ -30,10 +30,9 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     private fun createEndpointGroupForController(javaClass: JavaClass): EndpointGroup {
         val endpointGroup = EndpointGroup(translateEndpointGroupName(javaClass.name), javaClass.name)
 
-        javaClass.publicMethods
-                .filter { m -> !m.isStatic && m.hasAnnotation(REQUEST_MAPPING) }
-                .map { this.createEndpointForMethod(it) }
-                .forEach { endpointGroup.addEndpoint(it) }
+        for (m in javaClass.publicMethods)
+            if (!m.isStatic && annotationResolver.hasAnnotation(m, REQUEST_MAPPING))
+                endpointGroup.addEndpoint(createEndpointForMethod(m))
 
         return endpointGroup
     }
@@ -63,6 +62,47 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         }
     }
 
+    private fun parseParameter(typeTranslator: JacksonTypeTranslator, parameter: JavaParameter, env: TypeEnvironment, method: JavaMethod): EndpointParameter? {
+        val name = parameter.name ?: throw EndpointParameterNameNotDefinedException(method)
+        val type = typeTranslator.translateType(parameter.type, parameter, env)
+
+        if (annotationResolver.hasAnnotation(parameter, REQUEST_BODY))
+            return EndpointRequestBodyParameter(name, type)
+
+        val requestParam = annotationResolver.findAnnotation(parameter, REQUEST_PARAM)
+        if (requestParam != null)
+            return EndpointRequestParamParameter(name, requestParam.getAttribute("name"), type)
+
+        val pathVariable = annotationResolver.findAnnotation(parameter, PATH_VARIABLE)
+        if (pathVariable != null)
+            return EndpointPathVariableParameter(name, pathVariable.getAttribute("name"), type)
+
+        return null
+    }
+
+    private fun resolveUriTemplate(method: JavaMethod): URITemplate {
+        val classUrl = findRequestMappingPath(method.owningClass)
+        val methodUrl = findRequestMappingPath(method)
+
+        return parseUriTemplate(classUrl + methodUrl)
+    }
+
+    internal fun findRequestMappingPath(element: JavaAnnotatedElement): String {
+        val annotation = annotationResolver.findAnnotation(element, REQUEST_MAPPING)
+        val value = annotation?.getAttribute<String>("path") ?: ""
+        if (value.isEmpty() || value.startsWith("/"))
+            return value
+        else
+            return '/' + value
+    }
+
+    private fun resolveRequestMethod(javaMethod: JavaMethod): HTTPMethod? =
+            findHttpMethod(javaMethod) ?: findHttpMethod(javaMethod.owningClass)
+
+    private fun findHttpMethod(element: JavaAnnotatedElement): HTTPMethod? =
+            annotationResolver.findAnnotation(element, REQUEST_MAPPING)?.getUniqueAttributeValue<EnumValue>("method")
+                    ?.let { HTTPMethod.valueOf(it.constant) }
+
     companion object {
 
         private val REST_CONTROLLER = JavaType.Basic("org.springframework.web.bind.annotation.RestController")
@@ -77,45 +117,6 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
             reader.createEndpointsForControllers()
 
             return reader.api
-        }
-
-        private fun parseParameter(typeTranslator: JacksonTypeTranslator, parameter: JavaParameter, env: TypeEnvironment, method: JavaMethod): EndpointParameter? {
-            val name = parameter.name ?: throw EndpointParameterNameNotDefinedException(method)
-            val type = typeTranslator.translateType(parameter.type, parameter, env)
-
-            return when {
-                parameter.hasAnnotation(REQUEST_BODY) ->
-                    EndpointRequestBodyParameter(name, type)
-                parameter.hasAnnotation(REQUEST_PARAM) ->
-                    EndpointRequestParamParameter(name, getRequestParamName(parameter.getAnnotation(REQUEST_PARAM)), type)
-                parameter.hasAnnotation(PATH_VARIABLE) ->
-                    EndpointPathVariableParameter(name, parameter.getAnnotation(PATH_VARIABLE).getAttribute<String>("value"), type)
-                else ->
-                    null
-            }
-        }
-
-        private fun resolveRequestMethod(javaMethod: JavaMethod): HTTPMethod? =
-                findHttpMethod(javaMethod) ?: findHttpMethod(javaMethod.owningClass)
-
-        private fun findHttpMethod(element: JavaAnnotatedElement): HTTPMethod? =
-                element.findUniqueAnnotationAttributeValue(REQUEST_MAPPING, "method", EnumValue::class.java)
-                        ?.let { HTTPMethod.valueOf(it.constant) }
-
-        private fun resolveUriTemplate(method: JavaMethod): URITemplate {
-            val classUrl = findRequestMappingPath(method.owningClass)
-            val methodUrl = findRequestMappingPath(method)
-
-            return parseUriTemplate(classUrl + methodUrl)
-        }
-
-        internal fun findRequestMappingPath(element: JavaAnnotatedElement): String {
-            val annotation = element.findAnnotation(REQUEST_MAPPING)
-            val value: String = (annotation?.let { SpringAnnotationUtils.getRequestMappingPath(it) }) ?: ""
-            if (value.isEmpty() || value.startsWith("/"))
-                return value
-            else
-                return '/' + value
         }
     }
 }

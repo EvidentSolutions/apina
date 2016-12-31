@@ -6,20 +6,18 @@ import kotlin.collections.asList
 import kotlin.collections.joinTo
 import java.lang.reflect.Array as ReflectArray
 
-class JavaAnnotation(
-        /** Name of the annotation type  */
-        val name: JavaType.Basic) {
+class JavaAnnotation(val name: JavaType.Basic) {
 
     /**
      * Attributes of the annotation.
-
+     *
      * Type of values depends on the type of attributes:
      *
      *  * for basic Java types (String, Integer, etc) corresponding Java classes are used
      *  * enumeration values are represented as [EnumValue]s
      *  * nested annotations are represented as nested [JavaAnnotation]s
+     *  * class-references are represented as [JavaType.Basic]
      *  * for arrays, everything is stored inside `Object[]`
-     *
      */
     private val attributes = LinkedHashMap<String, Any>()
 
@@ -48,16 +46,6 @@ class JavaAnnotation(
             return value.asList()
         else
             return listOf(value)
-    }
-
-    fun <T> findUniqueAttributeValue(name: String, type: Class<T>): T? {
-        val values = getAttributeValues(name)
-
-        return when (values.size) {
-            0 -> null
-            1 -> type.cast(values[0])
-            else -> throw IllegalArgumentException("multiple values for $name in $this")
-        }
     }
 
     override fun toString(): String {
