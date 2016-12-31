@@ -101,7 +101,7 @@ internal object ClassMetadataReader {
     private class MyAnnotationVisitor(private val annotation: JavaAnnotation) : AnnotationVisitor(Opcodes.ASM5) {
 
         override fun visit(name: String, value: Any) {
-            annotation.setAttribute(name, value)
+            annotation.setAttribute(name, if (value is Type) javaType(value) else value)
         }
 
         override fun visitEnum(name: String, desc: String, value: String) {

@@ -68,7 +68,7 @@ fun parseMethodDescriptor(methodDescriptor: String): MethodSignature {
     return MethodSignature(returnType, argumentTypes, TypeSchema())
 }
 
-private fun javaType(type: Type): JavaType {
+fun javaType(type: Type): JavaType {
     if (type.sort == Type.ARRAY) {
         var javaType: JavaType = JavaType.Basic(type.elementType.className)
 
