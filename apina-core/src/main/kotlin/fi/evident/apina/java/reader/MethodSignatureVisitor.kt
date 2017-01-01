@@ -18,8 +18,8 @@ internal class MethodSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Supplier
 
     private val typeSchemaBuilder = TypeSchemaBuilder()
 
-    override fun visitFormalTypeParameter(name: String?) {
-        typeSchemaBuilder.addTypeParameter(name!!)
+    override fun visitFormalTypeParameter(name: String) {
+        typeSchemaBuilder.addTypeParameter(name)
     }
 
     override fun visitClassBound() = visitBound()

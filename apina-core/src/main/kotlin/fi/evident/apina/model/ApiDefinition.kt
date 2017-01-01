@@ -24,26 +24,31 @@ class ApiDefinition {
         get() = _enumDefinitions.values
 
     fun addEndpointGroups(group: EndpointGroup) {
-        _endpointGroups.add(group)
+        _endpointGroups += group
     }
 
     fun containsType(typeName: ApiTypeName) =
-            _classDefinitions.containsKey(typeName) || _enumDefinitions.containsKey(typeName)
+            typeName in _classDefinitions || typeName in _enumDefinitions
 
     fun addClassDefinition(classDefinition: ClassDefinition) {
         verifyTypeDoesNotExist(classDefinition.type)
 
-        _classDefinitions.put(classDefinition.type, classDefinition)
+        _classDefinitions[classDefinition.type] = classDefinition
     }
 
     fun addEnumDefinition(enumDefinition: EnumDefinition) {
         verifyTypeDoesNotExist(enumDefinition.type)
-        _enumDefinitions.put(enumDefinition.type, enumDefinition)
+
+        _enumDefinitions[enumDefinition.type] = enumDefinition
+    }
+
+    fun addBlackBox(type: ApiTypeName) {
+        blackBoxTypes += type
     }
 
     private fun verifyTypeDoesNotExist(type: ApiTypeName) {
         if (containsType(type))
-            throw IllegalArgumentException("tried to add type-definition twice: " + type)
+            throw IllegalArgumentException("tried to add type-definition twice: $type")
     }
 
     val endpointGroupCount: Int
@@ -68,7 +73,7 @@ class ApiDefinition {
         get() {
             val resultTypes = _endpointGroups.asSequence()
                     .flatMap { it.endpoints.asSequence() }
-                    .mapNotNull{ it.responseBody }
+                    .mapNotNull { it.responseBody }
 
             val propertyTypes = _classDefinitions.values.asSequence()
                     .flatMap { it.properties.asSequence() }
@@ -84,9 +89,5 @@ class ApiDefinition {
         is ApiType.Class -> sequenceOf(type.name)
         is ApiType.Array -> referencedClassTypes(type.elementType)
         else -> emptySequence()
-    }
-
-    fun addBlackBox(type: ApiTypeName) {
-        blackBoxTypes.add(type)
     }
 }

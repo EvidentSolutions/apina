@@ -38,7 +38,7 @@ internal object ClassPathScanner {
                 log.warn("Skipping nonexistent classpath entry: {}", classpathEntry)
 
             else ->
-                throw IOException("invalid classpath entry: " + classpathEntry)
+                throw IOException("invalid classpath entry: $classpathEntry")
         }
     }
 
@@ -61,7 +61,7 @@ internal object ClassPathScanner {
                 .forEach { file ->
                     log.trace("Processing class-file {}", file)
 
-                    BufferedInputStream(Files.newInputStream(file)).use { processor(it) }
+                    BufferedInputStream(Files.newInputStream(file)).use(processor)
                 }
     }
 }

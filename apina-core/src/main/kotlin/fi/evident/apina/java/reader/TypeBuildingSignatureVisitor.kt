@@ -69,12 +69,12 @@ internal class TypeBuildingSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Su
     }
 
     override fun visitTypeArgument() {
-        arguments.add { JavaType.Wildcard.unbounded() }
+        arguments += { JavaType.Wildcard.unbounded() }
     }
 
     override fun visitTypeArgument(wildcard: Char): SignatureVisitor {
         val nestedVisitor = TypeBuildingSignatureVisitor()
-        arguments.add(typeBuilderForWildcard(wildcard, { nestedVisitor.get() }))
+        arguments += typeBuilderForWildcard(wildcard) { nestedVisitor.get() }
         return nestedVisitor
     }
 

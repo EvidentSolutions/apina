@@ -11,6 +11,6 @@ class ImportDefinition(val moduleName: String) {
         get() = _types
 
     fun addType(type: ApiTypeName) {
-        _types.add(type)
+        _types += type
     }
 }

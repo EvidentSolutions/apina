@@ -28,7 +28,7 @@ class Endpoint(/** Name of the original source element that specifies this endpo
         get() = _parameters
 
     fun addParameter(parameter: EndpointParameter) {
-        _parameters.add(parameter)
+        _parameters += parameter
     }
 
     val requestBody: EndpointRequestBodyParameter?
@@ -45,7 +45,7 @@ class Endpoint(/** Name of the original source element that specifies this endpo
                 responseBody?.typeRepresentation() ?: "void",
                 name,
                 _parameters.joinToString(", "),
-                this.method,
+                method,
                 uriTemplate)
     }
 }

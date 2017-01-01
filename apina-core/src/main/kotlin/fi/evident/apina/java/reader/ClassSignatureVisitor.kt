@@ -70,7 +70,6 @@ internal class ClassSignatureVisitor private constructor() : SignatureVisitor(Op
 
     companion object {
 
-        @JvmStatic
         fun parse(signature: String): ClassSignatureVisitor {
             val visitor = ClassSignatureVisitor()
             SignatureReader(signature).accept(visitor)

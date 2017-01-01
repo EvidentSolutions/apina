@@ -3,7 +3,6 @@ package fi.evident.apina.model.settings
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.utils.PatternSet
 import java.util.*
-import java.util.Collections.unmodifiableCollection
 
 /**
  * Various settings guiding the translation.
@@ -34,7 +33,7 @@ class TranslationSettings {
     }
 
     val imports: Collection<ImportDefinition>
-        get() = unmodifiableCollection(importsByModule.values)
+        get() = importsByModule.values
 
     fun isImported(typeName: ApiTypeName) = typeName in importedTypes
 }

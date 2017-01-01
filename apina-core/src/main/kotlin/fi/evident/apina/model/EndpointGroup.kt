@@ -13,7 +13,7 @@ class EndpointGroup(val name: String,
     private val _endpoints = ArrayList<Endpoint>()
 
     fun addEndpoint(endpoint: Endpoint) {
-        _endpoints.add(endpoint)
+        _endpoints += endpoint
     }
 
     val endpoints: Collection<Endpoint>
