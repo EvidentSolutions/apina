@@ -68,12 +68,10 @@ class SpringAnnotation(
             for (m in clazz.methods) {
                 val aliasFor = m.findAnnotation(AliasFor.TYPE)
                 if (aliasFor != null) {
-                    val attribute = aliasFor.getAttribute<String>("attribute") ?: aliasFor.getAttribute<String>("value")
-                    if (attribute != null) {
-                        val annotation = aliasFor.getAttribute<JavaType.Basic>("annotation") ?: annotationType
+                    val attribute = aliasFor.getAttribute<String>("attribute") ?: aliasFor.getAttribute<String>("value") ?: m.name
+                    val annotation = aliasFor.getAttribute<JavaType.Basic>("annotation") ?: annotationType
 
-                        aliases += AliasFor(annotationType, m.name, annotation, attribute)
-                    }
+                    aliases += AliasFor(annotationType, m.name, annotation, attribute)
                 }
             }
             return aliases

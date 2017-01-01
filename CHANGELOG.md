@@ -1,3 +1,10 @@
+## 0.6.1 (2017-01-01)
+
+### Improvements
+
+- Support @AliasFor without explicit attribute name. Use the name of the original attribute 
+  if @AliasFor does not specify a name.
+
 ## 0.6.0 (2017-01-01)
 
 ### Improvements
