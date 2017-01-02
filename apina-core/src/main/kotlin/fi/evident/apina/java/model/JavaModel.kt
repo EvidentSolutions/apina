@@ -34,6 +34,9 @@ class JavaModel {
     inline fun <reified T : Any> isInstanceOf(type: JavaType) = isInstanceOf(type, T::class.java)
 
     fun isInstanceOf(type: JavaType, requiredType: Class<*>): Boolean {
+        if (type is JavaType.Wildcard)
+            return type.upperBound != null && isInstanceOf(type.upperBound, requiredType)
+
         val javaClass = _classes[type.nonGenericClassName]
 
         if (javaClass != null) {

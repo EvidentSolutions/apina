@@ -38,6 +38,7 @@ class JacksonTypeTranslatorTest {
                 property("booleanNonPrimitiveField", ApiType.Primitive.BOOLEAN),
                 property("intArrayField", ApiType.Array(ApiType.Primitive.NUMBER)),
                 property("rawCollectionField", ApiType.Array(ApiType.Primitive.ANY)),
+                property("wildcardMapField", ApiType.Dictionary(ApiType.Primitive.ANY)),
                 property("rawMapField", ApiType.Dictionary(ApiType.Primitive.ANY)),
                 property("stringIntegerMapField", ApiType.Dictionary(ApiType.Primitive.NUMBER)),
                 property("objectField", ApiType.Primitive.ANY),

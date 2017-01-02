@@ -1,3 +1,9 @@
+## Unreleased
+
+### Improvements
+
+- Support serialization of maps with wildcard parameters.
+
 ## 0.6.3 (2017-01-02)
 
 ### Fixes

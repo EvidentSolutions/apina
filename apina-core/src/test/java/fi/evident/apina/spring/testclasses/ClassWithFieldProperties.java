@@ -3,7 +3,7 @@ package fi.evident.apina.spring.testclasses;
 import java.util.Collection;
 import java.util.Map;
 
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes", "unused"})
 public final class ClassWithFieldProperties {
 
     public int intField;
@@ -15,6 +15,7 @@ public final class ClassWithFieldProperties {
     public Collection<String> stringCollectionField;
     public Collection rawCollectionField;
     public Map<String,Integer> stringIntegerMapField;
+    public Map <?,?> wildcardMapField;
     public Map rawMapField;
     public Object objectField;
 }
