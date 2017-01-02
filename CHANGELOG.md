@@ -1,3 +1,9 @@
+## 0.6.3 (2017-01-02)
+
+### Fixes
+
+- New alias resolution broke attributes without aliases.
+
 ## 0.6.2 (2017-01-02)
 
 ### Improvements

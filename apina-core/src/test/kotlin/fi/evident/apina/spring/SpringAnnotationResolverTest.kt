@@ -1,14 +1,12 @@
 package fi.evident.apina.spring
 
-import fi.evident.apina.java.model.JavaAnnotatedElement
-import fi.evident.apina.java.model.JavaAnnotation
-import fi.evident.apina.java.model.JavaMethod
-import fi.evident.apina.java.model.JavaModel
+import fi.evident.apina.java.model.*
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.reader.loadClassesFromInheritanceTree
 import org.junit.Test
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -41,9 +39,17 @@ class SpringAnnotationResolverTest {
     }
 
     @Test
+    fun attributesWithoutAliases() {
+        model.loadClassesFromInheritanceTree<MyController>()
+
+        val requestMapping = getMethodAnnotation<MyController>("postMethod", JavaType.basic<RequestMapping>())
+        assertEquals("POST", requestMapping.getAttribute<EnumValue>("method")?.constant)
+    }
+
+    @Test
     fun metaAnnotations() {
         model.loadClassesFromInheritanceTree<MyController>()
-        val controller = model.findClass(JavaType.basic<MyController>())!!
+        val controller = requireNotNull(model.findClass(JavaType.basic<MyController>()))
 
         assertTrue(resolver.hasAnnotation(controller, JavaType.basic<RestController>()))
         assertNotNull(resolver.findAnnotation(controller, JavaType.basic<RestController>()))
@@ -112,6 +118,10 @@ class SpringAnnotationResolverTest {
 
         @GetMapping(path = arrayOf("/bar"))
         fun bar() {
+        }
+
+        @RequestMapping(method = arrayOf(RequestMethod.POST))
+        fun postMethod() {
         }
     }
 }

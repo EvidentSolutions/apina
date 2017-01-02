@@ -40,12 +40,19 @@ class SpringAnnotation(
         }
     }
 
-    private fun <T : Any> getAttributeFrom(annotation: JavaAnnotation, attributeName: String, type: Class<T>): T? =
-            findAliases(annotation.name)
-                    .asSequence()
-                    .filter { it.matches(annotationType, attributeName) }
-                    .mapNotNull { annotation.getAttribute(it.sourceAttribute, type) }
-                    .firstOrNull()
+    private fun <T : Any> getAttributeFrom(annotation: JavaAnnotation, attributeName: String, type: Class<T>): T? {
+        if (annotationType == annotation.name) {
+            val value = annotation.getAttribute(attributeName, type)
+            if (value != null)
+                return value
+        }
+
+        return findAliases(annotation.name)
+                .asSequence()
+                .filter { it.matches(annotationType, attributeName) }
+                .mapNotNull { annotation.getAttribute(it.sourceAttribute, type) }
+                .firstOrNull()
+    }
 
     /**
      * Returns all aliases defined by given annotation type.
