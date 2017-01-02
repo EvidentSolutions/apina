@@ -6,7 +6,6 @@ import fi.evident.apina.java.model.JavaMethod
 import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.reader.loadClassesFromInheritanceTree
-import org.junit.Ignore
 import org.junit.Test
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -55,25 +54,28 @@ class SpringAnnotationResolverTest {
     }
 
     @Test
-    @Ignore("Implicit aliases are not supported yet")
     fun resolveImplicitAliases() {
         model.loadClassesFromInheritanceTree<MyController>()
+        model.loadClassesFromInheritanceTree<GetMapping>()
 
-        val fooAnnotation = resolver.getAnnotation<GetMapping>(model.getMethod<MyController>("foo"))
-        val barAnnotation = resolver.getAnnotation<GetMapping>(model.getMethod<MyController>("bar"))
+        val fooAnnotation = getMethodAnnotation<MyController>("foo", JavaType.basic<RequestMapping>())
+        val barAnnotation = getMethodAnnotation<MyController>("bar", JavaType.basic<RequestMapping>())
 
-        assertEquals("/foo", fooAnnotation.getAttribute<String>("value"))
         assertEquals("/foo", fooAnnotation.getAttribute<String>("path"))
+        assertEquals("/foo", fooAnnotation.getAttribute<String>("value"))
 
-        assertEquals("/bar", barAnnotation.getAttribute<String>("value"))
         assertEquals("/bar", barAnnotation.getAttribute<String>("path"))
+        assertEquals("/bar", barAnnotation.getAttribute<String>("value"))
     }
 
+    private inline fun <reified T : Any> getMethodAnnotation(method: String, annotationType: JavaType.Basic) =
+            requireNotNull(resolver.findAnnotation(model.getMethod<T>(method), annotationType))
+
     private inline fun <reified T : Any> JavaModel.getMethod(method: String): JavaMethod =
-        findClass(JavaType.basic<T>())?.methods?.find { it.name == method }!!
+            requireNotNull(findClass(JavaType.basic<T>())?.methods?.find { it.name == method })
 
     private inline fun <reified T : Annotation> SpringAnnotationResolver.getAnnotation(element: JavaAnnotatedElement): SpringAnnotation =
-        findAnnotation(element, JavaType.basic<T>())!!
+            requireNotNull(findAnnotation(element, JavaType.basic<T>()))
 
     @Retention(AnnotationRetention.RUNTIME)
     private annotation class MyMetaMetaAnnotation
@@ -105,9 +107,11 @@ class SpringAnnotationResolverTest {
     class MyController {
 
         @GetMapping("/foo")
-        fun foo() { }
+        fun foo() {
+        }
 
         @GetMapping(path = arrayOf("/bar"))
-        fun bar() { }
+        fun bar() {
+        }
     }
 }

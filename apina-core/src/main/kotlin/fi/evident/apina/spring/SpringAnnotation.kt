@@ -1,9 +1,9 @@
 package fi.evident.apina.spring
 
 import fi.evident.apina.java.model.JavaAnnotation
+import fi.evident.apina.java.model.JavaMethod
 import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.JavaType
-import java.util.*
 
 /**
  * Wrapper for annotations that performs Spring-specific lookup for attributes.
@@ -21,12 +21,10 @@ class SpringAnnotation(
     /**
      * Tries to find value for given attribute, considering meta-annotations and `@AliasFor`.
      */
-    fun <T> getAttribute(attributeName: String, type: Class<T>): T? {
-        for (annotation in annotations)
-            return getAttributeFrom(annotation, attributeName, type) ?: continue
-
-        return null
-    }
+    fun <T : Any> getAttribute(attributeName: String, type: Class<T>): T? =
+            annotations.asSequence()
+                    .mapNotNull { getAttributeFrom(it, attributeName, type) }
+                    .firstOrNull()
 
     fun <T> getUniqueAttributeValue(attributeName: String, type: Class<T>): T? {
         val value = getAttribute<Any>(attributeName)
@@ -42,21 +40,12 @@ class SpringAnnotation(
         }
     }
 
-    private fun <T> getAttributeFrom(annotation: JavaAnnotation, attributeName: String, type: Class<T>): T? {
-        if (annotation.name == annotationType) {
-            val value = annotation.getAttribute(attributeName, type)
-            if (value != null)
-                return value
-        }
-
-        val aliases = findAliases(annotation.name)
-        for (alias in aliases) {
-            if (alias.matches(annotationType, attributeName))
-                return annotation.getAttribute(alias.sourceAttribute, type) ?: continue
-        }
-
-        return null
-    }
+    private fun <T : Any> getAttributeFrom(annotation: JavaAnnotation, attributeName: String, type: Class<T>): T? =
+            findAliases(annotation.name)
+                    .asSequence()
+                    .filter { it.matches(annotationType, attributeName) }
+                    .mapNotNull { annotation.getAttribute(it.sourceAttribute, type) }
+                    .firstOrNull()
 
     /**
      * Returns all aliases defined by given annotation type.
@@ -64,19 +53,38 @@ class SpringAnnotation(
     private fun findAliases(annotationType: JavaType.Basic): Collection<AliasFor> {
         val clazz = javaModel.findClass(annotationType)
         if (clazz != null) {
-            val aliases = ArrayList<AliasFor>()
-            for (m in clazz.methods) {
-                val aliasFor = m.findAnnotation(AliasFor.TYPE)
-                if (aliasFor != null) {
-                    val attribute = aliasFor.getAttribute<String>("attribute") ?: aliasFor.getAttribute<String>("value") ?: m.name
-                    val annotation = aliasFor.getAttribute<JavaType.Basic>("annotation") ?: annotationType
+            return clazz.methods
+                    .asSequence()
+                    .filter { it.hasAnnotation(AliasFor.TYPE) }
+                    .map { AliasFor(annotationType, it.name, it.findAliasTargets()) }
+                    .toList()
 
-                    aliases += AliasFor(annotationType, m.name, annotation, attribute)
-                }
-            }
-            return aliases
         } else {
             return emptyList()
         }
+    }
+
+    private fun JavaMethod.findAliasTargets(): Set<Pair<JavaType.Basic, String>> {
+        val result = mutableSetOf<Pair<JavaType.Basic, String>>()
+
+        fun recurse(attribute: JavaMethod) {
+            val aliasFor = attribute.findAnnotation(AliasFor.TYPE)
+            if (aliasFor != null) {
+                val targetType = aliasFor.getAttribute<JavaType.Basic>("annotation") ?: attribute.owningClass.type.toBasicType()
+                val targetAttribute = aliasFor.getAttribute<String>("attribute") ?: aliasFor.getAttribute<String>("value") ?: attribute.name
+
+                if (result.add(targetType to targetAttribute)) {
+                    val clazz = javaModel.findClass(targetType)
+                    if (clazz != null) {
+                        val target = clazz.methods.find { it.name == targetAttribute && it.hasAnnotation(AliasFor.TYPE)}
+                        if (target != null)
+                            recurse(target)
+                    }
+                }
+            }
+        }
+
+        recurse(this)
+        return result
     }
 }

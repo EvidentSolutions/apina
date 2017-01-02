@@ -10,11 +10,12 @@ import fi.evident.apina.java.model.type.JavaType
  */
 data class AliasFor(val sourceAnnotation: JavaType.Basic,
                     val sourceAttribute: String,
-                    val targetAnnotation: JavaType.Basic,
-                    val targetAttribute: String) {
+                    val targets: Set<Pair<JavaType.Basic, String>>) {
 
     fun matches(annotation: JavaType.Basic, attribute: String) =
-            annotation == this.targetAnnotation && attribute == targetAttribute
+            (annotation == sourceAnnotation && attribute == sourceAttribute) || (annotation to attribute) in targets
+
+    override fun toString() = "$sourceAnnotation.$sourceAttribute: $targets"
 
     companion object {
         val TYPE = JavaType.Basic("org.springframework.core.annotation.AliasFor")

@@ -29,7 +29,7 @@ class JavaAnnotation(val name: JavaType.Basic) {
         return getAttribute(name, T::class.java)
     }
 
-    fun <T> getAttribute(name: String, type: Class<T>): T? {
+    fun <T : Any> getAttribute(name: String, type: Class<T>): T? {
         val value = attributes[name] ?: return null
 
         if (value.javaClass.isArray && ReflectArray.getLength(value) == 1 && !type.isArray)

@@ -1,3 +1,9 @@
+## 0.6.2 (2017-01-02)
+
+### Improvements
+
+- More complete alias resolution for Spring.
+
 ## 0.6.1 (2017-01-01)
 
 ### Improvements
