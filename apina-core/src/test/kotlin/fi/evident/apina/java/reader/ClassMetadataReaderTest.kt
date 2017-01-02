@@ -1,6 +1,5 @@
 package fi.evident.apina.java.reader
 
-import fi.evident.apina.java.reader.ClassReaderUtils.loadClass
 import fi.evident.apina.java.reader.JavaTypeMatchers.basicType
 import fi.evident.apina.java.reader.JavaTypeMatchers.singletonSchema
 import fi.evident.apina.java.reader.JavaTypeMatchers.typeVariable
@@ -9,7 +8,8 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 import java.util.*
-import java.util.Arrays.asList
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ClassMetadataReaderTest {
 
@@ -21,7 +21,7 @@ class ClassMetadataReaderTest {
 
         assertThat(javaClass.schema, `is`(singletonSchema("T", basicType(CharSequence::class.java))))
 
-        assertThat(fields.size, `is`(3))
+        assertEquals(3, fields.size)
         assertThat(javaClass.getField("field1").type, `is`(typeWithRepresentation("java.lang.String")))
         assertThat(javaClass.getField("field2").type, `is`(typeWithRepresentation("java.util.List<java.lang.String>")))
         assertThat(javaClass.getField("field3").type, `is`(typeVariable("T")))
@@ -36,8 +36,8 @@ class ClassMetadataReaderTest {
     fun enumClasses() {
         val javaClass = loadClass(TestEnum::class.java)
 
-        assertThat(javaClass.isEnum, `is`(true))
-        assertThat(javaClass.enumConstants, `is`(asList("FOO", "BAR", "BAZ")))
+        assertTrue(javaClass.isEnum)
+        assertEquals(listOf("FOO", "BAR", "BAZ"), javaClass.enumConstants)
     }
 
     @Suppress("unused")
@@ -60,22 +60,14 @@ class ClassMetadataReaderTest {
 
         private val field3: T? = null
 
-        fun method1() {
-        }
+        fun method1() {}
 
-        fun method2(): String {
-            throw UnsupportedOperationException()
-        }
+        fun method2(): String = throw UnsupportedOperationException()
 
-        fun method3(x: T): T {
-            throw UnsupportedOperationException()
-        }
+        fun method3(x: T): T = throw UnsupportedOperationException()
     }
 
     private object AnonymousInnerClassWithOuterBounds {
-
-        fun <T> createInnerClassInstance(): Comparator<T> {
-            return Comparator { o1, o2 -> 0 }
-        }
+        fun <T> createInnerClassInstance(): Comparator<T> = Comparator { o1, o2 -> 0 }
     }
 }

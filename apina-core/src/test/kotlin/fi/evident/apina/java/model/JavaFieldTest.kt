@@ -17,5 +17,5 @@ class JavaFieldTest {
     }
 
     private fun fieldWithModifiers(modifiers: Int) =
-            JavaField("foo", JavaVisibility.PUBLIC, JavaType.Basic("java.lang.String"), modifiers)
+            JavaField("foo", JavaVisibility.PUBLIC, JavaType.basic<String>(), modifiers)
 }

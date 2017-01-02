@@ -2,6 +2,7 @@ package fi.evident.apina.spring.testclasses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@SuppressWarnings("unused")
 public class SuperClass {
     public String foo;
     public String bar;

@@ -43,10 +43,10 @@ private class SpringUriTemplateParser(private val template: String) {
                 '\\' -> readChar() // skip next
                 '{' -> braceLevel++
                 '}' -> if (braceLevel == 0) {
-                    val `var` = template.substring(start, pos - 1)
-                    val colonIndex = `var`.indexOf(':')
+                    val variable = template.substring(start, pos - 1)
+                    val colonIndex = variable.indexOf(':')
 
-                    result.append('{').append(if (colonIndex == -1) `var` else `var`.substring(0, colonIndex)).append('}')
+                    result.append('{').append(if (colonIndex == -1) variable else variable.substring(0, colonIndex)).append('}')
                     return
                 } else {
                     braceLevel--

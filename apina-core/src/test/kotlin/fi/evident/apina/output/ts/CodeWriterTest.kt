@@ -1,7 +1,6 @@
 package fi.evident.apina.output.ts
 
 import org.junit.Test
-import java.util.*
 import java.util.Collections.emptyMap
 import kotlin.test.assertEquals
 
@@ -11,14 +10,19 @@ class CodeWriterTest {
 
     @Test
     fun indents() {
-        writer.writeLine("foo ")
+        writer.writeLine("foo")
         writer.writeBlock {
             writer.writeLine("bar")
             writer.writeLine("baz")
         }
-        writer.writeLine()
 
-        assertEquals("foo \n{\n    bar\n    baz\n}\n", writer.output)
+        assertEquals("""
+            foo
+            {
+                bar
+                baz
+            }
+        """.trimIndent(), writer.output)
     }
 
     @Test
@@ -44,13 +48,18 @@ class CodeWriterTest {
 
     @Test
     fun mapValues() {
-        val map = LinkedHashMap<String, Int>()
-        map.put("foo", 1)
-        map.put("bar", 2)
-        map.put("baz", 3)
-        writer.writeValue(map)
+        writer.writeValue(mapOf(
+                "foo" to 1,
+                "bar" to 2,
+                "baz" to 3))
 
-        assertEquals("{\n    'foo': 1,\n    'bar': 2,\n    'baz': 3\n}", writer.output)
+        assertEquals("""
+            {
+                'foo': 1,
+                'bar': 2,
+                'baz': 3
+            }
+        """.trimIndent(), writer.output)
     }
 
     @Test

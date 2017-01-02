@@ -2,8 +2,6 @@ package fi.evident.apina.java.reader
 
 import fi.evident.apina.java.model.JavaModel
 
-import fi.evident.apina.java.reader.ClassReaderUtils.loadClass
-
 inline fun <reified T : Any> JavaModel.loadClassesFromInheritanceTree() {
     loadClassesFromInheritanceTree(T::class.java)
 }

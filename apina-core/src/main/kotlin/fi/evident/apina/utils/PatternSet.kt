@@ -2,13 +2,12 @@ package fi.evident.apina.utils
 
 import org.intellij.lang.annotations.Language
 import java.util.*
-import java.util.function.Predicate
 import java.util.regex.Pattern
 
 /**
  * A union of regex-patterns.
  */
-class PatternSet : Predicate<CharSequence> {
+class PatternSet {
 
     private val patterns = ArrayList<Pattern>()
 
@@ -20,5 +19,5 @@ class PatternSet : Predicate<CharSequence> {
         addPattern(Pattern.compile(pattern))
     }
 
-    override fun test(s: CharSequence) = patterns.any { it.matcher(s).matches() }
+    operator fun contains(s: CharSequence) = patterns.any { it.matcher(s).matches() }
 }

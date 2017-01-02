@@ -15,11 +15,11 @@ import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.testclasses.*
-import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
-import java.util.Arrays.asList
 import java.util.Collections.emptyList
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class JacksonTypeTranslatorTest {
 
@@ -29,7 +29,7 @@ class JacksonTypeTranslatorTest {
     fun translatingClassWithFieldProperties() {
         val classDefinition = translateClass<ClassWithFieldProperties>()
 
-        assertThat(classDefinition.type, `is`(ApiTypeName(ClassWithFieldProperties::class.java.simpleName)))
+        assertEquals(ApiTypeName(ClassWithFieldProperties::class.java.simpleName), classDefinition.type)
         assertThat(classDefinition.properties, hasProperties(
                 property("intField", ApiType.Primitive.NUMBER),
                 property("integerField", ApiType.Primitive.NUMBER),
@@ -49,7 +49,7 @@ class JacksonTypeTranslatorTest {
     fun translatingClassWithGetterProperties() {
         val classDefinition = translateClass<ClassWithGetters>()
 
-        assertThat(classDefinition.type, `is`(ApiTypeName(ClassWithGetters::class.java.simpleName)))
+        assertEquals(ApiTypeName(ClassWithGetters::class.java.simpleName), classDefinition.type)
         assertThat(classDefinition.properties, hasProperties(
                 property("int", ApiType.Primitive.NUMBER),
                 property("integer", ApiType.Primitive.NUMBER),
@@ -68,21 +68,21 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun translateVoidType() {
-        assertThat(translateType(JavaType.Basic.VOID), `is`(ApiType.Primitive.VOID))
+        assertEquals(ApiType.Primitive.VOID, translateType(JavaType.Basic.VOID))
     }
 
     @Test
     fun translateBlackBoxType() {
         settings.blackBoxClasses.addPattern("foo\\..+")
 
-        assertThat(translateType(JavaType.Basic("foo.bar.Baz")), `is`<ApiType>(ApiType.BlackBox(ApiTypeName("Baz"))))
+        assertEquals(ApiType.BlackBox(ApiTypeName("Baz")), translateType(JavaType.Basic("foo.bar.Baz")))
     }
 
     @Test
     fun translatingOptionalTypes() {
         val classDefinition = translateClass<ClassWithOptionalTypes>()
 
-        assertThat(classDefinition.type, `is`(ApiTypeName(ClassWithOptionalTypes::class.java.simpleName)))
+        assertEquals(ApiTypeName(ClassWithOptionalTypes::class.java.simpleName), classDefinition.type)
         assertThat(classDefinition.properties, hasProperties(
                 property("optionalString", ApiType.Nullable(ApiType.Primitive.STRING)),
                 property("optionalInt", ApiType.Nullable(ApiType.Primitive.NUMBER)),
@@ -92,15 +92,15 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun typesWithJsonValueShouldBeBlackBoxes() {
-        val apiType = translateClass(ClassWithJsonValue::class.java, ApiDefinition())
+        val apiType = translateClass<ClassWithJsonValue>(ApiDefinition())
 
-        assertThat(apiType, `is`<ApiType>(ApiType.BlackBox(ApiTypeName("ClassWithJsonValue"))))
+        assertEquals(ApiType.BlackBox(ApiTypeName("ClassWithJsonValue")), apiType)
     }
 
-    @Test(expected = DuplicateClassNameException::class)
+    @Test
     fun duplicateClassNames() {
-        val class1 = JavaClass(JavaType.Basic("foo.MyClass"), JavaType.Basic("java.lang.Object"), emptyList<JavaType>(), 0, TypeSchema())
-        val class2 = JavaClass(JavaType.Basic("bar.MyClass"), JavaType.Basic("java.lang.Object"), emptyList<JavaType>(), 0, TypeSchema())
+        val class1 = JavaClass(JavaType.Basic("foo.MyClass"), JavaType.Basic("java.lang.Object"), emptyList(), 0, TypeSchema())
+        val class2 = JavaClass(JavaType.Basic("bar.MyClass"), JavaType.Basic("java.lang.Object"), emptyList(), 0, TypeSchema())
 
         val classes = JavaModel()
         classes.addClass(class1)
@@ -109,7 +109,10 @@ class JacksonTypeTranslatorTest {
         val env = TypeEnvironment.empty()
 
         translator.translateType(class1.type, class1, env)
-        translator.translateType(class2.type, class2, env)
+
+        assertFailsWith<DuplicateClassNameException> {
+            translator.translateType(class2.type, class2, env)
+        }
     }
 
     @Test
@@ -140,9 +143,9 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun enumTranslation() {
-        val enumDefinition = translateEnum(TestEnum::class.java)
+        val enumDefinition = translateEnum<TestEnum>()
 
-        assertThat(enumDefinition.constants, `is`(asList("FOO", "BAR", "BAZ")))
+        assertEquals(listOf("FOO", "BAR", "BAZ"), enumDefinition.constants)
     }
 
     @Test
@@ -187,25 +190,25 @@ class JacksonTypeTranslatorTest {
 
     private inline fun <reified T : Any> translateClass(): ClassDefinition {
         val api = ApiDefinition()
-        val apiType = translateClass(T::class.java, api)
+        val apiType = translateClass<T>(api)
 
         return api.classDefinitions.find { d -> apiType.typeRepresentation().startsWith(d.type.toString()) }
             ?: throw AssertionError("could not find definition for $apiType")
     }
 
-    private fun translateEnum(cl: Class<*>): EnumDefinition {
+    private inline fun <reified T : Enum<T>> translateEnum(): EnumDefinition {
         val api = ApiDefinition()
-        val apiType = translateClass(cl, api)
+        val apiType = translateClass<T>(api)
 
         return api.enumDefinitions.find { d -> d.type.toString() == apiType.typeRepresentation() }
             ?: throw AssertionError("could not find definition for $apiType")
     }
 
-    private fun translateClass(cl: Class<*>, api: ApiDefinition): ApiType {
+    private inline fun <reified T : Any> translateClass(api: ApiDefinition): ApiType {
         val model = JavaModel()
-        model.loadClassesFromInheritanceTree(cl)
+        model.loadClassesFromInheritanceTree<T>()
         val translator = JacksonTypeTranslator(settings, model, api)
 
-        return translator.translateType(JavaType.Basic(cl), MockAnnotatedElement(), TypeEnvironment.empty())
+        return translator.translateType(JavaType.basic<T>(), MockAnnotatedElement(), TypeEnvironment.empty())
     }
 }

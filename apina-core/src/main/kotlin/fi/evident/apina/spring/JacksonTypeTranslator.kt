@@ -13,11 +13,9 @@ import fi.evident.apina.model.PropertyDefinition
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
-import fi.evident.apina.spring.NameTranslator.translateClassName
 import fi.evident.apina.utils.propertyNameForGetter
 import org.slf4j.LoggerFactory
 import java.util.*
-import java.util.Arrays.asList
 
 /**
  * Translates Java types to model types.
@@ -191,7 +189,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
             val aClass = classes[i].javaClass
 
             for (field in aClass.publicInstanceFields) {
-                if (field.findAnnotation(JSON_IGNORE)?.let { isIgnore(it) } ?: false)
+                if (field.findAnnotation(JSON_IGNORE)?.isIgnore() ?: false)
                     ignores.add(field.name)
                 else
                     ignores.remove(field.name)
@@ -201,7 +199,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                 val ignore = getter.findAnnotation(JSON_IGNORE)
                 if (ignore != null) {
                     val name = propertyNameForGetter(getter.name)
-                    if (isIgnore(ignore)) {
+                    if (ignore.isIgnore()) {
                         ignores.add(name)
                     } else {
                         ignores.remove(name)
@@ -216,25 +214,25 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
     private fun classesUpwardsFrom(javaClass: BoundClass): List<BoundClass> {
         val result = ArrayList<BoundClass>()
 
+        fun recurse(c: BoundClass) {
+            if (result.any { c.javaClass == it.javaClass })
+                return
+
+            result += c
+
+            c.javaClass.interfaces
+                    .asSequence()
+                    .mapNotNull { boundClassFor(it, c.environment) }
+                    .forEach(::recurse)
+        }
+
         var cl: BoundClass? = javaClass
         while (cl != null) {
-            addClassAndInterfacesAt(cl, result)
+            recurse(cl)
             cl = boundClassFor(cl.javaClass.superClass, cl.environment)
         }
 
         return result
-    }
-
-    private fun addClassAndInterfacesAt(c: BoundClass, result: MutableList<BoundClass>) {
-        if (result.any { c.javaClass == it.javaClass })
-            return
-
-        result.add(c)
-
-        c.javaClass.interfaces
-                .asSequence()
-                .mapNotNull { boundClassFor(it, c.environment) }
-                .forEach { addClassAndInterfacesAt(it, result) }
     }
 
     private fun boundClassFor(type: JavaType, env: TypeEnvironment): BoundClass? =
@@ -252,9 +250,8 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         private val NULLABLE = JavaType.Basic("org.jetbrains.annotations.Nullable")
         private val JSON_IGNORE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonIgnore")
         private val JSON_VALUE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonValue")
-        private val OPTIONAL_NUMBER_TYPES = asList(JavaType.Basic(OptionalInt::class.java), JavaType.Basic(OptionalLong::class.java), JavaType.Basic(OptionalDouble::class.java))
+        private val OPTIONAL_NUMBER_TYPES = listOf(JavaType.basic<OptionalInt>(), JavaType.basic<OptionalLong>(), JavaType.basic<OptionalDouble>())
 
-        private fun isIgnore(ignore: JavaAnnotation) =
-                ignore.getAttribute<Boolean>("value") ?: true
+        private fun JavaAnnotation.isIgnore() = getAttribute<Boolean>("value") ?: true
     }
 }

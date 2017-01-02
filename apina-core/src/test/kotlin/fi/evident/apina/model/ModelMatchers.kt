@@ -8,26 +8,19 @@ import org.hamcrest.TypeSafeMatcher
 
 object ModelMatchers {
 
-    @JvmStatic
-    fun property(name: String, type: ApiType): Matcher<PropertyDefinition> {
-        return object : TypeSafeMatcher<PropertyDefinition>() {
-            override fun matchesSafely(item: PropertyDefinition): Boolean {
-                return name == item.name && type == item.type
-            }
+    fun property(name: String, type: ApiType): Matcher<PropertyDefinition> = object : TypeSafeMatcher<PropertyDefinition>() {
+        override fun matchesSafely(item: PropertyDefinition) =
+                name == item.name && type == item.type
 
-            override fun describeTo(description: Description) {
-                description.appendText("PropertyDefinition{name=")
-                        .appendValue(name)
-                        .appendText(", type=")
-                        .appendValue(type)
-                        .appendText("}")
-            }
+        override fun describeTo(description: Description) {
+            description.appendText("PropertyDefinition{name=")
+                    .appendValue(name)
+                    .appendText(", type=")
+                    .appendValue(type)
+                    .appendText("}")
         }
     }
 
-    @JvmStatic
-    @SafeVarargs
-    fun hasProperties(vararg matchers: Matcher<PropertyDefinition>): Matcher<in Collection<PropertyDefinition>> {
-        return containsInAnyOrder(*matchers)
-    }
+    fun hasProperties(vararg matchers: Matcher<PropertyDefinition>): Matcher<in Collection<PropertyDefinition>> =
+            containsInAnyOrder(*matchers)
 }

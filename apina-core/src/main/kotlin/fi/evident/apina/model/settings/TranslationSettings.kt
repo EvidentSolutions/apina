@@ -14,7 +14,7 @@ class TranslationSettings {
     private val importedTypes = TreeSet<ApiTypeName>()
     var platform = "angular2"
 
-    fun isBlackBoxClass(name: String) = blackBoxClasses.test(name)
+    fun isBlackBoxClass(name: String) = name in blackBoxClasses
 
     fun addImport(moduleName: String, types: Collection<String>) {
         val importDefinition = importsByModule[moduleName] ?: run {

@@ -12,7 +12,6 @@ import fi.evident.apina.model.parameters.EndpointRequestBodyParameter
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
-import fi.evident.apina.spring.NameTranslator.translateEndpointGroupName
 
 /**
  * Builds [ApiDefinition] by reading the classes of a Spring Web MVC application.

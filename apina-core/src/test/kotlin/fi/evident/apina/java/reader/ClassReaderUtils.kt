@@ -4,22 +4,12 @@ import fi.evident.apina.java.model.JavaClass
 import java.io.FileNotFoundException
 import java.io.InputStream
 
-object ClassReaderUtils {
+fun loadClass(cl: Class<*>): JavaClass =
+    openInputStreamForClassBytes(cl).use { ClassMetadataReader.loadMetadata(it) }
 
-    @JvmStatic
-    fun loadClass(cl: Class<*>): JavaClass =
-        openInputStreamForClassBytes(cl).use { ClassMetadataReader.loadMetadata(it) }
+private fun openInputStreamForClassBytes(cl: Class<*>): InputStream {
+    val resourceName = cl.name.replace('.', '/') + ".class"
+    val classLoader = cl.classLoader ?: ClassLoader.getSystemClassLoader()
 
-    private fun openInputStreamForClassBytes(cl: Class<*>): InputStream {
-        val resourceName = cl.name.replace('.', '/') + ".class"
-        var classLoader: ClassLoader? = cl.classLoader
-        if (classLoader == null)
-            classLoader = ClassLoader.getSystemClassLoader()
-
-        val inputStream = classLoader!!.getResourceAsStream(resourceName)
-        if (inputStream != null)
-            return inputStream
-        else
-            throw FileNotFoundException(resourceName)
-    }
+    return classLoader.getResourceAsStream(resourceName) ?: throw FileNotFoundException(resourceName)
 }

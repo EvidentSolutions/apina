@@ -1,14 +1,13 @@
 package fi.evident.apina.utils
 
-import java.io.*
+import java.io.FileNotFoundException
+import java.io.InputStream
 import java.nio.charset.Charset
 
 object ResourceUtils {
 
-    @Throws(IOException::class)
-    @JvmStatic
     fun readResourceAsString(path: String, charset: Charset): String {
-        openResourceAsReader(path, charset).use { reader ->
+        openResourceAsStream(path).reader(charset).use { reader ->
             val sb = StringBuilder()
             val buffer = CharArray(1024)
 
@@ -23,18 +22,7 @@ object ResourceUtils {
         }
     }
 
-    @Throws(FileNotFoundException::class)
-    fun openResourceAsReader(path: String, charset: Charset): Reader {
-        return InputStreamReader(openResourceAsStream(path), charset)
-    }
-
-    @Throws(FileNotFoundException::class)
-    fun openResourceAsStream(path: String): InputStream {
-        val classLoader = ResourceUtils::class.java.classLoader
-        val `in` = classLoader.getResourceAsStream(path)
-        if (`in` != null)
-            return `in`
-        else
-            throw FileNotFoundException("could not find classpath resource: " + path)
-    }
+    fun openResourceAsStream(path: String): InputStream =
+            ResourceUtils::class.java.classLoader.getResourceAsStream(path)
+                    ?: throw FileNotFoundException("could not find classpath resource: $path")
 }

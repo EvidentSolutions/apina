@@ -1,7 +1,5 @@
 package fi.evident.apina.spring
 
-import fi.evident.apina.spring.NameTranslator.translateClassName
-import fi.evident.apina.spring.NameTranslator.translateEndpointGroupName
 import org.junit.Test
 import kotlin.test.assertEquals
 

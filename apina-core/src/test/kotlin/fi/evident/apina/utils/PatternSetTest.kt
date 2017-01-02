@@ -10,18 +10,18 @@ class PatternSetTest {
 
     @Test
     fun emptySetMatchesNothing() {
-        assertFalse(set.test(""))
-        assertFalse(set.test("foo"))
+        assertFalse("" in set)
+        assertFalse("foo" in set)
     }
 
     @Test
     fun setWithSinglePatternMatchesIfPatternMatches() {
         set.addPattern("foo.*")
 
-        assertFalse(set.test(""))
-        assertFalse(set.test("bar"))
-        assertTrue(set.test("foo"))
-        assertTrue(set.test("foobar"))
+        assertFalse("" in set)
+        assertFalse("bar" in set)
+        assertTrue("foo" in set)
+        assertTrue("foobar" in set)
     }
 
     @Test
@@ -30,13 +30,13 @@ class PatternSetTest {
         set.addPattern("bar.*")
         set.addPattern("baz.*")
 
-        assertFalse(set.test(""))
+        assertFalse("" in set)
 
-        assertTrue(set.test("foo"))
-        assertTrue(set.test("bar"))
-        assertTrue(set.test("baz"))
-        assertTrue(set.test("baz-quux"))
+        assertTrue("foo" in set)
+        assertTrue("bar" in set)
+        assertTrue("baz" in set)
+        assertTrue("baz-quux" in set)
 
-        assertFalse(set.test("quux"))
+        assertFalse("quux" in set)
     }
 }
