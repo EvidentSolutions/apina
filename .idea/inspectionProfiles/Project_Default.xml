@@ -27,6 +27,15 @@
     <inspection_tool class="ReservedWordUsedAsNameJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="SimplifiableIfStatement" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="StringConcatenationArgumentToLogCall" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="TypeScriptCheckImport" enabled="true" level="ERROR" enabled_by_default="true">
+      <scope name="Documentation" level="ERROR" enabled="false" />
+    </inspection_tool>
+    <inspection_tool class="TypeScriptUnresolvedFunction" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <scope name="Documentation" level="WEAK WARNING" enabled="false" />
+    </inspection_tool>
+    <inspection_tool class="TypeScriptUnresolvedVariable" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <scope name="Documentation" level="WEAK WARNING" enabled="false" />
+    </inspection_tool>
     <inspection_tool class="WeakerAccess" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="SUGGEST_PACKAGE_LOCAL_FOR_MEMBERS" value="false" />
       <option name="SUGGEST_PACKAGE_LOCAL_FOR_TOP_CLASSES" value="true" />

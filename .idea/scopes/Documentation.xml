@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Documentation" pattern="file[apina]:README.md||file[apina]:CHANGELOG.md||file[apina]:LICENSE" />
+</component>
