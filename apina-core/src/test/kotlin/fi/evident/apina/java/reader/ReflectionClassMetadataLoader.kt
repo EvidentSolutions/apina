@@ -4,30 +4,27 @@ import fi.evident.apina.java.model.JavaModel
 
 import fi.evident.apina.java.reader.ClassReaderUtils.loadClass
 
-object ReflectionClassMetadataLoader {
+inline fun <reified T : Any> JavaModel.loadClassesFromInheritanceTree() {
+    loadClassesFromInheritanceTree(T::class.java)
+}
 
-    @JvmStatic
-    fun loadClassesFromInheritanceTree(clazz: Class<*>): JavaModel {
-        val result = JavaModel()
-
-        var cl: Class<*>? = clazz
-        while (cl != null && cl != Any::class.java) {
-            loadClassesAt(result, cl)
-            cl = cl.superclass
-        }
-
-        return result
-    }
-
-    private fun loadClassesAt(result: JavaModel, cl: Class<*>) {
-        if (!result.containsClass(cl.name)) {
-            result.addClass(loadClass(cl))
-
-            for (annotation in cl.declaredAnnotations)
-                loadClassesAt(result, annotation.annotationClass.java)
-
-            for (interfaceClass in cl.interfaces)
-                loadClassesAt(result, interfaceClass)
-        }
+fun JavaModel.loadClassesFromInheritanceTree(clazz: Class<*>) {
+    var cl: Class<*>? = clazz
+    while (cl != null && cl != Any::class.java) {
+        loadClassesAt(cl)
+        cl = cl.superclass
     }
 }
+
+private fun JavaModel.loadClassesAt(cl: Class<*>) {
+    if (!containsClass(cl.name)) {
+        addClass(loadClass(cl))
+
+        for (annotation in cl.declaredAnnotations)
+            loadClassesAt(annotation.annotationClass.java)
+
+        for (interfaceClass in cl.interfaces)
+            loadClassesAt(interfaceClass)
+    }
+}
+

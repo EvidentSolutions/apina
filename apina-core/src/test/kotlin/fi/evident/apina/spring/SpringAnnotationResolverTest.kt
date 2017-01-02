@@ -5,7 +5,7 @@ import fi.evident.apina.java.model.JavaAnnotation
 import fi.evident.apina.java.model.JavaMethod
 import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.JavaType
-import fi.evident.apina.java.reader.ReflectionClassMetadataLoader.loadClassesFromInheritanceTree
+import fi.evident.apina.java.reader.loadClassesFromInheritanceTree
 import org.junit.Ignore
 import org.junit.Test
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,10 +17,12 @@ import kotlin.test.assertTrue
 
 class SpringAnnotationResolverTest {
 
+    private val model = JavaModel()
+    private val resolver = SpringAnnotationResolver(model)
+
     @Test
     fun impliedAnnotations() {
-        val model = loadClassesFromInheritanceTree(MyClass::class.java)
-        val resolver = SpringAnnotationResolver(model)
+        model.loadClassesFromInheritanceTree<MyClass>()
 
         val implied = resolver.findImpliedAnnotations(JavaAnnotation(JavaType.basic<MyAnnotation>()))
         assertTrue(implied.any { it.name == JavaType.basic<MyAnnotation>() })
@@ -30,8 +32,7 @@ class SpringAnnotationResolverTest {
 
     @Test
     fun findAnnotation() {
-        val model = loadClassesFromInheritanceTree(MyClass::class.java)
-        val resolver = SpringAnnotationResolver(model)
+        model.loadClassesFromInheritanceTree<MyClass>()
 
         val clazz = model.findClass(JavaType.basic<MyClass>())!!
 
@@ -42,8 +43,7 @@ class SpringAnnotationResolverTest {
 
     @Test
     fun metaAnnotations() {
-        val model = loadClassesFromInheritanceTree(MyController::class.java)
-        val resolver = SpringAnnotationResolver(model)
+        model.loadClassesFromInheritanceTree<MyController>()
         val controller = model.findClass(JavaType.basic<MyController>())!!
 
         assertTrue(resolver.hasAnnotation(controller, JavaType.basic<RestController>()))
@@ -57,8 +57,7 @@ class SpringAnnotationResolverTest {
     @Test
     @Ignore("Implicit aliases are not supported yet")
     fun resolveImplicitAliases() {
-        val model = loadClassesFromInheritanceTree(MyController::class.java)
-        val resolver = SpringAnnotationResolver(model)
+        model.loadClassesFromInheritanceTree<MyController>()
 
         val fooAnnotation = resolver.getAnnotation<GetMapping>(model.getMethod<MyController>("foo"))
         val barAnnotation = resolver.getAnnotation<GetMapping>(model.getMethod<MyController>("bar"))

@@ -5,7 +5,7 @@ import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.model.type.TypeSchema
-import fi.evident.apina.java.reader.ReflectionClassMetadataLoader.loadClassesFromInheritanceTree
+import fi.evident.apina.java.reader.loadClassesFromInheritanceTree
 import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.ClassDefinition
 import fi.evident.apina.model.EnumDefinition
@@ -27,7 +27,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun translatingClassWithFieldProperties() {
-        val classDefinition = translateClass(ClassWithFieldProperties::class.java)
+        val classDefinition = translateClass<ClassWithFieldProperties>()
 
         assertThat(classDefinition.type, `is`(ApiTypeName(ClassWithFieldProperties::class.java.simpleName)))
         assertThat(classDefinition.properties, hasProperties(
@@ -46,7 +46,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun translatingClassWithGetterProperties() {
-        val classDefinition = translateClass(ClassWithGetters::class.java)
+        val classDefinition = translateClass<ClassWithGetters>()
 
         assertThat(classDefinition.type, `is`(ApiTypeName(ClassWithGetters::class.java.simpleName)))
         assertThat(classDefinition.properties, hasProperties(
@@ -59,7 +59,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun translatingClassWithOverlappingFieldAndGetter() {
-        val classDefinition = translateClass(TypeWithOverlappingFieldAndGetter::class.java)
+        val classDefinition = translateClass<TypeWithOverlappingFieldAndGetter>()
 
         assertThat(classDefinition.properties, hasProperties(
                 property("foo", ApiType.Primitive.STRING)))
@@ -79,7 +79,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun translatingOptionalTypes() {
-        val classDefinition = translateClass(ClassWithOptionalTypes::class.java)
+        val classDefinition = translateClass<ClassWithOptionalTypes>()
 
         assertThat(classDefinition.type, `is`(ApiTypeName(ClassWithOptionalTypes::class.java.simpleName)))
         assertThat(classDefinition.properties, hasProperties(
@@ -113,7 +113,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun classHierarchyWithIgnores() {
-        val classDefinition = translateClass(TypeWithIgnoresAndSuperClass::class.java)
+        val classDefinition = translateClass<TypeWithIgnoresAndSuperClass>()
 
         assertThat(classDefinition.properties, hasProperties(
                 property("bar", ApiType.Primitive.STRING),
@@ -122,7 +122,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun ignoresOverriddenInSubClasses() {
-        val classDefinition = translateClass(TypeWithOverridingIgnore::class.java)
+        val classDefinition = translateClass<TypeWithOverridingIgnore>()
 
         assertThat(classDefinition.properties, hasProperties(
                 property("foo", ApiType.Primitive.STRING)))
@@ -130,7 +130,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun interfaceWithProperties() {
-        val classDefinition = translateClass(TypeWithPropertiesFromInterface::class.java)
+        val classDefinition = translateClass<TypeWithPropertiesFromInterface>()
 
         assertThat(classDefinition.properties, hasProperties(
                 property("foo", ApiType.Primitive.STRING),
@@ -146,7 +146,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun genericTypeWithoutKnownParameters() {
-        val classDefinition = translateClass(GenericType::class.java)
+        val classDefinition = translateClass<GenericType<*>>()
 
         assertThat(classDefinition.properties, hasProperties(
                 property("genericField", ApiType.Primitive.ANY)))
@@ -154,7 +154,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun genericTypeInheritedByFixingParameters() {
-        val classDefinition = translateClass(SubTypeOfGenericType::class.java)
+        val classDefinition = translateClass<SubTypeOfGenericType>()
 
         assertThat(classDefinition.properties, hasProperties(
                 property("genericField", ApiType.Primitive.STRING)))
@@ -162,7 +162,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun genericTypeInheritedThroughMiddleType() {
-        val classDefinition = translateClass(SecondOrderSubTypeOfGenericType::class.java)
+        val classDefinition = translateClass<SecondOrderSubTypeOfGenericType>()
 
         assertThat(classDefinition.properties, hasProperties(
                 property("genericField", ApiType.Primitive.STRING)))
@@ -170,7 +170,7 @@ class JacksonTypeTranslatorTest {
 
     @Test
     fun genericTypeInheritedThroughMiddleTypeThatParameterizesWithVariable() {
-        val classDefinition = translateClass(SubTypeOfGenericTypeParameterizedWithVariable::class.java)
+        val classDefinition = translateClass<SubTypeOfGenericTypeParameterizedWithVariable>()
 
         assertThat(classDefinition.properties, hasProperties(
                 property("genericField", ApiType.Array(ApiType.Primitive.STRING))))
@@ -184,9 +184,9 @@ class JacksonTypeTranslatorTest {
         return translator.translateType(type, MockAnnotatedElement(), TypeEnvironment.empty()) // TODO: create environment from type
     }
 
-    private fun translateClass(cl: Class<*>): ClassDefinition {
+    private inline fun <reified T : Any> translateClass(): ClassDefinition {
         val api = ApiDefinition()
-        val apiType = translateClass(cl, api)
+        val apiType = translateClass(T::class.java, api)
 
         return api.classDefinitions.find { d -> apiType.typeRepresentation().startsWith(d.type.toString()) }
             ?: throw AssertionError("could not find definition for $apiType")
@@ -201,8 +201,9 @@ class JacksonTypeTranslatorTest {
     }
 
     private fun translateClass(cl: Class<*>, api: ApiDefinition): ApiType {
-        val classes = loadClassesFromInheritanceTree(cl)
-        val translator = JacksonTypeTranslator(settings, classes, api)
+        val model = JavaModel()
+        model.loadClassesFromInheritanceTree(cl)
+        val translator = JacksonTypeTranslator(settings, model, api)
 
         return translator.translateType(JavaType.Basic(cl), MockAnnotatedElement(), TypeEnvironment.empty())
     }
