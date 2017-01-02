@@ -14,14 +14,7 @@
             <option value="$PROJECT_DIR$/apina-gradle" />
           </set>
         </option>
-        <option name="myModules">
-          <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/apina-cli" />
-            <option value="$PROJECT_DIR$/apina-core" />
-            <option value="$PROJECT_DIR$/apina-gradle" />
-          </set>
-        </option>
+        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>
