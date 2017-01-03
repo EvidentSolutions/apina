@@ -29,7 +29,7 @@ private fun Path.processAllClasses(processor: (InputStream) -> Unit) {
         Files.isDirectory(this) ->
             forEachClassUnderDirectory(processor)
 
-        isRegularFile(this) && hasExtension(".jar") ->
+        isRegularFile(this) && hasExtension(".jar", ".war") ->
             forEachClassInArchive(processor)
 
         Files.notExists(this) ->
@@ -41,14 +41,22 @@ private fun Path.processAllClasses(processor: (InputStream) -> Unit) {
 }
 
 private fun Path.forEachClassInArchive(processor: (InputStream) -> Unit) {
-    JarInputStream(SkipZipPrefixStream(Files.newInputStream(this))).use { jar ->
-        while (true) {
-            val entry = jar.nextEntry ?: break
+    Files.newInputStream(this).use { stream ->
+        stream.forEachClassInArchive(processor)
+    }
+}
 
-            if (entry.name.endsWith(".class")) {
-                log.trace("Processing class-file {} from {}", entry.name, this)
-                processor(jar)
-            }
+private fun InputStream.forEachClassInArchive(processor: (InputStream) -> Unit) {
+    val jar = JarInputStream(SkipZipPrefixStream(this))
+    while (true) {
+        val entry = jar.nextEntry ?: break
+
+        if (entry.name.endsWith(".class")) {
+            log.trace("Processing class-file {} from {}", entry.name, this)
+            processor(jar)
+        } else if ((entry.name.startsWith("lib/") || entry.name.startsWith("WEB-INF/lib/")) && entry.name.endsWith(".jar")) {
+            log.trace("Processing nested library {}", entry.name)
+            jar.forEachClassInArchive(processor)
         }
     }
 }
