@@ -4,7 +4,7 @@ import fi.evident.apina.java.model.*
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.reader.Classpath
-import fi.evident.apina.java.reader.JavaModelLoader
+import fi.evident.apina.java.reader.loadModel
 import fi.evident.apina.model.*
 import fi.evident.apina.model.parameters.EndpointParameter
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter
@@ -111,7 +111,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         private val PATH_VARIABLE = JavaType.Basic("org.springframework.web.bind.annotation.PathVariable")
 
         fun readApiDefinition(classpath: Classpath, settings: TranslationSettings): ApiDefinition {
-            val reader = SpringModelReader(JavaModelLoader.load(classpath), settings)
+            val reader = SpringModelReader(classpath.loadModel(), settings)
 
             reader.createEndpointsForControllers()
 
