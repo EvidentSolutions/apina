@@ -1,5 +1,6 @@
 package fi.evident.apina.java.reader
 
+import fi.evident.apina.utils.SkipZipPrefixStream
 import org.slf4j.LoggerFactory
 import java.io.BufferedInputStream
 import java.io.IOException
@@ -10,6 +11,7 @@ import java.nio.file.Path
 import java.util.jar.JarInputStream
 
 private object ClassPathScanner
+
 private val log = LoggerFactory.getLogger(ClassPathScanner::class.java)
 
 /**
@@ -28,7 +30,7 @@ private fun Path.processAllClasses(processor: (InputStream) -> Unit) {
             forEachClassUnderDirectory(processor)
 
         isRegularFile(this) && hasExtension(".jar") ->
-            this.forEachClassInArchive(processor)
+            forEachClassInArchive(processor)
 
         Files.notExists(this) ->
             log.warn("Skipping nonexistent classpath entry: {}", this)
@@ -39,7 +41,7 @@ private fun Path.processAllClasses(processor: (InputStream) -> Unit) {
 }
 
 private fun Path.forEachClassInArchive(processor: (InputStream) -> Unit) {
-    JarInputStream(Files.newInputStream(this)).use { jar ->
+    JarInputStream(SkipZipPrefixStream(Files.newInputStream(this))).use { jar ->
         while (true) {
             val entry = jar.nextEntry ?: break
 
@@ -63,5 +65,5 @@ private fun Path.forEachClassUnderDirectory(processor: (InputStream) -> Unit) {
 
 private fun Path.hasExtension(vararg extensions: String): Boolean {
     val str = toString()
-    return extensions.any { str.endsWith(it ) }
+    return extensions.any { str.endsWith(it) }
 }
