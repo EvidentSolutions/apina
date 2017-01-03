@@ -4,7 +4,7 @@ import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.Endpoint
 import fi.evident.apina.model.EndpointGroup
 import fi.evident.apina.model.settings.TranslationSettings
-import fi.evident.apina.utils.ResourceUtils.readResourceAsString
+import fi.evident.apina.utils.readResourceAsString
 import java.io.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 

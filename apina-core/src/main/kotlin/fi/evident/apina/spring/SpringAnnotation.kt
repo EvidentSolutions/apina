@@ -62,7 +62,7 @@ class SpringAnnotation(
         if (clazz != null) {
             return clazz.methods
                     .asSequence()
-                    .filter { it.hasAnnotation(AliasFor.TYPE) }
+                    .filter { it.hasAnnotation(SpringTypes.ALIAS_FOR) }
                     .map { AliasFor(annotationType, it.name, it.findAliasTargets()) }
                     .toList()
 
@@ -75,7 +75,7 @@ class SpringAnnotation(
         val result = mutableSetOf<Pair<JavaType.Basic, String>>()
 
         fun recurse(attribute: JavaMethod) {
-            val aliasFor = attribute.findAnnotation(AliasFor.TYPE)
+            val aliasFor = attribute.findAnnotation(SpringTypes.ALIAS_FOR)
             if (aliasFor != null) {
                 val targetType = aliasFor.getAttribute<JavaType.Basic>("annotation") ?: attribute.owningClass.type.toBasicType()
                 val targetAttribute = aliasFor.getAttribute<String>("attribute") ?: aliasFor.getAttribute<String>("value") ?: attribute.name
@@ -83,7 +83,7 @@ class SpringAnnotation(
                 if (result.add(targetType to targetAttribute)) {
                     val clazz = javaModel.findClass(targetType)
                     if (clazz != null) {
-                        val target = clazz.methods.find { it.name == targetAttribute && it.hasAnnotation(AliasFor.TYPE)}
+                        val target = clazz.methods.find { it.name == targetAttribute && it.hasAnnotation(SpringTypes.ALIAS_FOR)}
                         if (target != null)
                             recurse(target)
                     }

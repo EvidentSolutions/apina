@@ -1,7 +1,6 @@
 package fi.evident.apina.spring
 
 import fi.evident.apina.java.model.*
-import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.reader.Classpath
 import fi.evident.apina.java.reader.loadModel
@@ -12,6 +11,11 @@ import fi.evident.apina.model.parameters.EndpointRequestBodyParameter
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
+import fi.evident.apina.spring.SpringTypes.PATH_VARIABLE
+import fi.evident.apina.spring.SpringTypes.REQUEST_BODY
+import fi.evident.apina.spring.SpringTypes.REQUEST_MAPPING
+import fi.evident.apina.spring.SpringTypes.REQUEST_PARAM
+import fi.evident.apina.spring.SpringTypes.REST_CONTROLLER
 
 /**
  * Builds [ApiDefinition] by reading the classes of a Spring Web MVC application.
@@ -103,12 +107,6 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
                     ?.let { HTTPMethod.valueOf(it.constant) }
 
     companion object {
-
-        private val REST_CONTROLLER = JavaType.Basic("org.springframework.web.bind.annotation.RestController")
-        private val REQUEST_MAPPING = JavaType.Basic("org.springframework.web.bind.annotation.RequestMapping")
-        private val REQUEST_BODY = JavaType.Basic("org.springframework.web.bind.annotation.RequestBody")
-        private val REQUEST_PARAM = JavaType.Basic("org.springframework.web.bind.annotation.RequestParam")
-        private val PATH_VARIABLE = JavaType.Basic("org.springframework.web.bind.annotation.PathVariable")
 
         fun readApiDefinition(classpath: Classpath, settings: TranslationSettings): ApiDefinition {
             val reader = SpringModelReader(classpath.loadModel(), settings)

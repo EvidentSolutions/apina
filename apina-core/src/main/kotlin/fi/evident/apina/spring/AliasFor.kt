@@ -16,8 +16,4 @@ data class AliasFor(val sourceAnnotation: JavaType.Basic,
             (annotation == sourceAnnotation && attribute == sourceAttribute) || (annotation to attribute) in targets
 
     override fun toString() = "$sourceAnnotation.$sourceAttribute: $targets"
-
-    companion object {
-        val TYPE = JavaType.Basic("org.springframework.core.annotation.AliasFor")
-    }
 }
