@@ -6,7 +6,6 @@ import fi.evident.apina.spring.EndpointParameterNameNotDefinedException
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -39,7 +38,8 @@ object Apina {
                 val outputFile = Paths.get(arguments.files[1])
 
                 log.debug("Writing API to '{}'", outputFile)
-                Files.write(outputFile, output.toByteArray(StandardCharsets.UTF_8))
+                Files.createDirectories(outputFile.parent)
+                Files.write(outputFile, output.toByteArray())
             } else {
                 println(output)
             }
@@ -52,6 +52,5 @@ object Apina {
             System.err.println(e.message)
             System.exit(2)
         }
-
     }
 }
