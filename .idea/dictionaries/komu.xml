@@ -2,11 +2,20 @@
   <dictionary name="komu">
     <words>
       <w>apina</w>
+      <w>classreading</w>
+      <w>defs</w>
+      <w>lfoo</w>
+      <w>ljava</w>
+      <w>matchers</w>
       <w>metadatas</w>
       <w>mvc's</w>
+      <w>nquux</w>
+      <w>parameterized</w>
       <w>parameterizes</w>
+      <w>quux</w>
       <w>rxjs</w>
       <w>tsang</w>
+      <w>tslint</w>
     </words>
   </dictionary>
 </component>
