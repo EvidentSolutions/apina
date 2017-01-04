@@ -21,6 +21,7 @@ import java.util.Map;
 import static java.util.Objects.requireNonNull;
 import static org.gradle.util.GFileUtils.writeFile;
 
+@SuppressWarnings("unused")
 public class ApinaTask extends DefaultTask {
 
     private File target;
