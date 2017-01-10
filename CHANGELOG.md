@@ -1,3 +1,9 @@
+## 0.6.5 (2017-01-10)
+
+### Fixes
+
+- Fix issue with loading resources
+
 ## 0.6.4 (2017-01-10)
 
 ### Improvements
