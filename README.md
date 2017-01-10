@@ -11,7 +11,7 @@ Include something like the following in your web application project:
 
 ```groovy
 plugins {
-    id "fi.evident.apina" version "0.6.3"
+    id "fi.evident.apina" version "0.6.4"
 }
 
 compileJava { 

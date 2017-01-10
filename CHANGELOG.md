@@ -1,9 +1,10 @@
-## Unreleased
+## 0.6.4 (2017-01-10)
 
 ### Improvements
 
 - Support reading nested libraries from JAR/WAR-archives.
 - Support serialization of maps with wildcard parameters.
+- Print warning instead of failing if there are invalid classpath entries.
 
 ## 0.6.3 (2017-01-02)
 
