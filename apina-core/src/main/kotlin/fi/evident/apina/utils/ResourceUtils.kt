@@ -21,6 +21,6 @@ fun readResourceAsString(path: String, charset: Charset): String {
 }
 
 fun openResourceAsStream(path: String): InputStream =
-        object {}.javaClass.getResourceAsStream(path)
+        object {}.javaClass.classLoader.getResourceAsStream(path)
                 ?: throw FileNotFoundException("could not find classpath resource: $path")
 
