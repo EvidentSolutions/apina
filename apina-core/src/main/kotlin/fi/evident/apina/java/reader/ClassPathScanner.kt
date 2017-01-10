@@ -3,7 +3,6 @@ package fi.evident.apina.java.reader
 import fi.evident.apina.utils.SkipZipPrefixStream
 import org.slf4j.LoggerFactory
 import java.io.BufferedInputStream
-import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Files.isRegularFile
@@ -36,7 +35,7 @@ private fun Path.processAllClasses(processor: (InputStream) -> Unit) {
             log.warn("Skipping nonexistent classpath entry: {}", this)
 
         else ->
-            throw IOException("invalid classpath entry: $this")
+            log.warn("Unknown classpath entry: $this")
     }
 }
 
