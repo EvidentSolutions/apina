@@ -9,8 +9,6 @@ dependencies {
     compile "org.jetbrains:annotations:13.0"
     compile "org.ow2.asm:asm:5.0.4"
 
-    testCompile "junit:junit:4.12"
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     testCompile "com.fasterxml.jackson.core:jackson-annotations:2.6.1"
     testCompile "org.springframework:spring-web:4.3.5.RELEASE"
 }

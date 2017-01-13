@@ -6,7 +6,6 @@ plugins {
 dependencies {
     compile project(':apina-core')
     compile "ch.qos.logback:logback-classic:1.1.3"
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
 }
 
 mainClassName = 'fi.evident.apina.cli.Apina'
