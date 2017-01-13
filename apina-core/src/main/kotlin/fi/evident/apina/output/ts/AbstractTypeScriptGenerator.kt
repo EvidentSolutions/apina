@@ -2,9 +2,11 @@ package fi.evident.apina.output.ts
 
 import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.Endpoint
+import fi.evident.apina.model.EnumDefinition
 import fi.evident.apina.model.parameters.EndpointParameter
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter
+import fi.evident.apina.model.settings.EnumMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
@@ -29,7 +31,7 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
         out.writeLine()
 
         for (enumDefinition in api.enumDefinitions)
-            out.writeLine(format("export enum %s { %s }", enumDefinition.type, enumDefinition.constants.joinToString(", ")))
+            writeEnum(enumDefinition)
 
         out.writeLine()
 
@@ -41,6 +43,15 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
         }
 
         writeSerializerDefinitions()
+    }
+
+    private fun writeEnum(enumDefinition: EnumDefinition) {
+        when (settings.enumMode) {
+            EnumMode.STRING ->
+                out.writeLine(format("export type %s = %s;", enumDefinition.type, enumDefinition.constants.joinToString(" | ") { "\"$it\"" }))
+            EnumMode.ENUM ->
+                out.writeLine(format("export enum %s { %s }", enumDefinition.type, enumDefinition.constants.joinToString(", ")))
+        }
     }
 
     private fun qualifiedTypeName(type: ApiType): String = when {
@@ -57,9 +68,7 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
             out.writeLine()
 
             for (enumDefinition in api.enumDefinitions) {
-                val enumName = enumDefinition.type.toString()
-                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ")
-                out.write(enumName).writeLine(");")
+                writeEnumSerializer(enumDefinition)
             }
             out.writeLine()
 
@@ -76,6 +85,18 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
         }
 
         out.writeLine().writeLine()
+    }
+
+    private fun writeEnumSerializer(enumDefinition: EnumDefinition) {
+        val enumName = enumDefinition.type.toString()
+        when (settings.enumMode) {
+            EnumMode.ENUM -> {
+                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ")
+                out.write(enumName).writeLine(");")
+            }
+            EnumMode.STRING ->
+                out.write("config.registerIdentitySerializer(").writeValue(enumName).writeLine(");")
+        }
     }
 
     protected fun endpointSignature(endpoint: Endpoint): String {

@@ -5,7 +5,6 @@ import fi.evident.apina.model.Endpoint
 import fi.evident.apina.model.EndpointGroup
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.utils.readResourceAsString
-import java.io.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 
 /**
@@ -13,7 +12,6 @@ import java.nio.charset.StandardCharsets.UTF_8
  */
 class TypeScriptAngular1Generator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(api, settings, "Types.", "Support.", "Support.IPromise") {
 
-    @Throws(IOException::class)
     fun writeApi() {
         writeHeader()
         writeImports()
@@ -55,7 +53,6 @@ class TypeScriptAngular1Generator(api: ApiDefinition, settings: TranslationSetti
     val output: String
         get() = out.output
 
-    @Throws(IOException::class)
     private fun writeRuntime() {
         out.write(readResourceAsString("typescript/runtime-angular1.ts", UTF_8))
         out.writeLine()

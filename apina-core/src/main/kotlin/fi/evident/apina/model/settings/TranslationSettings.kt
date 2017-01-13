@@ -12,7 +12,8 @@ class TranslationSettings {
     val blackBoxClasses = PatternSet()
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
-    var platform = "angular2"
+    var platform = Platform.ANGULAR2
+    var enumMode = EnumMode.ENUM
 
     fun isBlackBoxClass(name: String) = name in blackBoxClasses
 

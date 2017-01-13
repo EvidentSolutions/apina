@@ -1,3 +1,10 @@
+## Unreleased
+
+### Improvements
+
+- Support for using string union types (`type MyEnum = "FOO" | "BAR" | "BAZ"`) instead of `enum`-types
+  for representing enums in TypeScript.
+
 ## 0.6.5 (2017-01-10)
 
 ### Fixes

@@ -30,6 +30,7 @@ class ApinaIntegrationTest {
             apina {
                 target = file('apina-output.ts')
                 imports = ['./apina-types': ['Foo', 'Bar']]
+                enumMode = "string"
             }
 
             dependencies {
@@ -57,7 +58,7 @@ class ApinaIntegrationTest {
                 }
 
                 public static class RequestType {
-                    public String str;
+                    public MyEnum myEnum;
                 }
 
                 public static class ResponseType {
@@ -67,6 +68,8 @@ class ApinaIntegrationTest {
                 public static class NestedType {
                     public int x;
                 }
+
+                public enum MyEnum { FOO, BAR }
             }
         """.trimIndent())
 
@@ -85,9 +88,11 @@ class ApinaIntegrationTest {
         assertTrue("export class RequestType {" in output, "output has RequestType")
         assertTrue("export class ResponseType {" in output, "output has ResponseType")
         assertTrue("export class NestedType {" in output, "output has NestedType")
+        assertTrue("export type MyEnum = \"FOO\" | \"BAR\";" in output, "output has MyEnum")
 
         assertTrue("config.registerClassSerializer('RequestType', {" in output, "output has serializer for RequestType")
         assertTrue("config.registerClassSerializer('ResponseType', {" in output, "output has serializer for ResponseType")
         assertTrue("config.registerClassSerializer('NestedType', {" in output, "output has serializer for Nested")
+        assertTrue("config.registerIdentitySerializer('MyEnum')" in output, "MyEnum has identity serializer")
     }
 }

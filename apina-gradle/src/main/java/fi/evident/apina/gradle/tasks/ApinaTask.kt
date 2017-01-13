@@ -2,6 +2,8 @@ package fi.evident.apina.gradle.tasks
 
 import fi.evident.apina.ApinaProcessor
 import fi.evident.apina.java.reader.Classpath
+import fi.evident.apina.model.settings.EnumMode
+import fi.evident.apina.model.settings.Platform
 import fi.evident.apina.spring.EndpointParameterNameNotDefinedException
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
@@ -29,7 +31,10 @@ open class ApinaTask : DefaultTask() {
     var imports: Map<String, List<String>> = HashMap()
 
     @get:Input
-    var platform: String? = "angular2"
+    var platform = Platform.ANGULAR2
+
+    @get:Input
+    var enumMode = EnumMode.ENUM
 
     @TaskAction
     fun generateTypeScript() {
@@ -40,8 +45,8 @@ open class ApinaTask : DefaultTask() {
 
             val processor = ApinaProcessor(myClasspath)
 
-            if (platform != null)
-                processor.settings.platform = platform!!
+            processor.settings.enumMode = enumMode
+            processor.settings.platform = platform
 
             for (pattern in blackBoxClasses)
                 processor.settings.blackBoxClasses.addPattern(pattern)
