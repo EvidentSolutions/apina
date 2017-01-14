@@ -1,15 +1,15 @@
 plugins {
     id 'maven-publish'
-    id "com.jfrog.bintray" version "1.2"
+    id "com.jfrog.bintray" version "1.7.3"
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     compile "org.slf4j:slf4j-api:$slf4jVersion"
     compile "org.jetbrains:annotations:13.0"
-    compile "org.ow2.asm:asm:5.0.4"
+    compile "org.ow2.asm:asm:5.2"
 
-    testCompile "com.fasterxml.jackson.core:jackson-annotations:2.6.1"
+    testCompile "com.fasterxml.jackson.core:jackson-annotations:2.8.6"
     testCompile "org.springframework:spring-web:4.3.5.RELEASE"
 }
 
