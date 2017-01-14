@@ -24,7 +24,7 @@ export namespace Support {
         deserialize(o: any): any;
     }
 
-    var identitySerializer: ISerializer = {
+    const identitySerializer: ISerializer = {
         serialize(o) {
             return o;
         },
@@ -96,12 +96,12 @@ export namespace Support {
                     return obj;
                 }
 
-                var result: any = {};
+                const result: any = {};
 
-                for (var name in fields) {
+                for (const name in fields) {
                     if (fields.hasOwnProperty(name)) {
-                        var value: any = obj[name];
-                        var type: string = fields[name];
+                        const value: any = obj[name];
+                        const type: string = fields[name];
                         result[name] = propertyMapper(value, type);
                     }
                 }
@@ -109,8 +109,8 @@ export namespace Support {
                 return result;
             }
 
-            var serialize = this.serialize.bind(this);
-            var deserialize = this.deserialize.bind(this);
+            const serialize = this.serialize.bind(this);
+            const deserialize = this.deserialize.bind(this);
             return {
                 serialize(obj) {
                     return mapProperties(obj, serialize);
@@ -125,11 +125,11 @@ export namespace Support {
             if (!type) throw new Error("no type given");
 
             if (type.indexOf('[]', type.length - 2) !== -1) { // type.endsWith('[]')
-                var elementType = type.substring(0, type.length - 2);
-                var elementSerializer = this.lookupSerializer(elementType);
+                const elementType = type.substring(0, type.length - 2);
+                const elementSerializer = this.lookupSerializer(elementType);
                 return arraySerializer(elementSerializer);
             }
-            var serializer = this.serializers[type];
+            const serializer = this.serializers[type];
             if (serializer) {
                 return serializer;
             } else {
@@ -144,9 +144,9 @@ export namespace Support {
         }
 
         request(data: IRequestData): IPromise<any> {
-            var url = this.buildUrl(data.uriTemplate, data.pathVariables);
+            const url = this.buildUrl(data.uriTemplate, data.pathVariables);
 
-            var responsePromise = this.httpProvider.request(url, data.method, data.requestParams, data.requestBody);
+            const responsePromise = this.httpProvider.request(url, data.method, data.requestParams, data.requestBody);
             if (data.responseType) {
                 return responsePromise.then(r => this.deserialize(r, data.responseType));
             } else {
@@ -201,10 +201,10 @@ export namespace Support {
             }
         }
 
-        var apinaConfig = new ApinaConfig();
+        const apinaConfig = new ApinaConfig();
         Types.registerDefaultSerializers(apinaConfig);
 
-        var apinaModule = angular.module('apina.api', []);
+        const apinaModule = angular.module('apina.api', []);
 
         apinaModule.constant('apinaConfig', apinaConfig);
 
@@ -214,7 +214,7 @@ export namespace Support {
         apinaModule.service('endpointGroups', ['apinaEndpointContext', (apinaEndpointContext: EndpointContext) =>
             Endpoints.createEndpointGroups(apinaEndpointContext)]);
 
-        var endpointsModule = angular.module('apina.endpoints', ['apina.api']);
+        const endpointsModule = angular.module('apina.endpoints', ['apina.api']);
 
         Endpoints.endpointGroupNames.forEach(name => {
             endpointsModule.factory(name + 'Endpoints', ['endpointGroups', (endpointGroups: any) => endpointGroups[name]]);
