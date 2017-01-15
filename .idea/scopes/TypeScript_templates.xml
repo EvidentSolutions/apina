@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="TypeScript templates" pattern="file[apina-core]:src/main/resources/typescript//*" />
+</component>
