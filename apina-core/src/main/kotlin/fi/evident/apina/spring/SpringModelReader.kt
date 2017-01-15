@@ -31,7 +31,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     }
 
     private fun createEndpointGroupForController(javaClass: JavaClass): EndpointGroup {
-        val endpointGroup = EndpointGroup(translateEndpointGroupName(javaClass.name), javaClass.name)
+        val endpointGroup = EndpointGroup(translateEndpointGroupName(javaClass.name))
 
         for (m in javaClass.publicMethods)
             if (!m.isStatic && annotationResolver.hasAnnotation(m, REQUEST_MAPPING))

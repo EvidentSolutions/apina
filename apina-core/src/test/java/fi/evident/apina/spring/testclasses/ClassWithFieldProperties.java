@@ -3,7 +3,7 @@ package fi.evident.apina.spring.testclasses;
 import java.util.Collection;
 import java.util.Map;
 
-@SuppressWarnings({"rawtypes", "unused"})
+@SuppressWarnings({"rawtypes", "unused", "WeakerAccess"})
 public final class ClassWithFieldProperties {
 
     public int intField;

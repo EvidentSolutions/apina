@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Unchecked files" pattern="file[apina-gradle]:src/main/resources/META-INF/gradle-plugins/fi.evident.apina.properties||file[apina]:gradle/wrapper/gradle-wrapper.properties||file[apina-cli]:src/main/resources/logback.xml||file[apina]:gradlew||file[apina]:gradlew.bat" />
+</component>

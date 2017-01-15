@@ -110,6 +110,7 @@ class SpringAnnotationResolverTest {
 
     @MyRestController
     @MyRequestMapping
+    @SuppressWarnings("unused")
     class MyController {
 
         @GetMapping("/foo")

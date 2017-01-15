@@ -13,9 +13,6 @@ class JavaModel {
     val classes: Collection<JavaClass>
         get() = _classes.values
 
-    val annotationClasses: Sequence<JavaClass>
-        get() = _classes.values.asSequence().filter { it.isAnnotation }
-
     fun addClass(aClass: JavaClass) {
         val old = _classes.putIfAbsent(aClass.name, aClass)
         if (old != null)

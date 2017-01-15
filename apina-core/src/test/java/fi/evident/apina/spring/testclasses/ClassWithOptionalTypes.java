@@ -5,7 +5,7 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
-@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unused"})
+@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unused", "WeakerAccess"})
 public final class ClassWithOptionalTypes {
     public Optional<String> optionalString;
     public OptionalInt optionalInt;

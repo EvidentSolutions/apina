@@ -6,9 +6,7 @@ import java.util.*
  * A group of related [Endpoint]s. As an example, web controllers are a group
  * of individual endpoints (methods).
  */
-class EndpointGroup(val name: String,
-                    /** Name of the original source element that specifies this endpoint group */
-                    val originalName: String) {
+class EndpointGroup constructor(val name: String) {
 
     private val _endpoints = ArrayList<Endpoint>()
 

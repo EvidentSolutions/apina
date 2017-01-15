@@ -19,6 +19,7 @@ internal class SpringAnnotationResolver(private val javaModel: JavaModel) {
      * itself `annotationType`.
      */
     fun findAnnotation(element: JavaAnnotatedElement, annotationType: JavaType.Basic): SpringAnnotation? {
+        @Suppress("LoopToCallChain")
         for (ann in element.annotations) {
             val implied = findImpliedAnnotations(ann)
             if (implied.any { it.name == annotationType })

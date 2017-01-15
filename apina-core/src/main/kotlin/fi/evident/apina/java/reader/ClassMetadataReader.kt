@@ -178,6 +178,7 @@ internal object ClassMetadataReader {
         }
 
         override fun visitLocalVariable(name: String, desc: String, signature: String?, start: Label, end: Label, index: Int) {
+            @Suppress("LoopToCallChain")
             for (i in this.parameterIndicesInLVT.indices)
                 if (this.parameterIndicesInLVT[i] == index)
                     method.parameters[i].name = name

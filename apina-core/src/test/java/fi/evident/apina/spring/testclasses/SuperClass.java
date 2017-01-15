@@ -2,7 +2,7 @@ package fi.evident.apina.spring.testclasses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "CanBeFinal"})
 public class SuperClass {
     public String foo;
     public String bar;

@@ -1,6 +1,6 @@
 package fi.evident.apina.spring.testclasses;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "CanBeFinal"})
 public final class TypeWithOverlappingFieldAndGetter {
 
     public String foo;
