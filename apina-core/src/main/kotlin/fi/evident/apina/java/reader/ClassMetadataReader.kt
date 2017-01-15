@@ -93,9 +93,8 @@ internal object ClassMetadataReader {
             return MyMethodVisitor(method)
         }
 
-        fun getJavaClass(): JavaClass {
-            return javaClass ?: throw IllegalStateException("no ClassMetadata available")
-        }
+        fun getJavaClass(): JavaClass =
+            javaClass ?: throw IllegalStateException("no ClassMetadata available")
     }
 
     private class MyAnnotationVisitor(private val annotation: JavaAnnotation) : AnnotationVisitor(Opcodes.ASM5) {

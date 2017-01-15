@@ -5,7 +5,6 @@ import fi.evident.apina.model.Endpoint
 import fi.evident.apina.model.EndpointGroup
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.utils.readResourceAsString
-import java.nio.charset.StandardCharsets.UTF_8
 
 /**
  * Generates Angular 2 TypeScript code for client side.
@@ -32,7 +31,7 @@ class TypeScriptAngular2Generator(api: ApiDefinition, settings: TranslationSetti
         get() = out.output
 
     private fun writeRuntime() {
-        out.write(readResourceAsString("typescript/runtime-angular2.ts", UTF_8))
+        out.write(readResourceAsString("typescript/runtime-angular2.ts"))
         out.writeLine()
     }
 

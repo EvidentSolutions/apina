@@ -18,11 +18,7 @@ class TranslationSettings {
     fun isBlackBoxClass(name: String) = name in blackBoxClasses
 
     fun addImport(moduleName: String, types: Collection<String>) {
-        val importDefinition = importsByModule[moduleName] ?: run {
-            val def = ImportDefinition(moduleName)
-            importsByModule[moduleName] = def
-            def
-        }
+        val importDefinition = importsByModule.getOrPut(moduleName) { ImportDefinition(moduleName) }
 
         for (type in types) {
             val typeName = ApiTypeName(type)
