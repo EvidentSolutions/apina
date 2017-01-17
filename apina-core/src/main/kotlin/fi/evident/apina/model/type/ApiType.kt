@@ -27,6 +27,8 @@ sealed class ApiType {
      * Represents class types.
      */
     class Class(val name: ApiTypeName) : ApiType(), Comparable<Class> {
+
+        constructor(name: String): this(ApiTypeName(name))
         override fun typeRepresentation() = name.toString()
         override fun equals(other: Any?) = other is Class && name == other.name
         override fun hashCode() = name.hashCode()

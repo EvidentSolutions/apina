@@ -1,3 +1,9 @@
+## Unreleased
+
+### Fixes
+
+- Improvements to handling some obscure generic types.
+
 ## 0.7.0 (2017-01-16)
 
 ### Improvements

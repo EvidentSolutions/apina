@@ -120,7 +120,7 @@ sealed class JavaType {
             get() = throw UnsupportedOperationException()
 
         override fun resolve(env: TypeEnvironment): JavaType =
-                env.lookup(this) ?: throw RuntimeException("unbound type variable: $name")
+                env.lookup(this) ?: this
 
         override fun toString() = name
         override fun equals(other: Any?) = other is Variable && name == other.name

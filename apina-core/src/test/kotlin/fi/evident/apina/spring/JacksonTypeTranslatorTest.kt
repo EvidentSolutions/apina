@@ -180,6 +180,16 @@ class JacksonTypeTranslatorTest {
                 property("genericField", ApiType.Array(ApiType.Primitive.STRING))))
     }
 
+
+    @Test
+    fun unboundTypeVariable() {
+        @Suppress("unused")
+        abstract class Bar<A>
+        class Foo<B> : Bar<B>()
+
+        assertEquals("Foo", translateClass<Foo<*>>().type.name)
+    }
+
     private fun translateType(type: JavaType): ApiType {
         val classes = JavaModel()
         val api = ApiDefinition()
