@@ -108,12 +108,15 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
 
     companion object {
 
-        fun readApiDefinition(classpath: Classpath, settings: TranslationSettings): ApiDefinition {
-            val reader = SpringModelReader(classpath.loadModel(), settings)
+        fun readApiDefinition(model: JavaModel, settings: TranslationSettings): ApiDefinition {
+            val reader = SpringModelReader(model, settings)
 
             reader.createEndpointsForControllers()
 
             return reader.api
         }
+
+        fun readApiDefinition(classpath: Classpath, settings: TranslationSettings): ApiDefinition =
+                readApiDefinition(classpath.loadModel(), settings)
     }
 }
