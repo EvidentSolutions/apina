@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Improvements
+
+- Unwrap logical return type from a possible wrapper before analyzing it. That is, interpret 
+  methods returning `ResponseEntity<T>`, `HttpEntity<T>` or `Callable<T>` as methods returning just `T`.
+
 ### Fixes
 
 - Improvements to handling some obscure generic types.

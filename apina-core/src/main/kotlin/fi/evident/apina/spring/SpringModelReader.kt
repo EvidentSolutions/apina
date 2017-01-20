@@ -1,6 +1,7 @@
 package fi.evident.apina.spring
 
 import fi.evident.apina.java.model.*
+import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.reader.Classpath
 import fi.evident.apina.java.reader.loadModel
@@ -11,10 +12,13 @@ import fi.evident.apina.model.parameters.EndpointRequestBodyParameter
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
+import fi.evident.apina.spring.SpringTypes.CALLABLE
+import fi.evident.apina.spring.SpringTypes.HTTP_ENTITY
 import fi.evident.apina.spring.SpringTypes.PATH_VARIABLE
 import fi.evident.apina.spring.SpringTypes.REQUEST_BODY
 import fi.evident.apina.spring.SpringTypes.REQUEST_MAPPING
 import fi.evident.apina.spring.SpringTypes.REQUEST_PARAM
+import fi.evident.apina.spring.SpringTypes.RESPONSE_ENTITY
 import fi.evident.apina.spring.SpringTypes.REST_CONTROLLER
 
 /**
@@ -59,10 +63,21 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
 
         if (!returnType.isVoid) {
             val typeTranslator = JacksonTypeTranslator(settings, classes, api)
-            return typeTranslator.translateType(returnType, method, method.environment)
+            return typeTranslator.translateType(unwrapReturnType(returnType), method, method.environment)
         } else {
             return null
         }
+    }
+
+    /**
+     * The logical return type can be wrapped in a wrapper type. In this case we want to
+     * peek into the wrapper type to extract the logical type.
+     */
+    private fun unwrapReturnType(type: JavaType): JavaType {
+        if (type is JavaType.Parameterized && type.baseType in RESPONSE_WRAPPERS)
+            return type.arguments.single()
+
+        return type;
     }
 
     private fun parseParameter(typeTranslator: JacksonTypeTranslator, parameter: JavaParameter, env: TypeEnvironment, method: JavaMethod): EndpointParameter? {
@@ -107,6 +122,8 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
                     ?.let { HTTPMethod.valueOf(it.constant) }
 
     companion object {
+
+        val RESPONSE_WRAPPERS = listOf(HTTP_ENTITY, RESPONSE_ENTITY, CALLABLE)
 
         fun readApiDefinition(model: JavaModel, settings: TranslationSettings): ApiDefinition {
             val reader = SpringModelReader(model, settings)
