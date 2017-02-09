@@ -51,25 +51,23 @@ class JavaAnnotation(val name: JavaType.Basic) {
     override fun toString(): String = buildString {
         append('@').append(name)
 
-        if (attributes.size == 1 && attributes.containsKey("value")) {
+        if (attributes.isNotEmpty()) {
             append('(')
-            writeValue(attributes["value"])
-            append(')')
+            if (attributes.size == 1 && "value" in attributes) {
+                writeValue(attributes["value"])
 
-        } else if (!attributes.isEmpty()) {
-            append('(')
-            val it = attributes.entries.iterator()
-            while (it.hasNext()) {
-                val entry = it.next()
-                val name = entry.key
-                val value = entry.value
+            } else {
+                val it = attributes.entries.iterator()
+                while (it.hasNext()) {
+                    val (name, value) = it.next()
 
-                append(name).append('=')
+                    append(name).append('=')
 
-                writeValue(value)
+                    writeValue(value)
 
-                if (it.hasNext())
-                    append(", ")
+                    if (it.hasNext())
+                        append(", ")
+                }
             }
             append(')')
         }
