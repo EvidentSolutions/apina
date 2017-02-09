@@ -28,17 +28,13 @@ class JavaField(val name: String,
         _annotations += annotation
     }
 
-    override fun toString(): String {
-        val sb = StringBuilder()
-
+    override fun toString(): String = buildString {
         if (visibility !== JavaVisibility.PACKAGE)
-            sb.append(visibility).append(' ')
+            append(visibility).append(' ')
 
         if (isStatic)
-            sb.append("static ")
+            append("static ")
 
-        sb.append(type).append(' ').append(name)
-
-        return sb.toString()
+        append(type).append(' ').append(name)
     }
 }

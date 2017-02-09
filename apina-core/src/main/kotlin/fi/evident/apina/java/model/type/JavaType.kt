@@ -139,16 +139,12 @@ sealed class JavaType {
             return Wildcard(upperBound?.resolve(env), lowerBound?.resolve(env))
         }
 
-        override fun toString(): String {
-            val sb = StringBuilder("?")
-
+        override fun toString(): String = buildString {
             if (upperBound != null)
-                sb.append(" extends ").append(upperBound)
+                append(" extends ").append(upperBound)
 
             if (lowerBound != null)
-                sb.append(" super ").append(lowerBound)
-
-            return sb.toString()
+                append(" super ").append(lowerBound)
         }
 
         override fun equals(other: Any?): Boolean = other is Wildcard && upperBound == other.upperBound && lowerBound == other.lowerBound

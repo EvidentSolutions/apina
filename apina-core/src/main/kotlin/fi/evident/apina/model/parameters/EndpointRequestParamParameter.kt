@@ -6,14 +6,12 @@ class EndpointRequestParamParameter(name: String, queryParameter: String?, type:
 
     val queryParameter: String = queryParameter ?: name
 
-    override fun toString(): String {
-        val sb = StringBuilder()
-        sb.append("@RequestParam")
+    override fun toString(): String = buildString {
+        append("@RequestParam")
 
         if (queryParameter != name)
-            sb.append("(\"").append(queryParameter).append("\")")
+            append("(\"").append(queryParameter).append("\")")
 
-        sb.append(' ').append(type).append(' ').append(name)
-        return sb.toString()
+        append(' ').append(type).append(' ').append(name)
     }
 }

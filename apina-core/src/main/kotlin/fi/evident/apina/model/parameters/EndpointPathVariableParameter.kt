@@ -6,14 +6,12 @@ class EndpointPathVariableParameter(name: String, pathVariable: String?, type: A
 
     val pathVariable: String = pathVariable ?: name
 
-    override fun toString(): String {
-        val sb = StringBuilder()
-        sb.append("@PathVariable")
+    override fun toString(): String = buildString {
+        append("@PathVariable")
 
         if (pathVariable != name)
-            sb.append("(\"").append(pathVariable).append("\")")
+            append("(\"").append(pathVariable).append("\")")
 
-        sb.append(' ').append(type).append(' ').append(name)
-        return sb.toString()
+        append(' ').append(type).append(' ').append(name)
     }
 }

@@ -48,52 +48,49 @@ class JavaAnnotation(val name: JavaType.Basic) {
             return listOf(value)
     }
 
-    override fun toString(): String {
-        val sb = StringBuilder()
-        sb.append('@').append(name)
+    override fun toString(): String = buildString {
+        append('@').append(name)
 
         if (attributes.size == 1 && attributes.containsKey("value")) {
-            sb.append('(')
-            writeValue(sb, attributes["value"])
-            sb.append(')')
+            append('(')
+            writeValue(attributes["value"])
+            append(')')
 
         } else if (!attributes.isEmpty()) {
-            sb.append('(')
+            append('(')
             val it = attributes.entries.iterator()
             while (it.hasNext()) {
                 val entry = it.next()
                 val name = entry.key
                 val value = entry.value
 
-                sb.append(name).append('=')
+                append(name).append('=')
 
-                writeValue(sb, value)
+                writeValue(value)
 
                 if (it.hasNext())
-                    sb.append(", ")
+                    append(", ")
             }
-            sb.append(')')
+            append(')')
         }
-
-        return sb.toString()
     }
 
-    private fun writeValue(sb: StringBuilder, value: Any?) {
+    private fun StringBuilder.writeValue(value: Any?) {
         if (value is Array<*>) {
             if (value.size == 1)
-                writePrimitive(sb, value[0])
+                writePrimitive(value[0])
             else
-                value.joinTo(sb, ",", "{", "}")
+                value.joinTo(this, ",", "{", "}")
         } else {
-            writePrimitive(sb, value)
+            writePrimitive(value)
         }
     }
 
-    private fun writePrimitive(sb: StringBuilder, value: Any?) {
+    private fun StringBuilder.writePrimitive(value: Any?) {
         if (value is String) {
-            sb.append('"').append(value.replace("\"", "\\\"")).append('"')
+            append('"').append(value.replace("\"", "\\\"")).append('"')
         } else {
-            sb.append(value)
+            append(value)
         }
     }
 }
