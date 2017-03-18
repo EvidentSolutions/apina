@@ -1,3 +1,13 @@
+## Unreleased
+
+### Fixes
+
+- Fix parsing generic signatures with shadowing ([#33](https://github.com/EvidentSolutions/apina/issues/33))
+
+### Other changes
+
+- Upgraded to Kotlin 1.1.1
+
 ## 0.7.1 (2017-01-20)
 
 ### Improvements

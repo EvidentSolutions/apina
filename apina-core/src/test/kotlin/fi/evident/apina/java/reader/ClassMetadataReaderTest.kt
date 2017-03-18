@@ -11,6 +11,7 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Suppress("UNUSED_PARAMETER")
 class ClassMetadataReaderTest {
 
     @Test
@@ -68,6 +69,6 @@ class ClassMetadataReaderTest {
     }
 
     private object AnonymousInnerClassWithOuterBounds {
-        fun <T> createInnerClassInstance(): Comparator<T> = Comparator { o1, o2 -> 0 }
+        fun <T> createInnerClassInstance(): Comparator<T> = Comparator { _, _ -> 0 }
     }
 }
