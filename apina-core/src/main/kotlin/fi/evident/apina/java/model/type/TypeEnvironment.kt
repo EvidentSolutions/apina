@@ -19,6 +19,16 @@ class TypeEnvironment {
     }
 
     operator fun set(v: JavaType.Variable, type: JavaType) {
+        if (v == type) {
+            // If we try to install a binding to the same variable name, it means that
+            // we actually already have a super-class variable of the same name. We can
+            // just keep the old binding around because it points to the right ultimate
+            // target anyway. Part of the problem is that in binding 'T=T' we have no way
+            // to specify that left and right T are actually two separate variables in
+            // the program. Therefore we'd end up with a self referring infinite cycle.
+            // However, just omitting the binding gives correct result.
+            return
+        }
         env[v] = type
     }
 

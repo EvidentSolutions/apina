@@ -190,6 +190,18 @@ class JacksonTypeTranslatorTest {
         assertEquals("Foo", translateClass<Foo<*>>().type.name)
     }
 
+    interface GenericSuperType<out T> {
+        @Suppress("unused")
+        fun get(): T
+    }
+
+    interface GenericSubType<out T> : GenericSuperType<T>
+
+    @Test
+    fun shadowedTypesShouldNotPreventTranslation() {
+        translateClass<GenericSubType<String>>()
+    }
+
     private fun translateType(type: JavaType): ApiType {
         val classes = JavaModel()
         val api = ApiDefinition()

@@ -46,7 +46,10 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         is JavaType.Array ->
             ApiType.Array(translateType(type.elementType, env))
         is JavaType.Variable ->
-            env.lookup(type)?.let { translateType(it, env) } ?: ApiType.Primitive.ANY
+            env.lookup(type)?.let {
+                check(it != type) { "Looking up type returned itself: $type in $env" }
+                translateType(it, env)
+            } ?: ApiType.Primitive.ANY
         is JavaType.Wildcard ->
             type.lowerBound?.let { translateType(it, env) } ?: ApiType.Primitive.ANY
         is JavaType.InnerClass ->
