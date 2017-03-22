@@ -141,7 +141,7 @@ export class ApinaEndpointContext {
         const url = this.buildUrl(data.uriTemplate, data.pathVariables);
 
         const requestParams = data.requestParams;
-        let params: URLSearchParams = null;
+        let params: URLSearchParams | undefined = undefined;
         if (requestParams != null) {
             params = new URLSearchParams(requestParams);
 
