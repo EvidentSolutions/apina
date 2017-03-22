@@ -1,5 +1,7 @@
 ## 0.7.3 (2017-04-22)
 
+### Fixes
+
 - Fix passing request parameters in Angular 2 backend. 
 
 ## 0.7.2 (2017-04-18)
