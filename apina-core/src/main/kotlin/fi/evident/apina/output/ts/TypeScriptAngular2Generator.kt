@@ -39,7 +39,7 @@ class TypeScriptAngular2Generator(api: ApiDefinition, settings: TranslationSetti
         val imports = settings.imports
 
         out.writeLine("import { Injectable, NgModule } from '@angular/core';")
-        out.writeLine("import { Http, HttpModule } from '@angular/http';")
+        out.writeLine("import { Http, HttpModule, URLSearchParams } from '@angular/http';")
         out.writeLine("import { Observable } from 'rxjs/Observable';")
         out.writeLine("import 'rxjs/add/operator/map';")
 

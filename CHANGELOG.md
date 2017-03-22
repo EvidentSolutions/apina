@@ -1,3 +1,9 @@
+## 0.7.4 (2017-04-22)
+
+### Fixes
+
+- Fix imports in generated Angular 2 code  
+
 ## 0.7.3 (2017-04-22)
 
 ### Fixes
