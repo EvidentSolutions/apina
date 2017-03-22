@@ -1,3 +1,9 @@
+## 0.7.6 (2017-04-22)
+
+### Fixes
+
+- Fix response mapping broken in 3ca5cd9.
+
 ## 0.7.5 (2017-04-22)
 
 ### Improvements

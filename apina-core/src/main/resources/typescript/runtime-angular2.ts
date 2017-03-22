@@ -150,6 +150,7 @@ export class ApinaEndpointContext {
         }
 
         return this.http.request(url, { method: data.method, search: params, body: data.requestBody })
+            .map(r => data.responseType ? this.deserialize(r.json(), data.responseType) : r);
     }
 
     serialize(value: any, type: string): any {
