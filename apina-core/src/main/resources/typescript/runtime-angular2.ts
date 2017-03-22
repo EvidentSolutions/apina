@@ -140,8 +140,16 @@ export class ApinaEndpointContext {
     request(data: RequestData): Observable<any> {
         const url = this.buildUrl(data.uriTemplate, data.pathVariables);
 
-        return this.http.request(url, { method: data.method, search: data.requestParams, body: data.requestBody })
-            .map(r => data.responseType ? this.deserialize(r.json(), data.responseType) : r);
+        const requestParams = data.requestParams;
+        let params: URLSearchParams = null;
+        if (requestParams != null) {
+            params = new URLSearchParams(requestParams);
+
+            for (const p of Object.keys(requestParams))
+                params.append(p, requestParams[p]);
+        }
+
+        return this.http.request(url, { method: data.method, search: params, body: data.requestBody })
     }
 
     serialize(value: any, type: string): any {
