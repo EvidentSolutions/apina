@@ -7,10 +7,9 @@ import fi.evident.apina.model.settings.Platform
 import fi.evident.apina.spring.EndpointParameterNameNotDefinedException
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.tasks.*
 import org.gradle.util.GFileUtils.writeFile
 import java.io.File
 import java.util.*
@@ -35,6 +34,20 @@ open class ApinaTask : DefaultTask() {
 
     @get:Input
     var enumMode = EnumMode.ENUM
+
+    init {
+        description = "Generates TypeScript client code from Spring controllers and Jackson classes"
+        group = BasePlugin.BUILD_GROUP
+
+        // TODO: resolve the build directory from project. however we can't simply say project.buildDir
+        // here since it's not yet overridden when plugin is applied
+        target = project.file("build/apina/apina.ts")
+
+        val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
+        val mainSourceSet = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+
+        classpath = mainSourceSet.output + mainSourceSet.compileClasspath
+    }
 
     @TaskAction
     fun generateTypeScript() {

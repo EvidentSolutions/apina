@@ -1,3 +1,9 @@
+## 0.8.0 (unreleased)
+
+### Breaking changes
+
+- `assemble` no longer depends on Apina by default, you need to register wanted dependency yourself
+
 ## 0.7.6 (2017-04-22)
 
 ### Fixes
