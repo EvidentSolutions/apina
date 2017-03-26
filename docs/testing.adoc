@@ -1,0 +1,21 @@
+# Testing against real projects
+
+To test Apina on a project without making a release first, build it and include
+the jars manually:
+
+[source,groovy]
+----
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath files('/Users/komu/src/evident/apina/apina-core/build/libs/apina-core-0.7.7-SNAPSHOT.jar')
+        classpath files('/Users/komu/src/evident/apina/apina-gradle/build/libs/apina-gradle-0.7.7-SNAPSHOT.jar')
+        classpath "org.ow2.asm:asm:5.2"
+    }
+}
+
+apply plugin: 'fi.evident.apina'
+----
+
