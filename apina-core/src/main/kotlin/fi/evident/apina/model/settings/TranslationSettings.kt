@@ -10,6 +10,7 @@ import java.util.*
 class TranslationSettings {
 
     val blackBoxClasses = PatternSet()
+    val controllersToProcess = PatternSet()
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
     var platform = Platform.ANGULAR2

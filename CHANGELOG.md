@@ -1,4 +1,8 @@
-## 0.8.0 (unreleased)
+## 0.8.0 (2017-04-26)
+
+### Improvements
+
+- Allow specifying which endpoints to include in generated API.
 
 ### Breaking changes
 

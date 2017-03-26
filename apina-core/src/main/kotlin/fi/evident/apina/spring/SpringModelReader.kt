@@ -31,7 +31,8 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
 
     private fun createEndpointsForControllers() {
         for (controllerMetadata in classes.findClassesWithAnnotation(REST_CONTROLLER))
-            api.addEndpointGroups(createEndpointGroupForController(controllerMetadata))
+            if (controllerMetadata.name in settings.controllersToProcess)
+                api.addEndpointGroups(createEndpointGroupForController(controllerMetadata))
     }
 
     private fun createEndpointGroupForController(javaClass: JavaClass): EndpointGroup {

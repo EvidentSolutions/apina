@@ -27,6 +27,9 @@ open class ApinaTask : DefaultTask() {
     var blackBoxClasses: List<String> = ArrayList()
 
     @get:Input
+    var endpoints: List<String> = ArrayList()
+
+    @get:Input
     var imports: Map<String, List<String>> = HashMap()
 
     @get:Input
@@ -60,6 +63,11 @@ open class ApinaTask : DefaultTask() {
 
             processor.settings.enumMode = enumMode
             processor.settings.platform = platform
+
+            if (endpoints.any())
+                endpoints.forEach { processor.settings.controllersToProcess.addPattern(it) }
+            else
+                processor.settings.controllersToProcess.addPattern(".+")
 
             for (pattern in blackBoxClasses)
                 processor.settings.blackBoxClasses.addPattern(pattern)

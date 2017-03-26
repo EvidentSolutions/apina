@@ -10,7 +10,7 @@ Include something like the following in your web application project:
 
 ```groovy
 plugins {
-    id "fi.evident.apina" version "0.7.0"
+    id "fi.evident.apina" version "0.8.0"
 }
 
 apina {
@@ -32,6 +32,9 @@ apina {
     //  - 'enum'   => enum MyEnum { FOO, BAR, BAZ }
     //  - 'string' => type MyEnum = "FOO" | "BAR" | "BAZ"
     enumMode = 'string' 
+    
+    // Which controllers to include when generating API? Defaults to everything.
+    endpoints = [/my\.package\.foo\..+/]
 }
 
 // Tell the frontend to run apina before setup 
