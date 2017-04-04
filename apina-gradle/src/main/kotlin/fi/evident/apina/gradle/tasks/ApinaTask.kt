@@ -64,10 +64,7 @@ open class ApinaTask : DefaultTask() {
             processor.settings.enumMode = enumMode
             processor.settings.platform = platform
 
-            if (endpoints.any())
-                endpoints.forEach { processor.settings.controllersToProcess.addPattern(it) }
-            else
-                processor.settings.controllersToProcess.addPattern(".+")
+            endpoints.forEach { processor.settings.addControllerPattern(it) }
 
             for (pattern in blackBoxClasses)
                 processor.settings.blackBoxClasses.addPattern(pattern)

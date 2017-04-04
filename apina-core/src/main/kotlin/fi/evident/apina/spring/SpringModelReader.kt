@@ -31,7 +31,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
 
     private fun createEndpointsForControllers() {
         for (controllerMetadata in classes.findClassesWithAnnotation(REST_CONTROLLER))
-            if (controllerMetadata.name in settings.controllersToProcess)
+            if (settings.isProcessableController(controllerMetadata.name))
                 api.addEndpointGroups(createEndpointGroupForController(controllerMetadata))
     }
 
@@ -78,7 +78,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         if (type is JavaType.Parameterized && type.baseType in RESPONSE_WRAPPERS)
             return type.arguments.single()
 
-        return type;
+        return type
     }
 
     private fun parseParameter(typeTranslator: JacksonTypeTranslator, parameter: JavaParameter, env: TypeEnvironment, method: JavaMethod): EndpointParameter? {

@@ -10,7 +10,7 @@ import java.util.*
 class TranslationSettings {
 
     val blackBoxClasses = PatternSet()
-    val controllersToProcess = PatternSet()
+    private val controllersToProcess = PatternSet()
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
     var platform = Platform.ANGULAR2
@@ -34,4 +34,9 @@ class TranslationSettings {
         get() = importsByModule.values
 
     fun isImported(typeName: ApiTypeName) = typeName in importedTypes
+    fun isProcessableController(name: String) = controllersToProcess.isEmpty || name in controllersToProcess
+
+    fun addControllerPattern(pattern: String) {
+        controllersToProcess.addPattern(pattern)
+    }
 }

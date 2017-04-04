@@ -19,5 +19,7 @@ class PatternSet {
         addPattern(Pattern.compile(pattern))
     }
 
+    val isEmpty get() = patterns.isEmpty()
+
     operator fun contains(s: CharSequence) = patterns.any { it.matcher(s).matches() }
 }
