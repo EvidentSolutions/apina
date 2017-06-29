@@ -1,8 +1,8 @@
 # Apina
 
-Apina creates client-side TypeScript from server-side APIs. Apina reads Spring Web MVC's
-`@RestController` annotated classes and their related Jackson classes and creates code
-for the data model and for executing HTTP-requests.
+Apina creates client-side TypeScript code for Angular based on server-side APIs. Apina reads Spring Web MVC's
+`@RestController` annotated classes and their related Jackson classes and creates code for the data model and
+for executing HTTP-requests.
 
 ## Using the Gradle-plugin
 
@@ -25,9 +25,6 @@ apina {
       './other-module': ['Foo', 'Bar']
     ]
     
-    // Specify target platform. Allowed values are 'angular1' or 'angular2' (default). 
-    platform = 'angular2'
-     
     // How Java enums are translated to TypeScript enums? (Default mode is 'enum'.)
     //  - 'enum'   => enum MyEnum { FOO, BAR, BAZ }
     //  - 'string' => type MyEnum = "FOO" | "BAR" | "BAZ"

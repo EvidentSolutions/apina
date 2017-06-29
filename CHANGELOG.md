@@ -1,3 +1,10 @@
+
+## Unreleased
+
+### Breaking changes
+
+- Remove support for Angular 1 ([#36](https://github.com/EvidentSolutions/apina/issues/36))
+
 ## 0.8.0 (2017-04-26)
 
 ### Improvements
