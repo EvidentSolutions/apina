@@ -32,9 +32,9 @@ internal class SpringAnnotationResolver(private val javaModel: JavaModel) {
     fun findImpliedAnnotations(annotation: JavaAnnotation): Set<JavaAnnotation> {
         val implied = LinkedHashSet<JavaAnnotation>()
 
-        fun recurse(annotation: JavaAnnotation) {
-            if (implied.add(annotation)) {
-                val cl = javaModel.findClass(annotation.name)
+        fun recurse(ann: JavaAnnotation) {
+            if (implied.add(ann)) {
+                val cl = javaModel.findClass(ann.name)
                 if (cl != null)
                     for (a in cl.annotations)
                         recurse(a)
