@@ -146,7 +146,8 @@ export class ApinaEndpointContext {
             params = new URLSearchParams(requestParams);
 
             for (const p of Object.keys(requestParams))
-                params.append(p, requestParams[p]);
+                if (p != null)
+                    params.append(p, requestParams[p]);
         }
 
         return this.http.request(url, { method: data.method, search: params, body: data.requestBody })

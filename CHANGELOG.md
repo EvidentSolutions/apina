@@ -1,6 +1,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Omit null values from request params ([#34](https://github.com/EvidentSolutions/apina/issues/34))
+
 ### Breaking changes
 
 - Remove support for Angular 1 ([#36](https://github.com/EvidentSolutions/apina/issues/36))
