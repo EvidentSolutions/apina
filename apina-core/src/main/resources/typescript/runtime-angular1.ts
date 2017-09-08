@@ -3,7 +3,7 @@ export namespace Support {
     export interface IPromise<T> {
         then<TResult>(successCallback: (promiseValue: T) => IPromise<TResult>|TResult, errorCallback?: (reason: any) => any, notifyCallback?: (state: any) => any): IPromise<TResult>;
         catch<TResult>(onRejected: (reason: any) => IPromise<TResult>|TResult): IPromise<TResult>;
-        finally<TResult>(finallyCallback: () => any): IPromise<TResult>;
+        finally(finallyCallback: () => any): IPromise<T>;
     }
 
     export interface IRequestData {
