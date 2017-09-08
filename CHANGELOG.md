@@ -9,6 +9,12 @@
 
 - Remove support for Angular 1 ([#36](https://github.com/EvidentSolutions/apina/issues/36))
 
+## 0.8.2 (2017-09-08)
+
+### Fixes
+
+- Fix qualified type name generation for nullable types.
+
 ## 0.8.1 (2017-09-08)
 
 ### Fixes
