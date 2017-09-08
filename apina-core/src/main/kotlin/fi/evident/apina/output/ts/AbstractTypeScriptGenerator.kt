@@ -55,6 +55,7 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
     }
 
     private fun qualifiedTypeName(type: ApiType): String = when {
+        type is ApiType.Nullable -> qualifiedTypeName(type.type) + " | null"
         type is ApiType.Primitive -> type.typeRepresentation()
         type is ApiType.Array -> qualifiedTypeName(type.elementType) + "[]"
         settings.isImported(ApiTypeName(type.typeRepresentation())) -> type.typeRepresentation()
