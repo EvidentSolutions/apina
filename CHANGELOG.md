@@ -1,3 +1,9 @@
+## 0.8.1 (2017-09-08)
+
+### Fixes
+
+- Fix typing of Promise to be compatible with latest AngularJS typings.
+
 ## 0.8.0 (2017-04-26)
 
 ### Improvements
