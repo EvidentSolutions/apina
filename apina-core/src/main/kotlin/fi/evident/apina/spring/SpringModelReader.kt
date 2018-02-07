@@ -62,11 +62,11 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     private fun resolveResponseBody(method: JavaMethod): ApiType? {
         val returnType = method.returnType
 
-        if (!returnType.isVoid) {
+        return if (!returnType.isVoid) {
             val typeTranslator = JacksonTypeTranslator(settings, classes, api)
-            return typeTranslator.translateType(unwrapReturnType(returnType), method, method.environment)
+            typeTranslator.translateType(unwrapReturnType(returnType), method, method.environment)
         } else {
-            return null
+            null
         }
     }
 
@@ -106,13 +106,13 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         return parseUriTemplate(classUrl + methodUrl)
     }
 
-    internal fun findRequestMappingPath(element: JavaAnnotatedElement): String {
+    private fun findRequestMappingPath(element: JavaAnnotatedElement): String {
         val annotation = annotationResolver.findAnnotation(element, REQUEST_MAPPING)
-        val value = annotation?.getAttribute<String>("path") ?: ""
-        if (value.isEmpty() || value.startsWith("/"))
-            return value
+        val value = annotation?.getAttribute("path") ?: ""
+        return if (value.isEmpty() || value.startsWith("/"))
+            value
         else
-            return '/' + value
+            '/' + value
     }
 
     private fun resolveRequestMethod(javaMethod: JavaMethod): HTTPMethod? =

@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package fi.evident.apina.gradle.tasks
 
 import fi.evident.apina.ApinaProcessor

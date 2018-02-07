@@ -36,15 +36,15 @@ fun parseMethodSignature(methodDescriptor: String, signature: String?): MethodSi
         // is like this. All of the cases are the same: the implicit parent-class argument as the
         // first argument is left out. If we detect that, create a new argument list mostly based
         // on the generic signature, but using the parent type from non-generic descriptor.
-        if (legacySignature.argumentCount == genericSignature.argumentCount + 1) {
+        return if (legacySignature.argumentCount == genericSignature.argumentCount + 1) {
             val implicitParentType = legacySignature.argumentTypes[0]
-            return MethodSignature(
-                    genericSignature.returnType,
-                    listOf(implicitParentType) + genericSignature.argumentTypes,
-                    genericSignature.schema)
+            MethodSignature(
+                genericSignature.returnType,
+                listOf(implicitParentType) + genericSignature.argumentTypes,
+                genericSignature.schema)
         } else {
             assert(legacySignature.argumentCount == genericSignature.argumentCount)
-            return genericSignature
+            genericSignature
         }
     }
 
@@ -69,16 +69,16 @@ fun parseMethodDescriptor(methodDescriptor: String): MethodSignature {
 }
 
 fun javaType(type: Type): JavaType {
-    if (type.sort == Type.ARRAY) {
+    return if (type.sort == Type.ARRAY) {
         var javaType: JavaType = JavaType.Basic(type.elementType.className)
 
         repeat(type.dimensions) {
             javaType = JavaType.Array(javaType)
         }
 
-        return javaType
+        javaType
 
     } else {
-        return JavaType.Basic(type.className)
+        JavaType.Basic(type.className)
     }
 }

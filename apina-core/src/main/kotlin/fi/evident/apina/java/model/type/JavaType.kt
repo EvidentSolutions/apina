@@ -82,7 +82,7 @@ sealed class JavaType {
         override fun toString() = "$elementType[]"
     }
 
-    class InnerClass(val outer: JavaType, val name: String) : JavaType() {
+    class InnerClass(private val outer: JavaType, val name: String) : JavaType() {
 
         override val nonGenericClassName: String
             get() = outer.nonGenericClassName + '$' + name

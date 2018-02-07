@@ -40,7 +40,7 @@ class JavaClass(val type: JavaType,
     val name: String
         get() = type.nonGenericClassName
 
-    val publicFields: Sequence<JavaField>
+    private val publicFields: Sequence<JavaField>
         get() = fields.asSequence().filter { it.isPublic }
 
     val publicInstanceFields: List<JavaField>

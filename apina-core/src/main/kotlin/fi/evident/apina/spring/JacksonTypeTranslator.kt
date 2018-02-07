@@ -192,7 +192,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
             val aClass = classes[i].javaClass
 
             for (field in aClass.publicInstanceFields) {
-                if (field.findAnnotation(JSON_IGNORE)?.isIgnore() ?: false)
+                if (field.findAnnotation(JSON_IGNORE)?.isIgnore() == true)
                     ignores.add(field.name)
                 else
                     ignores.remove(field.name)
@@ -255,6 +255,6 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         private val JSON_VALUE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonValue")
         private val OPTIONAL_NUMBER_TYPES = listOf(JavaType.basic<OptionalInt>(), JavaType.basic<OptionalLong>(), JavaType.basic<OptionalDouble>())
 
-        private fun JavaAnnotation.isIgnore() = getAttribute<Boolean>("value") ?: true
+        private fun JavaAnnotation.isIgnore() = getAttribute("value") ?: true
     }
 }

@@ -36,22 +36,22 @@ class JavaModel {
 
         val javaClass = _classes[type.nonGenericClassName]
 
-        if (javaClass != null) {
-            return javaClass.name == requiredType.name
-                    || isInstanceOf(javaClass.superClass, requiredType)
-                    || javaClass.interfaces.any { isInstanceOf(it, requiredType) }
+        return when {
+            javaClass != null ->
+                javaClass.name == requiredType.name
+                        || isInstanceOf(javaClass.superClass, requiredType)
+                        || javaClass.interfaces.any { isInstanceOf(it, requiredType) }
 
-        } else if (type is JavaType.Basic) {
-            try {
-                val aClass = Class.forName(type.name)
-                return requiredType.isAssignableFrom(aClass)
+            type is JavaType.Basic ->
+                try {
+                    requiredType.isAssignableFrom(Class.forName(type.name))
 
-            } catch (e: ClassNotFoundException) {
-                return false
-            }
+                } catch (e: ClassNotFoundException) {
+                    false
+                }
 
-        } else {
-            return false
+            else ->
+                false
         }
     }
 

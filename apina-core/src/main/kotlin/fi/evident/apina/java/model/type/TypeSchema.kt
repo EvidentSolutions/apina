@@ -11,7 +11,7 @@ class TypeSchema {
         get() = _variables
 
     fun add(v: JavaType.Variable) {
-        val old = boundMap.putIfAbsent(v, ArrayList<JavaType>())
+        val old = boundMap.putIfAbsent(v, ArrayList())
         if (old != null)
             throw IllegalArgumentException("tried to add duplicate variable: $v")
         _variables.add(v)

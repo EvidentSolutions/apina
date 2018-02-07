@@ -67,7 +67,7 @@ internal object JavaTypeMatchers {
     fun singletonSchema(variable: String, vararg types: Matcher<JavaType>): Matcher<TypeSchema> =
             schema(singletonMap(JavaType.Variable(variable), types.asList()))
 
-    fun schema(map: Map<JavaType.Variable, List<Matcher<JavaType>>>): Matcher<TypeSchema> = object : TypeSafeMatcher<TypeSchema>() {
+    private fun schema(map: Map<JavaType.Variable, List<Matcher<JavaType>>>): Matcher<TypeSchema> = object : TypeSafeMatcher<TypeSchema>() {
         override fun matchesSafely(item: TypeSchema): Boolean {
             val variables = item.variables
 

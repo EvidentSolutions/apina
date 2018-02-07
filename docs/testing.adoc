@@ -1,4 +1,4 @@
-# Testing against real projects
+= Testing against real projects
 
 To test Apina on a project without making a release first, build it and include
 the jars manually:

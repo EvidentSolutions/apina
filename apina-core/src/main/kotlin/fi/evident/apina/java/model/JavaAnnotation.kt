@@ -2,8 +2,6 @@ package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType
 import java.util.*
-import kotlin.collections.asList
-import kotlin.collections.joinTo
 import java.lang.reflect.Array as ReflectArray
 
 class JavaAnnotation(val name: JavaType.Basic) {
@@ -22,12 +20,11 @@ class JavaAnnotation(val name: JavaType.Basic) {
     private val attributes = LinkedHashMap<String, Any>()
 
     fun setAttribute(name: String, value: Any) {
-        attributes.put(name, value)
+        attributes[name] = value
     }
 
-    inline fun <reified T : Any> getAttribute(name: String): T? {
-        return getAttribute(name, T::class.java)
-    }
+    inline fun <reified T : Any> getAttribute(name: String): T? =
+        getAttribute(name, T::class.java)
 
     fun <T : Any> getAttribute(name: String, type: Class<T>): T? {
         val value = attributes[name] ?: return null
@@ -40,12 +37,11 @@ class JavaAnnotation(val name: JavaType.Basic) {
 
     fun getAttributeValues(name: String): List<Any?> {
         val value = attributes[name]
-        if (value == null)
-            return emptyList()
-        else if (value is Array<*>)
-            return value.asList()
-        else
-            return listOf(value)
+        return when (value) {
+            null -> emptyList()
+            is Array<*> -> value.asList()
+            else -> listOf(value)
+        }
     }
 
     override fun toString(): String = buildString {

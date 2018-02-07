@@ -11,9 +11,11 @@ import kotlin.test.assertTrue
 
 class ApinaIntegrationTest {
 
-    @get:Rule val testProjectDir = TemporaryFolder()
+    @get:Rule
+    @Suppress("MemberVisibilityCanBePrivate")
+    val testProjectDir = TemporaryFolder()
 
-    val buildFile: File by lazy { testProjectDir.newFile("build.gradle") }
+    private val buildFile: File by lazy { testProjectDir.newFile("build.gradle") }
 
     @Test
     fun smokeTest() {
@@ -79,7 +81,7 @@ class ApinaIntegrationTest {
                 .withPluginClasspath()
                 .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(":apina").outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":apina")?.outcome)
 
         val output = File(testProjectDir.root, "apina-output.ts").readText()
 

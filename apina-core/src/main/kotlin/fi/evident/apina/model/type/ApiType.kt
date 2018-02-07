@@ -35,7 +35,7 @@ sealed class ApiType {
         override fun compareTo(other: Class) = name.compareTo(other.name)
     }
 
-    class Dictionary(val valueType: ApiType) : ApiType() {
+    class Dictionary(private val valueType: ApiType) : ApiType() {
         override fun typeRepresentation() = "Dictionary<$valueType>"
         override fun equals(other: Any?) = other is Dictionary && valueType == other.valueType
         override fun hashCode() = Objects.hash(valueType)

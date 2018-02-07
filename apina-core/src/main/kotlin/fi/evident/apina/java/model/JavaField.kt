@@ -6,7 +6,7 @@ import java.lang.reflect.Modifier
 import java.util.*
 
 class JavaField(val name: String,
-                val visibility: JavaVisibility,
+                private val visibility: JavaVisibility,
                 val type: JavaType,
                 private val modifiers: Int) : JavaAnnotatedElement {
 

@@ -44,23 +44,20 @@ internal class CodeWriter {
     fun writeValue(obj: Any?): CodeWriter {
         writeIndentIfAtBegin()
 
-        if (obj is Number) {
-            out.append(obj.toString())
-        } else if (obj is Map<*, *>) {
-            writeMap(obj)
-        } else if (obj is String) {
-            writeString(obj)
-        } else if (obj is Collection<*>) {
-            writeCollection(obj)
-        } else {
-            out.append(obj.toString())
+        when (obj) {
+            is Number ->
+                out.append(obj.toString())
+            is Map<*, *> ->
+                writeMap(obj)
+            is String ->
+                writeString(obj)
+            is Collection<*> ->
+                writeCollection(obj)
+            else ->
+                out.append(obj.toString())
         }
 
         return this
-    }
-
-    fun writeExportedNamespace(name: String, bodyWriter: () -> Unit): CodeWriter {
-        return writeBlock("export namespace " + name, bodyWriter)
     }
 
     fun writeExportedInterface(name: String, bodyWriter: () -> Unit): CodeWriter {
@@ -139,12 +136,12 @@ internal class CodeWriter {
         out.append('\'')
     }
 
-    fun indent(): CodeWriter {
+    private fun indent(): CodeWriter {
         indentationLevel++
         return this
     }
 
-    fun dedent(): CodeWriter {
+    private fun dedent(): CodeWriter {
         if (indentationLevel == 0) throw IllegalStateException()
 
         indentationLevel--
@@ -152,7 +149,7 @@ internal class CodeWriter {
     }
 
     private fun writeIndent() {
-        for (i in 0..indentationLevel - 1)
+        for (i in 0 until indentationLevel)
             out.append("    ")
     }
 }

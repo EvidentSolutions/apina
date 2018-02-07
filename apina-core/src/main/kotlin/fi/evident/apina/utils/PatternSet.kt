@@ -11,12 +11,8 @@ class PatternSet {
 
     private val patterns = ArrayList<Pattern>()
 
-    fun addPattern(pattern: Pattern) {
-        patterns.add(pattern)
-    }
-
     fun addPattern(@Language("RegExp") pattern: String) {
-        addPattern(Pattern.compile(pattern))
+        patterns.add(Pattern.compile(pattern))
     }
 
     val isEmpty get() = patterns.isEmpty()

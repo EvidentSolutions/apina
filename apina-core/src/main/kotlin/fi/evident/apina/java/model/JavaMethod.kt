@@ -8,7 +8,7 @@ import java.util.*
 
 class JavaMethod(val owningClass: JavaClass,
                  val name: String,
-                 val visibility: JavaVisibility,
+                 private val visibility: JavaVisibility,
                  val returnType: JavaType,
                  val parameters: List<JavaParameter>,
                  private val modifiers: Int,

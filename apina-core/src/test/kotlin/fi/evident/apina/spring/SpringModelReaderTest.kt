@@ -21,7 +21,7 @@ import kotlin.test.assertNotNull
 
 class SpringModelReaderTest {
 
-    val settings = TranslationSettings()
+    private val settings = TranslationSettings()
 
     @Test
     fun parseSimpleController() {
@@ -95,7 +95,7 @@ class SpringModelReaderTest {
     }
 
 
-    fun EndpointGroup.endpointByName(name: String): Endpoint =
+    private fun EndpointGroup.endpointByName(name: String): Endpoint =
         assertNotNull(endpoints.find { it.name == name })
 
     private inline fun <reified T : Any> readModel(): ApiDefinition {
