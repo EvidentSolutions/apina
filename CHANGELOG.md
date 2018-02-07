@@ -8,6 +8,8 @@
 
 ### Breaking changes
 
+- Change handling of enumerations. New `DEFAULT`-mode is to serialize enums as string enums.
+  Old `ENUM`-mode is now `INT_ENUM` and `STRING` is `STRING_UNION`. ([#37](https://github.com/EvidentSolutions/apina/issues/37))
 - Remove support for Angular 1 ([#36](https://github.com/EvidentSolutions/apina/issues/36))
 
 ## 0.8.2 (2017-09-08)

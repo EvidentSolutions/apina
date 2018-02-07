@@ -15,9 +15,9 @@ import java.util.*
 
 abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
                                            val settings: TranslationSettings,
-                                           val typePrefix: String,
-                                           val supportPrefix: String,
-                                           val resultFunctor: String) {
+                                           private val typePrefix: String,
+                                           private val supportPrefix: String,
+                                           private val resultFunctor: String) {
 
     internal val out = CodeWriter()
 
@@ -46,12 +46,15 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
     }
 
     private fun writeEnum(enumDefinition: EnumDefinition) {
-        when (settings.enumMode) {
-            EnumMode.STRING ->
-                out.writeLine(format("export type %s = %s;", enumDefinition.type, enumDefinition.constants.joinToString(" | ") { "\"$it\"" }))
-            EnumMode.ENUM ->
-                out.writeLine(format("export enum %s { %s }", enumDefinition.type, enumDefinition.constants.joinToString(", ")))
-        }
+        val constants = enumDefinition.constants
+        out.writeLine(when (settings.enumMode) {
+            EnumMode.DEFAULT ->
+                format("export enum %s { %s }", enumDefinition.type, constants.joinToString(", ") { "$it = \"$it\"" })
+            EnumMode.STRING_UNION ->
+                format("export type %s = %s;", enumDefinition.type, constants.joinToString(" | ") { "\"$it\"" })
+            EnumMode.INT_ENUM ->
+                format("export enum %s { %s }", enumDefinition.type, constants.joinToString(", "))
+        })
     }
 
     private fun qualifiedTypeName(type: ApiType): String = when {
@@ -77,7 +80,7 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
                 val defs = LinkedHashMap<String, String>()
 
                 for (property in classDefinition.properties)
-                    defs.put(property.name, typeDescriptor(property.type))
+                    defs[property.name] = typeDescriptor(property.type)
 
                 out.write("config.registerClassSerializer(").writeValue(classDefinition.type.toString()).write(", ")
                 out.writeValue(defs).writeLine(");")
@@ -91,11 +94,9 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
     private fun writeEnumSerializer(enumDefinition: EnumDefinition) {
         val enumName = enumDefinition.type.toString()
         when (settings.enumMode) {
-            EnumMode.ENUM -> {
-                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ")
-                out.write(enumName).writeLine(");")
-            }
-            EnumMode.STRING ->
+            EnumMode.INT_ENUM ->
+                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ").write(enumName).writeLine(");")
+            EnumMode.DEFAULT, EnumMode.STRING_UNION ->
                 out.write("config.registerIdentitySerializer(").writeValue(enumName).writeLine(");")
         }
     }
@@ -138,7 +139,7 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
             val result = LinkedHashMap<String, Any>()
 
             for (param in parameters)
-                result.put(param.queryParameter, serialize(param.name, param.type))
+                result[param.queryParameter] = serialize(param.name, param.type)
 
             return result
         }
@@ -147,7 +148,7 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
             val result = LinkedHashMap<String, Any>()
 
             for (param in pathVariables)
-                result.put(param.pathVariable, serialize(param.name, param.type))
+                result[param.pathVariable] = serialize(param.name, param.type)
 
             return result
         }

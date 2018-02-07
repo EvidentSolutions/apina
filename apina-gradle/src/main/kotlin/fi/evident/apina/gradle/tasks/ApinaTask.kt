@@ -32,7 +32,7 @@ open class ApinaTask : DefaultTask() {
     var imports: Map<String, List<String>> = HashMap()
 
     @get:Input
-    var enumMode = EnumMode.ENUM
+    var enumMode = EnumMode.DEFAULT
 
     init {
         description = "Generates TypeScript client code from Spring controllers and Jackson classes"
@@ -78,6 +78,6 @@ open class ApinaTask : DefaultTask() {
     }
 
     companion object {
-        val GENERATE_API_CLIENT_TASK_NAME = "apina"
+        const val GENERATE_API_CLIENT_TASK_NAME = "apina"
     }
 }

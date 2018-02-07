@@ -13,7 +13,7 @@ class TranslationSettings {
     private val controllersToProcess = PatternSet()
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
-    var enumMode = EnumMode.ENUM
+    var enumMode = EnumMode.DEFAULT
 
     fun isBlackBoxClass(name: String) = name in blackBoxClasses
 
