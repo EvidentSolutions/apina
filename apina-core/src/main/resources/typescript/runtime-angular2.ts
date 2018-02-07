@@ -131,10 +131,31 @@ export class ApinaConfig {
     }
 }
 
-@Injectable()
-export class ApinaEndpointContext {
+export abstract class ApinaEndpointContext {
 
-    constructor(private http: Http, private config: ApinaConfig) {
+    constructor(protected config: ApinaConfig) {
+    }
+
+    abstract request(data: RequestData): Observable<any>
+
+    serialize(value: any, type: string): any {
+        return this.config.serialize(value, type);
+    }
+
+    deserialize(value: any, type: string): any {
+        return this.config.deserialize(value, type);
+    }
+
+    protected buildUrl(uriTemplate: String, pathVariables: any): string {
+        return this.config.baseUrl + uriTemplate.replace(/\{([^}]+)}/g, (match, name) => pathVariables[name]);
+    }
+}
+
+@Injectable()
+export class DefaultApinaEndpointContext extends ApinaEndpointContext {
+
+    constructor(private http: Http, config: ApinaConfig) {
+        super(config);
     }
 
     request(data: RequestData): Observable<any> {
@@ -152,18 +173,6 @@ export class ApinaEndpointContext {
 
         return this.http.request(url, { method: data.method, search: params, body: data.requestBody })
             .map(r => data.responseType ? this.deserialize(r.json(), data.responseType) : r);
-    }
-
-    serialize(value: any, type: string): any {
-        return this.config.serialize(value, type);
-    }
-
-    deserialize(value: any, type: string): any {
-        return this.config.deserialize(value, type);
-    }
-
-    private buildUrl(uriTemplate: String, pathVariables: any): string {
-        return this.config.baseUrl + uriTemplate.replace(/\{([^}]+)}/g, (match, name) => pathVariables[name]);
     }
 }
 

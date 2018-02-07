@@ -80,7 +80,7 @@ class TypeScriptAngular2Generator(api: ApiDefinition, settings: TranslationSetti
         for (endpointGroup in api.endpointGroups)
             out.writeLine("        " + endpointGroup.name + "Endpoint,")
 
-        out.writeLine("        ApinaEndpointContext,")
+        out.writeLine("        { provide: ApinaEndpointContext, useClass: DefaultApinaEndpointContext },")
         out.writeLine("        ApinaConfig")
 
         out.writeLine("    ]")

@@ -4,6 +4,7 @@
 ### Fixes
 
 - Omit null values from request params ([#34](https://github.com/EvidentSolutions/apina/issues/34))
+- Simplify writing custom ApinaEndpointContexts
 
 ### Breaking changes
 
