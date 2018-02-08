@@ -1,3 +1,8 @@
+## Unreleased
+
+### Improvements
+
+- Add `removedUrlPrefix` parameter that can be used to strip a prefix from the generated URLs
 
 ## 0.9.0 (2018-02-08)
 

@@ -36,6 +36,9 @@ open class ApinaTask : DefaultTask() {
     @get:Input
     var enumMode = EnumMode.DEFAULT
 
+    @get:Input
+    var removedUrlPrefix = ""
+
     init {
         description = "Generates TypeScript client code from Spring controllers and Jackson classes"
         group = BasePlugin.BUILD_GROUP
@@ -60,6 +63,7 @@ open class ApinaTask : DefaultTask() {
             val processor = ApinaProcessor(myClasspath)
 
             processor.settings.enumMode = enumMode
+            processor.settings.removedUrlPrefix = removedUrlPrefix
 
             endpoints.forEach { processor.settings.addControllerPattern(it) }
 

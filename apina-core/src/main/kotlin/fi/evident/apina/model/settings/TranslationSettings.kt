@@ -14,6 +14,7 @@ class TranslationSettings {
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
     var enumMode = EnumMode.DEFAULT
+    var removedUrlPrefix = ""
 
     fun isBlackBoxClass(name: String) = name in blackBoxClasses
 
@@ -37,5 +38,9 @@ class TranslationSettings {
 
     fun addControllerPattern(pattern: String) {
         controllersToProcess.addPattern(pattern)
+    }
+
+    fun normalizeUrl(url: String): String {
+        return url.removePrefix(removedUrlPrefix)
     }
 }

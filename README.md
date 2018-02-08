@@ -33,6 +33,10 @@ apina {
     
     // Which controllers to include when generating API? Defaults to everything.
     endpoints = [/my\.package\.foo\..+/]
+    
+    // If generated URLs would start with given prefix, removes it. Useful when configuring Apina
+    // work behind reverse proxies. Defaults to empty string (URL is not modified).
+    removedUrlPrefix = "/foo"
 }
 
 // Tell the frontend to run apina before setup 
