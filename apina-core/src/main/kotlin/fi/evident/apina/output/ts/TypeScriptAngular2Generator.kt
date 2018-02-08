@@ -39,9 +39,9 @@ class TypeScriptAngular2Generator(api: ApiDefinition, settings: TranslationSetti
         val imports = settings.imports
 
         out.writeLine("import { Injectable, NgModule } from '@angular/core';")
-        out.writeLine("import { Http, HttpModule, URLSearchParams } from '@angular/http';")
+        out.writeLine("import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';")
         out.writeLine("import { Observable } from 'rxjs/Observable';")
-        out.writeLine("import 'rxjs/add/operator/map';")
+        out.writeLine("import { map } from 'rxjs/operators';")
 
         if (!imports.isEmpty()) {
             for (anImport in imports)
@@ -74,7 +74,7 @@ class TypeScriptAngular2Generator(api: ApiDefinition, settings: TranslationSetti
         out.writeLine()
 
         out.writeLine("@NgModule({")
-        out.writeLine("    imports: [HttpModule],")
+        out.writeLine("    imports: [HttpClientModule],")
         out.writeLine("    providers: [")
 
         for (endpointGroup in api.endpointGroups)

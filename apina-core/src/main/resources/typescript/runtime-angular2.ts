@@ -154,7 +154,7 @@ export abstract class ApinaEndpointContext {
 @Injectable()
 export class DefaultApinaEndpointContext extends ApinaEndpointContext {
 
-    constructor(private http: Http, config: ApinaConfig) {
+    constructor(private httpClient: HttpClient, config: ApinaConfig) {
         super(config);
     }
 
@@ -162,17 +162,12 @@ export class DefaultApinaEndpointContext extends ApinaEndpointContext {
         const url = this.buildUrl(data.uriTemplate, data.pathVariables);
 
         const requestParams = data.requestParams;
-        let params: URLSearchParams | undefined = undefined;
-        if (requestParams != null) {
-            params = new URLSearchParams(requestParams);
+        let params: HttpParams | undefined = undefined;
+        if (requestParams != null)
+            params = new HttpParams({fromObject: requestParams});
 
-            for (const p of Object.keys(requestParams))
-                if (p != null)
-                    params.append(p, requestParams[p]);
-        }
-
-        return this.http.request(url, { method: data.method, search: params, body: data.requestBody })
-            .map(r => data.responseType ? this.deserialize(r.json(), data.responseType) : r);
+        return this.httpClient.request(data.method, url, { params: params, body: data.requestBody })
+            .pipe(map(r => data.responseType ? this.config.deserialize(r, data.responseType) : r));
     }
 }
 

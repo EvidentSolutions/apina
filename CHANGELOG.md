@@ -1,4 +1,8 @@
-## Unreleased
+## 0.10.0 (2018-02-08)
+
+### Breaking changes
+
+- Usage `HttpClient` instead of `Http` for making request, thus requiring Angular 4.3. 
 
 ### Improvements
 
