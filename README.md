@@ -10,7 +10,7 @@ Include something like the following in your web application project:
 
 ```groovy
 plugins {
-    id "fi.evident.apina" version "0.8.2"
+    id "fi.evident.apina" version "0.9.0"
 }
 
 apina {
@@ -25,10 +25,11 @@ apina {
       './other-module': ['Foo', 'Bar']
     ]
     
-    // How Java enums are translated to TypeScript enums? (Default mode is 'enum'.)
-    //  - 'enum'   => enum MyEnum { FOO, BAR, BAZ }
-    //  - 'string' => type MyEnum = "FOO" | "BAR" | "BAZ"
-    enumMode = 'string' 
+    // How Java enums are translated to TypeScript enums? (Default mode is 'default'.)
+    //  - 'default'      => enum MyEnum { FOO = "FOO", BAR = "BAR", BAZ = "BAZ" }
+    //  - 'int_enum'     => enum MyEnum { FOO, BAR, BAZ }
+    //  - 'string_union' => type MyEnum = "FOO" | "BAR" | "BAZ"
+    enumMode = 'default' 
     
     // Which controllers to include when generating API? Defaults to everything.
     endpoints = [/my\.package\.foo\..+/]
