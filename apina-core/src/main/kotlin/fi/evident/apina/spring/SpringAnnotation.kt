@@ -18,6 +18,8 @@ class SpringAnnotation(
     inline fun <reified T : Any> getAttribute(attributeName: String): T? = getAttribute(attributeName, T::class.java)
     inline fun <reified T : Any> getUniqueAttributeValue(attributeName: String): T? = getUniqueAttributeValue(attributeName, T::class.java)
 
+    override fun toString() = "SpringAnnotation [annotationType=$annotationType, annotations=$annotations]"
+
     /**
      * Tries to find value for given attribute, considering meta-annotations and `@AliasFor`.
      */
@@ -33,7 +35,7 @@ class SpringAnnotation(
             when (value.size) {
                 0 -> null
                 1 -> type.cast(value[0])
-                else -> throw IllegalArgumentException("multiple values for $attributeName in $this")
+                else -> throw IllegalArgumentException("Annotation '$annotationType' had multiple values for attribute '$attributeName' (annotations implied: $annotations)")
             }
         } else {
             type.cast(value)
