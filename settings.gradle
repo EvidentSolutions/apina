@@ -1,5 +1,0 @@
-rootProject.name = 'apina'
-
-include ':apina-core',
-        ':apina-cli',
-        ':apina-gradle'
