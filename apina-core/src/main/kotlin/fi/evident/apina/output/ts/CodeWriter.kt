@@ -19,34 +19,34 @@ internal class CodeWriter {
     val output: String
         get() = out.toString()
 
-    fun write(s: String): CodeWriter {
-        if (!s.isEmpty()) {
-            writeIndentIfAtBegin()
-            out.append(s)
-        }
+    private fun write(c: Char): CodeWriter {
+        // Write indent if necessary, unless we are writing an empty line
+        if (c != '\n' && beginningOfLine)
+            out.append("    ".repeat(indentationLevel))
+
+        out.append(c)
+
+        beginningOfLine = c == '\n'
 
         return this
     }
 
-    private fun writeIndentIfAtBegin() {
-        if (beginningOfLine) {
-            writeIndent()
-            beginningOfLine = false
-        }
+    fun write(s: String): CodeWriter {
+        for (c in s)
+            write(c)
+
+        return this
     }
 
     fun writeLine(): CodeWriter {
-        out.append('\n')
-        beginningOfLine = true
+        write("\n")
         return this
     }
 
     fun writeValue(obj: Any?): CodeWriter {
-        writeIndentIfAtBegin()
-
         when (obj) {
             is Number ->
-                out.append(obj.toString())
+                write(obj.toString())
             is Map<*, *> ->
                 writeMap(obj)
             is String ->
@@ -54,7 +54,7 @@ internal class CodeWriter {
             is Collection<*> ->
                 writeCollection(obj)
             else ->
-                out.append(obj.toString())
+                write(obj.toString())
         }
 
         return this
@@ -121,19 +121,19 @@ internal class CodeWriter {
     }
 
     private fun writeString(s: String) {
-        out.append('\'')
+        write('\'')
         var i = 0
         val len = s.length
         while (i < len) {
             val c = s[i]
             when (c) {
-                '\'' -> out.append("\\'")
-                '\n' -> out.append("\\n")
-                else -> out.append(c)
+                '\'' -> write("\\'")
+                '\n' -> write("\\n")
+                else -> write(c)
             }
             i++
         }
-        out.append('\'')
+        write('\'')
     }
 
     private fun indent(): CodeWriter {
@@ -146,10 +146,5 @@ internal class CodeWriter {
 
         indentationLevel--
         return this
-    }
-
-    private fun writeIndent() {
-        for (i in 0 until indentationLevel)
-            out.append("    ")
     }
 }

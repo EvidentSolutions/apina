@@ -26,6 +26,25 @@ class CodeWriterTest {
     }
 
     @Test
+    fun `indents are properly handled when text has line breaks`() {
+        writer.writeLine("foo")
+        writer.writeBlock {
+            writer.writeLine("""
+                bar
+                baz
+            """.trimIndent())
+        }
+
+        assertEquals("""
+            foo
+            {
+                bar
+                baz
+            }
+        """.trimIndent(), writer.output)
+    }
+
+    @Test
     fun stringValues() {
         writer.writeValue("foo 'bar' baz\nquux")
 
