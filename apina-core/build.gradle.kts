@@ -1,7 +1,5 @@
 import com.jfrog.bintray.gradle.BintrayExtension
 import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.getValue
-import org.gradle.kotlin.dsl.the
 
 plugins {
     kotlin("jvm")
@@ -10,9 +8,12 @@ plugins {
     id("com.jfrog.bintray") version "1.7.3"
 }
 
+val kotlinVersion: String by rootProject.extra
+
 dependencies {
-    compile(kotlin("stdlib"))
-    compile("org.slf4j:slf4j-api")
+    // We have to define explicit version here or invalid POM is generated
+    compile(kotlin("stdlib", kotlinVersion))
+    compile("org.slf4j:slf4j-api:1.7.12")
     compile("org.ow2.asm:asm:5.2")
 
     testCompile("junit:junit")

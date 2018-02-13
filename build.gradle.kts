@@ -11,6 +11,8 @@ plugins {
     kotlin("jvm") version "1.1.3" apply false
 }
 
+val kotlinVersion by extra("1.1.3") // same as above :(
+
 configure<VersionConfig> {
     tag(closureOf<TagNameSerializationConfig> {
         prefix = "v"
@@ -29,7 +31,6 @@ configure(allprojects) {
     configurations.all {
         resolutionStrategy.eachDependency {
             when (requested.name) {
-                "slf4j-api" -> useVersion("1.7.12")
                 "junit" -> useVersion("4.12")
                 "hamcrest-core" -> useTarget("${requested.group}:hamcrest-all:${requested.version}")
             }

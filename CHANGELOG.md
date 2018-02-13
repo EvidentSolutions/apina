@@ -1,3 +1,7 @@
+## 0.10.2 (2018-02-13)
+
+- Fix invalid pom.
+
 ## 0.10.1 (2018-02-13)
 
 - Omit null values from request params, again.
