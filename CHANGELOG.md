@@ -1,3 +1,7 @@
+## 0.10.1 (2018-02-13)
+
+- Omit null values from request params, again.
+
 ## 0.10.0 (2018-02-08)
 
 ### Breaking changes
