@@ -17,7 +17,7 @@ configure<PluginBundleExtension> {
     website = "https://github.com/EvidentSolutions/apina"
     vcsUrl = "https://github.com/EvidentSolutions/apina"
     description = "Gradle plugin for creating TypeScript client code from Spring controllers and Jackson classes"
-    tags = listOf("typescript", "tsd", "angularjs", "jackson", "spring")
+    tags = listOf("typescript", "angular", "jackson", "spring")
 
     this.plugins {
         "apinaPlugin" {
