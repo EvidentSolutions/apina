@@ -164,7 +164,7 @@ export class DefaultApinaEndpointContext extends ApinaEndpointContext {
         const requestParams = data.requestParams;
         let params: HttpParams | undefined = undefined;
         if (requestParams != null) {
-            const filteredParams = {};
+            const filteredParams: { [key: string]: any }  = {};
             for (const key of Object.keys(requestParams)) {
                 const value = requestParams[key];
                 if (value != null)

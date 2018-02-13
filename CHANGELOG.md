@@ -1,3 +1,7 @@
+## 0.10.3 (2018-02-13)
+
+- Allow generated code to compile with `noImplicitAny`.
+
 ## 0.10.2 (2018-02-13)
 
 - Fix invalid pom.
