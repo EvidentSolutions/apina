@@ -1,3 +1,7 @@
+## 0.10.4 (2018-03-05)
+
+- Update asm to 6.0, allowing parsing of Java 9 bytecode.
+
 ## 0.10.3 (2018-02-13)
 
 - Allow generated code to compile with `noImplicitAny`.
