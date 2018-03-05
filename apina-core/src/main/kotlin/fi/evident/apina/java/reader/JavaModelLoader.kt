@@ -17,7 +17,9 @@ fun Classpath.loadModel(): JavaModel {
     val processingMillis = measureTimeMillis {
         processAllClasses { inputStream ->
             val aClass = ClassMetadataReader.loadMetadata(inputStream)
-            if (!classes.containsClass(aClass.name)) {
+            if (aClass.name == "module-info") {
+                // skip module infos
+            } else if (!classes.containsClass(aClass.name)) {
                 classes.addClass(aClass)
             } else {
                 duplicates += aClass.type

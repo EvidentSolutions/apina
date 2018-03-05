@@ -32,11 +32,11 @@ internal object ClassMetadataReader {
             JavaVisibility.PACKAGE
     }
 
-    private class MyClassVisitor : ClassVisitor(Opcodes.ASM5) {
+    private class MyClassVisitor : ClassVisitor(Opcodes.ASM6) {
 
         private var javaClass: JavaClass? = null
 
-        override fun visit(version: Int, access: Int, name: String, signature: String?, superName: String, interfaces: Array<String>) {
+        override fun visit(version: Int, access: Int, name: String, signature: String?, superName: String?, interfaces: Array<String>) {
             if (javaClass != null)
                 throw IllegalStateException("classMetadata already initialized")
 
@@ -58,7 +58,7 @@ internal object ClassMetadataReader {
 
 
             } else {
-                superType = parseObjectType(superName)
+                superType = superName?.let(::parseObjectType) ?: JavaType.Basic("java.lang.Object")
                 interfaceTypes = interfaces.map(::parseObjectType)
                 schema = TypeSchema()
             }

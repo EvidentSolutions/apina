@@ -1,3 +1,7 @@
+## 0.10.5 (2018-03-05)
+
+- Support parsing module-info files
+
 ## 0.10.4 (2018-03-05)
 
 - Update asm to 6.0, allowing parsing of Java 9 bytecode.
