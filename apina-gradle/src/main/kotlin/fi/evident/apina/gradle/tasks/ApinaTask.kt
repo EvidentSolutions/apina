@@ -16,6 +16,7 @@ import java.io.File
 import java.util.*
 import kotlin.properties.Delegates
 
+@CacheableTask
 open class ApinaTask : DefaultTask() {
 
     @get:OutputFile
@@ -23,6 +24,7 @@ open class ApinaTask : DefaultTask() {
 
     @get:CompileClasspath
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
     var classpath: FileCollection by Delegates.notNull()
 
     @get:Input
