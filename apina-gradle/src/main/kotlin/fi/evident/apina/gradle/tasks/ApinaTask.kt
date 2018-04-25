@@ -21,6 +21,7 @@ open class ApinaTask : DefaultTask() {
     @get:OutputFile
     var target: File by Delegates.notNull()
 
+    @get:CompileClasspath
     @get:InputFiles
     var classpath: FileCollection by Delegates.notNull()
 
