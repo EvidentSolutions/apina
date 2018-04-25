@@ -1,3 +1,8 @@
+## 0.10.6 (2018-03-05)
+
+- Improve up-to-date detection
+- Support caching
+
 ## 0.10.5 (2018-03-05)
 
 - Support parsing module-info files
