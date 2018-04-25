@@ -8,10 +8,10 @@ import pl.allegro.tech.build.axion.release.domain.VersionConfig
 
 plugins {
     id("pl.allegro.tech.build.axion-release") version "1.4.1"
-    kotlin("jvm") version "1.1.3" apply false
+    kotlin("jvm") version "1.2.40" apply false
 }
 
-val kotlinVersion by extra("1.1.3") // same as above :(
+val kotlinVersion by extra("1.2.40") // same as above :(
 
 configure<VersionConfig> {
     tag(closureOf<TagNameSerializationConfig> {
