@@ -1,3 +1,7 @@
+## 0.10.7 (2018-09-03)
+
+- Import `Observable` from `rxjs` instead of `rxjs/Observable`
+
 ## 0.10.6 (2018-03-05)
 
 - Improve up-to-date detection
