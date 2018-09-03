@@ -40,7 +40,7 @@ class TypeScriptAngular2Generator(api: ApiDefinition, settings: TranslationSetti
 
         out.writeLine("import { Injectable, NgModule } from '@angular/core';")
         out.writeLine("import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';")
-        out.writeLine("import { Observable } from 'rxjs/Observable';")
+        out.writeLine("import { Observable } from 'rxjs';")
         out.writeLine("import { map } from 'rxjs/operators';")
 
         if (!imports.isEmpty()) {
