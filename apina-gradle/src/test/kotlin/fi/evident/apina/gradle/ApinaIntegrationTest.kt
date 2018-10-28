@@ -55,7 +55,7 @@ class ApinaIntegrationTest {
             public class ApinaTestController {
 
                 @GetMapping("/bar")
-                public ResponseType bar(@RequestBody RequestType foo) {
+                public ResponseType<Cat> bar(@RequestBody RequestType foo) {
                     throw new UnsupportedOperationException();
                 }
 
@@ -63,12 +63,16 @@ class ApinaIntegrationTest {
                     public MyEnum myEnum;
                 }
 
-                public static class ResponseType {
+                public static class ResponseType<T> {
                     public NestedType nestedType;
                 }
 
                 public static class NestedType {
                     public int x;
+                }
+
+                public static class Cat {
+                    public String name;
                 }
 
                 public enum MyEnum { FOO, BAR }
@@ -91,10 +95,12 @@ class ApinaIntegrationTest {
         assertTrue("export class ResponseType {" in output, "output has ResponseType")
         assertTrue("export class NestedType {" in output, "output has NestedType")
         assertTrue("export enum MyEnum { FOO = \"FOO\", BAR = \"BAR\" }" in output, "output has MyEnum")
+        assertTrue("export class Cat {" in output, "output has Cat")
 
         assertTrue("config.registerClassSerializer('RequestType', {" in output, "output has serializer for RequestType")
         assertTrue("config.registerClassSerializer('ResponseType', {" in output, "output has serializer for ResponseType")
         assertTrue("config.registerClassSerializer('NestedType', {" in output, "output has serializer for Nested")
+        assertTrue("config.registerClassSerializer('Cat', {" in output, "output has serializer for Cat")
         assertTrue("config.registerIdentitySerializer('MyEnum')" in output, "MyEnum has identity serializer")
     }
 }

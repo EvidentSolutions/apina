@@ -96,8 +96,13 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                 ApiType.Dictionary(translateType(arguments[1], env))
             classes.isInstanceOf<Optional<*>>(baseType) && arguments.size == 1 ->
                 ApiType.Nullable(translateType(arguments[0], env))
-            else ->
-                translateType(baseType, env)
+            else -> {
+                val classType = translateType(baseType, env)
+                arguments.filterIsInstance<JavaType.Basic>().forEach{
+                    addDefinitionIfNotExistsYet(it, env)
+                }
+                return classType;
+            }
         } // TODO: use arguments
     }
 
@@ -117,6 +122,13 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
         val classType = ApiType.Class(typeName)
 
+        addDefinitionIfNotExistsYet(type, env)
+
+        return classType
+    }
+
+    private fun addDefinitionIfNotExistsYet(type: JavaType.Basic, env: TypeEnvironment) {
+        val typeName = classNameForType(type)
         if (!api.containsType(typeName)) {
             val aClass = classes.findClass(type.name)
             if (aClass != null) {
@@ -135,8 +147,6 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                 }
             }
         }
-
-        return classType
     }
 
     private fun classNameForType(type: JavaType.Basic): ApiTypeName {
