@@ -55,7 +55,12 @@ class ApinaIntegrationTest {
             public class ApinaTestController {
 
                 @GetMapping("/bar")
-                public ResponseType<Cat> bar(@RequestBody RequestType foo) {
+                public ResponseType bar(@RequestBody RequestType foo) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @GetMapping("/cat")
+                public ParameterizedResponseType<Cat, Dog> cat(@RequestBody ParameterizedRequestType<Elephant> foo) {
                     throw new UnsupportedOperationException();
                 }
 
@@ -63,7 +68,15 @@ class ApinaIntegrationTest {
                     public MyEnum myEnum;
                 }
 
-                public static class ResponseType<T> {
+                public static class ResponseType {
+                    public NestedType nestedType;
+                }
+
+                public static class ParameterizedRequestType<T> {
+                    public MyEnum myEnum;
+                }
+
+                public static class ParameterizedResponseType<T, S> {
                     public NestedType nestedType;
                 }
 
@@ -73,6 +86,13 @@ class ApinaIntegrationTest {
 
                 public static class Cat {
                     public String name;
+                }
+
+                public static class Dog {
+                }
+
+                public static class Elephant {
+                    public boolean big;
                 }
 
                 public enum MyEnum { FOO, BAR }
@@ -95,12 +115,22 @@ class ApinaIntegrationTest {
         assertTrue("export class ResponseType {" in output, "output has ResponseType")
         assertTrue("export class NestedType {" in output, "output has NestedType")
         assertTrue("export enum MyEnum { FOO = \"FOO\", BAR = \"BAR\" }" in output, "output has MyEnum")
+
+        assertTrue("export class ParameterizedRequestType {" in output, "output has ParameterizedRequestType")
+        assertTrue("export class ParameterizedResponseType {" in output, "output has ParameterizedResponseType")
         assertTrue("export class Cat {" in output, "output has Cat")
+        assertTrue("export class Dog {" in output, "output has Dog")
+        assertTrue("export class Elephant {" in output, "output has Elephant")
 
         assertTrue("config.registerClassSerializer('RequestType', {" in output, "output has serializer for RequestType")
         assertTrue("config.registerClassSerializer('ResponseType', {" in output, "output has serializer for ResponseType")
         assertTrue("config.registerClassSerializer('NestedType', {" in output, "output has serializer for Nested")
-        assertTrue("config.registerClassSerializer('Cat', {" in output, "output has serializer for Cat")
         assertTrue("config.registerIdentitySerializer('MyEnum')" in output, "MyEnum has identity serializer")
+
+        assertTrue("config.registerClassSerializer('Cat', {" in output, "output has serializer for Cat")
+        assertTrue("config.registerClassSerializer('Dog', {" in output, "output has serializer for Dog")
+        assertTrue("config.registerClassSerializer('Elephant', {" in output, "output has serializer for Elephant")
+
+
     }
 }
