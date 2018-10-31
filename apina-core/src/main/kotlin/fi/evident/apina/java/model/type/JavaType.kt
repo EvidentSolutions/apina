@@ -8,7 +8,7 @@ import java.util.*
 sealed class JavaType {
 
     open fun toBasicType(): Basic =
-            throw ClassCastException("can't cast ${javaClass.name} to JavaType.Basic")
+        throw ClassCastException("can't cast ${javaClass.name} to JavaType.Basic")
 
     abstract val nonGenericClassName: String
 
@@ -37,7 +37,7 @@ sealed class JavaType {
      */
     class Basic(val name: String) : JavaType() {
 
-        constructor(cl: Class<*>): this(cl.name)
+        constructor(cl: Class<*>) : this(cl.name)
 
         override val nonGenericClassName: String
             get() = name
@@ -107,9 +107,11 @@ sealed class JavaType {
             get() = baseType.nonGenericClassName
 
         override fun resolve(env: TypeEnvironment): JavaType =
-                Parameterized(baseType.resolve(env), arguments.map { it.resolve(env) })
+            Parameterized(baseType.resolve(env), arguments.map { it.resolve(env) })
 
-        override fun equals(other: Any?) = other is Parameterized && baseType == other.baseType && arguments == other.arguments
+        override fun equals(other: Any?) =
+            other is Parameterized && baseType == other.baseType && arguments == other.arguments
+
         override fun hashCode() = Objects.hash(baseType, arguments)
         override fun toString(): String = baseType.toString() + arguments.joinToString(", ", "<", ">")
     }
@@ -120,7 +122,7 @@ sealed class JavaType {
             get() = throw UnsupportedOperationException()
 
         override fun resolve(env: TypeEnvironment): JavaType =
-                env.lookup(this) ?: this
+            env.lookup(this) ?: this
 
         override fun toString() = name
         override fun equals(other: Any?) = other is Variable && name == other.name
@@ -147,7 +149,9 @@ sealed class JavaType {
                 append(" super ").append(lowerBound)
         }
 
-        override fun equals(other: Any?): Boolean = other is Wildcard && upperBound == other.upperBound && lowerBound == other.lowerBound
+        override fun equals(other: Any?): Boolean =
+            other is Wildcard && upperBound == other.upperBound && lowerBound == other.lowerBound
+
         override fun hashCode() = Objects.hash(upperBound, lowerBound)
 
         companion object {

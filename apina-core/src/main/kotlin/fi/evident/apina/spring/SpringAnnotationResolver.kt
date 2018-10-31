@@ -49,6 +49,6 @@ internal class SpringAnnotationResolver(private val javaModel: JavaModel) {
      * Does this element have an given annotation either directly or through meta-annotation?
      */
     fun hasAnnotation(element: JavaAnnotatedElement, annotationType: JavaType.Basic) =
-            findAnnotation(element, annotationType) != null
+        findAnnotation(element, annotationType) != null
 }
 

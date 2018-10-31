@@ -27,13 +27,11 @@ internal class TypeSchemaBuilder {
         val v = JavaType.Variable(name)
         lastVariable = v
         schema.add(v)
-        currentBounds = ArrayList<Supplier<JavaType>>()
+        currentBounds = ArrayList()
     }
 
     fun addBoundBuilderForLastTypeParameter(boundBuilder: Supplier<JavaType>) {
-        if (currentBounds == null) throw IllegalStateException("no current bounds")
-
-        currentBounds!!.add(boundBuilder)
+        (currentBounds ?: error("no current bounds")).add(boundBuilder)
     }
 
     fun finishFormalTypes() {

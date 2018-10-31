@@ -9,11 +9,13 @@ import java.util.*
 /**
  * Contains all information read about class.
  */
-class JavaClass(val type: JavaType,
-                val superClass: JavaType,
-                val interfaces: List<JavaType>,
-                private val modifiers: Int,
-                val schema: TypeSchema) : JavaAnnotatedElement {
+class JavaClass(
+    val type: JavaType,
+    val superClass: JavaType,
+    val interfaces: List<JavaType>,
+    private val modifiers: Int,
+    val schema: TypeSchema
+) : JavaAnnotatedElement {
 
     private val _annotations = ArrayList<JavaAnnotation>()
     private val _fields = ArrayList<JavaField>()
@@ -75,18 +77,18 @@ class JavaClass(val type: JavaType,
             if (!isEnum) throw UnsupportedOperationException("not an enum: $this")
 
             return fields.asSequence()
-                    .filter { it.isEnumConstant }
-                    .map { it.name }
-                    .toList()
+                .filter { it.isEnumConstant }
+                .map { it.name }
+                .toList()
         }
 
     override fun toString() = type.toString()
 
     fun getField(name: String): JavaField =
-            fields.find { name == it.name } ?: throw RuntimeException("field not found $name")
+        fields.find { name == it.name } ?: throw RuntimeException("field not found $name")
 
-    fun hasMethodWithAnnotation(annotationType: JavaType.Basic)
-            = methods.any { it.hasAnnotation(annotationType) }
+    fun hasMethodWithAnnotation(annotationType: JavaType.Basic) =
+        methods.any { it.hasAnnotation(annotationType) }
 
     companion object {
         private val ANNOTATION_TYPE = JavaType.Basic(Annotation::class.java)

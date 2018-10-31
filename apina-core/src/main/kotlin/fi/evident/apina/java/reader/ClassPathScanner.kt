@@ -62,12 +62,12 @@ private fun InputStream.forEachClassInArchive(processor: (InputStream) -> Unit) 
 
 private fun Path.forEachClassUnderDirectory(processor: (InputStream) -> Unit) {
     Files.walk(this)
-            .filter { p -> isRegularFile(p) && p.toString().endsWith(".class") }
-            .forEach { file ->
-                log.trace("Processing class-file {}", file)
+        .filter { isRegularFile(it) && it.toString().endsWith(".class") }
+        .forEach { file ->
+            log.trace("Processing class-file {}", file)
 
-                BufferedInputStream(Files.newInputStream(file)).use(processor)
-            }
+            BufferedInputStream(Files.newInputStream(file)).use(processor)
+        }
 }
 
 private fun Path.hasExtension(vararg extensions: String): Boolean {

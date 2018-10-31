@@ -40,12 +40,10 @@ class Endpoint(/** Name of the original source element that specifies this endpo
     val requestParameters: List<EndpointRequestParamParameter>
         get() = _parameters.filterIsInstance<EndpointRequestParamParameter>()
 
-    override fun toString(): String {
-        return String.format("%s %s(%s): %s %s",
-                responseBody?.typeRepresentation() ?: "void",
-                name,
-                _parameters.joinToString(", "),
-                method,
-                uriTemplate)
-    }
+    override fun toString(): String = String.format("%s %s(%s): %s %s",
+            responseBody?.typeRepresentation() ?: "void",
+            name,
+            _parameters.joinToString(", "),
+            method,
+            uriTemplate)
 }

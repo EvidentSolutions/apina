@@ -14,7 +14,7 @@ data class AliasFor(
     private val targets: Set<Pair<JavaType.Basic, String>>) {
 
     fun matches(annotation: JavaType.Basic, attribute: String) =
-            (annotation == sourceAnnotation && attribute == sourceAttribute) || (annotation to attribute) in targets
+        (annotation == sourceAnnotation && attribute == sourceAttribute) || (annotation to attribute) in targets
 
     override fun toString() = "$sourceAnnotation.$sourceAttribute: $targets"
 }

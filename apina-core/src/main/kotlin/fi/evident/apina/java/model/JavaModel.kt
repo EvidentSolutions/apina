@@ -26,7 +26,7 @@ class JavaModel {
     fun findClass(type: JavaType.Basic): JavaClass? = findClass(type.name)
 
     fun findClassesWithAnnotation(annotationType: JavaType.Basic): List<JavaClass> =
-            _classes.values.filter { it.hasAnnotation(annotationType) }
+        _classes.values.filter { it.hasAnnotation(annotationType) }
 
     inline fun <reified T : Any> isInstanceOf(type: JavaType) = isInstanceOf(type, T::class.java)
 

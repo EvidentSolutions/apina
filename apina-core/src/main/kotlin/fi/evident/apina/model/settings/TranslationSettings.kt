@@ -40,7 +40,6 @@ class TranslationSettings {
         controllersToProcess.addPattern(pattern)
     }
 
-    fun normalizeUrl(url: String): String {
-        return url.removePrefix(removedUrlPrefix)
-    }
+    fun normalizeUrl(url: String): String =
+        url.removePrefix(removedUrlPrefix)
 }

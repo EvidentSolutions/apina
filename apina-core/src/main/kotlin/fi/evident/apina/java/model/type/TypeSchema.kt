@@ -22,7 +22,7 @@ class TypeSchema {
         bounds.add(bound)
     }
 
-    fun getTypeBounds(v: JavaType.Variable): List<JavaType> = boundMap[v] ?: emptyList()
+    fun getTypeBounds(v: JavaType.Variable): List<JavaType> = boundMap[v].orEmpty()
 
     override fun toString() = boundMap.toString()
 
@@ -30,8 +30,7 @@ class TypeSchema {
         get() = boundMap.isEmpty()
 
     fun apply(arguments: List<JavaType>): TypeEnvironment {
-        if (arguments.size != variables.size)
-            throw IllegalArgumentException("expected ${variables.size} arguments, but got ${arguments.size}")
+        require(arguments.size == variables.size) { "expected ${variables.size} arguments, but got ${arguments.size}" }
 
         val env = TypeEnvironment.empty()
 

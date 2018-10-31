@@ -11,25 +11,19 @@ import java.util.function.Supplier
  */
 internal class TypeBuildingSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Supplier<JavaType> {
 
-    private var builder: ((List<JavaType>) -> JavaType)? = null
+    private lateinit var builder: ((List<JavaType>) -> JavaType)
 
     private val arguments = ArrayList<() -> JavaType>()
 
     private fun initBuilder(builder: (List<JavaType>) -> JavaType) {
-        if (this.builder != null)
+        if (this::builder.isInitialized)
             throw IllegalStateException("tried to initialize builder twice")
 
         this.builder = builder
     }
 
-    override fun get(): JavaType {
-        if (builder == null)
-            throw IllegalStateException("no builder defined for visitor")
-
-        val argumentTypes = arguments.map { it() }
-
-        return builder!!(argumentTypes)
-    }
+    override fun get(): JavaType =
+        builder(arguments.map { it() })
 
     override fun visitBaseType(descriptor: Char) {
         val baseType = parseTypeDescriptor(descriptor.toString())
@@ -63,7 +57,7 @@ internal class TypeBuildingSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Su
     }
 
     override fun visitInnerClassType(name: String) {
-        val originalBuilder = builder ?: throw IllegalStateException("no builder")
+        val originalBuilder = builder
 
         builder = { types -> JavaType.InnerClass(originalBuilder(types), name) }
     }
@@ -83,7 +77,7 @@ internal class TypeBuildingSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Su
             '=' -> return typeBuilder
             '+' -> return { JavaType.Wildcard.extending(typeBuilder()) }
             '-' -> return { JavaType.Wildcard.withSuper(typeBuilder()) }
-            else -> throw IllegalArgumentException("unknown wildcard: " + wildcard)
+            else -> throw IllegalArgumentException("unknown wildcard: $wildcard")
         }
     }
 }

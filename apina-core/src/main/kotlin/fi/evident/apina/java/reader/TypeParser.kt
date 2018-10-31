@@ -7,10 +7,10 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.signature.SignatureReader
 
 fun parseJavaType(typeDescriptor: String, signature: String?): JavaType =
-        if (signature != null)
-            parseGenericType(signature)
-        else
-            parseTypeDescriptor(typeDescriptor)
+    if (signature != null)
+        parseGenericType(signature)
+    else
+        parseTypeDescriptor(typeDescriptor)
 
 fun parseGenericType(signature: String): JavaType {
     val visitor = TypeBuildingSignatureVisitor()
@@ -41,7 +41,8 @@ fun parseMethodSignature(methodDescriptor: String, signature: String?): MethodSi
             MethodSignature(
                 genericSignature.returnType,
                 listOf(implicitParentType) + genericSignature.argumentTypes,
-                genericSignature.schema)
+                genericSignature.schema
+            )
         } else {
             assert(legacySignature.argumentCount == genericSignature.argumentCount)
             genericSignature
@@ -68,8 +69,8 @@ fun parseMethodDescriptor(methodDescriptor: String): MethodSignature {
     return MethodSignature(returnType, argumentTypes, TypeSchema())
 }
 
-fun javaType(type: Type): JavaType {
-    return if (type.sort == Type.ARRAY) {
+fun javaType(type: Type): JavaType =
+    if (type.sort == Type.ARRAY) {
         var javaType: JavaType = JavaType.Basic(type.elementType.className)
 
         repeat(type.dimensions) {
@@ -81,4 +82,3 @@ fun javaType(type: Type): JavaType {
     } else {
         JavaType.Basic(type.className)
     }
-}

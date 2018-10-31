@@ -9,14 +9,16 @@ import fi.evident.apina.java.model.type.JavaType
  * Wrapper for annotations that performs Spring-specific lookup for attributes.
  */
 class SpringAnnotation(
-        /** The original annotation type that caller was interested in */
-        private val annotationType: JavaType.Basic,
-        /** The set of annotations that were actually implied by site, ordered by specificity */
-        private val annotations: Collection<JavaAnnotation>,
-        private val javaModel: JavaModel) {
+    /** The original annotation type that caller was interested in */
+    private val annotationType: JavaType.Basic,
+    /** The set of annotations that were actually implied by site, ordered by specificity */
+    private val annotations: Collection<JavaAnnotation>,
+    private val javaModel: JavaModel
+) {
 
     inline fun <reified T : Any> getAttribute(attributeName: String): T? = getAttribute(attributeName, T::class.java)
-    inline fun <reified T : Any> getUniqueAttributeValue(attributeName: String): T? = getUniqueAttributeValue(attributeName, T::class.java)
+    inline fun <reified T : Any> getUniqueAttributeValue(attributeName: String): T? =
+        getUniqueAttributeValue(attributeName, T::class.java)
 
     override fun toString() = "SpringAnnotation [annotationType=$annotationType, annotations=$annotations]"
 
@@ -24,9 +26,9 @@ class SpringAnnotation(
      * Tries to find value for given attribute, considering meta-annotations and `@AliasFor`.
      */
     fun <T : Any> getAttribute(attributeName: String, type: Class<T>): T? =
-            annotations.asSequence()
-                    .mapNotNull { getAttributeFrom(it, attributeName, type) }
-                    .firstOrNull()
+        annotations.asSequence()
+            .mapNotNull { getAttributeFrom(it, attributeName, type) }
+            .firstOrNull()
 
     fun <T> getUniqueAttributeValue(attributeName: String, type: Class<T>): T? {
         val value = getAttribute<Any>(attributeName)
@@ -50,10 +52,10 @@ class SpringAnnotation(
         }
 
         return findAliases(annotation.name)
-                .asSequence()
-                .filter { it.matches(annotationType, attributeName) }
-                .mapNotNull { annotation.getAttribute(it.sourceAttribute, type) }
-                .firstOrNull()
+            .asSequence()
+            .filter { it.matches(annotationType, attributeName) }
+            .mapNotNull { annotation.getAttribute(it.sourceAttribute, type) }
+            .firstOrNull()
     }
 
     /**
@@ -78,7 +80,7 @@ class SpringAnnotation(
                 if (result.add(targetType to targetAttribute)) {
                     val clazz = javaModel.findClass(targetType)
                     if (clazz != null) {
-                        val target = clazz.methods.find { it.name == targetAttribute && it.hasAnnotation(SpringTypes.ALIAS_FOR)}
+                        val target = clazz.methods.find { it.name == targetAttribute && it.hasAnnotation(SpringTypes.ALIAS_FOR) }
                         if (target != null)
                             recurse(target)
                     }

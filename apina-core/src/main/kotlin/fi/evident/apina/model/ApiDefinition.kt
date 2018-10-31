@@ -28,7 +28,7 @@ class ApiDefinition {
     }
 
     fun containsType(typeName: ApiTypeName) =
-            typeName in _classDefinitions || typeName in _enumDefinitions
+        typeName in _classDefinitions || typeName in _enumDefinitions
 
     fun addClassDefinition(classDefinition: ClassDefinition) {
         verifyTypeDoesNotExist(classDefinition.type)
@@ -72,17 +72,17 @@ class ApiDefinition {
     val unknownTypeReferences: Set<ApiTypeName>
         get() {
             val resultTypes = _endpointGroups.asSequence()
-                    .flatMap { it.endpoints.asSequence() }
-                    .mapNotNull { it.responseBody }
+                .flatMap { it.endpoints.asSequence() }
+                .mapNotNull { it.responseBody }
 
             val propertyTypes = _classDefinitions.values.asSequence()
-                    .flatMap { it.properties.asSequence() }
-                    .map { it.type }
+                .flatMap { it.properties.asSequence() }
+                .map { it.type }
 
             return (resultTypes + propertyTypes)
-                    .flatMap { referencedClassTypes(it) }
-                    .filterNot { containsType(it) }
-                    .toSet()
+                .flatMap { referencedClassTypes(it) }
+                .filterNot { containsType(it) }
+                .toSet()
         }
 
     private fun referencedClassTypes(type: ApiType): Sequence<ApiTypeName> = when (type) {

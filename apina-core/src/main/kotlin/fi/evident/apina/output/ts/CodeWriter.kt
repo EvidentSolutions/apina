@@ -61,15 +61,15 @@ internal class CodeWriter {
     }
 
     fun writeExportedInterface(name: String, bodyWriter: () -> Unit): CodeWriter {
-        return writeBlock("export interface " + name, bodyWriter)
+        return writeBlock("export interface $name", bodyWriter)
     }
 
     fun writeExportedClass(name: String, bodyWriter: () -> Unit): CodeWriter {
-        return writeBlock("export class " + name, bodyWriter)
+        return writeBlock("export class $name", bodyWriter)
     }
 
     fun writeBlock(prefix: String, bodyWriter: () -> Unit): CodeWriter {
-        return write(prefix + " ").writeBlock(bodyWriter).writeLine().writeLine()
+        return write("$prefix ").writeBlock(bodyWriter).writeLine().writeLine()
     }
 
     fun writeBlock(block: () -> Unit): CodeWriter {
@@ -90,7 +90,7 @@ internal class CodeWriter {
             return
         }
 
-        writeBlock({
+        writeBlock {
             val it = obj.entries.iterator()
             while (it.hasNext()) {
                 val entry = it.next()
@@ -103,7 +103,7 @@ internal class CodeWriter {
 
                 writeLine()
             }
-        })
+        }
     }
 
     private fun writeCollection(obj: Collection<*>) {

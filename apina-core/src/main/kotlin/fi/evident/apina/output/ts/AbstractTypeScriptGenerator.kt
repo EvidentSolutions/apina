@@ -13,11 +13,13 @@ import fi.evident.apina.model.type.ApiTypeName
 import java.lang.String.format
 import java.util.*
 
-abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
-                                           val settings: TranslationSettings,
-                                           private val typePrefix: String,
-                                           private val supportPrefix: String,
-                                           private val resultFunctor: String) {
+abstract class AbstractTypeScriptGenerator(
+    val api: ApiDefinition,
+    val settings: TranslationSettings,
+    private val typePrefix: String,
+    private val supportPrefix: String,
+    private val resultFunctor: String
+) {
 
     internal val out = CodeWriter()
 
@@ -110,7 +112,7 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
     }
 
     private fun parameterListCode(parameters: List<EndpointParameter>) =
-            parameters.joinToString(", ") { p -> p.name + ": " + qualifiedTypeName(p.type) }
+        parameters.joinToString(", ") { p -> p.name + ": " + qualifiedTypeName(p.type) }
 
     companion object {
 
@@ -158,7 +160,7 @@ abstract class AbstractTypeScriptGenerator(val api: ApiDefinition,
          * to transfer representation.
          */
         private fun serialize(variable: String, type: ApiType) =
-                RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type) + "')")
+            RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type) + "')")
 
         private fun typeDescriptor(type: ApiType): String {
             // Use ApiType's native representation as type descriptor.

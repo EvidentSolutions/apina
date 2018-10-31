@@ -12,7 +12,7 @@ import java.util.function.Supplier
  */
 internal class MethodSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Supplier<MethodSignature> {
 
-    private var returnTypeBuilder: Supplier<JavaType>? = null
+    private lateinit var returnTypeBuilder: Supplier<JavaType>
 
     private val parameterTypeBuilders = ArrayList<Supplier<JavaType>>()
 
@@ -46,14 +46,9 @@ internal class MethodSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Supplier
         return visitor
     }
 
-    override fun get(): MethodSignature {
-        if (returnTypeBuilder == null)
-            throw IllegalStateException("returnTypeBuilder not initialized")
-
-        return MethodSignature(
-                returnTypeBuilder!!.get(),
-                parameterTypeBuilders.map { it.get() },
-                typeSchemaBuilder.schema)
-    }
-
+    override fun get(): MethodSignature = MethodSignature(
+        returnTypeBuilder.get(),
+        parameterTypeBuilders.map { it.get() },
+        typeSchemaBuilder.schema
+    )
 }

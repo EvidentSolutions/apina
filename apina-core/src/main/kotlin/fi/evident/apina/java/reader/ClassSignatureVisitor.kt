@@ -27,13 +27,11 @@ internal class ClassSignatureVisitor private constructor() : SignatureVisitor(Op
         typeSchemaBuilder.addTypeParameter(name!!)
     }
 
-    override fun visitClassBound(): SignatureVisitor {
-        return visitBound()
-    }
+    override fun visitClassBound(): SignatureVisitor =
+        visitBound()
 
-    override fun visitInterfaceBound(): SignatureVisitor {
-        return visitBound()
-    }
+    override fun visitInterfaceBound(): SignatureVisitor =
+        visitBound()
 
     private fun visitBound(): SignatureVisitor {
         val visitor = TypeBuildingSignatureVisitor()

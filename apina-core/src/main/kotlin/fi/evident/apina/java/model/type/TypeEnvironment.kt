@@ -42,12 +42,8 @@ class TypeEnvironment {
 
         fun empty(): TypeEnvironment = TypeEnvironment()
 
-        private fun effectiveBounds(bounds: List<JavaType>): JavaType {
+        private fun effectiveBounds(bounds: List<JavaType>): JavaType =
             // TODO: merge the bounds instead of picking the first one
-            return if (!bounds.isEmpty())
-                bounds[0]
-            else
-                JavaType.Basic(Any::class.java)
-        }
+            bounds.firstOrNull() ?: JavaType.Basic(Any::class.java)
     }
 }

@@ -113,7 +113,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         return if (value.isEmpty() || value.startsWith("/"))
             value
         else
-            '/' + value
+            "/$value"
     }
 
     private fun resolveRequestMethod(javaMethod: JavaMethod): HTTPMethod? =
