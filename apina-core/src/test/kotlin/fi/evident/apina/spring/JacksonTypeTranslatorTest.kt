@@ -20,6 +20,7 @@ import org.junit.Test
 import java.util.Collections.emptyList
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class JacksonTypeTranslatorTest {
 
@@ -180,6 +181,30 @@ class JacksonTypeTranslatorTest {
                 property("genericField", ApiType.Array(ApiType.Primitive.STRING))))
     }
 
+    @Test
+    fun `generic type parameters are translated for unknown generic types`() {
+        class Foo
+        class Bar
+        @Suppress("unused") class GenericType<T, S>
+
+        class Root {
+            @Suppress("unused")
+            lateinit var foo: GenericType<Foo, Bar>
+        }
+
+        val model = JavaModel().apply {
+            loadClassesFromInheritanceTree<Root>()
+            loadClassesFromInheritanceTree<GenericType<*, *>>()
+            loadClassesFromInheritanceTree<Foo>()
+            loadClassesFromInheritanceTree<Bar>()
+        }
+        val api = ApiDefinition()
+        val translator = JacksonTypeTranslator(settings, model, api)
+        translator.translateType(JavaType.basic<Root>(), MockAnnotatedElement(), TypeEnvironment.empty())
+
+        assertTrue(api.classDefinitions.any { it.type.name == "Foo" }, "Class definition for Foo is created")
+        assertTrue(api.classDefinitions.any { it.type.name == "Bar" }, "Class definition for Bar is created")
+    }
 
     @Test
     fun unboundTypeVariable() {

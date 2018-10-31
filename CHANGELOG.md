@@ -1,3 +1,7 @@
+## Unreleased
+
+- Generate Typescript classes for types in parameterized classes ([#44](https://github.com/EvidentSolutions/apina/issues/44), [#47](https://github.com/EvidentSolutions/apina/issues/47))
+
 ## 0.10.7 (2018-09-03)
 
 - Import `Observable` from `rxjs` instead of `rxjs/Observable`

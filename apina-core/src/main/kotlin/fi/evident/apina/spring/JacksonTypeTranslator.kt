@@ -87,18 +87,18 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
     private fun translateParameterizedType(type: JavaType.Parameterized, env: TypeEnvironment): ApiType {
         val baseType = type.baseType
-        val arguments = type.arguments
+        val arguments = type.arguments.map { translateType(it, env) }
 
         return when {
             classes.isInstanceOf<Collection<*>>(baseType) && arguments.size == 1 ->
-                ApiType.Array(translateType(arguments[0], env))
-            classes.isInstanceOf<Map<*,*>>(baseType) && arguments.size == 2 && classes.isInstanceOf<String>(arguments[0]) ->
-                ApiType.Dictionary(translateType(arguments[1], env))
+                ApiType.Array(arguments[0])
+            classes.isInstanceOf<Map<*,*>>(baseType) && arguments.size == 2 && arguments[0] == ApiType.Primitive.STRING ->
+                ApiType.Dictionary(arguments[1])
             classes.isInstanceOf<Optional<*>>(baseType) && arguments.size == 1 ->
-                ApiType.Nullable(translateType(arguments[0], env))
+                ApiType.Nullable(arguments[0])
             else ->
                 translateType(baseType, env)
-        } // TODO: use arguments
+        }
     }
 
     private fun translateClassType(type: JavaType.Basic, env: TypeEnvironment): ApiType {
