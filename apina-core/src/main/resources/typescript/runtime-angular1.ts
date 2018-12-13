@@ -192,7 +192,7 @@ export namespace Support {
             }
 
             request(url: string, method: string, params: any, data: any): IPromise<any> {
-                return this.$http({
+                return <Support.IPromise<{}>>this.$http({
                     url: this.config.baseUrl + url,
                     method: method,
                     params: params,
