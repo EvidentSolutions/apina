@@ -54,6 +54,12 @@
   Old `ENUM`-mode is now `INT_ENUM` and `STRING` is `STRING_UNION`. ([#37](https://github.com/EvidentSolutions/apina/issues/37))
 - Remove support for Angular 1 ([#36](https://github.com/EvidentSolutions/apina/issues/36))
 
+## 0.8.3 (2018-12-13)
+
+### Fixes
+
+- Support for parsing Java 9 module-info files (thanks to Markus Kouko).
+
 ## 0.8.2 (2017-09-08)
 
 ### Fixes
