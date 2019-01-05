@@ -1,3 +1,7 @@
+## 0.10.9 (2019-01-05)
+
+- Speed up class loading by trying to avoid parsing unnecessary classfiles
+
 ## 0.10.8 (2018-11-01)
 
 - Generate Typescript classes for types in parameterized classes ([#44](https://github.com/EvidentSolutions/apina/issues/44), [#47](https://github.com/EvidentSolutions/apina/issues/47))

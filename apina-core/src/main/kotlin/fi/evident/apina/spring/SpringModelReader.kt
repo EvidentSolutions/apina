@@ -4,7 +4,7 @@ import fi.evident.apina.java.model.*
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.reader.Classpath
-import fi.evident.apina.java.reader.loadModel
+import fi.evident.apina.java.reader.ClasspathClassDataLoader
 import fi.evident.apina.model.*
 import fi.evident.apina.model.parameters.EndpointParameter
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter
@@ -20,6 +20,7 @@ import fi.evident.apina.spring.SpringTypes.REQUEST_MAPPING
 import fi.evident.apina.spring.SpringTypes.REQUEST_PARAM
 import fi.evident.apina.spring.SpringTypes.RESPONSE_ENTITY
 import fi.evident.apina.spring.SpringTypes.REST_CONTROLLER
+import org.slf4j.LoggerFactory
 
 /**
  * Builds [ApiDefinition] by reading the classes of a Spring Web MVC application.
@@ -30,9 +31,8 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     private val annotationResolver = SpringAnnotationResolver(classes)
 
     private fun createEndpointsForControllers() {
-        for (controllerMetadata in classes.findClassesWithAnnotation(REST_CONTROLLER))
-            if (settings.isProcessableController(controllerMetadata.name))
-                api.addEndpointGroups(createEndpointGroupForController(controllerMetadata))
+        for (controllerMetadata in classes.findClassesWithAnnotation(settings::isProcessableController, REST_CONTROLLER))
+            api.addEndpointGroups(createEndpointGroupForController(controllerMetadata))
     }
 
     private fun createEndpointGroupForController(javaClass: JavaClass): EndpointGroup {
@@ -117,14 +117,15 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     }
 
     private fun resolveRequestMethod(javaMethod: JavaMethod): HTTPMethod? =
-            findHttpMethod(javaMethod) ?: findHttpMethod(javaMethod.owningClass)
+        findHttpMethod(javaMethod) ?: findHttpMethod(javaMethod.owningClass)
 
     private fun findHttpMethod(element: JavaAnnotatedElement): HTTPMethod? =
-            annotationResolver.findAnnotation(element, REQUEST_MAPPING)?.getUniqueAttributeValue<EnumValue>("method")
-                    ?.let { HTTPMethod.valueOf(it.constant) }
+        annotationResolver.findAnnotation(element, REQUEST_MAPPING)?.getUniqueAttributeValue<EnumValue>("method")
+            ?.let { HTTPMethod.valueOf(it.constant) }
 
     companion object {
 
+        private val log = LoggerFactory.getLogger(SpringModelReader::class.java)
         val RESPONSE_WRAPPERS = listOf(HTTP_ENTITY, RESPONSE_ENTITY, CALLABLE)
 
         fun readApiDefinition(model: JavaModel, settings: TranslationSettings): ApiDefinition {
@@ -135,7 +136,22 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
             return reader.api
         }
 
-        fun readApiDefinition(classpath: Classpath, settings: TranslationSettings): ApiDefinition =
-                readApiDefinition(classpath.loadModel(), settings)
+        fun readApiDefinition(classpath: Classpath, settings: TranslationSettings): ApiDefinition {
+            ClasspathClassDataLoader(classpath).use { loader ->
+                val start = System.currentTimeMillis()
+                log.debug("Loaded {} classes in {} ms", loader.classNames.size, System.currentTimeMillis() - start)
+
+                val duplicates = loader.duplicateClassNames
+                if (duplicates.isNotEmpty()) {
+                    log.warn(
+                        "There were {} classes with multiple definitions in classpath. Ignoring duplicate definitions.",
+                        duplicates.size
+                    )
+                    log.debug("Classes with multiple definitions: {}", duplicates)
+                }
+
+                return readApiDefinition(JavaModel(loader), settings)
+            }
+        }
     }
 }

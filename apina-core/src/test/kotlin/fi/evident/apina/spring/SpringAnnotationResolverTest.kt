@@ -2,7 +2,7 @@ package fi.evident.apina.spring
 
 import fi.evident.apina.java.model.*
 import fi.evident.apina.java.model.type.JavaType
-import fi.evident.apina.java.reader.loadClassesFromInheritanceTree
+import fi.evident.apina.java.reader.TestClassMetadataLoader
 import org.junit.Test
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -14,12 +14,13 @@ import kotlin.test.assertTrue
 
 class SpringAnnotationResolverTest {
 
-    private val model = JavaModel()
+    private val loader = TestClassMetadataLoader()
+    private val model = JavaModel(loader)
     private val resolver = SpringAnnotationResolver(model)
 
     @Test
     fun impliedAnnotations() {
-        model.loadClassesFromInheritanceTree<MyClass>()
+        loader.loadClassesFromInheritanceTree<MyClass>()
 
         val implied = resolver.findImpliedAnnotations(JavaAnnotation(JavaType.basic<MyAnnotation>()))
         assertTrue(implied.any { it.name == JavaType.basic<MyAnnotation>() })
@@ -29,7 +30,7 @@ class SpringAnnotationResolverTest {
 
     @Test
     fun findAnnotation() {
-        model.loadClassesFromInheritanceTree<MyClass>()
+        loader.loadClassesFromInheritanceTree<MyClass>()
 
         val clazz = model.findClass(JavaType.basic<MyClass>())!!
 
@@ -40,7 +41,7 @@ class SpringAnnotationResolverTest {
 
     @Test
     fun attributesWithoutAliases() {
-        model.loadClassesFromInheritanceTree<MyController>()
+        loader.loadClassesFromInheritanceTree<MyController>()
 
         val requestMapping = getMethodAnnotation<MyController>("postMethod", JavaType.basic<RequestMapping>())
         assertEquals("POST", requestMapping.getAttribute<EnumValue>("method")?.constant)
@@ -48,7 +49,7 @@ class SpringAnnotationResolverTest {
 
     @Test
     fun metaAnnotations() {
-        model.loadClassesFromInheritanceTree<MyController>()
+        loader.loadClassesFromInheritanceTree<MyController>()
         val controller = requireNotNull(model.findClass(JavaType.basic<MyController>()))
 
         assertTrue(resolver.hasAnnotation(controller, JavaType.basic<RestController>()))
@@ -61,8 +62,8 @@ class SpringAnnotationResolverTest {
 
     @Test
     fun resolveImplicitAliases() {
-        model.loadClassesFromInheritanceTree<MyController>()
-        model.loadClassesFromInheritanceTree<GetMapping>()
+        loader.loadClassesFromInheritanceTree<MyController>()
+        loader.loadClassesFromInheritanceTree<GetMapping>()
 
         val fooAnnotation = getMethodAnnotation<MyController>("foo", JavaType.basic<RequestMapping>())
         val barAnnotation = getMethodAnnotation<MyController>("bar", JavaType.basic<RequestMapping>())

@@ -5,7 +5,7 @@ import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.model.type.TypeSchema
-import fi.evident.apina.java.reader.loadClassesFromInheritanceTree
+import fi.evident.apina.java.reader.TestClassMetadataLoader
 import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.ClassDefinition
 import fi.evident.apina.model.EnumDefinition
@@ -103,9 +103,10 @@ class JacksonTypeTranslatorTest {
         val class1 = JavaClass(JavaType.Basic("foo.MyClass"), JavaType.Basic("java.lang.Object"), emptyList(), 0, TypeSchema())
         val class2 = JavaClass(JavaType.Basic("bar.MyClass"), JavaType.Basic("java.lang.Object"), emptyList(), 0, TypeSchema())
 
-        val classes = JavaModel()
-        classes.addClass(class1)
-        classes.addClass(class2)
+        val loader = TestClassMetadataLoader()
+        loader.addClass(class1)
+        loader.addClass(class2)
+        val classes = JavaModel(loader)
         val translator = JacksonTypeTranslator(settings, classes, ApiDefinition())
         val env = TypeEnvironment.empty()
 
@@ -192,12 +193,12 @@ class JacksonTypeTranslatorTest {
             lateinit var foo: GenericType<Foo, Bar>
         }
 
-        val model = JavaModel().apply {
+        val model = JavaModel(TestClassMetadataLoader().apply {
             loadClassesFromInheritanceTree<Root>()
             loadClassesFromInheritanceTree<GenericType<*, *>>()
             loadClassesFromInheritanceTree<Foo>()
             loadClassesFromInheritanceTree<Bar>()
-        }
+        })
         val api = ApiDefinition()
         val translator = JacksonTypeTranslator(settings, model, api)
         translator.translateType(JavaType.basic<Root>(), MockAnnotatedElement(), TypeEnvironment.empty())
@@ -228,7 +229,7 @@ class JacksonTypeTranslatorTest {
     }
 
     private fun translateType(type: JavaType): ApiType {
-        val classes = JavaModel()
+        val classes = JavaModel(TestClassMetadataLoader())
         val api = ApiDefinition()
         val translator = JacksonTypeTranslator(settings, classes, api)
 
@@ -252,8 +253,9 @@ class JacksonTypeTranslatorTest {
     }
 
     private inline fun <reified T : Any> translateClass(api: ApiDefinition): ApiType {
-        val model = JavaModel()
-        model.loadClassesFromInheritanceTree<T>()
+        val model = JavaModel(TestClassMetadataLoader().apply {
+            loadClassesFromInheritanceTree<T>()
+        })
         val translator = JacksonTypeTranslator(settings, model, api)
 
         return translator.translateType(JavaType.basic<T>(), MockAnnotatedElement(), TypeEnvironment.empty())

@@ -1,7 +1,7 @@
 package fi.evident.apina.spring
 
 import fi.evident.apina.java.model.JavaModel
-import fi.evident.apina.java.reader.loadClassesFromInheritanceTree
+import fi.evident.apina.java.reader.TestClassMetadataLoader
 import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.Endpoint
 import fi.evident.apina.model.EndpointGroup
@@ -99,10 +99,12 @@ class SpringModelReaderTest {
         assertNotNull(endpoints.find { it.name == name })
 
     private inline fun <reified T : Any> readModel(): ApiDefinition {
-        val model = JavaModel()
-        model.loadClassesFromInheritanceTree<T>()
-        model.loadClassesFromInheritanceTree<PostMapping>()
-        model.loadClassesFromInheritanceTree<GetMapping>()
+        val model = JavaModel(TestClassMetadataLoader().apply {
+            loadClassesFromInheritanceTree<T>()
+            loadClassesFromInheritanceTree<PostMapping>()
+            loadClassesFromInheritanceTree<GetMapping>()
+        })
+
         return SpringModelReader.readApiDefinition(model, settings)
     }
 }
