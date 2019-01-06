@@ -1,3 +1,7 @@
+## 0.10.10 (2019-01-06)
+
+- Make order of written elements deterministic to help with build caching.
+
 ## 0.10.9 (2019-01-05)
 
 - Speed up class loading by trying to avoid parsing unnecessary classfiles

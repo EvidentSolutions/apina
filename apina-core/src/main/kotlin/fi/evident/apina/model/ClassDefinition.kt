@@ -5,7 +5,7 @@ import java.util.*
 
 class ClassDefinition(val type: ApiTypeName) {
 
-    private val _properties = LinkedHashMap<String, PropertyDefinition>()
+    private val _properties = TreeMap<String, PropertyDefinition>()
 
     val properties: Collection<PropertyDefinition>
         get() = _properties.values

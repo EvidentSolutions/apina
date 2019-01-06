@@ -15,7 +15,7 @@ class ApiDefinition {
     private val blackBoxTypes = LinkedHashSet<ApiTypeName>()
 
     val endpointGroups: Collection<EndpointGroup>
-        get() = _endpointGroups
+        get() = _endpointGroups.sortedBy { it.name }
 
     val classDefinitions: Collection<ClassDefinition>
         get() = _classDefinitions.values
@@ -64,7 +64,7 @@ class ApiDefinition {
         get() = _enumDefinitions.size
 
     val allBlackBoxClasses: Collection<ApiTypeName>
-        get() = blackBoxTypes + unknownTypeReferences
+        get() = (blackBoxTypes + unknownTypeReferences).sorted()
 
     /**
      * Returns all class types that refer to unknown classes.
