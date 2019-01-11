@@ -138,7 +138,7 @@ class ClasspathClassDataLoader(classpath: Classpath) : ClassDataLoader, Closeabl
             extensions.any { name.endsWith(it) }
 
         private fun String.toClassName() =
-            removePrefix("WEB-INF/classes/").removePrefix("BOOT-INF/classes/").removeSuffix(".class").replace('/', '.')
+            removePrefix("WEB-INF/classes/").removePrefix("BOOT-INF/classes/").removeSuffix(".class").replace('/', '.').replace('\\', '.')
 
         private fun String.isProcessedClassFile() =
             endsWith(".class") && this != "module-info.class" && !startsWith("META-INF/versions")

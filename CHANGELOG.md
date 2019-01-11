@@ -1,3 +1,7 @@
+## 0.10.11 (2019-01-11
+
+- Fix classpath scanning on Windows.
+
 ## 0.10.10 (2019-01-06)
 
 - Make order of written elements deterministic to help with build caching.
