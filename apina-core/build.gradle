@@ -7,7 +7,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     compile "org.slf4j:slf4j-api:$slf4jVersion"
     compile "org.jetbrains:annotations:13.0"
-    compile "org.ow2.asm:asm:6.0"
+    compile "org.ow2.asm:asm:7.0"
 
     testCompile "com.fasterxml.jackson.core:jackson-annotations:2.8.6"
     testCompile "org.springframework:spring-web:4.3.5.RELEASE"

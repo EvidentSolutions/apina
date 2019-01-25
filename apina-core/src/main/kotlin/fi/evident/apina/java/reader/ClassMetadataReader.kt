@@ -32,7 +32,7 @@ internal object ClassMetadataReader {
             JavaVisibility.PACKAGE
     }
 
-    private class MyClassVisitor : ClassVisitor(Opcodes.ASM6) {
+    private class MyClassVisitor : ClassVisitor(Opcodes.ASM7) {
 
         private var javaClass: JavaClass? = null
 
