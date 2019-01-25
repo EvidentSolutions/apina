@@ -1,4 +1,4 @@
-## Unreleased
+## 0.10.12 (2019-01-25)
 
 - Support Java 11
 
