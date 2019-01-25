@@ -14,7 +14,7 @@ dependencies {
     // We have to define explicit version here or invalid POM is generated
     compile(kotlin("stdlib", kotlinVersion))
     compile("org.slf4j:slf4j-api:1.7.12")
-    compile("org.ow2.asm:asm:6.0")
+    compile("org.ow2.asm:asm:7.0")
 
     testCompile("junit:junit")
     testCompile(kotlin("test"))

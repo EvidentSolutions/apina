@@ -1,4 +1,8 @@
-## 0.10.11 (2019-01-11
+## Unreleased
+
+- Support Java 11
+
+## 0.10.11 (2019-01-11)
 
 - Fix classpath scanning on Windows.
 
@@ -67,8 +71,6 @@
 - Remove support for Angular 1 ([#36](https://github.com/EvidentSolutions/apina/issues/36))
 
 ## 0.8.4 (2019-01-25)
-
-### Fixes
 
 - Support Java 11 (thanks to Markus Kouko).
 
