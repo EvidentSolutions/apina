@@ -41,36 +41,33 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
 
         val boundClass = BoundClass(javaClass, TypeEnvironment.empty())
 
-        // TODO: if method is overridden in subclass, ignore the superclass method
-        // TODO: pass the resolved environment from BoundClass to createEndpointForMethod
         for (cl in classes.classesUpwardsFrom(boundClass))
             for (m in cl.javaClass.publicMethods)
                 if (!m.isStatic && annotationResolver.hasAnnotation(m, REQUEST_MAPPING))
-                    endpointGroup.addEndpoint(createEndpointForMethod(m))
+                    endpointGroup.addEndpoint(createEndpointForMethod(m, javaClass, cl))
 
         return endpointGroup
     }
 
-    private fun createEndpointForMethod(method: JavaMethod): Endpoint {
-        val responseBody = resolveResponseBody(method)
+    private fun createEndpointForMethod(method: JavaMethod, owningClass: JavaClass, boundClass: BoundClass): Endpoint {
+        val responseBody = resolveResponseBody(method, boundClass.environment)
 
-        val endpoint = Endpoint(method.name, resolveUriTemplate(method), responseBody)
+        val endpoint = Endpoint(method.name, resolveUriTemplate(method, owningClass), responseBody)
         resolveRequestMethod(method)?.let { endpoint.method = it }
 
         val typeTranslator = JacksonTypeTranslator(settings, classes, api)
-        val env = method.environment
         for (parameter in method.parameters)
-            parseParameter(typeTranslator, parameter, env, method)?.let { endpoint.addParameter(it) }
+            parseParameter(typeTranslator, parameter, boundClass.environment, method)?.let { endpoint.addParameter(it) }
 
         return endpoint
     }
 
-    private fun resolveResponseBody(method: JavaMethod): ApiType? {
+    private fun resolveResponseBody(method: JavaMethod, env: TypeEnvironment): ApiType? {
         val returnType = method.returnType
 
         return if (!returnType.isVoid) {
             val typeTranslator = JacksonTypeTranslator(settings, classes, api)
-            typeTranslator.translateType(unwrapReturnType(returnType), method, method.environment)
+            typeTranslator.translateType(unwrapReturnType(returnType), method, env)
         } else {
             null
         }
@@ -105,8 +102,8 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         return null
     }
 
-    private fun resolveUriTemplate(method: JavaMethod): URITemplate {
-        val classUrl = findRequestMappingPath(method.owningClass)
+    private fun resolveUriTemplate(method: JavaMethod, owningClass: JavaClass): URITemplate {
+        val classUrl = findRequestMappingPath(owningClass)
         val methodUrl = findRequestMappingPath(method)
 
         val url = (classUrl + methodUrl).removePrefix(settings.removedUrlPrefix)

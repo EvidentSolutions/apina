@@ -1,3 +1,8 @@
+## 0.10.14 (2019-01-29)
+
+- Support resolving base path and generic parameters from subclass when controller methods
+  are defined in superclass. 
+
 ## 0.10.13 (2019-01-29)
 
 - Search controller methods for superclasses of controllers 

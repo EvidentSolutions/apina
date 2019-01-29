@@ -11,10 +11,7 @@ import fi.evident.apina.model.type.ApiType
 import org.junit.Test
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.concurrent.Callable
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -76,6 +73,7 @@ class SpringModelReaderTest {
         }
 
         @RestController
+        @RequestMapping("/prefix")
         class SubController : SuperController() {
 
             @GetMapping("/bar")
@@ -85,6 +83,49 @@ class SpringModelReaderTest {
         val group = readModel<SubController>().endpointGroups.single()
 
         assertEquals(2, group.endpoints.size)
+
+        assertEquals("/prefix/foo", group.endpointByName("foo").uriTemplate.toString())
+        assertEquals("/prefix/bar", group.endpointByName("bar").uriTemplate.toString())
+    }
+
+    @Test
+    @Suppress("unused")
+    fun `only most specific override is used`() {
+        abstract class SuperController {
+            @GetMapping("/foo")
+            open fun foo() = ""
+        }
+
+        @RestController
+        class SubController : SuperController() {
+
+            @GetMapping("/bar")
+            override fun foo() = ""
+        }
+
+        val group = readModel<SubController>().endpointGroups.single()
+
+        assertEquals(1, group.endpoints.size)
+        assertEquals("/bar", group.endpointByName("foo").uriTemplate.toString())
+    }
+
+    @Test
+    @Suppress("unused")
+    fun `resolve types from type-parameters`() {
+
+        abstract class SuperController<T> {
+            @GetMapping("/foo")
+            open fun foo(@RequestParam s: T): T = error("")
+        }
+
+        @RestController
+        class SubController : SuperController<String>()
+
+        val group = readModel<SubController>().endpointGroups.single()
+
+        val endpoint = group.endpointByName("foo")
+        assertEquals(ApiType.Primitive.STRING, endpoint.responseBody)
+        assertEquals(ApiType.Primitive.STRING, endpoint.parameters[0].type)
     }
 
     @Test
