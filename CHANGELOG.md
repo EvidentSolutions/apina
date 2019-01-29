@@ -1,3 +1,7 @@
+## 0.10.13 (2019-01-29)
+
+- Search controller methods for superclasses of controllers 
+
 ## 0.10.12 (2019-01-25)
 
 - Support Java 11

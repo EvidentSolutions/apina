@@ -1,6 +1,7 @@
 package fi.evident.apina.spring
 
 import fi.evident.apina.java.model.*
+import fi.evident.apina.java.model.type.BoundClass
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.reader.Classpath
@@ -38,9 +39,14 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     private fun createEndpointGroupForController(javaClass: JavaClass): EndpointGroup {
         val endpointGroup = EndpointGroup(translateEndpointGroupName(javaClass.name))
 
-        for (m in javaClass.publicMethods)
-            if (!m.isStatic && annotationResolver.hasAnnotation(m, REQUEST_MAPPING))
-                endpointGroup.addEndpoint(createEndpointForMethod(m))
+        val boundClass = BoundClass(javaClass, TypeEnvironment.empty())
+
+        // TODO: if method is overridden in subclass, ignore the superclass method
+        // TODO: pass the resolved environment from BoundClass to createEndpointForMethod
+        for (cl in classes.classesUpwardsFrom(boundClass))
+            for (m in cl.javaClass.publicMethods)
+                if (!m.isStatic && annotationResolver.hasAnnotation(m, REQUEST_MAPPING))
+                    endpointGroup.addEndpoint(createEndpointForMethod(m))
 
         return endpointGroup
     }

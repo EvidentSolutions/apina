@@ -1,7 +1,10 @@
 package fi.evident.apina.java.model
 
+import fi.evident.apina.java.model.type.BoundClass
 import fi.evident.apina.java.model.type.JavaType
+import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.reader.ClassDataLoader
+import java.util.*
 
 /**
  * Contains metadata for all loaded classes.
@@ -46,4 +49,36 @@ class JavaModel(private val classDataLoader: ClassDataLoader) {
     }
 
     fun isNumber(type: JavaType.Basic) = type.isPrimitiveNumber || isInstanceOf<Number>(type)
+
+    fun classesUpwardsFrom(javaClass: BoundClass): List<BoundClass> {
+        val result = ArrayList<BoundClass>()
+
+        fun recurse(c: BoundClass) {
+            if (result.any { c.javaClass == it.javaClass })
+                return
+
+            result += c
+
+            c.javaClass.interfaces
+                .asSequence()
+                .mapNotNull { boundClassFor(it, c.environment) }
+                .forEach(::recurse)
+        }
+
+        var cl: BoundClass? = javaClass
+        while (cl != null) {
+            recurse(cl)
+            cl = boundClassFor(cl.javaClass.superClass, cl.environment)
+        }
+
+        return result
+    }
+
+    private fun boundClassFor(type: JavaType, env: TypeEnvironment): BoundClass? =
+        findClass(type.nonGenericClassName)?.let { c ->
+            if (type is JavaType.Parameterized)
+                BoundClass(c, c.schema.apply(env.resolve(type.arguments)))
+            else
+                BoundClass(c, TypeEnvironment.empty())
+        }
 }

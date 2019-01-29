@@ -67,6 +67,27 @@ class SpringModelReaderTest {
     }
 
     @Test
+    @Suppress("unused")
+    fun `scan methods in superclasses`() {
+
+        abstract class SuperController {
+            @GetMapping("/foo")
+            fun foo() = ""
+        }
+
+        @RestController
+        class SubController : SuperController() {
+
+            @GetMapping("/bar")
+            fun bar() = ""
+        }
+
+        val group = readModel<SubController>().endpointGroups.single()
+
+        assertEquals(2, group.endpoints.size)
+    }
+
+    @Test
     fun wrappedResultTypes() {
 
         class Foo

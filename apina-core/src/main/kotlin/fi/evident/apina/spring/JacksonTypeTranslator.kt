@@ -157,7 +157,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
         val acceptProperty = { name: String -> !classDefinition.hasProperty(name) && !ignoredProperties.contains(name) }
 
-        for (cl in classesUpwardsFrom(boundClass)) {
+        for (cl in classes.classesUpwardsFrom(boundClass)) {
             addPropertiesFromGetters(cl, classDefinition, acceptProperty)
             addPropertiesFromFields(cl, classDefinition, acceptProperty)
         }
@@ -186,7 +186,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
     private fun ignoredProperties(type: BoundClass): Set<String> {
         val ignores = HashSet<String>()
 
-        val classes = classesUpwardsFrom(type)
+        val classes = classes.classesUpwardsFrom(type)
 
         for (i in classes.indices.reversed()) {
             val aClass = classes[i].javaClass
@@ -213,38 +213,6 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
         return ignores
     }
-
-    private fun classesUpwardsFrom(javaClass: BoundClass): List<BoundClass> {
-        val result = ArrayList<BoundClass>()
-
-        fun recurse(c: BoundClass) {
-            if (result.any { c.javaClass == it.javaClass })
-                return
-
-            result += c
-
-            c.javaClass.interfaces
-                    .asSequence()
-                    .mapNotNull { boundClassFor(it, c.environment) }
-                    .forEach(::recurse)
-        }
-
-        var cl: BoundClass? = javaClass
-        while (cl != null) {
-            recurse(cl)
-            cl = boundClassFor(cl.javaClass.superClass, cl.environment)
-        }
-
-        return result
-    }
-
-    private fun boundClassFor(type: JavaType, env: TypeEnvironment): BoundClass? =
-            classes.findClass(type.nonGenericClassName)?.let { c ->
-                if (type is JavaType.Parameterized)
-                    BoundClass(c, c.schema.apply(env.resolve(type.arguments)))
-                else
-                    BoundClass(c, TypeEnvironment.empty())
-            }
 
     companion object {
 
