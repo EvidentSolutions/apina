@@ -13,6 +13,7 @@ class TranslationSettings {
     private val controllersToProcess = PatternSet()
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
+    var platform = Platform.ANGULAR2
     var enumMode = EnumMode.DEFAULT
     var removedUrlPrefix = ""
 

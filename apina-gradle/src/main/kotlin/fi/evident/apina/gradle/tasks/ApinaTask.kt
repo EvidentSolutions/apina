@@ -5,6 +5,7 @@ package fi.evident.apina.gradle.tasks
 import fi.evident.apina.ApinaProcessor
 import fi.evident.apina.java.reader.Classpath
 import fi.evident.apina.model.settings.EnumMode
+import fi.evident.apina.model.settings.Platform
 import fi.evident.apina.spring.EndpointParameterNameNotDefinedException
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
@@ -37,6 +38,9 @@ open class ApinaTask : DefaultTask() {
     var imports: Map<String, List<String>> = HashMap()
 
     @get:Input
+    var platform = Platform.ANGULAR2
+
+    @get:Input
     var enumMode = EnumMode.DEFAULT
 
     @get:Input
@@ -67,6 +71,7 @@ open class ApinaTask : DefaultTask() {
 
             processor.settings.enumMode = enumMode
             processor.settings.removedUrlPrefix = removedUrlPrefix
+            processor.settings.platform = platform
 
             endpoints.forEach { processor.settings.addControllerPattern(it) }
 
