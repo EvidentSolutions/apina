@@ -18,8 +18,6 @@ import java.util.*
 abstract class AbstractTypeScriptGenerator(
     val api: ApiDefinition,
     val settings: TranslationSettings,
-    private val typePrefix: String,
-    private val supportPrefix: String,
     private val resultFunctor: String,
     private val classDecorator: String
 ) {
@@ -104,7 +102,7 @@ abstract class AbstractTypeScriptGenerator(
             }
         }
 
-        out.write("export function registerDefaultSerializers(config: " + supportPrefix + "ApinaConfig) ").writeBlock {
+        out.write("export function registerDefaultSerializers(config: ApinaConfig) ").writeBlock {
             for (unknownType in api.allBlackBoxClasses)
                 out.write("config.registerIdentitySerializer(").writeValue(unknownType.toString()).writeLine(");")
             out.writeLine()
@@ -170,7 +168,7 @@ abstract class AbstractTypeScriptGenerator(
         type is ApiType.Primitive -> type.typeRepresentation()
         type is ApiType.Array -> qualifiedTypeName(type.elementType) + "[]"
         settings.isImported(ApiTypeName(type.typeRepresentation())) -> type.typeRepresentation()
-        else -> typePrefix + type.typeRepresentation()
+        else -> type.typeRepresentation()
     }
 
     private fun parameterListCode(parameters: List<EndpointParameter>) =

@@ -7,7 +7,7 @@ import fi.evident.apina.utils.readResourceAsString
 /**
  * Generates Angular 2 TypeScript code for client side.
  */
-class TypeScriptAngular2Generator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(api, settings, "", "", "Observable", "@Injectable()") {
+class TypeScriptAngular2Generator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(api, settings, "Observable", "@Injectable()") {
 
     val output: String
         get() = out.output
