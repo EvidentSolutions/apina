@@ -12,7 +12,7 @@ buildscript {
     dependencies {
         classpath(files("/Users/komu/src/evident/apina/apina-core/build/libs/apina-core-0.10.4.jar"))
         classpath(files("/Users/komu/src/evident/apina/apina-gradle/build/libs/apina-gradle-0.10.4.jar"))
-        classpath("org.ow2.asm:asm:6.0")
+        classpath("org.ow2.asm:asm:7.0")
     }
 }
 
