@@ -1,3 +1,7 @@
+## 0.11.0 (2019-02-08)
+
+- Add new `es6` platform target, allowing using Apina without Angular. 
+
 ## 0.10.14 (2019-01-29)
 
 - Support resolving base path and generic parameters from subclass when controller methods

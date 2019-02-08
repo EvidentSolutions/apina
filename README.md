@@ -1,8 +1,8 @@
 # Apina
 
-Apina creates client-side TypeScript code for Angular based on server-side APIs. Apina reads Spring Web MVC's
-`@RestController` annotated classes and their related Jackson classes and creates code for the data model and
-for executing HTTP-requests.
+Apina creates client-side TypeScript code for either for Angular or Fetch API based on server-side APIs. Apina reads 
+Spring Web MVC's `@RestController` annotated classes and their related Jackson classes and creates code for the data
+model and for executing HTTP-requests.
 
 ## Using the Gradle-plugin
 
@@ -10,7 +10,7 @@ Include something like the following in your web application project:
 
 ```groovy
 plugins {
-    id "fi.evident.apina" version "0.10.14"
+    id "fi.evident.apina" version "0.11.0"
 }
 
 apina {
@@ -37,6 +37,11 @@ apina {
     // If generated URLs would start with given prefix, removes it. Useful when configuring Apina
     // work behind reverse proxies. Defaults to empty string (URL is not modified).
     removedUrlPrefix = "/foo"
+    
+    // Code generation target (Default is 'angular'2)
+    // - 'angular2' => Generate Angular module that uses Angular's HttpClient 
+    // - 'es6' => Generate code that uses Fetch API and has no dependencies apart from ES6
+    platform = 'angular2' 
 }
 
 // Tell the frontend to run apina before setup 
