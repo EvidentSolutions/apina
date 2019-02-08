@@ -1,8 +1,10 @@
 package fi.evident.apina
 
 import fi.evident.apina.java.reader.Classpath
+import fi.evident.apina.model.settings.Platform
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.output.ts.TypeScriptAngular2Generator
+import fi.evident.apina.output.ts.TypeScriptES6Generator
 import fi.evident.apina.spring.SpringModelReader
 import org.slf4j.LoggerFactory
 
@@ -31,9 +33,18 @@ class ApinaProcessor(private val classpath: Classpath) {
             log.warn("Writing {} unknown class definitions as black boxes: {}", unknownTypes.size, unknownTypes)
         }
 
-        val writer = TypeScriptAngular2Generator(api, settings)
-        writer.writeApi()
-        return writer.output
+        return when (settings.platform) {
+            Platform.ANGULAR2 -> {
+                val writer = TypeScriptAngular2Generator(api, settings)
+                writer.writeApi()
+                writer.output
+            }
+            Platform.ES6 -> {
+                val writer = TypeScriptES6Generator(api, settings)
+                writer.writeApi()
+                writer.output
+            }
+        }
     }
 
     companion object {
