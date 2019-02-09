@@ -12,6 +12,7 @@ class ApiDefinition {
     private val _endpointGroups = ArrayList<EndpointGroup>()
     private val _classDefinitions = TreeMap<ApiTypeName, ClassDefinition>()
     private val _enumDefinitions = TreeMap<ApiTypeName, EnumDefinition>()
+    private val _discriminatedUnionDefinitions = TreeMap<ApiTypeName, DiscriminatedUnionDefinition>()
     private val blackBoxTypes = LinkedHashSet<ApiTypeName>()
 
     val endpointGroups: Collection<EndpointGroup>
@@ -23,12 +24,15 @@ class ApiDefinition {
     val enumDefinitions: Collection<EnumDefinition>
         get() = _enumDefinitions.values
 
+    val discriminatedUnionDefinitions: Collection<DiscriminatedUnionDefinition>
+        get() = _discriminatedUnionDefinitions.values
+
     fun addEndpointGroups(group: EndpointGroup) {
         _endpointGroups += group
     }
 
     fun containsType(typeName: ApiTypeName) =
-        typeName in _classDefinitions || typeName in _enumDefinitions
+        typeName in _classDefinitions || typeName in _enumDefinitions || typeName in _discriminatedUnionDefinitions
 
     fun addClassDefinition(classDefinition: ClassDefinition) {
         verifyTypeDoesNotExist(classDefinition.type)
@@ -40,6 +44,12 @@ class ApiDefinition {
         verifyTypeDoesNotExist(enumDefinition.type)
 
         _enumDefinitions[enumDefinition.type] = enumDefinition
+    }
+
+    fun addDiscriminatedUnion(definition: DiscriminatedUnionDefinition) {
+        verifyTypeDoesNotExist(definition.type)
+
+        _discriminatedUnionDefinitions[definition.type] = definition
     }
 
     fun addBlackBox(type: ApiTypeName) {

@@ -26,6 +26,9 @@ class JavaAnnotation(val name: JavaType.Basic) {
     inline fun <reified T : Any> getAttribute(name: String): T? =
         getAttribute(name, T::class.java)
 
+    inline fun <reified T : Any> getRequiredAttribute(name: String): T =
+        getAttribute(name, T::class.java) ?: error("Required attribute $name missing for $name")
+
     fun <T : Any> getAttribute(name: String, type: Class<T>): T? {
         val value = attributes[name] ?: return null
 

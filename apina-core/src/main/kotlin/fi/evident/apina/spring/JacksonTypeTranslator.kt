@@ -1,15 +1,13 @@
 package fi.evident.apina.spring
 
+import fi.evident.apina.java.model.EnumValue
 import fi.evident.apina.java.model.JavaAnnotatedElement
 import fi.evident.apina.java.model.JavaAnnotation
 import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.BoundClass
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
-import fi.evident.apina.model.ApiDefinition
-import fi.evident.apina.model.ClassDefinition
-import fi.evident.apina.model.EnumDefinition
-import fi.evident.apina.model.PropertyDefinition
+import fi.evident.apina.model.*
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
@@ -120,23 +118,53 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         if (!api.containsType(typeName)) {
             val aClass = classes.findClass(type.name)
             if (aClass != null) {
-                if (aClass.isEnum) {
-                    api.addEnumDefinition(EnumDefinition(typeName, aClass.enumConstants))
+                when {
+                    aClass.isEnum ->
+                        api.addEnumDefinition(EnumDefinition(typeName, aClass.enumConstants))
+                    aClass.hasAnnotation(JSON_SUB_TYPES) -> {
+                        val typeInfo = aClass.findAnnotation(JSON_TYPE_INFO) ?: error("@JsonTypeInfo missing for $aClass")
+                        val subTypes = aClass.findAnnotation(JSON_SUB_TYPES) ?: error("@JsonSubTypes missing for $aClass")
+                        createDiscriminatedUnion(type, typeInfo, subTypes)
+                    }
+                    else -> {
+                        val classDefinition = ClassDefinition(typeName)
 
-                } else {
-                    val classDefinition = ClassDefinition(typeName)
-
-                    // We must first add the definition to api and only then proceed to
-                    // initialize it because initialization of properties could refer
-                    // back to this same class and we'd get infinite recursion if the
-                    // class is not already installed.
-                    api.addClassDefinition(classDefinition)
-                    initClassDefinition(classDefinition, BoundClass(aClass, env))
+                        // We must first add the definition to api and only then proceed to
+                        // initialize it because initialization of properties could refer
+                        // back to this same class and we'd get infinite recursion if the
+                        // class is not already installed.
+                        api.addClassDefinition(classDefinition)
+                        initClassDefinition(classDefinition, BoundClass(aClass, env))
+                    }
                 }
             }
         }
 
         return classType
+    }
+
+    private fun createDiscriminatedUnion(javaType: JavaType.Basic, typeInfo: JavaAnnotation, subTypes: JavaAnnotation) {
+        val use = typeInfo.getRequiredAttribute<EnumValue>("use").constant
+        val include = typeInfo.getAttribute<EnumValue>("include")?.constant ?: "PROPERTY"
+        val property = typeInfo.getAttribute("property") ?: ""
+
+        check(use == "NAME") { "Only 'use=NAME' is supported for @JsonTypeInfo (in $javaType)" }
+        check(include == "PROPERTY") { "Only 'include=PROPERTY' is supported for @JsonTypeInfo (in $javaType)" }
+        check(property.isNotEmpty()) { "No 'property' defined for @JsonTypeInfo (in $javaType)" }
+
+        val union = DiscriminatedUnionDefinition(classNameForType(javaType), property)
+
+        // Add this before further processing because the type may be recursively referenced inside subclasses
+        api.addDiscriminatedUnion(union)
+
+        for (subType in subTypes.getAttributeValues("value")) {
+            val annotation = subType as JavaAnnotation
+            val value = annotation.getRequiredAttribute<JavaType>("value")
+            val type = translateType(value, TypeEnvironment.empty())
+            val name = annotation.getAttribute<String>("name") ?: error("no name defined subclass $value (in $javaType)")
+
+            union.addType(name, type)
+        }
     }
 
     private fun classNameForType(type: JavaType.Basic): ApiTypeName {
@@ -220,6 +248,8 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
         private val JSON_IGNORE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonIgnore")
         private val JSON_VALUE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonValue")
+        private val JSON_TYPE_INFO = JavaType.Basic("com.fasterxml.jackson.annotation.JsonTypeInfo")
+        private val JSON_SUB_TYPES = JavaType.Basic("com.fasterxml.jackson.annotation.JsonSubTypes")
         private val OPTIONAL_NUMBER_TYPES = listOf(JavaType.basic<OptionalInt>(), JavaType.basic<OptionalLong>(), JavaType.basic<OptionalDouble>())
 
         private fun JavaAnnotation.isIgnore() = getAttribute("value") ?: true
