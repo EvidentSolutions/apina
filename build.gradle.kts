@@ -1,8 +1,3 @@
-import org.gradle.api.artifacts.DependencyResolveDetails
-import org.gradle.internal.impldep.org.eclipse.jgit.lib.ObjectChecker.tag
-import org.gradle.kotlin.dsl.closureOf
-import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.kotlin
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 import pl.allegro.tech.build.axion.release.domain.VersionConfig
 
@@ -44,7 +39,7 @@ configure(allprojects) {
     }
 }
 
-task("publish") {
+tasks.register("publish") {
     group = "publishing"
     description = "Publishes all artifacts"
 

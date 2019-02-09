@@ -1,7 +1,7 @@
 plugins {
     application
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version "1.2.4"
+    id("com.github.johnrengelman.shadow") version "4.0.2"
 }
 
 dependencies {
@@ -13,4 +13,6 @@ application {
     mainClassName = "fi.evident.apina.cli.Apina"
 }
 
-tasks["assemble"].dependsOn("shadowJar")
+tasks.assemble {
+    dependsOn(tasks.shadowJar)
+}

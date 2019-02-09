@@ -1,11 +1,10 @@
 import com.jfrog.bintray.gradle.BintrayExtension
-import org.gradle.kotlin.dsl.extra
 
 plugins {
     kotlin("jvm")
     java
-    id("maven-publish")
-    id("com.jfrog.bintray") version "1.7.3"
+    `maven-publish`
+    id("com.jfrog.bintray") version "1.8.0"
 }
 
 val kotlinVersion: String by rootProject.extra
@@ -24,23 +23,23 @@ dependencies {
 
 val sourcesJar = task<Jar>("sourcesJar") {
     dependsOn("classes")
-    classifier = "sources"
+    archiveClassifier.set("sources")
 
-    from(java.sourceSets.getByName("main").allSource)
+    from(sourceSets.main.get().allSource)
 }
 
 val javadoc: Javadoc by tasks
 
 val javadocJar = task<Jar>("javadocJar") {
     dependsOn(javadoc)
-    classifier = "javadoc"
+    archiveClassifier.set("javadoc")
     from(javadoc.destinationDir)
 }
 
 artifacts.add("archives", sourcesJar)
 artifacts.add("archives", javadocJar)
 
-configure<PublishingExtension> {
+publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
@@ -51,7 +50,7 @@ configure<PublishingExtension> {
 }
 
 if (hasProperty("bintrayUser")) {
-    configure<BintrayExtension> {
+    bintray {
         user = property("bintrayUser") as String
         key = property("bintrayApiKey") as String
 
