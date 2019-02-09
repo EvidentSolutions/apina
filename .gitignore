@@ -5,6 +5,6 @@
 .idea/libraries
 /classes
 /build
-/out
+out
 /*/build
 .gradle
