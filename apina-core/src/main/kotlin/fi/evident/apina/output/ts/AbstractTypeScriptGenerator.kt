@@ -1,9 +1,6 @@
 package fi.evident.apina.output.ts
 
-import fi.evident.apina.model.ApiDefinition
-import fi.evident.apina.model.Endpoint
-import fi.evident.apina.model.EndpointGroup
-import fi.evident.apina.model.EnumDefinition
+import fi.evident.apina.model.*
 import fi.evident.apina.model.parameters.EndpointParameter
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter
@@ -13,7 +10,6 @@ import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.utils.readResourceAsString
 import java.lang.String.format
-import java.util.*
 
 abstract class AbstractTypeScriptGenerator(
     val api: ApiDefinition,
@@ -79,6 +75,9 @@ abstract class AbstractTypeScriptGenerator(
             }
         }
 
+        for (definition in api.discriminatedUnionDefinitions)
+            writeDiscriminatedUnion(definition)
+
         writeSerializerDefinitions()
     }
 
@@ -92,6 +91,22 @@ abstract class AbstractTypeScriptGenerator(
             EnumMode.INT_ENUM ->
                 format("export enum %s { %s }", enumDefinition.type, constants.joinToString(", "))
         })
+    }
+
+    private fun writeDiscriminatedUnion(definition: DiscriminatedUnionDefinition) {
+        // First individual members of the union...
+        for ((discriminatorValue, type) in definition.types) {
+            val typeName = discriminatedUnionMemberType(definition.type, type)
+            out.writeBlock("export interface $typeName extends ${type.typeRepresentation()}") {
+                out.writeLine("${definition.discriminator}: '$discriminatorValue';")
+            }
+            out.writeLine()
+        }
+
+        // ...then the union itself
+        val members = definition.types.values.map { discriminatedUnionMemberType(definition.type, it) }
+        out.writeLine("export type ${definition.type.name} = ${members.joinToString(" | ")};")
+        out.writeLine()
     }
 
     private fun writeSerializerDefinitions() {
@@ -122,6 +137,19 @@ abstract class AbstractTypeScriptGenerator(
                     defs[property.name] = typeDescriptor(property.type)
 
                 out.write("config.registerClassSerializer(").writeValue(classDefinition.type.toString()).write(", ")
+                out.writeValue(defs).writeLine(");")
+                out.writeLine()
+            }
+
+            for (definition in api.discriminatedUnionDefinitions) {
+                val defs = mutableMapOf<String, String>()
+
+                for ((discriminatorValue, type) in definition.types)
+                    defs[discriminatorValue] = typeDescriptor(type)
+
+                out.write("config.registerDiscriminatedUnionSerializer(")
+                out.writeValue(definition.type.name).write(", ")
+                out.writeValue(definition.discriminator).write(", ")
                 out.writeValue(defs).writeLine(");")
                 out.writeLine()
             }
@@ -176,6 +204,9 @@ abstract class AbstractTypeScriptGenerator(
         settings.isImported(ApiTypeName(type.typeRepresentation())) -> type.typeRepresentation()
         else -> type.typeRepresentation()
     }
+
+    private fun discriminatedUnionMemberType(unionType: ApiTypeName, memberType: ApiType) =
+        "${unionType.name}_${memberType.typeRepresentation()}"
 
     private fun parameterListCode(parameters: List<EndpointParameter>) =
         parameters.joinToString(", ") { p -> p.name + ": " + qualifiedTypeName(p.type) }
