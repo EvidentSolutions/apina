@@ -7,10 +7,10 @@ import fi.evident.apina.java.reader.JavaTypeMatchers.basicType
 import fi.evident.apina.java.reader.JavaTypeMatchers.genericType
 import fi.evident.apina.java.reader.JavaTypeMatchers.singletonSchema
 import fi.evident.apina.java.reader.JavaTypeMatchers.typeVariable
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.notNullValue
-import org.junit.Assert.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.objectweb.asm.signature.SignatureReader
 import java.io.Serializable
 import java.util.function.Function

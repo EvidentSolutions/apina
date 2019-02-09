@@ -28,11 +28,8 @@ configure(allprojects) {
     configurations.all {
         resolutionStrategy.eachDependency {
             when (requested.name) {
-                "junit" -> useVersion("4.12")
-                "hamcrest-core" -> useTarget("${requested.group}:hamcrest-all:${requested.version}")
                 "junit-jupiter-api" -> useVersion(junitVersion)
                 "junit-jupiter-engine" -> useVersion(junitVersion)
-                "junit-vintage-engine" -> useVersion(junitVersion)
             }
         }
     }

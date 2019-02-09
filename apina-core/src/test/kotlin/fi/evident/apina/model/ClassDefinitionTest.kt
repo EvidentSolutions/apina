@@ -2,7 +2,8 @@ package fi.evident.apina.model
 
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -10,10 +11,13 @@ class ClassDefinitionTest {
 
     private val classDefinition = ClassDefinition(ApiTypeName("foo.Bar"))
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun duplicatePropertiesAreDisallowed() {
+
         classDefinition.addProperty(arbitraryProperty("foo"))
-        classDefinition.addProperty(arbitraryProperty("foo"))
+        assertThrows<IllegalArgumentException> {
+            classDefinition.addProperty(arbitraryProperty("foo"))
+        }
     }
 
     @Test

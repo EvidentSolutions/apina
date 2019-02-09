@@ -3,7 +3,7 @@ package fi.evident.apina.spring
 import fi.evident.apina.java.model.*
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.reader.TestClassMetadataLoader
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod

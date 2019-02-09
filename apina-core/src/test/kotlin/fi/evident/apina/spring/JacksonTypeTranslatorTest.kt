@@ -15,8 +15,8 @@ import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.testclasses.*
-import org.junit.Assert.assertThat
-import org.junit.Test
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Test
 import java.util.Collections.emptyList
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

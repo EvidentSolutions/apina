@@ -1,6 +1,6 @@
 package fi.evident.apina.utils
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class PropertyUtilsTest {

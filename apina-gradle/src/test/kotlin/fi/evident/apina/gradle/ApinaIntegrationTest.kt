@@ -2,23 +2,18 @@ package fi.evident.apina.gradle
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
 import org.junit.jupiter.api.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ApinaIntegrationTest {
 
-    @get:Rule
-    @Suppress("MemberVisibilityCanBePrivate")
-    val testProjectDir = TemporaryFolder()
-
-    private val buildFile: File by lazy { testProjectDir.newFile("build.gradle") }
-
     @Test
-    fun smokeTest() {
+    fun smokeTest(@TempDir testProjectDir: File) {
+        val buildFile = File(testProjectDir, "build.gradle")
+
         buildFile.writeText("""
             plugins {
                 id 'java'
@@ -41,7 +36,8 @@ class ApinaIntegrationTest {
 
             """.trimIndent())
 
-        val folder = testProjectDir.newFolder("src", "main", "java", "apinatest")
+        val folder = File(testProjectDir, "src/main/java/apinatest")
+        folder.mkdirs()
         File(folder, "ApinaTestController.java").writeText("""
             package apinatest;
 
@@ -76,14 +72,14 @@ class ApinaIntegrationTest {
         """.trimIndent())
 
         val result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .withArguments("apina")
                 .withPluginClasspath()
                 .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":apina")?.outcome)
 
-        val output = File(testProjectDir.root, "apina-output.ts").readText()
+        val output = File(testProjectDir, "apina-output.ts").readText()
 
         assertTrue("import { Bar, Foo } from './apina-types';" in output, "output has imports")
 

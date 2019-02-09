@@ -1,7 +1,7 @@
 package fi.evident.apina.model.type
 
 import fi.evident.apina.model.type.ApiType.Class
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 

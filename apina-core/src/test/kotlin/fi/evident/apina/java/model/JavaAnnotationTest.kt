@@ -1,7 +1,7 @@
 package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType.Basic
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.util.Collections.emptyList
 import kotlin.test.assertEquals
 

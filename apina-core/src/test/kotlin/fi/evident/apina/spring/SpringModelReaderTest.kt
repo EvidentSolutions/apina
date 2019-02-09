@@ -8,7 +8,7 @@ import fi.evident.apina.model.EndpointGroup
 import fi.evident.apina.model.HTTPMethod
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*

@@ -2,7 +2,7 @@ package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeSchema
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.objectweb.asm.Opcodes
 import java.util.Collections.emptyList
 import kotlin.test.assertFalse

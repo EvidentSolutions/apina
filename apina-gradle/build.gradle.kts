@@ -7,11 +7,9 @@ plugins {
 dependencies {
     compile(project(":apina-core"))
 
-    testCompileOnly("junit:junit")
+    testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-    testCompile(kotlin("test"))
 }
 
 pluginBundle {

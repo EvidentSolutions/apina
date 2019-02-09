@@ -1,7 +1,7 @@
 package fi.evident.apina.model.settings
 
 import fi.evident.apina.model.type.ApiTypeName
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 

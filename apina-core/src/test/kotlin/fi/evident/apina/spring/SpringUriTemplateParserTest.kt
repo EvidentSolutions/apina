@@ -1,8 +1,8 @@
 package fi.evident.apina.spring
 
 import fi.evident.apina.model.URITemplate
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class SpringUriTemplateParserTest {
 

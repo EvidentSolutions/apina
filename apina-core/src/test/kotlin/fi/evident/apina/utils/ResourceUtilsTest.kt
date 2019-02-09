@@ -1,6 +1,6 @@
 package fi.evident.apina.utils
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.io.FileNotFoundException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

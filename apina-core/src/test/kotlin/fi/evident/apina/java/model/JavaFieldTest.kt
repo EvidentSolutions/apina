@@ -1,7 +1,7 @@
 package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.objectweb.asm.Opcodes
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
