@@ -7,6 +7,7 @@ plugins {
 }
 
 val kotlinVersion by extra("1.2.40") // same as above :(
+val junitVersion = "5.4.0"
 
 configure<VersionConfig> {
     tag(closureOf<TagNameSerializationConfig> {
@@ -28,6 +29,9 @@ configure(allprojects) {
             when (requested.name) {
                 "junit" -> useVersion("4.12")
                 "hamcrest-core" -> useTarget("${requested.group}:hamcrest-all:${requested.version}")
+                "junit-jupiter-api" -> useVersion(junitVersion)
+                "junit-jupiter-engine" -> useVersion(junitVersion)
+                "junit-vintage-engine" -> useVersion(junitVersion)
             }
         }
     }
@@ -36,6 +40,10 @@ configure(allprojects) {
         options.encoding = "UTF-8"
         sourceCompatibility = "1.8"
         targetCompatibility = "1.8"
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
 }
 

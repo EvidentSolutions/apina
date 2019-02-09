@@ -15,7 +15,10 @@ dependencies {
     compile("org.slf4j:slf4j-api:1.7.12")
     compile("org.ow2.asm:asm:7.0")
 
-    testCompile("junit:junit")
+    testCompileOnly("junit:junit")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
     testCompile(kotlin("test"))
     testCompile("com.fasterxml.jackson.core:jackson-annotations:2.8.6")
     testCompile("org.springframework:spring-web:4.3.5.RELEASE")
