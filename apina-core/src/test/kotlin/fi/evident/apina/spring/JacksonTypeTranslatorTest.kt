@@ -1,5 +1,7 @@
 package fi.evident.apina.spring
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import fi.evident.apina.java.model.JavaClass
 import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.JavaType
@@ -226,6 +228,43 @@ class JacksonTypeTranslatorTest {
     @Test
     fun shadowedTypesShouldNotPreventTranslation() {
         translateClass<GenericSubType<String>>()
+    }
+
+    @Test
+    fun `translating discriminated unions`() {
+        val model = JavaModel(TestClassMetadataLoader().apply {
+            loadClassesFromInheritanceTree<Vehicle>()
+            loadClassesFromInheritanceTree<Vehicle.Car>()
+            loadClassesFromInheritanceTree<Vehicle.Truck>()
+        })
+
+        val api = ApiDefinition()
+        val translator = JacksonTypeTranslator(settings, model, api)
+        translator.translateType(JavaType.basic<Vehicle>(), MockAnnotatedElement(), TypeEnvironment.empty())
+
+        assertEquals(1, api.discriminatedUnionDefinitions.size)
+        val definition = api.discriminatedUnionDefinitions.first()
+        assertEquals("Vehicle", definition.type.name)
+        assertEquals("type", definition.discriminator)
+
+        val types = definition.types
+        assertEquals(2, types.size)
+        assertEquals(setOf("car", "truck"), types.keys)
+        assertEquals("Car", types["car"]?.typeRepresentation())
+        assertEquals("Truck", types["truck"]?.typeRepresentation())
+
+        // ensure subclasses themselves are also translated
+        assertEquals(2, api.classDefinitions.size)
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    @JsonSubTypes(
+        JsonSubTypes.Type(value = Vehicle.Car::class, name = "car"),
+        JsonSubTypes.Type(value = Vehicle.Truck::class, name = "truck")
+    )
+    abstract class Vehicle {
+        class Car : Vehicle()
+        class Truck : Vehicle()
     }
 
     private fun translateType(type: JavaType): ApiType {
