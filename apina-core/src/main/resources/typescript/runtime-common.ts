@@ -38,6 +38,10 @@ export class ApinaConfig {
         this.registerSerializer(name, identitySerializer);
     }
 
+    registerDiscriminatedUnionSerializer(name: string, discriminator: string, types: { [key: string]: string; }) {
+        this.registerSerializer(name, this.discriminatedUnionSerializer(discriminator, types));
+    }
+
     private classSerializer(fields: any): Serializer {
         function mapProperties(obj: any, propertyMapper: (value: any, type: string) => any) {
             if (obj === null || obj === undefined) {
@@ -65,6 +69,31 @@ export class ApinaConfig {
             },
             deserialize(obj) {
                 return mapProperties(obj, deserialize);
+            }
+        };
+    }
+
+    private discriminatedUnionSerializer(discriminatorProperty: string, types: { [key: string]: string; }): Serializer {
+        const resolveSerializer = (localType: string) => {
+            return this.lookupSerializer(types[localType]);
+        };
+
+        return {
+            serialize(obj) {
+                if (obj == null) return null;
+
+                const localType = obj[discriminatorProperty];
+                const result = resolveSerializer(localType).serialize(obj);
+                result[discriminatorProperty] = localType;
+                return result;
+            },
+            deserialize(obj) {
+                if (obj == null) return null;
+
+                const localType = obj[discriminatorProperty];
+                const result = resolveSerializer(localType).deserialize(obj);
+                result[discriminatorProperty] = localType;
+                return result;
             }
         };
     }
