@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$/apina-cli" />
             <option value="$PROJECT_DIR$/apina-core" />
             <option value="$PROJECT_DIR$/apina-gradle" />
+            <option value="$PROJECT_DIR$/manual" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

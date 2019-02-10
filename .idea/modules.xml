@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-core/apina-core.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-core/apina-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/manual/manual.iml" filepath="$PROJECT_DIR$/.idea/modules/manual/manual.iml" />
     </modules>
   </component>
 </project>
