@@ -1,0 +1,38 @@
+== Gradle task reference
+
+[source,kotlin]
+----
+apina {
+    // Set the name of the created TypeScript file. Default is "build/apina/apina.ts".
+    target = File(project(":frontend").projectDir, "app/apina-api.ts")
+
+    // Specify types that should not be generated, but are implemented manually
+    // and should be imported to the generated code. Keys are module paths, values
+    // are list of types imported from the module.
+    imports = mapOf(
+      "./my-time-module" to listOf("Instant", "LocalDate"),
+      "./other-module" to listOf("Foo", "Bar")
+    )
+
+    // How Java enums are translated to TypeScript enums? (Default mode is 'DEFAULT'.)
+    //  - 'DEFAULT'      => enum MyEnum { FOO = "FOO", BAR = "BAR", BAZ = "BAZ" }
+    //  - 'INT_ENUM'     => enum MyEnum { FOO, BAR, BAZ }
+    //  - 'STRING_UNION' => type MyEnum = "FOO" | "BAR" | "BAZ"
+    enumMode = EnumMode.DEFAULT
+
+    // Which controllers to include when generating API? Defaults to everything.
+    // Given regexes may safely match other things that are not controllers, but it pays to
+    // limit the scope because otherwise Apina needs to parse bytecode of all the classes
+    // in your classpath to find the controllers.
+    endpoints = listOf("""my\.package\.foo\..+""")
+
+    // If generated URLs would start with given prefix, removes it. Useful when configuring Apina
+    // work behind reverse proxies. Defaults to empty string (URL is not modified).
+    removedUrlPrefix = "/foo"
+
+    // Code generation target (Default is 'angular'2)
+    // - 'ANGULAR2' => Generate Angular module that uses Angular's HttpClient
+    // - 'ES6' => Generate code that uses Fetch API and has no dependencies apart from ES6
+    platform = Platform.ANGULAR2
+}
+----

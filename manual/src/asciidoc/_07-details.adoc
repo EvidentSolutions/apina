@@ -1,0 +1,44 @@
+== Translation details
+
+The following sections provide a bird's eye view of the translation process. It's not necessary
+to understand this in order to use Apina, but it's probably a good idea anyway.
+
+=== Building the model
+
+Apina starts by building its model, the _API Definition_. API Definition contains information about
+HTTP endpoints and JSON documents that need translation. The model itself is agnostic to any specific
+technology, so in theory you could have a parser that builds a model out of a .NET or Rust program.
+However, only Spring MVC and Jackson are supported at the moment.
+
+The process to build a model from Spring MVC application is straightforward:
+
+. Find all controllers annotated with `@RestController`.footnote:[As far as Spring is concerned,
+  `@RestController` is just a combination of `@Controller` and `@ResponseBody` annotations. Apina
+  ignores controllers annotated with `@Controller` for a reason: this way it's easy to make controllers
+  that Apina ignores.] Add these as endpoint groups.
+. Scan their `@RequestMapping`-annotated methods (you can use meta such as `@GetMapping` etc). Add
+  these as endpoints to endpoint groups.
+. Perform Jackson-scanning for `@RequestBody` parameters and return type of the methods:
+.. Build a _Class Definition_, _Enum Definition_ or _Discriminated Union Definition_ based on the Java type
+   and its Jackson annotations.
+.. Go through all properties that Jackson would consider and add them to the definition.
+.. Perform the scanning process recursively on the types of the properties.
+
+=== Generating output
+
+When the model has been built, Apina creates output:
+
+. For each type definition in the model, create corresponding TypeScript elements:
+.. An interface describing the structure of the data
+.. Configuration metadata for client-side object-mapper
+. For each endpoint group (Spring MVC controller), create an endpoint class.
+. Write some generic runtime code that is independent of translated classes (e.g.
+  implementation of object mapper and some support code for making requests)
+. Write target specific code
+.. Create a default `EndpointContext`-implementation for Angular or ES6
+.. If using Angular, create Angular module that wires all generated endpoint classes.
+
+Since the model of the API is completely abstract from the implementation technology, in theory we could
+proceed to generate code for any target, e.g. Swift or Befunge. However, at the moment only TypeScript is
+supported, albeit with two different flavors: we can generate code that takes advantage of Angular's offerings
+or we can generate code for standalone ES6, using the Fetch API for requests.

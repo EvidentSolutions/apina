@@ -1,0 +1,64 @@
+== Customizing HTTP requests
+
+Sometimes you need to more control over the HTTP requests Apina makes. Perhaps
+you are behind a proxy and need to mangle the URL somehow or perhaps you'll want
+to add some headers to requests.
+
+You can implement these by implementing replacing Apina's `ApinaEndpointContext`
+with your own. When Apina generates code for endpoints, it actually just builds
+a structure representing the details of the request and passes it to endpoint
+context for actual execution:
+
+[source,typescript]
+----
+findOrders(customerId: number): Observable<Order> {
+    return this.context.request({
+        'uriTemplate': '/api/customer/{customerId}/orders',
+        'method': 'GET',
+        'pathVariables': {
+            'customerId': this.context.serialize(customerId, 'number')
+        },
+        'responseType': 'Order'
+    });
+}
+----
+
+Therefore, you can easily implement your own endpoint context that does something
+different than the default one:
+
+[source,typescript]
+----
+@Injectable()
+export class MyApinaEndpointContext extends ApinaEndpointContext {
+
+    constructor(config: ApinaConfig) {
+        super(config);
+    }
+
+    request(data: RequestData): Observable<any> {
+        ... do something completely different ...
+    }
+}
+----
+
+Finally, register it so that Apina uses it:
+
+[source,typescript]
+----
+@NgModule({
+    ...
+    providers: [
+        { provide: ApinaEndpointContext, useClass: MyApinaEndpointContext }
+    ]
+})
+export class MyModule { }
+----
+
+TIP: When targeting ES6, you can just instantiate your own context normally and
+pass it to constructor of your endpoint class.
+
+TIP: When targeting Angular, Apina's `DefaultApinaEndpointContext` uses Angular's
+`HttpClient` to execute the requests. Therefore things like authorization headers
+are probably best implemented as interceptors for `HttpClient` instead of writing an
+Apina-specific implementation. Custom endpoint context can still be useful for
+some cases which need higher-level knowledge of the requests.

@@ -1,6 +1,7 @@
 package fi.evident.apina.utils
 
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -38,5 +39,11 @@ class PatternSetTest {
         assertTrue("baz-quux" in set)
 
         assertFalse("quux" in set)
+
+        val time = Instant.now()
+        println(time.epochSecond)
+        println(time.nano)
+        println(time.toString())
+
     }
 }
