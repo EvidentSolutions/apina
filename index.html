@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="Juha Komulainen">
-<title>Apina Reference Documentation</title>
+<title>Apina</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -434,7 +434,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Apina Reference Documentation</h1>
+<h1>Apina</h1>
 <div class="details">
 <span id="author" class="author">Juha Komulainen</span><br>
 <span id="email" class="email"><a href="mailto:juha.komulainen@evident.fi">juha.komulainen@evident.fi</a></span><br>
@@ -462,11 +462,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_supported_annotations">Supported annotations</a></li>
 </ul>
 </li>
-<li><a href="#_angular_backend">Angular backend</a></li>
-<li><a href="#_es6_fetch_backend">ES6 (Fetch) backend</a></li>
-<li><a href="#_customization">Customization</a>
+<li><a href="#_customization_type_mappings">Customization type mappings</a>
 <ul class="sectlevel2">
-<li><a href="#_customizing_type_mappings">Customizing type mappings</a></li>
+<li><a href="#_configuring_translation">Configuring translation</a></li>
+<li><a href="#_configuring_runtime_serialization">Configuring runtime serialization</a></li>
 <li><a href="#_customizing_http_requests">Customizing HTTP requests</a></li>
 </ul>
 </li>
@@ -515,16 +514,13 @@ class HelloController {
 }
 
 apina {
-    // Specify the output file that Apina generates
+    // Output file that Apina generates
     target = File(project(":frontend").projectDir, "gen/apina-api.ts")
 
     // Generate code for Angular
     platform = Platform.ANGULAR2
 
-    // Specify regex matching our controller classes. The regex may safely
-    // match other things as well, but it pays to be limit the scope because
-    // otherwise Apina needs to parse bytecode of all the classes in your
-    // classpath to find the controllers.
+    // Regex matching our controller classes
     endpoints = listOf("""hello\..+""")
 }</code></pre>
 </div>
@@ -581,7 +577,9 @@ generates endpoint classes that execute HTTP requests and marshals the data.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>As seen in the introduction, for many cases Apina works out-of-the-box without any additional configuration.
-It understands enough about inner workings of Spring MVC and Jackson that it needs no further instructions.</p>
+It understands enough about inner workings of Spring MVC and Jackson that it needs no further instructions.
+Apina finds your controllers, finds Jackson classes referenced by them and then creates output matching
+them.</p>
 </div>
 <div class="sect2">
 <h3 id="_overview_of_the_transformation_process">Overview of the transformation process</h3>
@@ -900,37 +898,63 @@ by Apina as well:</p>
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_angular_backend">Angular backend</h2>
-<div class="sectionbody">
+<h1 id="_customization_type_mappings" class="sect0">Customization type mappings</h1>
 <div class="paragraph">
-<p>Not written yet.</p>
+<p>While most of the time Apina does the right thing without additional configuration,
+sometimes you need to have more control over either the build time translation or
+runtime execution.</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_es6_fetch_backend">ES6 (Fetch) backend</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>Not written yet.</p>
+<p>Normally when Apina sees a referenced class, it will analyze its properties and fields
+decide how it should be serialized: just like Jackson does. However, for some types
+this makes no sense.</p>
 </div>
+<div class="paragraph">
+<p>As an example, perhaps you don&#8217;t want <code>java.time.Instant</code> to be serialized as
+<code>{ "seconds": 1550778425, "nanos": 398000000" }</code> but would prefer it to be presented
+as <code>"2019-02-21T19:47:05.398Z"</code> on the wire. And instead of handling it as a <code>string</code>
+in TypeScript, you&#8217;d probably want it to be converted to <code>Date</code> or perhaps
+<a href="https://js-joda.github.io/js-joda/">js-joda</a>'s <code>Instant</code>. Apina can do both of these.</p>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_customization">Customization</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="_customizing_type_mappings">Customizing type mappings</h3>
+<h3 id="_configuring_translation">Configuring translation</h3>
 <div class="paragraph">
-<p>Not written yet.</p>
+<p>First we&#8217;ll configure the Gradle task to <em>import</em> <code>Instant</code> from another file instead
+of trying to translate it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">apina {
+    ...
+    imports = listOf("./my-apina-types": listOf("Instant"))
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now whenever Apina sees the type <code>Instant</code> (Apina ignores package names) it won&#8217;t try to
+generate code for it, but assume that the user has provided it. Furthermore it adds the
+code <code>import { Instant } from "./my-apina-types";</code> on top of the generated file.</p>
+</div>
+<div class="paragraph">
+<p>Next, we&#8217;ll write <code>my-apina-types.ts</code>. For our example, we&#8217;ll use JavaScript&#8217;s <code>Date</code>
+for representation of <code>Instant</code>, so we&#8217;ll simply specify a type alias:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-typescript" data-lang="typescript">export type Instant = Date;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_runtime_serialization">Configuring runtime serialization</h3>
+<div class="paragraph">
+<p>Not yet written.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_customizing_http_requests">Customizing HTTP requests</h3>
 <div class="paragraph">
 <p>Not written yet.</p>
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -943,13 +967,13 @@ by Apina as well:</p>
 <a href="#_footnoteref_2">2</a>. Again this is Kotlin, but using Groovy is similar enough.
 </div>
 <div class="footnote" id="_footnotedef_3">
-<a href="#_footnoteref_3">3</a>. As far as Spring is concerned, <code>@RestController</code> is just a combination of <code>@Controller</code> and <code>@ResponseBody</code> annotations. Apina ignores controllers annoted with <code>@Controller</code> for a reason: this way it&#8217;s easy to make controllers that Apina ignores.
+<a href="#_footnoteref_3">3</a>. As far as Spring is concerned, <code>@RestController</code> is just a combination of <code>@Controller</code> and <code>@ResponseBody</code> annotations. Apina ignores controllers annotated with <code>@Controller</code> for a reason: this way it&#8217;s easy to make controllers that Apina ignores.
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.11.1-SNAPSHOT<br>
-Last updated 2019-02-21 19:16:43 +0200
+Last updated 2019-02-21 22:01:05 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
