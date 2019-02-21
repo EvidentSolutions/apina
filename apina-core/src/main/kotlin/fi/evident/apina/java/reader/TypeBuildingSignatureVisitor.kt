@@ -16,8 +16,7 @@ internal class TypeBuildingSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Su
     private val arguments = ArrayList<() -> JavaType>()
 
     private fun initBuilder(builder: (List<JavaType>) -> JavaType) {
-        if (this::builder.isInitialized)
-            throw IllegalStateException("tried to initialize builder twice")
+        check(!this::builder.isInitialized) { "tried to initialize builder twice" }
 
         this.builder = builder
     }

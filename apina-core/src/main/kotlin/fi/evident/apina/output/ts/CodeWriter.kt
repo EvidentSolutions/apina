@@ -72,6 +72,10 @@ internal class CodeWriter {
         return write("$prefix ").writeBlock(bodyWriter).writeLine().writeLine()
     }
 
+    fun writeImport(module: String, types: Collection<String>): CodeWriter {
+        return writeLine("import { ${types.joinToString(", ")} } from '$module';")
+    }
+
     fun writeBlock(block: () -> Unit): CodeWriter {
         writeLine("{")
         indent()

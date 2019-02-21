@@ -20,7 +20,7 @@ class JavaMethod(val owningClass: JavaClass,
         get() = _annotations
 
     val isPublic: Boolean
-        get() = visibility === JavaVisibility.PUBLIC
+        get() = visibility == JavaVisibility.PUBLIC
 
     val isGetter: Boolean
         get() {

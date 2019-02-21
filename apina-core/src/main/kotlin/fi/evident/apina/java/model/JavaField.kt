@@ -19,7 +19,7 @@ class JavaField(val name: String,
         get() = modifiers and Opcodes.ACC_ENUM != 0
 
     val isPublic: Boolean
-        get() = visibility === JavaVisibility.PUBLIC
+        get() = visibility == JavaVisibility.PUBLIC
 
     val isStatic: Boolean
         get() = Modifier.isStatic(modifiers)
@@ -29,7 +29,7 @@ class JavaField(val name: String,
     }
 
     override fun toString(): String = buildString {
-        if (visibility !== JavaVisibility.PACKAGE)
+        if (visibility != JavaVisibility.PACKAGE)
             append(visibility).append(' ')
 
         if (isStatic)

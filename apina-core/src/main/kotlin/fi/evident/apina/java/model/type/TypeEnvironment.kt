@@ -2,13 +2,11 @@ package fi.evident.apina.java.model.type
 
 import java.util.*
 
-class TypeEnvironment {
+class TypeEnvironment private constructor() {
 
     private val env = HashMap<JavaType.Variable, JavaType>()
 
-    private constructor()
-
-    constructor(parentSchema: TypeSchema, childSchema: TypeSchema) {
+    constructor(parentSchema: TypeSchema, childSchema: TypeSchema): this() {
         addBindingsFromSchema(parentSchema)
         addBindingsFromSchema(childSchema)
     }

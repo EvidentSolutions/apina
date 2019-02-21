@@ -5,23 +5,23 @@ import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.utils.readResourceAsString
 
 /**
- * Generates Angular 2 TypeScript code for client side.
+ * Generates Angular TypeScript code for client side.
  */
-class TypeScriptAngular2Generator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(api, settings, "Observable", "@Injectable()") {
+class TypeScriptAngularGenerator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(api, settings, "Observable", "@Injectable()") {
 
     val output: String
         get() = out.output
 
     override fun writeRuntime() {
-        out.write(readResourceAsString("typescript/runtime-angular2.ts"))
+        out.write(readResourceAsString("typescript/runtime-angular.ts"))
         out.writeLine()
     }
 
     override fun writePlatformSpecificImports() {
-        out.writeLine("import { Injectable, NgModule } from '@angular/core';")
-        out.writeLine("import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';")
-        out.writeLine("import { Observable } from 'rxjs';")
-        out.writeLine("import { map } from 'rxjs/operators';")
+        out.writeImport("@angular/core", listOf("Injectable", "NgModule"))
+        out.writeImport("@angular/common/http", listOf("HttpClient", "HttpClientModule", "HttpParams"))
+        out.writeImport("rxjs", listOf("Observable"))
+        out.writeImport("rxjs/operators", listOf("map"))
     }
 
     override fun writePlatformSpecific() {

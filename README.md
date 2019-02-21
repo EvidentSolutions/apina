@@ -38,10 +38,10 @@ apina {
     // work behind reverse proxies. Defaults to empty string (URL is not modified).
     removedUrlPrefix = "/foo"
     
-    // Code generation target (Default is 'angular'2)
-    // - 'angular2' => Generate Angular module that uses Angular's HttpClient 
+    // Code generation target (Default is 'angular')
+    // - 'angular' => Generate Angular module that uses Angular's HttpClient 
     // - 'es6' => Generate code that uses Fetch API and has no dependencies apart from ES6
-    platform = 'angular2' 
+    platform = 'angular' 
 }
 
 // Tell the frontend to run apina before setup 

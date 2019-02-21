@@ -38,7 +38,7 @@ open class ApinaTask : DefaultTask() {
     var imports: Map<String, List<String>> = HashMap()
 
     @get:Input
-    var platform = Platform.ANGULAR2
+    var platform = Platform.ANGULAR
 
     @get:Input
     var enumMode = EnumMode.DEFAULT

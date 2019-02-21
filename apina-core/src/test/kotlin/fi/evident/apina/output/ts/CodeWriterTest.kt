@@ -94,4 +94,11 @@ class CodeWriterTest {
 
         assertEquals("[1, 2, 3]", writer.output)
     }
+
+    @Test
+    fun imports() {
+        writer.writeImport("@angular/common/http", listOf("HttpClient", "HttpClientModule", "HttpParams"))
+
+        assertEquals("import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';\n", writer.output)
+    }
 }

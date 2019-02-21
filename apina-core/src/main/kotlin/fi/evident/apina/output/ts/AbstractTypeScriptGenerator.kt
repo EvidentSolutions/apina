@@ -47,7 +47,7 @@ abstract class AbstractTypeScriptGenerator(
 
         if (!imports.isEmpty()) {
             for (anImport in imports)
-                out.writeLine("import { " + anImport.types.joinToString(", ") + " } from '" + anImport.moduleName + "';")
+                out.writeImport(anImport.moduleName, anImport.types.map { it.name })
 
             out.writeLine()
         }

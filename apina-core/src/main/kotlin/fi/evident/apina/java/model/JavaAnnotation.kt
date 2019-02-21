@@ -35,13 +35,10 @@ class JavaAnnotation(val name: JavaType.Basic) {
         return type.cast(value)
     }
 
-    fun getAttributeValues(name: String): List<Any?> {
-        val value = attributes[name]
-        return when (value) {
-            null -> emptyList()
-            is Array<*> -> value.asList()
-            else -> listOf(value)
-        }
+    fun getAttributeValues(name: String): List<Any?> = when (val value = attributes[name]) {
+        null -> emptyList()
+        is Array<*> -> value.asList()
+        else -> listOf(value)
     }
 
     override fun toString(): String = buildString {

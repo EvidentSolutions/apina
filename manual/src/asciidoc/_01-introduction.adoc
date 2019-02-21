@@ -35,7 +35,7 @@ apina {
     target = File(project(":frontend").projectDir, "gen/apina-api.ts")
 
     // Generate code for Angular
-    platform = Platform.ANGULAR2
+    platform = Platform.ANGULAR
 
     // Regex matching our controller classes
     endpoints = listOf("""hello\..+""")

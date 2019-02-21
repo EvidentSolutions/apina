@@ -1,7 +1,5 @@
 package fi.evident.apina.java.model.type
 
-import java.util.*
-
 /**
  * Base class for all Java types, like [java.lang.reflect.Type].
  */
@@ -35,7 +33,7 @@ sealed class JavaType {
     /**
      * Represents a raw Java type, like [Class].
      */
-    class Basic(val name: String) : JavaType() {
+    data class Basic(val name: String) : JavaType() {
 
         constructor(cl: Class<*>) : this(cl.name)
 
@@ -44,8 +42,6 @@ sealed class JavaType {
 
         override fun resolve(env: TypeEnvironment): JavaType = this
 
-        override fun equals(other: Any?) = other is Basic && name == other.name
-        override fun hashCode(): Int = name.hashCode()
         override fun toString(): String = name
 
         override val isWide: Boolean
@@ -70,34 +66,30 @@ sealed class JavaType {
         }
     }
 
-    class Array(val elementType: JavaType) : JavaType() {
+    data class Array(val elementType: JavaType) : JavaType() {
 
         override val nonGenericClassName: String
             get() = throw UnsupportedOperationException()
 
         override fun resolve(env: TypeEnvironment): JavaType = Array(elementType.resolve(env))
 
-        override fun equals(other: Any?) = other is Array && elementType == other.elementType
-        override fun hashCode() = elementType.hashCode()
         override fun toString() = "$elementType[]"
     }
 
-    class InnerClass(private val outer: JavaType, val name: String) : JavaType() {
+    data class InnerClass(private val outer: JavaType, val name: String) : JavaType() {
 
         override val nonGenericClassName: String
             get() = outer.nonGenericClassName + '$' + name
 
         override fun resolve(env: TypeEnvironment): JavaType = InnerClass(outer.resolve(env), name)
 
-        override fun equals(other: Any?) = other is InnerClass && outer == other.outer && name == other.name
-        override fun hashCode() = Objects.hash(outer, name)
         override fun toString() = "$outer.$name"
     }
 
     /**
      * Represents a generic Java type, like [java.lang.reflect.ParameterizedType].
      */
-    class Parameterized(val baseType: JavaType, val arguments: List<JavaType>) : JavaType() {
+    data class Parameterized(val baseType: JavaType, val arguments: List<JavaType>) : JavaType() {
 
         init {
             if (arguments.isEmpty()) throw IllegalArgumentException("no arguments for generic type")
@@ -109,14 +101,10 @@ sealed class JavaType {
         override fun resolve(env: TypeEnvironment): JavaType =
             Parameterized(baseType.resolve(env), arguments.map { it.resolve(env) })
 
-        override fun equals(other: Any?) =
-            other is Parameterized && baseType == other.baseType && arguments == other.arguments
-
-        override fun hashCode() = Objects.hash(baseType, arguments)
         override fun toString(): String = baseType.toString() + arguments.joinToString(", ", "<", ">")
     }
 
-    class Variable(val name: String) : JavaType() {
+    data class Variable(val name: String) : JavaType() {
 
         override val nonGenericClassName: String
             get() = throw UnsupportedOperationException()
@@ -125,14 +113,12 @@ sealed class JavaType {
             env.lookup(this) ?: this
 
         override fun toString() = name
-        override fun equals(other: Any?) = other is Variable && name == other.name
-        override fun hashCode() = name.hashCode()
     }
 
     /**
      * Represents a wildcard type, like [java.lang.reflect.WildcardType].
      */
-    class Wildcard(val upperBound: JavaType?, val lowerBound: JavaType?) : JavaType() {
+    data class Wildcard(val upperBound: JavaType?, val lowerBound: JavaType?) : JavaType() {
 
         override val nonGenericClassName: String
             get() = throw UnsupportedOperationException()
@@ -148,11 +134,6 @@ sealed class JavaType {
             if (lowerBound != null)
                 append(" super ").append(lowerBound)
         }
-
-        override fun equals(other: Any?): Boolean =
-            other is Wildcard && upperBound == other.upperBound && lowerBound == other.lowerBound
-
-        override fun hashCode() = Objects.hash(upperBound, lowerBound)
 
         companion object {
             fun unbounded(): JavaType = Wildcard(null, null)

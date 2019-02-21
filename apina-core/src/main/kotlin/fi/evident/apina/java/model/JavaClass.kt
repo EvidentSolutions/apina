@@ -70,16 +70,13 @@ class JavaClass(
      * Returns enum constants defined by this class, if this class is an enum.
      *
      * @return Names of enum constants, in the order they appear
-     * @throws UnsupportedOperationException if the class is not an enum
+     * @throws IllegalStateException if the class is not an enum
      */
     val enumConstants: List<String>
         get() {
-            if (!isEnum) throw UnsupportedOperationException("not an enum: $this")
+            check(isEnum) { "not an enum: $this" }
 
-            return fields.asSequence()
-                .filter { it.isEnumConstant }
-                .map { it.name }
-                .toList()
+            return fields.filter { it.isEnumConstant }.map { it.name }
         }
 
     override fun toString() = type.toString()

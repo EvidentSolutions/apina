@@ -21,24 +21,12 @@ internal object ClassMetadataReader {
         return visitor.getJavaClass()
     }
 
-    private fun parseVisibility(access: Int): JavaVisibility = when {
-        access and Opcodes.ACC_PUBLIC != 0 ->
-            JavaVisibility.PUBLIC
-        access and Opcodes.ACC_PROTECTED != 0 ->
-            JavaVisibility.PROTECTED
-        access and Opcodes.ACC_PRIVATE != 0 ->
-            JavaVisibility.PRIVATE
-        else ->
-            JavaVisibility.PACKAGE
-    }
-
     private class MyClassVisitor : ClassVisitor(Opcodes.ASM7) {
 
         private var javaClass: JavaClass? = null
 
         override fun visit(version: Int, access: Int, name: String, signature: String?, superName: String?, interfaces: Array<String>) {
-            if (javaClass != null)
-                throw IllegalStateException("classMetadata already initialized")
+            check(javaClass == null) { "classMetadata already initialized" }
 
             var type = parseObjectType(name)
             val superType: JavaType
@@ -74,7 +62,7 @@ internal object ClassMetadataReader {
         }
 
         override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor {
-            val field = JavaField(name, parseVisibility(access), parseJavaType(desc, signature), access)
+            val field = JavaField(name, JavaVisibility.fromAccessFlags(access), parseJavaType(desc, signature), access)
             getJavaClass().addField(field)
             return MyFieldVisitor(field)
         }
@@ -88,13 +76,13 @@ internal object ClassMetadataReader {
 
             val methodSignature = parseMethodSignature(desc, signature)
 
-            val method = JavaMethod(javaClass, name, parseVisibility(access), methodSignature.returnType, methodSignature.parameters, access, methodSignature.schema)
+            val method = JavaMethod(javaClass, name, JavaVisibility.fromAccessFlags(access), methodSignature.returnType, methodSignature.parameters, access, methodSignature.schema)
             javaClass.addMethod(method)
             return MyMethodVisitor(method)
         }
 
         fun getJavaClass(): JavaClass =
-            javaClass ?: throw IllegalStateException("no ClassMetadata available")
+            javaClass ?: error("no ClassMetadata available")
     }
 
     private class MyAnnotationVisitor(private val annotation: JavaAnnotation) : AnnotationVisitor(Opcodes.ASM5) {
@@ -177,9 +165,8 @@ internal object ClassMetadataReader {
         }
 
         override fun visitLocalVariable(name: String, desc: String, signature: String?, start: Label, end: Label, index: Int) {
-            @Suppress("LoopToCallChain")
-            for (i in this.parameterIndicesInLVT.indices)
-                if (this.parameterIndicesInLVT[i] == index)
+            for ((i, paramIndex) in parameterIndicesInLVT.withIndex())
+                if (paramIndex == index)
                     method.parameters[i].name = name
         }
 

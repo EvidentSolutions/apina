@@ -27,23 +27,23 @@ internal class MethodSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Supplier
     override fun visitInterfaceBound() = visitBound()
 
     private fun visitBound(): SignatureVisitor {
-        val visitor = TypeBuildingSignatureVisitor()
-        typeSchemaBuilder.addBoundBuilderForLastTypeParameter(visitor)
-        return visitor
+        return TypeBuildingSignatureVisitor().also {
+            typeSchemaBuilder.addBoundBuilderForLastTypeParameter(it)
+        }
     }
 
     override fun visitParameterType(): SignatureVisitor {
         typeSchemaBuilder.finishFormalTypes()
-        val visitor = TypeBuildingSignatureVisitor()
-        parameterTypeBuilders.add(visitor)
-        return visitor
+        return TypeBuildingSignatureVisitor().also {
+            parameterTypeBuilders += it
+        }
     }
 
     override fun visitReturnType(): SignatureVisitor {
         typeSchemaBuilder.finishFormalTypes()
-        val visitor = TypeBuildingSignatureVisitor()
-        returnTypeBuilder = visitor
-        return visitor
+        return TypeBuildingSignatureVisitor().also {
+            returnTypeBuilder = it
+        }
     }
 
     override fun get(): MethodSignature = MethodSignature(
