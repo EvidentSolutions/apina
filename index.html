@@ -921,7 +921,91 @@ simply pass configuration as a constructor parameter when instantiating endpoint
 <h2 id="_customizing_http_requests">Customizing HTTP requests</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Not written yet.</p>
+<p>Sometimes you need to more control over the HTTP requests Apina makes. Perhaps
+you are behind a proxy and need to mangle the URL somehow or perhaps you&#8217;ll want
+to add some headers to requests.</p>
+</div>
+<div class="paragraph">
+<p>You can implement these by implementing replacing Apina&#8217;s <code>ApinaEndpointContext</code>
+with your own. When Apina generates code for endpoints, it actually just builds
+a structure representing the details of the request and passes it to endpoint
+context for actual execution:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-typescript" data-lang="typescript">findOrders(customerId: number): Observable&lt;Order&gt; {
+    return this.context.request({
+        'uriTemplate': '/api/customer/{customerId}/orders',
+        'method': 'GET',
+        'pathVariables': {
+            'customerId': this.context.serialize(customerId, 'number')
+        },
+        'responseType': 'Order'
+    });
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Therefore, you can easily implement your own endpoint context that does something
+different than the default one:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-typescript" data-lang="typescript">@Injectable()
+export class MyApinaEndpointContext extends ApinaEndpointContext {
+
+    constructor(config: ApinaConfig) {
+        super(config);
+    }
+
+    request(data: RequestData): Observable&lt;any&gt; {
+        ... do something completely different ...
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally, register it so that Apina uses it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-typescript" data-lang="typescript">@NgModule({
+    ...
+    providers: [
+        { provide: ApinaEndpointContext, useClass: MyApinaEndpointContext }
+    ]
+})
+export class MyModule { }</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+When targeting ES6, you can just instantiate your own context normally and
+pass it to constructor of your endpoint class.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+When targeting Angular, Apina&#8217;s <code>DefaultApinaEndpointContext</code> uses Angular&#8217;s
+<code>HttpClient</code> to execute the requests. Therefore things like authorization headers
+are probably best implemented as interceptors for <code>HttpClient</code> instead of writing an
+Apina-specific implementation. Custom endpoint context can still be useful for
+some cases which need higher-level knowledge of the requests.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
