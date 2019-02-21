@@ -448,11 +448,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_simple_example">Simple example</a></li>
 </ul>
 </li>
-<li><a href="#_basic_usage">Basic usage</a>
-<ul class="sectlevel2">
-<li><a href="#_overview_of_the_transformation_process">Overview of the transformation process</a></li>
-</ul>
-</li>
 <li><a href="#_spring">Spring</a></li>
 <li><a href="#_jackson">Jackson</a>
 <ul class="sectlevel2">
@@ -469,6 +464,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_customizing_http_requests">Customizing HTTP requests</a></li>
+<li><a href="#_details">Details</a>
+<ul class="sectlevel2">
+<li><a href="#_overview_of_the_transformation_process">Overview of the transformation process</a></li>
+<li><a href="#_structure_of_the_generated_code">Structure of the generated code</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -568,113 +569,6 @@ class MyGreetingComponent {
 <p>That&#8217;s it! Based on Jackson&#8217;s object mapping rules, Apina generates model types and metadata for
 handling JSON serialization on the TypeScript side. Similarly, based on Spring&#8217;s annotations, Apina
 generates endpoint classes that execute HTTP requests and marshals the data.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_basic_usage">Basic usage</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>As seen in the introduction, for many cases Apina works out-of-the-box without any additional configuration.
-It understands enough about inner workings of Spring MVC and Jackson that it needs no further instructions.
-Apina finds your controllers, finds Jackson classes referenced by them and then creates output matching
-them.</p>
-</div>
-<div class="sect2">
-<h3 id="_overview_of_the_transformation_process">Overview of the transformation process</h3>
-<div class="paragraph">
-<p>The following sections provide a bird&#8217;s eye view of the transformation process. It&#8217;s not necessary
-to understand this in order to use Apina, but it&#8217;s probably a good idea anyway.</p>
-</div>
-<div class="sect3">
-<h4 id="_building_the_model">Building the model</h4>
-<div class="paragraph">
-<p>Apina starts by building its model, the <em>API Definition</em>. API Definition contains information about
-HTTP endpoints and JSON documents that need translation. The model itself is agnostic to any specific
-technology, so in theory you could have a parser that builds a model out of a .NET or Rust program.
-However, only Spring MVC and Jackson are supported at the moment.</p>
-</div>
-<div class="paragraph">
-<p>The process to build a model from Spring MVC application is straightforward:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Find all controllers annotated with <code>@RestController</code>.<sup class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnotedef_3" title="View footnote.">3</a>]</sup> Add these as endpoint groups.</p>
-</li>
-<li>
-<p>Scan their <code>@RequestMapping</code>-annotated methods (you can use meta such as <code>@GetMapping</code> etc). Add
-these as endpoints to endpoint groups.</p>
-</li>
-<li>
-<p>Perform Jackson-scanning for <code>@RequestBody</code> parameters and return type of the methods:</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>Build a <em>Class Definition</em>, <em>Enum Definition</em> or <em>Discriminated Union Definition</em> based on the Java type
-and its Jackson annotations.</p>
-</li>
-<li>
-<p>Go through all properties that Jackson would consider and add them to the definition.</p>
-</li>
-<li>
-<p>Perform the scanning process recursively on the types of the properties.</p>
-</li>
-</ol>
-</div>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_generating_output">Generating output</h4>
-<div class="paragraph">
-<p>When the model has been built, Apina creates output:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>For each type definition in the model, create corresponding TypeScript elements:</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>An interface describing the structure of the data</p>
-</li>
-<li>
-<p>Configuration metadata for client-side object-mapper</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>For each endpoint group (Spring MVC controller), create an endpoint class.</p>
-</li>
-<li>
-<p>Write some generic runtime code that is independent of translated classes (e.g.
-implementation of object mapper and some support code for making requests)</p>
-</li>
-<li>
-<p>Write target specific code</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>Create a default <code>EndpointContext</code>-implementation for Angular or ES6</p>
-</li>
-<li>
-<p>If using Angular, create Angular module that wires all generated endpoint classes.</p>
-</li>
-</ol>
-</div>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Since the model of the API is completely abstract from the implementation technology, in theory we could
-proceed to generate code for any target, e.g. Swift or Befunge. However, at the moment only TypeScript is
-supported, albeit with two different flavors: we can generate code that takes advantage of Angular&#8217;s offerings
-or we can generate code for standalone ES6, using the Fetch API for requests.</p>
-</div>
 </div>
 </div>
 </div>
@@ -1008,6 +902,152 @@ simply pass configuration as a constructor parameter when instantiating endpoint
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_details">Details</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_overview_of_the_transformation_process">Overview of the transformation process</h3>
+<div class="paragraph">
+<p>The following sections provide a bird&#8217;s eye view of the transformation process. It&#8217;s not necessary
+to understand this in order to use Apina, but it&#8217;s probably a good idea anyway.</p>
+</div>
+<div class="sect3">
+<h4 id="_building_the_model">Building the model</h4>
+<div class="paragraph">
+<p>Apina starts by building its model, the <em>API Definition</em>. API Definition contains information about
+HTTP endpoints and JSON documents that need translation. The model itself is agnostic to any specific
+technology, so in theory you could have a parser that builds a model out of a .NET or Rust program.
+However, only Spring MVC and Jackson are supported at the moment.</p>
+</div>
+<div class="paragraph">
+<p>The process to build a model from Spring MVC application is straightforward:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Find all controllers annotated with <code>@RestController</code>.<sup class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnotedef_3" title="View footnote.">3</a>]</sup> Add these as endpoint groups.</p>
+</li>
+<li>
+<p>Scan their <code>@RequestMapping</code>-annotated methods (you can use meta such as <code>@GetMapping</code> etc). Add
+these as endpoints to endpoint groups.</p>
+</li>
+<li>
+<p>Perform Jackson-scanning for <code>@RequestBody</code> parameters and return type of the methods:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Build a <em>Class Definition</em>, <em>Enum Definition</em> or <em>Discriminated Union Definition</em> based on the Java type
+and its Jackson annotations.</p>
+</li>
+<li>
+<p>Go through all properties that Jackson would consider and add them to the definition.</p>
+</li>
+<li>
+<p>Perform the scanning process recursively on the types of the properties.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_generating_output">Generating output</h4>
+<div class="paragraph">
+<p>When the model has been built, Apina creates output:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>For each type definition in the model, create corresponding TypeScript elements:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>An interface describing the structure of the data</p>
+</li>
+<li>
+<p>Configuration metadata for client-side object-mapper</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>For each endpoint group (Spring MVC controller), create an endpoint class.</p>
+</li>
+<li>
+<p>Write some generic runtime code that is independent of translated classes (e.g.
+implementation of object mapper and some support code for making requests)</p>
+</li>
+<li>
+<p>Write target specific code</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Create a default <code>EndpointContext</code>-implementation for Angular or ES6</p>
+</li>
+<li>
+<p>If using Angular, create Angular module that wires all generated endpoint classes.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Since the model of the API is completely abstract from the implementation technology, in theory we could
+proceed to generate code for any target, e.g. Swift or Befunge. However, at the moment only TypeScript is
+supported, albeit with two different flavors: we can generate code that takes advantage of Angular&#8217;s offerings
+or we can generate code for standalone ES6, using the Fetch API for requests.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_structure_of_the_generated_code">Structure of the generated code</h3>
+<div class="paragraph">
+<p>Apina can be seen as several different beasts combined into one:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>It provides a simple object-mapper for TypeScript. Given a configuration describing the structure of your
+data, it can then recursively turn JSON into object tree of back. That is, Apina can turn that
+<code>"2019-04-11T14:13:42.454Z"</code> deep inside your JSON into a <code>Date</code> before your application sees it
+and do the opposite on the way back.</p>
+</li>
+<li>
+<p>It turns type definitions in the API model into TypeScript types <em>and</em> builds a reflective metadata
+model about them so that the object-mapper part can do it&#8217;s job.</p>
+</li>
+<li>
+<p>It turns endpoint definitions to TypeScript classes that know how to perform requests and use the
+object mapper to marshal the data.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>For all of these parts, Apina provides a way to customize the functionality (more on that later):</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>You can override object-mapper&#8217;s serializers for specific types, e.g. use a custom date-format
+on the wire.</p>
+</li>
+<li>
+<p>You can ask Apina to import a type definition instead of trying to translate a class, e.g.
+translate Java&#8217;s <code>LocalDate</code> to js-joda&#8217;s <code>LocalDate</code>. (Of course you need to configure Jackson
+properly as well.)</p>
+</li>
+<li>
+<p>You can implement your own <code>ApinaEndpointContext</code> which is ultimately responsible for performing
+the requests. The endpoint classes generated by Apina build a description of the endpoint and
+pass it to the endpoint context along with parameters supplied by user to perform the request.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footnotes">
 <hr>
@@ -1024,7 +1064,7 @@ simply pass configuration as a constructor parameter when instantiating endpoint
 <div id="footer">
 <div id="footer-text">
 Version 0.11.1-SNAPSHOT<br>
-Last updated 2019-02-21 22:01:05 +0200
+Last updated 2019-02-21 22:17:47 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
