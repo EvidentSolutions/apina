@@ -37,6 +37,6 @@ The `@PathVariable`, `@RequestBody` and `@RequestParam` parameters are all prese
 but the `response` parameter is not, since it makes no sense for the caller to pass that. Also note that
 Kotlin's nullable type turns into nullable type in TypeScript.
 
-TIP: If you are writing Java instead of Kotlin, you can add `@Nullable` from
-https://search.maven.org/artifact/org.jetbrains/annotations/[`org.jetbrains:annotations`] to
-make Apina understand that your types are nullable.
+TIP: If you are writing Java instead of Kotlin, you can add use nullability annotations
+(`@Nullable`, `@CheckForNull` etc.) from most well-known libraries to signal nullability
+(eg. `org.jetbrains:annotations` or FindBugs).

@@ -32,7 +32,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
     fun translateType(javaType: JavaType, element: JavaAnnotatedElement, env: TypeEnvironment): ApiType {
         val type = translateType(javaType, env)
-        return if (element.hasAnnotation(NULLABLE))
+        return if (element.hasNullableAnnotation)
             ApiType.Nullable(type)
         else
             type
@@ -218,7 +218,6 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
         private val log = LoggerFactory.getLogger(JacksonTypeTranslator::class.java)
 
-        private val NULLABLE = JavaType.Basic("org.jetbrains.annotations.Nullable")
         private val JSON_IGNORE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonIgnore")
         private val JSON_VALUE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonValue")
         private val OPTIONAL_NUMBER_TYPES = listOf(JavaType.basic<OptionalInt>(), JavaType.basic<OptionalLong>(), JavaType.basic<OptionalDouble>())

@@ -1,3 +1,8 @@
+## Unreleased
+
+- Change `ANGULAR2` platform name to `ANGULAR`.
+- Support other nullability annotations in addition to JetBrains' annotations.
+
 ## 0.11.0 (2019-02-08)
 
 - Add new `es6` platform target, allowing using Apina without Angular. 

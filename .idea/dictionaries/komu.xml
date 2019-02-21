@@ -1,10 +1,13 @@
 <component name="ProjectDictionaryState">
   <dictionary name="komu">
     <words>
+      <w>androidx</w>
       <w>apina</w>
       <w>apinatest</w>
       <w>axion</w>
+      <w>checkerframework</w>
       <w>classreading</w>
+      <w>compatqual</w>
       <w>defs</w>
       <w>jcenter</w>
       <w>kouko</w>
@@ -15,6 +18,7 @@
       <w>mvc's</w>
       <w>noninfringement</w>
       <w>nquux</w>
+      <w>nullness</w>
       <w>parameterized</w>
       <w>parameterizes</w>
       <w>quux</w>
