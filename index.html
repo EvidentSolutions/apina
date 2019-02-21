@@ -443,11 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_introduction">Introduction</a>
-<ul class="sectlevel2">
-<li><a href="#_simple_example">Simple example</a></li>
-</ul>
-</li>
+<li><a href="#_introduction">Introduction</a></li>
 <li><a href="#_support_for_spring">Support for Spring</a></li>
 <li><a href="#_support_for_jackson">Support for Jackson</a>
 <ul class="sectlevel2">
@@ -464,26 +460,40 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_customizing_http_requests">Customizing HTTP requests</a></li>
-<li><a href="#_details">Details</a>
+<li><a href="#_translation_details">Translation details</a>
 <ul class="sectlevel2">
-<li><a href="#_overview_of_the_transformation_process">Overview of the transformation process</a></li>
-<li><a href="#_structure_of_the_generated_code">Structure of the generated code</a></li>
+<li><a href="#_building_the_model">Building the model</a></li>
+<li><a href="#_generating_output">Generating output</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_introduction">Introduction</h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Apina is a tool for creating client-side TypeScript code automatically from your Spring MVC controllers and Jackson
 classes. If analyzes normal Spring / Jackson annotations, builds a model of your API and emits TypeScript code
 targeting either Angular or Fetch API.</p>
 </div>
-<div class="sect2">
-<h3 id="_simple_example">Simple example</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">GitHub</dt>
+<dd>
+<p><a href="https://github.com/EvidentSolutions/apina" class="bare">https://github.com/EvidentSolutions/apina</a></p>
+</dd>
+<dt class="hdlist1">Gradle plugin repository</dt>
+<dd>
+<p><a href="https://plugins.gradle.org/plugin/fi.evident.apina" class="bare">https://plugins.gradle.org/plugin/fi.evident.apina</a></p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_introduction">Introduction</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>Consider the following Spring controller:<sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup></p>
 </div>
@@ -569,7 +579,6 @@ class MyGreetingComponent {
 <p>That&#8217;s it! Based on Jackson&#8217;s object mapping rules, Apina generates model types and metadata for
 handling JSON serialization on the TypeScript side. Similarly, based on Spring&#8217;s annotations, Apina
 generates endpoint classes that execute HTTP requests and marshals the data.</p>
-</div>
 </div>
 </div>
 </div>
@@ -917,16 +926,14 @@ simply pass configuration as a constructor parameter when instantiating endpoint
 </div>
 </div>
 <div class="sect1">
-<h2 id="_details">Details</h2>
+<h2 id="_translation_details">Translation details</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_overview_of_the_transformation_process">Overview of the transformation process</h3>
 <div class="paragraph">
-<p>The following sections provide a bird&#8217;s eye view of the transformation process. It&#8217;s not necessary
+<p>The following sections provide a bird&#8217;s eye view of the translation process. It&#8217;s not necessary
 to understand this in order to use Apina, but it&#8217;s probably a good idea anyway.</p>
 </div>
-<div class="sect3">
-<h4 id="_building_the_model">Building the model</h4>
+<div class="sect2">
+<h3 id="_building_the_model">Building the model</h3>
 <div class="paragraph">
 <p>Apina starts by building its model, the <em>API Definition</em>. API Definition contains information about
 HTTP endpoints and JSON documents that need translation. The model itself is agnostic to any specific
@@ -965,8 +972,8 @@ and its Jackson annotations.</p>
 </ol>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_generating_output">Generating output</h4>
+<div class="sect2">
+<h3 id="_generating_output">Generating output</h3>
 <div class="paragraph">
 <p>When the model has been built, Apina creates output:</p>
 </div>
@@ -1015,52 +1022,6 @@ or we can generate code for standalone ES6, using the Fetch API for requests.</p
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_structure_of_the_generated_code">Structure of the generated code</h3>
-<div class="paragraph">
-<p>Apina can be seen as several different beasts combined into one:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>It provides a simple object-mapper for TypeScript. Given a configuration describing the structure of your
-data, it can then recursively turn JSON into object tree of back. That is, Apina can turn that
-<code>"2019-04-11T14:13:42.454Z"</code> deep inside your JSON into a <code>Date</code> before your application sees it
-and do the opposite on the way back.</p>
-</li>
-<li>
-<p>It turns type definitions in the API model into TypeScript types <em>and</em> builds a reflective metadata
-model about them so that the object-mapper part can do it&#8217;s job.</p>
-</li>
-<li>
-<p>It turns endpoint definitions to TypeScript classes that know how to perform requests and use the
-object mapper to marshal the data.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>For all of these parts, Apina provides a way to customize the functionality (more on that later):</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>You can override object-mapper&#8217;s serializers for specific types, e.g. use a custom date-format
-on the wire.</p>
-</li>
-<li>
-<p>You can ask Apina to import a type definition instead of trying to translate a class, e.g.
-translate Java&#8217;s <code>LocalDate</code> to js-joda&#8217;s <code>LocalDate</code>. (Of course you need to configure Jackson
-properly as well.)</p>
-</li>
-<li>
-<p>You can implement your own <code>ApinaEndpointContext</code> which is ultimately responsible for performing
-the requests. The endpoint classes generated by Apina build a description of the endpoint and
-pass it to the endpoint context along with parameters supplied by user to perform the request.</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
 </div>
 </div>
 <div id="footnotes">
@@ -1078,7 +1039,7 @@ pass it to the endpoint context along with parameters supplied by user to perfor
 <div id="footer">
 <div id="footer-text">
 Version 0.11.1-SNAPSHOT<br>
-Last updated 2019-02-21 22:23:59 +0200
+Last updated 2019-02-21 22:30:52 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
