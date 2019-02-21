@@ -913,7 +913,7 @@ this makes no sense.</p>
 </div>
 <div class="paragraph">
 <p>As an example, perhaps you don&#8217;t want <code>java.time.Instant</code> to be serialized as
-<code>{ "seconds": 1550778425, "nanos": 398000000" }</code> but would prefer it to be presented
+<code>{ "seconds": 1550778425, "nanos": 398000000" }</code> but would prefer it to be represented
 as <code>"2019-02-21T19:47:05.398Z"</code> on the wire. And instead of handling it as a <code>string</code>
 in TypeScript, you&#8217;d probably want it to be converted to <code>Date</code> or perhaps
 <a href="https://js-joda.github.io/js-joda/">js-joda</a>'s <code>Instant</code>. Apina can do both of these.</p>
@@ -928,7 +928,7 @@ of trying to translate it:</p>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">apina {
     ...
-    imports = listOf("./my-apina-types": listOf("Instant"))
+    imports = mapOf("./my-apina-types" to listOf("Instant"))
 }</code></pre>
 </div>
 </div>
@@ -950,7 +950,52 @@ for representation of <code>Instant</code>, so we&#8217;ll simply specify a type
 <div class="sect2">
 <h3 id="_configuring_runtime_serialization">Configuring runtime serialization</h3>
 <div class="paragraph">
-<p>Not yet written.</p>
+<p>Next we&#8217;ll need to instruct Apina to customize the serialization format used on JavaScript. (Of
+course you also need to configure Jackson similarly, but that&#8217;s out of scope for this document.)
+Apina generates an <code>ApinaConfig</code> class whose default constructor will configure all serializers
+that Apina can deduce itself. Therefore we can just construct the default instance and then
+customize it by registering our own serializer for instants:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-typescript" data-lang="typescript">export function createApinaConfig(): ApinaConfig {
+    const config = new ApinaConfig();
+
+    config.registerSerializer("Instant", {
+        serialize(o) { return formatISO8601(o); },
+        deserialize(o) { return parseISO8601(o); }
+    });
+
+    return config;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally we&#8217;ll register <code>createApinaConfig</code> as a factory for <code>ApinaConfig</code> in our Angular module:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-typescript" data-lang="typescript">@NgModule({
+    ...
+    providers: [
+        { provide: ApinaConfig, useFactory: createApinaConfig }
+    ]
+})
+export class MyModule { }</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+When generating code for ES6, you won&#8217;t register the provider for Angular, but you&#8217;ll
+simply pass configuration as a constructor parameter when instantiating endpoint-classes.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
