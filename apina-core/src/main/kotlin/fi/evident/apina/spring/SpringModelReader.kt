@@ -107,7 +107,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         val methodUrl = findRequestMappingPath(method)
 
         val url = (classUrl + methodUrl).removePrefix(settings.removedUrlPrefix)
-        return parseUriTemplate(url)
+        return parseSpringUriTemplate(url)
     }
 
     private fun findRequestMappingPath(element: JavaAnnotatedElement): String {

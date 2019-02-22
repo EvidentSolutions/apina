@@ -7,29 +7,29 @@ import kotlin.test.assertEquals
 class SpringUriTemplateParserTest {
 
     @Test
-    fun templateWithoutVariables() {
-        assertEquals(URITemplate(""), parseUriTemplate(""))
-        assertEquals(URITemplate("foo"), parseUriTemplate("foo"))
-        assertEquals(URITemplate("/foo"), parseUriTemplate("/foo"))
+    fun `template without variables`() {
+        assertEquals(URITemplate(""), parseSpringUriTemplate(""))
+        assertEquals(URITemplate("foo"), parseSpringUriTemplate("foo"))
+        assertEquals(URITemplate("/foo"), parseSpringUriTemplate("/foo"))
     }
 
     @Test
-    fun templateWithSimpleVariables() {
-        assertEquals(URITemplate("foo/{bar}/{baz}"), parseUriTemplate("foo/{bar}/{baz}"))
+    fun `template with simple variables`() {
+        assertEquals(URITemplate("foo/{bar}/{baz}"), parseSpringUriTemplate("foo/{bar}/{baz}"))
     }
 
     @Test
-    fun templateWithVariableConstraints() {
-        assertEquals(URITemplate("foo/{bar}/{baz}"), parseUriTemplate("foo/{bar:\\d+}/{baz:[ab]}"))
+    fun `template with variable constraints`() {
+        assertEquals(URITemplate("foo/{bar}/{baz}"), parseSpringUriTemplate("foo/{bar:\\d+}/{baz:[ab]}"))
     }
 
     @Test
-    fun templatesWithClosingBracesInsideConstraints() {
-        assertEquals(URITemplate("/{id}/foo"), parseUriTemplate("/{id:[a-z]{16}[0-9]{4}}/foo"))
+    fun `templates with closing braces inside constraints`() {
+        assertEquals(URITemplate("/{id}/foo"), parseSpringUriTemplate("/{id:[a-z]{16}[0-9]{4}}/foo"))
     }
 
     @Test
-    fun templatesWithEscapedBraces() {
-        assertEquals(URITemplate("/{id}/foo"), parseUriTemplate("/{id:\\}}/foo"))
+    fun `templates with escaped braces`() {
+        assertEquals(URITemplate("/{id}/foo"), parseSpringUriTemplate("/{id:\\}}/foo"))
     }
 }

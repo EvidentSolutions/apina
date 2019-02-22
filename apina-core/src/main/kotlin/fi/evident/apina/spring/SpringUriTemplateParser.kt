@@ -6,7 +6,7 @@ import fi.evident.apina.model.URITemplate
  * Converts URI-template in Spring format to plain URI-template, removing
  * the specified regex constraints from variables.
  */
-fun parseUriTemplate(template: String): URITemplate {
+fun parseSpringUriTemplate(template: String): URITemplate {
     val parser = SpringUriTemplateParser(template)
     parser.parse()
     return URITemplate(parser.result.toString())
@@ -27,13 +27,13 @@ private class SpringUriTemplateParser(private val template: String) {
     }
 
     private fun readChar(): Char {
-        if (!hasMore()) throw IllegalStateException("unexpected end of input")
+        check(hasMore()) { "unexpected end of input" }
 
         return template[pos++]
     }
 
     private fun readVariable() {
-        if (readChar() != '{') throw IllegalStateException("expected '{'")
+        check(readChar() == '{') { "expected '{'" }
 
         var braceLevel = 0
         val start = pos
@@ -54,7 +54,7 @@ private class SpringUriTemplateParser(private val template: String) {
             }
         }
 
-        throw IllegalStateException("unexpected end of input for template '$template'")
+        error("unexpected end of input for template '$template'")
     }
 
     private fun readPlainText() {

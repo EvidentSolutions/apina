@@ -9,9 +9,6 @@ import fi.evident.apina.utils.readResourceAsString
  */
 class TypeScriptAngularGenerator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(api, settings, "Observable", "@Injectable()") {
 
-    val output: String
-        get() = out.output
-
     override fun writeRuntime() {
         out.write(readResourceAsString("typescript/runtime-angular.ts"))
         out.writeLine()
@@ -37,7 +34,7 @@ class TypeScriptAngularGenerator(api: ApiDefinition, settings: TranslationSettin
         out.writeLine("    providers: [")
 
         for (endpointGroup in api.endpointGroups)
-            out.writeLine("        " + endpointGroup.name + "Endpoint,")
+            out.writeLine("        " + endpointClassName(endpointGroup) + ",")
 
         out.writeLine("        { provide: ApinaEndpointContext, useClass: DefaultApinaEndpointContext },")
         out.writeLine("        { provide: ApinaConfig, useFactory: apinaConfigFactory }")

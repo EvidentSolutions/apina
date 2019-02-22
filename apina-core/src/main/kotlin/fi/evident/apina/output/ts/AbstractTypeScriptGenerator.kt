@@ -24,6 +24,9 @@ abstract class AbstractTypeScriptGenerator(
 
     internal val out = CodeWriter()
 
+    val output: String
+        get() = out.output
+
     fun writeApi() {
         writeHeader()
         writeImports()
@@ -139,7 +142,7 @@ abstract class AbstractTypeScriptGenerator(
             if (classDecorator.isNotBlank()) {
                 out.writeLine(classDecorator)
             }
-            out.writeBlock("export class " + endpointGroup.name + "Endpoint") {
+            out.writeBlock("export class " + endpointClassName(endpointGroup)) {
 
                 out.writeBlock("constructor(private context: ApinaEndpointContext)") { }
 
@@ -150,6 +153,9 @@ abstract class AbstractTypeScriptGenerator(
             }
         }
     }
+
+    protected fun endpointClassName(endpointGroup: EndpointGroup): String =
+        endpointGroup.name + "Endpoint"
 
     private fun writeEndpoint(endpoint: Endpoint) {
         out.write(endpointSignature(endpoint)).write(" ").writeBlock { out.write("return this.context.request(").writeValue(AbstractTypeScriptGenerator.createConfig(endpoint)).writeLine(");") }
