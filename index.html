@@ -530,7 +530,7 @@ apina {
     target = File(project(":frontend").projectDir, "gen/apina-api.ts")
 
     // Generate code for Angular
-    platform = Platform.ANGULAR2
+    platform = Platform.ANGULAR
 
     // Regex matching our controller classes
     endpoints = listOf("""hello\..+""")
@@ -633,9 +633,9 @@ Kotlin&#8217;s nullable type turns into nullable type in TypeScript.</p>
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-If you are writing Java instead of Kotlin, you can add <code>@Nullable</code> from
-<a href="https://search.maven.org/artifact/org.jetbrains/annotations/"><code>org.jetbrains:annotations</code></a> to
-make Apina understand that your types are nullable.
+If you are writing Java instead of Kotlin, you can add use nullability annotations
+(<code>@Nullable</code>, <code>@CheckForNull</code> etc.) from most well-known libraries to signal nullability
+(eg. <code>org.jetbrains:annotations</code> or FindBugs).
 </td>
 </tr>
 </table>
@@ -1043,10 +1043,10 @@ some cases which need higher-level knowledge of the requests.
     // work behind reverse proxies. Defaults to empty string (URL is not modified).
     removedUrlPrefix = "/foo"
 
-    // Code generation target (Default is 'angular'2)
-    // - 'ANGULAR2' =&gt; Generate Angular module that uses Angular's HttpClient
+    // Code generation target (Default is 'ANGULAR')
+    // - 'ANGULAR' =&gt; Generate Angular module that uses Angular's HttpClient
     // - 'ES6' =&gt; Generate code that uses Fetch API and has no dependencies apart from ES6
-    platform = Platform.ANGULAR2
+    platform = Platform.ANGULAR
 }</code></pre>
 </div>
 </div>
@@ -1166,7 +1166,7 @@ or we can generate code for standalone ES6, using the Fetch API for requests.</p
 <div id="footer">
 <div id="footer-text">
 Version 0.11.1-SNAPSHOT<br>
-Last updated 2019-02-21 22:49:58 +0200
+Last updated 2019-02-21 23:00:19 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
