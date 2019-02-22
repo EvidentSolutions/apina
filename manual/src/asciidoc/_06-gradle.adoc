@@ -1,8 +1,13 @@
 == Gradle task reference
 
 [source,kotlin]
+[subs="verbatim,attributes"]
 ----
-apina {
+plugins {
+    id("fi.evident.apina") version "{revnumber}"
+}
+
+tasks.apina {
     // Set the name of the created TypeScript file. Default is "build/apina/apina.ts".
     target = File(project(":frontend").projectDir, "app/apina-api.ts")
 

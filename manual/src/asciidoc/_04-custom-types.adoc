@@ -21,7 +21,7 @@ of trying to translate it:
 
 [source,kotlin]
 ----
-apina {
+tasks.apina {
     ...
     imports = mapOf("./my-apina-types" to listOf("Instant"))
 }
