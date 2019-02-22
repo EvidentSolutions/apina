@@ -525,7 +525,7 @@ class HelloController {
     id "fi.evident.apina" version "0.11.1-SNAPSHOT"
 }
 
-apina {
+tasks.apina {
     // Output file that Apina generates
     target = File(project(":frontend").projectDir, "gen/apina-api.ts")
 
@@ -844,7 +844,7 @@ of trying to translate it:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">apina {
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks.apina {
     ...
     imports = mapOf("./my-apina-types" to listOf("Instant"))
 }</code></pre>
@@ -1015,7 +1015,7 @@ some cases which need higher-level knowledge of the requests.
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">apina {
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">taks.apina {
     // Set the name of the created TypeScript file. Default is "build/apina/apina.ts".
     target = File(project(":frontend").projectDir, "app/apina-api.ts")
 
