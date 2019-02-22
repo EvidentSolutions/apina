@@ -5,7 +5,7 @@ Juha Komulainen <juha.komulainen@evident.fi>
 :source-highlighter: prettify
 
 Apina is a tool for creating client-side TypeScript code automatically from your Spring MVC controllers and Jackson
-classes. If analyzes normal Spring / Jackson annotations, builds a model of your API and emits TypeScript code
+classes. It analyzes normal Spring / Jackson annotations, builds a model of your API and emits TypeScript code
 targeting either Angular or Fetch API.
 
 GitHub:: https://github.com/EvidentSolutions/apina
