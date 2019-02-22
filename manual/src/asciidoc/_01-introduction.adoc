@@ -68,7 +68,7 @@ import { HelloEndpoint, GreetingResponse } from '../gen/apina-api';
 
 @Component({
     selector: 'my-greeting',
-    template: `<span *ngIf="reseponse$ | async as response">{{response.greeting}}</span>`
+    template: `<span *ngIf="response$ | async as response">{{response.greeting}}</span>`
 })
 class MyGreetingComponent {
 
