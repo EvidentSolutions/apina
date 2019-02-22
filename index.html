@@ -517,12 +517,13 @@ class HelloController {
 </div>
 </div>
 <div class="paragraph">
-<p>To generate TypeScript code from the controller, apply Apina&#8217;s Gradle plugin:<sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnotedef_2" title="View footnote.">2</a>]</sup></p>
+<p>To generate TypeScript code from the controller, apply Apina&#8217;s Gradle plugin:
+<sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnotedef_2" title="View footnote.">2</a>]</sup></p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id "fi.evident.apina" version "0.11.1-SNAPSHOT"
+    id("fi.evident.apina") version "0.11.1-SNAPSHOT"
 }
 
 tasks.apina {
@@ -564,7 +565,7 @@ import { HelloEndpoint, GreetingResponse } from '../gen/apina-api';
 
 @Component({
     selector: 'my-greeting',
-    template: `&lt;span *ngIf="reseponse$ | async as response"&gt;{{response.greeting}}&lt;/span&gt;`
+    template: `&lt;span *ngIf="response$ | async as response"&gt;{{response.greeting}}&lt;/span&gt;`
 })
 class MyGreetingComponent {
 
@@ -1015,7 +1016,11 @@ some cases which need higher-level knowledge of the requests.
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks.apina {
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
+    id("fi.evident.apina") version "0.11.1-SNAPSHOT"
+}
+
+tasks.apina {
     // Set the name of the created TypeScript file. Default is "build/apina/apina.ts".
     target = File(project(":frontend").projectDir, "app/apina-api.ts")
 
