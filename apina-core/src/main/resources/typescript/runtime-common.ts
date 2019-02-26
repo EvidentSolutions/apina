@@ -106,6 +106,12 @@ export class ApinaConfig {
             const elementSerializer = this.lookupSerializer(elementType);
             return arraySerializer(elementSerializer);
         }
+
+        const dictionaryMatched = /^Dictionary<(.+)>$/.exec(type);
+        if (dictionaryMatched) {
+            return dictionarySerializer(this.lookupSerializer(dictionaryMatched[1]));
+        }
+
         const serializer = this.serializers[type];
         if (serializer) {
             return serializer;
@@ -123,12 +129,43 @@ function arraySerializer(elementSerializer: Serializer): Serializer {
             return value.map(mapper);
     }
 
+    const serialize = elementSerializer.serialize.bind(elementSerializer);
+    const deserialize = elementSerializer.deserialize.bind(elementSerializer);
+
     return {
         serialize(value) {
-            return safeMap(value, elementSerializer.serialize.bind(elementSerializer));
+            return safeMap(value, serialize);
         },
         deserialize(value) {
-            return safeMap(value, elementSerializer.deserialize.bind(elementSerializer));
+            return safeMap(value, deserialize);
+        }
+    }
+}
+
+function dictionarySerializer(valueSerializer: Serializer): Serializer {
+    function safeMap(dictionary: Dictionary<any>, mapper: (a: any) => any) {
+        if (!dictionary)
+            return dictionary;
+        else {
+            const result: any = {};
+            for (const key in dictionary) {
+                if (dictionary.hasOwnProperty(key)) {
+                    result[key] = mapper(dictionary[key])
+                }
+            }
+            return result
+        }
+    }
+
+    const serialize = valueSerializer.serialize.bind(valueSerializer);
+    const deserialize = valueSerializer.deserialize.bind(valueSerializer);
+
+    return {
+        serialize(value) {
+            return safeMap(value, serialize);
+        },
+        deserialize(value) {
+            return safeMap(value, deserialize);
         }
     }
 }
