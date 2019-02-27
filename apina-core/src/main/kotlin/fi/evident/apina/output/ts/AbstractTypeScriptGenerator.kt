@@ -85,7 +85,7 @@ abstract class AbstractTypeScriptGenerator(
         }
 
         for (classDefinition in api.structuralTypeDefinitions) {
-            classDefinitionWriter(classDefinition.type.name) {
+            classDefinitionWriter(classDefinition.toTypeScript(settings.optionalTypeMode)) {
                 for (property in classDefinition.properties)
                     if (settings.optionalTypeMode == OptionalTypeMode.UNDEFINED && property.type is ApiType.Nullable) {
                         out.writeLine(
@@ -128,7 +128,7 @@ abstract class AbstractTypeScriptGenerator(
         // First individual members of the union...
         for ((discriminatorValue, member) in definition.types) {
             val typeName = discriminatedUnionMemberType(definition.type, member)
-            out.writeBlock("export interface $typeName extends ${member.type.name}") {
+            out.writeBlock("export interface $typeName extends ${member.toTypeScript(settings.optionalTypeMode)}") {
                 out.writeLine("${definition.discriminator}: '$discriminatorValue';")
             }
             out.writeLine()
@@ -173,21 +173,23 @@ abstract class AbstractTypeScriptGenerator(
             out.writeLine()
 
             for (classDefinition in api.structuralTypeDefinitions) {
-                val defs = LinkedHashMap<String, String>()
+                for (typeInstance in classDefinition.types) {
+                    val defs = LinkedHashMap<String, String>()
 
-                for (property in classDefinition.properties)
-                    defs[property.name] = typeDescriptor(property.type, settings.optionalTypeMode)
+                    for (property in classDefinition.properties)
+                        defs[property.name] = typeDescriptor(property.type, settings.optionalTypeMode)
 
-                out.write("config.registerClassSerializer(").writeValue(classDefinition.type.toString()).write(", ")
-                out.writeValue(defs).writeLine(");")
-                out.writeLine()
+                    out.write("config.registerClassSerializer(").writeValue(classDefinition.toTypeScript(settings.optionalTypeMode)).write(", ")
+                    out.writeValue(defs).writeLine(");")
+                    out.writeLine()
+                }
             }
 
             for (definition in api.discriminatedUnionDefinitions) {
                 val defs = mutableMapOf<String, String>()
 
                 for ((discriminatorValue, type) in definition.types)
-                    defs[discriminatorValue] = typeDescriptor(ApiType.Class(type.type), settings.optionalTypeMode)
+                    defs[discriminatorValue] = typeDescriptor(type.genericType, settings.optionalTypeMode)
 
                 out.write("config.registerDiscriminatedUnionSerializer(")
                 out.writeValue(definition.type.name).write(", ")
@@ -265,7 +267,7 @@ abstract class AbstractTypeScriptGenerator(
     }
 
     private fun discriminatedUnionMemberType(unionType: ApiTypeName, memberType: ClassDefinition) =
-        "${unionType.name}_${memberType.type.name}"
+        "${unionType.name}_${memberType.toTypeScript(settings.optionalTypeMode)}"
 
     private fun parameterListCode(parameters: List<EndpointParameter>): String {
         val firstOptionalIndex = parameters.indexOfLast { it.type !is ApiType.Nullable } + 1
@@ -294,7 +296,7 @@ abstract class AbstractTypeScriptGenerator(
             get() = classDefinitions + discriminatedUnionDefinitions
                 .flatMap { du -> du.types.values }
                 .distinctBy { it.type }
-                .sortedBy { it.type }
+                .sortedBy { it.toTypeScript(OptionalTypeMode.NULL) }
 
         private fun createConfig(
             endpoint: Endpoint,

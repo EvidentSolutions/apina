@@ -49,7 +49,7 @@ sealed class JavaType {
         override val nonGenericClassName: String
             get() = name
 
-        override fun resolve(env: TypeEnvironment): JavaType = this
+        override fun resolve(env: TypeEnvironment) = this
 
         override fun toString(): String = name
 
@@ -86,7 +86,7 @@ sealed class JavaType {
         override val nonGenericClassName: String
             get() = throw UnsupportedOperationException()
 
-        override fun resolve(env: TypeEnvironment): JavaType = Array(elementType.resolve(env))
+        override fun resolve(env: TypeEnvironment) = Array(elementType.resolve(env))
 
         override fun toString() = "$elementType[]"
     }
@@ -96,7 +96,7 @@ sealed class JavaType {
         override val nonGenericClassName: String
             get() = outer.nonGenericClassName + '$' + name
 
-        override fun resolve(env: TypeEnvironment): JavaType = InnerClass(outer.resolve(env), name)
+        override fun resolve(env: TypeEnvironment) = InnerClass(outer.resolve(env), name)
 
         override fun toString() = "$outer.$name"
     }
@@ -113,7 +113,7 @@ sealed class JavaType {
         override val nonGenericClassName: String
             get() = baseType.nonGenericClassName
 
-        override fun resolve(env: TypeEnvironment): JavaType =
+        override fun resolve(env: TypeEnvironment) =
             Parameterized(baseType.resolve(env), arguments.map { it.resolve(env) })
 
         override fun toString(): String = baseType.toString() + arguments.joinToString(", ", "<", ">")
@@ -138,9 +138,8 @@ sealed class JavaType {
         override val nonGenericClassName: String
             get() = throw UnsupportedOperationException()
 
-        override fun resolve(env: TypeEnvironment): JavaType {
-            return Wildcard(upperBound?.resolve(env), lowerBound?.resolve(env))
-        }
+        override fun resolve(env: TypeEnvironment) =
+            Wildcard(upperBound?.resolve(env), lowerBound?.resolve(env))
 
         override fun toString(): String = buildString {
             if (upperBound != null)

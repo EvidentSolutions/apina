@@ -9,7 +9,10 @@ import kotlin.test.assertTrue
 
 class ClassDefinitionTest {
 
-    private val classDefinition = ClassDefinition(ApiTypeName("foo.Bar"))
+    private val classDefinition = ClassDefinition(
+        ApiTypeName("foo.Bar"),
+        listOf()
+    )
 
     @Test
     fun `duplicate properties are disallowed`() {

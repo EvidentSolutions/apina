@@ -109,7 +109,7 @@ internal class TypeTranslator(
             return ApiType.BlackBox(typeName)
         }
 
-        val javaClass = classes.findClass(type.name) ?: return ApiType.Class(typeName)
+        val javaClass = classes.findClass(type.name) ?: return ApiType.Class(typeName, emptyList() /* FIXME */)
 
         val inlineType = javaClass.kotlinMetadata?.inlineClassUnderlyingType
         return when {

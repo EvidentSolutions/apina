@@ -27,7 +27,7 @@ internal class KotlinSerializationTypeTranslator(
         javaClass.hasAnnotation(SERIALIZABLE)
 
     fun translateClass(javaClass: JavaClass, typeName: ApiTypeName, env: TypeEnvironment): ApiType {
-        val classType = ApiType.Class(typeName)
+        val classType = ApiType.Class(typeName, emptyList() /* FIXME */)
 
         val metadata = javaClass.kotlinMetadata ?: error("Could not find Kotlin metadata for class ${javaClass.name}")
 
@@ -40,7 +40,7 @@ internal class KotlinSerializationTypeTranslator(
                     createDiscriminatedUnion(javaClass, metadata)
 
                 else -> {
-                    val classDefinition = ClassDefinition(typeName)
+                    val classDefinition = ClassDefinition(typeName, emptyList() /* FIXME */)
                     // Add this before further processing because the type may be recursively referenced in definition
                     api.addClassDefinition(classDefinition)
                     initClassDefinition(classDefinition, javaClass, env)
@@ -63,7 +63,7 @@ internal class KotlinSerializationTypeTranslator(
         // We assume that the class is sealed and therefore the subtypes must be in the same package
         for (cl in findSealedSubClasses(metadata)) {
             val name = cl.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: cl.name.replace('$', '.')
-            val def = ClassDefinition(typeTranslator.classNameForType(cl.type.toBasicType()))
+            val def = ClassDefinition(typeTranslator.classNameForType(cl.type.toBasicType()), emptyList() /* FIXME */)
             initClassDefinition(def, cl, TypeEnvironment.empty())
             union.addType(name, def)
         }

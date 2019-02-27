@@ -25,7 +25,10 @@ internal class JacksonTypeTranslator(
             return ApiType.BlackBox(typeName)
         }
 
-        val classType = ApiType.Class(typeName)
+        val classType = ApiType.Class(typeName, when (javaClass.type) {
+            is JavaType.Parameterized -> javaClass.type.arguments.map { typeTranslator.translateType(it, env) }
+            else -> listOf()
+        })
 
         if (!api.containsType(typeName)) {
             when {
@@ -37,7 +40,10 @@ internal class JacksonTypeTranslator(
                     createDiscriminatedUnion(javaClass, typeInfo)
                 }
                 else -> {
-                    val classDefinition = ClassDefinition(typeName)
+                    val classDefinition = ClassDefinition(typeName, when (javaClass.type) {
+                        is JavaType.Parameterized -> javaClass.type.arguments.map { ApiType.Variable(it.toString()) }
+                        else -> emptyList()
+                    })
 
                     // We must first add the definition to api and only then proceed to
                     // initialize it because initialization of properties could refer
@@ -47,6 +53,9 @@ internal class JacksonTypeTranslator(
                     initClassDefinition(classDefinition, BoundClass(javaClass, env))
                 }
             }
+        } else if (classType.arguments.isNotEmpty()) {
+            val existingParameterizedClass = api.classDefinitions.single { it.type == typeName }
+            existingParameterizedClass.addType(classType)
         }
 
         return classType
@@ -67,7 +76,7 @@ internal class JacksonTypeTranslator(
         api.addDiscriminatedUnion(union)
 
         for ((name, cl) in findSubtypes(javaClass)) {
-            val def = ClassDefinition(typeTranslator.classNameForType(cl.type.toBasicType()))
+            val def = ClassDefinition(typeTranslator.classNameForType(cl.type.toBasicType()), emptyList())
             initClassDefinition(def, BoundClass(cl, TypeEnvironment.empty()))
             union.addType(name, def)
         }

@@ -8,6 +8,7 @@ import fi.evident.apina.model.EndpointGroup
 import fi.evident.apina.model.HTTPMethod
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
+import fi.evident.apina.model.type.ApiTypeName
 import org.junit.jupiter.api.Test
 import org.springframework.data.util.ParameterTypes
 import org.springframework.http.HttpEntity
@@ -63,7 +64,7 @@ class SpringModelReaderTest {
 
         val group = readModel<ControllerWithVariables>().endpointGroups.single()
 
-        assertEquals(ApiType.Class("Foo"), group.endpointByName("foo").responseBody)
+        assertEquals(ApiType.Class(ApiTypeName("Foo"), emptyList()), group.endpointByName("foo").responseBody)
     }
 
     @Test
@@ -171,9 +172,9 @@ class SpringModelReaderTest {
 
         val group = readModel<MyController>().endpointGroups.single()
 
-        assertEquals(ApiType.Class("Foo"), group.endpointByName("foo").responseBody)
-        assertEquals(ApiType.Class("Foo"), group.endpointByName("bar").responseBody)
-        assertEquals(ApiType.Class("Foo"), group.endpointByName("baz").responseBody)
+        assertEquals(ApiType.Class(ApiTypeName("Foo"), emptyList()), group.endpointByName("foo").responseBody)
+        assertEquals(ApiType.Class(ApiTypeName("Foo"), emptyList()), group.endpointByName("bar").responseBody)
+        assertEquals(ApiType.Class(ApiTypeName("Foo"), emptyList()), group.endpointByName("baz").responseBody)
     }
 
     @Test

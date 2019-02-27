@@ -9,6 +9,8 @@ sealed class ApiType {
     open fun unwrapNullable(): ApiType = this
     open fun nullable(): Nullable = Nullable(this)
 
+    open val typeName: ApiTypeName get() = error("Cannot resolve name for type: ${javaClass.simpleName}")
+
     abstract override fun equals(other: Any?): Boolean
     abstract override fun hashCode(): Int
 
@@ -18,6 +20,7 @@ sealed class ApiType {
     }
 
     data class BlackBox(val name: ApiTypeName) : ApiType() {
+        override val typeName = name
         override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = name.name
         override fun toSwift() = name.name
     }
@@ -25,15 +28,19 @@ sealed class ApiType {
     /**
      * Represents class types.
      */
-    data class Class(val name: ApiTypeName) : ApiType(), Comparable<Class> {
+    data class Class(val name: ApiTypeName, val arguments: List<ApiType>) : ApiType(), Comparable<Class> {
+        override val typeName = name
 
-        constructor(name: String): this(ApiTypeName(name))
-        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = name.name
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) =
+            if (arguments.isEmpty())
+                name.name
+            else
+                "${name.name}<${arguments.joinToString(", ") { it.toTypeScript(optionalTypeMode) }}>"
         override fun toSwift() = name.name
         override fun compareTo(other: Class) = name.compareTo(other.name)
     }
 
-    data class Dictionary(private val valueType: ApiType) : ApiType() {
+    data class Dictionary(val valueType: ApiType) : ApiType() {
         override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = "Dictionary<${valueType.toTypeScript(optionalTypeMode)}>"
         override fun toSwift() = "[String: ${valueType.toSwift()}]"
     }
@@ -66,5 +73,10 @@ sealed class ApiType {
             val FLOAT: ApiType = Primitive(typescriptName = "number", swiftName = "Float")
             val VOID: ApiType = Primitive(typescriptName = "void", swiftName = "Void")
         }
+    }
+
+    data class Variable(val name: String) : ApiType() {
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = name
+        override fun toSwift() = name
     }
 }

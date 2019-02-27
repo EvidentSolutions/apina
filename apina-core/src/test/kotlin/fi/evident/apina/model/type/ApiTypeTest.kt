@@ -12,7 +12,7 @@ class ApiTypeTest {
         assertEquals("string[]", ApiType.Array(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("string[][]", ApiType.Array(ApiType.Array(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("Foo", ApiType.BlackBox(ApiTypeName("Foo")).toTypeScript(OptionalTypeMode.NULL))
-        assertEquals("Foo", ApiType.Class(ApiTypeName("Foo")).toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("Foo", ApiType.Class(ApiTypeName("Foo"), emptyList()).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("Dictionary<string>", ApiType.Dictionary(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("Dictionary<string | null>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("Dictionary<string | undefined>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.UNDEFINED))
@@ -26,7 +26,7 @@ class ApiTypeTest {
         assertEquals("[String]", ApiType.Array(ApiType.Primitive.STRING).toSwift())
         assertEquals("[[String]]", ApiType.Array(ApiType.Array(ApiType.Primitive.STRING)).toSwift())
         assertEquals("Foo", ApiType.BlackBox(ApiTypeName("Foo")).toSwift())
-        assertEquals("Foo", ApiType.Class(ApiTypeName("Foo")).toSwift())
+        assertEquals("Foo", ApiType.Class(ApiTypeName("Foo"), emptyList()).toSwift())
         assertEquals("[String: String]", ApiType.Dictionary(ApiType.Primitive.STRING).toSwift())
         assertEquals("String?", ApiType.Nullable(ApiType.Primitive.STRING).toSwift())
     }

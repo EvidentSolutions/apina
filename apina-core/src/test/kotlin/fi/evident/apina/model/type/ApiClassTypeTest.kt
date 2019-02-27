@@ -9,7 +9,7 @@ class ApiClassTypeTest {
 
     @Test
     fun equality() {
-        assertEquals(Class(ApiTypeName("foo.Bar")), Class(ApiTypeName("foo.Bar")))
-        assertNotEquals(Class(ApiTypeName("foo.Bar")), Class(ApiTypeName("foo.Baz")))
+        assertEquals(Class(ApiTypeName("foo.Bar"), emptyList()), Class(ApiTypeName("foo.Bar"), emptyList()))
+        assertNotEquals(Class(ApiTypeName("foo.Bar"), emptyList()), Class(ApiTypeName("foo.Baz"), emptyList()))
     }
 }

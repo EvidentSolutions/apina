@@ -43,7 +43,7 @@ class SwiftGenerator(val api: ApiDefinition, val settings: TranslationSettings) 
 
         if (api.classDefinitions.isNotEmpty()) {
             for (classDefinition in api.classDefinitions) {
-                out.writeStruct(classDefinition.type.name, ": Codable") {
+                out.writeStruct(classDefinition.toSwift(), ": Codable") {
                     for (property in classDefinition.properties) {
                         val nullable = property.type is ApiType.Nullable
                         val init = if (nullable) " = nil" else ""
@@ -63,7 +63,7 @@ class SwiftGenerator(val api: ApiDefinition, val settings: TranslationSettings) 
         out.writeBlock("enum ${definition.type.name}") {
             for (classDef in definition.types.values) {
                 val body = classDef.properties.joinToString(", ") { "${it.name}: ${it.type.toSwift()}" }
-                out.writeLine("case ${classDef.type.name}($body)")
+                out.writeLine("case ${classDef.toSwift()}($body)")
             }
         }
 
@@ -84,7 +84,7 @@ class SwiftGenerator(val api: ApiDefinition, val settings: TranslationSettings) 
                 out.writeLine("var container = encoder.container(keyedBy: CodingKeys.self)")
                 out.writeBlock("switch self") {
                     for ((key, member) in definition.types) {
-                        out.writeDedentedLine("case let .${member.type.name}(${member.properties.joinToString(", ") { it.name }}):")
+                        out.writeDedentedLine("case let .${member.toSwift()}(${member.properties.joinToString(", ") { it.name }}):")
                         out.writeLine("try container.encode(Discriminator.$key, forKey: .${definition.discriminator})")
                         for (property in member.properties)
                             out.writeLine("try container.encode(${property.name}, forKey: .${property.name})")
@@ -98,7 +98,7 @@ class SwiftGenerator(val api: ApiDefinition, val settings: TranslationSettings) 
                 out.writeBlock("switch type") {
                     for ((key, member) in definition.types) {
                         out.writeDedentedLine("case .$key:")
-                        out.writeCall("self = .${member.type.name}", member.properties.map {
+                        out.writeCall("self = .${member.toSwift()}", member.properties.map {
                             it.name to "try container.decode(${it.type.toSwift()}.self, forKey: .${it.name})"
                         })
                         out.writeLine()
