@@ -35,7 +35,7 @@ apina {
     endpoints = [/my\.package\.foo\..+/]
     
     // If generated URLs would start with given prefix, removes it. Useful when configuring Apina
-    // work behind reverse proxies. Defaults to empty string (URL is not modified).
+    // to work behind reverse proxies. Defaults to empty string (URL is not modified).
     removedUrlPrefix = "/foo"
     
     // Code generation target (Default is 'angular')

@@ -68,7 +68,7 @@ the supertype name available is useful when using _discriminated unions_:
 
 === Discriminated unions
 
-Apina supports mappings Jackson's sub types into TypeScript's
+Apina supports mapping Jackson's sub types into TypeScript's
 https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions[discriminated unions] as long
 as you use `@JsonTypeInfo` with `use=NAME` and specify property name for discriminator. Moreover, you must list
 the sub-types and define their discriminator values explicitly:

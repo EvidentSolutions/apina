@@ -1,12 +1,12 @@
 == Customization type mappings
 
 While most of the time Apina does the right thing without additional configuration,
-sometimes you need to have more control over either the build time translation or
+every now and then you need to customize either the build time translation or
 runtime execution.
 
 Normally when Apina sees a referenced class, it will analyze its properties and fields
 decide how it should be serialized: just like Jackson does. However, for some types
-this makes no sense.
+this makes no sense (that is, when Jackson mapping itself is customized).
 
 As an example, perhaps you don't want `java.time.Instant` to be serialized as
 `{ "seconds": 1550778425, "nanos": 398000000" }` but would prefer it to be represented

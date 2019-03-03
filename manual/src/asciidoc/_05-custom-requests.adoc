@@ -1,6 +1,6 @@
 == Customizing HTTP requests
 
-Sometimes you need to more control over the HTTP requests Apina makes. Perhaps
+Sometimes you need more control over the HTTP requests Apina makes. Perhaps
 you are behind a proxy and need to mangle the URL somehow or perhaps you'll want
 to add some headers to requests.
 
