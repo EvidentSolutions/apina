@@ -634,7 +634,7 @@ Kotlin&#8217;s nullable type turns into nullable type in TypeScript.</p>
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-If you are writing Java instead of Kotlin, you can add use nullability annotations
+If you are writing Java instead of Kotlin, you can use nullability annotations
 (<code>@Nullable</code>, <code>@CheckForNull</code> etc.) from most well-known libraries to signal nullability
 (eg. <code>org.jetbrains:annotations</code> or FindBugs).
 </td>
@@ -738,7 +738,7 @@ the supertype name available is useful when using <em>discriminated unions</em>:
 <div class="sect2">
 <h3 id="_discriminated_unions">Discriminated unions</h3>
 <div class="paragraph">
-<p>Apina supports mappings Jackson&#8217;s sub types into TypeScript&#8217;s
+<p>Apina supports mapping Jackson&#8217;s sub types into TypeScript&#8217;s
 <a href="https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions">discriminated unions</a> as long
 as you use <code>@JsonTypeInfo</code> with <code>use=NAME</code> and specify property name for discriminator. Moreover, you must list
 the sub-types and define their discriminator values explicitly:</p>
@@ -822,13 +822,13 @@ by Apina as well:</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>While most of the time Apina does the right thing without additional configuration,
-sometimes you need to have more control over either the build time translation or
+every now and then you need to customize either the build time translation or
 runtime execution.</p>
 </div>
 <div class="paragraph">
 <p>Normally when Apina sees a referenced class, it will analyze its properties and fields
 decide how it should be serialized: just like Jackson does. However, for some types
-this makes no sense.</p>
+this makes no sense (that is, when Jackson mapping itself is customized).</p>
 </div>
 <div class="paragraph">
 <p>As an example, perhaps you don&#8217;t want <code>java.time.Instant</code> to be serialized as
@@ -923,7 +923,7 @@ simply pass configuration as a constructor parameter when instantiating endpoint
 <h2 id="_customizing_http_requests">Customizing HTTP requests</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Sometimes you need to more control over the HTTP requests Apina makes. Perhaps
+<p>Sometimes you need more control over the HTTP requests Apina makes. Perhaps
 you are behind a proxy and need to mangle the URL somehow or perhaps you&#8217;ll want
 to add some headers to requests.</p>
 </div>
@@ -1045,7 +1045,7 @@ tasks.apina {
     endpoints = listOf("""my\.package\.foo\..+""")
 
     // If generated URLs would start with given prefix, removes it. Useful when configuring Apina
-    // work behind reverse proxies. Defaults to empty string (URL is not modified).
+    // to work behind reverse proxies. Defaults to empty string (URL is not modified).
     removedUrlPrefix = "/foo"
 
     // Code generation target (Default is 'ANGULAR')
