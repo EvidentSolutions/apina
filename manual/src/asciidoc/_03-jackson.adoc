@@ -77,8 +77,8 @@ the sub-types and define their discriminator values explicitly:
 ----
 @JsonTypeInfo(use=NAME, property="type")
 @JsonSubTypes(
-    Type(value = Bar::class, name = "my_foo"),
-    Type(value = Baz::class, name = "my_bar")
+    Type(value = Bar::class, name = "my_bar"),
+    Type(value = Baz::class, name = "my_baz")
 )
 abstract class Foo { ... }
 
@@ -92,11 +92,11 @@ This creates interfaces normally for `Bar` and `Baz` and then adds the following
 [source,typescript]
 ----
 export interface Foo_Bar extends Bar {
-    type = "my_foo";
+    type: "my_bar";
 }
 
 export interface Foo_Baz extends Baz {
-    type = "my_bar";
+    type: "my_baz";
 }
 
 export type Foo = Foo_Bar | Foo_Baz;
@@ -106,7 +106,7 @@ This way you can easily pass heterogeneous data back and forth between client an
 
 === Supported annotations
 
-That said, straightforward Jackson mappings should generally work without hassle. Most of the type you don't
+That said, straightforward Jackson mappings should generally work without hassle. Most of the time you don't
 need any annotations. When you need to control the mappings, following Jackson annotations are recognized
 by Apina as well:
 
