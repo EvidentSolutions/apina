@@ -4,13 +4,15 @@ Apina creates client-side TypeScript code for either for Angular or Fetch API ba
 Spring Web MVC's `@RestController` annotated classes and their related Jackson classes and creates code for the data
 model and for executing HTTP-requests.
 
-## Using the Gradle-plugin
+Read [the manual](https://apina.evident.fi/]) for details.
+
+## Quick start using Gradle
 
 Include something like the following in your web application project:
 
 ```groovy
 plugins {
-    id "fi.evident.apina" version "0.11.0"
+    id "fi.evident.apina" version "0.12.0"
 }
 
 apina {

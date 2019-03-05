@@ -1,6 +1,6 @@
-## Unreleased
+## 0.12.0 (2019-03-05)
 
-- Add manual
+- Add [manual](https://apina.evident.fi/)
 - Support Jackson subtypes as discriminated unions ([#50](https://github.com/EvidentSolutions/apina/pull/50))
 - Improve translation of @JsonValue types ([#41](https://github.com/EvidentSolutions/apina/pull/41))
 - Change `ANGULAR2` platform name to `ANGULAR`.
