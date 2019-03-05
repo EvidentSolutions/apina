@@ -105,12 +105,17 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         if (settings.isImported(typeName))
             return ApiType.BlackBox(typeName)
 
-        if (settings.isBlackBoxClass(type.name) || hasJsonValueAnnotation(type)) {
+        if (settings.isBlackBoxClass(type.name)) {
             log.debug("Translating {} as black box", type.name)
 
-            val blackBoxType = ApiType.BlackBox(typeName)
             api.addBlackBox(typeName)
-            return blackBoxType
+            return ApiType.BlackBox(typeName)
+        }
+
+        val jsonValueMethod = classes.findClass(type.name)?.findMethodWithAnnotation(JSON_VALUE)
+        if (jsonValueMethod != null) {
+            api.addTypeAlias(typeName, translateType(jsonValueMethod.returnType, env))
+            return ApiType.BlackBox(typeName)
         }
 
         val classType = ApiType.Class(typeName)
@@ -176,9 +181,6 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
         return ApiTypeName(translatedName)
     }
-
-    private fun hasJsonValueAnnotation(type: JavaType.Basic) =
-            classes.findClass(type.name)?.hasMethodWithAnnotation(JSON_VALUE) ?: false
 
     private fun initClassDefinition(classDefinition: ClassDefinition, boundClass: BoundClass) {
         val ignoredProperties = ignoredProperties(boundClass)

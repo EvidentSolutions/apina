@@ -20,6 +20,7 @@ import fi.evident.apina.spring.testclasses.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import java.util.Collections.emptyList
+import java.util.Collections.singletonMap
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
@@ -94,10 +95,12 @@ class JacksonTypeTranslatorTest {
     }
 
     @Test
-    fun typesWithJsonValueShouldBeBlackBoxes() {
-        val apiType = translateClass<ClassWithJsonValue>(ApiDefinition())
+    fun `types with @JsonValue should be translated as aliased types`() {
+        val api = ApiDefinition()
+        val apiType = translateClass<ClassWithJsonValue>(api)
 
         assertEquals(ApiType.BlackBox(ApiTypeName("ClassWithJsonValue")), apiType)
+        assertEquals(singletonMap(ApiTypeName("ClassWithJsonValue"), ApiType.Primitive.STRING), api.typeAliases)
     }
 
     @Test

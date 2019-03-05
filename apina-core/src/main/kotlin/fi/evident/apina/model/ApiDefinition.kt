@@ -13,6 +13,7 @@ class ApiDefinition {
     private val _classDefinitions = TreeMap<ApiTypeName, ClassDefinition>()
     private val _enumDefinitions = TreeMap<ApiTypeName, EnumDefinition>()
     private val _discriminatedUnionDefinitions = TreeMap<ApiTypeName, DiscriminatedUnionDefinition>()
+    private val _typeAliases = TreeMap<ApiTypeName, ApiType>()
     private val blackBoxTypes = LinkedHashSet<ApiTypeName>()
 
     val endpointGroups: Collection<EndpointGroup>
@@ -27,12 +28,20 @@ class ApiDefinition {
     val discriminatedUnionDefinitions: Collection<DiscriminatedUnionDefinition>
         get() = _discriminatedUnionDefinitions.values
 
+    val typeAliases: Map<ApiTypeName, ApiType>
+        get() = _typeAliases
+
     fun addEndpointGroups(group: EndpointGroup) {
         _endpointGroups += group
     }
 
+    fun addTypeAlias(alias: ApiTypeName, target: ApiType) {
+        val old = _typeAliases.put(alias, target)
+        check(old == null || old == target) { "conflicting type aliases for $alias: $target vs $old"}
+    }
+
     fun containsType(typeName: ApiTypeName) =
-        typeName in _classDefinitions || typeName in _enumDefinitions || typeName in _discriminatedUnionDefinitions
+        typeName in _classDefinitions || typeName in _enumDefinitions || typeName in _discriminatedUnionDefinitions || typeName in _typeAliases
 
     fun addClassDefinition(classDefinition: ClassDefinition) {
         verifyTypeDoesNotExist(classDefinition.type)

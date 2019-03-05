@@ -58,8 +58,11 @@ abstract class AbstractTypeScriptGenerator(
 
         out.writeExportedInterface("Dictionary<V>") { out.writeLine("[key: string]: V;") }
 
-        for (unknownType in api.allBlackBoxClasses)
-            out.writeLine("export type $unknownType = {};")
+        for (type in api.allBlackBoxClasses)
+            out.writeLine("export type ${type.name} = {};")
+
+        for ((alias, target) in api.typeAliases)
+            out.writeLine("export type ${alias.name} = ${target.typeRepresentation()};")
 
         out.writeLine()
 
@@ -121,8 +124,10 @@ abstract class AbstractTypeScriptGenerator(
         }
 
         out.write("export function registerDefaultSerializers(config: ApinaConfig) ").writeBlock {
+            for (aliasedType in api.typeAliases.keys)
+                out.write("config.registerIdentitySerializer(").writeValue(aliasedType.name).writeLine(");")
             for (unknownType in api.allBlackBoxClasses)
-                out.write("config.registerIdentitySerializer(").writeValue(unknownType.toString()).writeLine(");")
+                out.write("config.registerIdentitySerializer(").writeValue(unknownType.name).writeLine(");")
             out.writeLine()
 
             for (enumDefinition in api.enumDefinitions) {

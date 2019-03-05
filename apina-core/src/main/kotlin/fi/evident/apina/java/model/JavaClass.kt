@@ -84,8 +84,11 @@ class JavaClass(
     fun getField(name: String): JavaField =
         fields.find { name == it.name } ?: throw RuntimeException("field not found $name")
 
+    fun findMethodWithAnnotation(annotationType: JavaType.Basic) =
+        methods.find { it.hasAnnotation(annotationType) }
+
     fun hasMethodWithAnnotation(annotationType: JavaType.Basic) =
-        methods.any { it.hasAnnotation(annotationType) }
+        findMethodWithAnnotation(annotationType) != null
 
     companion object {
         private val ANNOTATION_TYPE = JavaType.Basic(Annotation::class.java)

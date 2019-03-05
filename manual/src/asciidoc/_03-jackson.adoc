@@ -119,7 +119,8 @@ by Apina as well:
 |Property is ignored
 
 |`@JsonValue`
-|Properties of the owning class will be ignored and class will be translated as a _black-box_.
+|Properties of the owning class will be ignored and the return type of the annotated method will be
+used as its representation.
 
 |`@JsonTypeInfo`, `@JsonSubTypes`
 |Class will be translated into a _discriminated union_. These need to be specified together.

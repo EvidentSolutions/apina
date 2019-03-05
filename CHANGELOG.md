@@ -2,6 +2,7 @@
 
 - Add manual
 - Support Jackson subtypes as discriminated unions ([#50](https://github.com/EvidentSolutions/apina/pull/50))
+- Improve translation of @JsonValue types ([#41](https://github.com/EvidentSolutions/apina/pull/41))
 - Change `ANGULAR2` platform name to `ANGULAR`.
 - Support other nullability annotations in addition to JetBrains' annotations.
 
