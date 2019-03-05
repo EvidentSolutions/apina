@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm")
     java
     `maven-publish`
-    id("com.jfrog.bintray") version "1.8.0"
+    id("com.jfrog.bintray") version "1.8.4"
 }
 
 val kotlinVersion: String by rootProject.extra
