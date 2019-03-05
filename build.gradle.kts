@@ -57,4 +57,5 @@ tasks.register("publish") {
 
     dependsOn(tasks.findByPath(":apina-gradle:publishPlugins"))
     dependsOn(tasks.findByPath(":apina-core:bintrayUpload"))
+    dependsOn(tasks.findByPath(":manual:publishGhPages"))
 }
