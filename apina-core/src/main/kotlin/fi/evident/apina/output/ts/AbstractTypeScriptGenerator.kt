@@ -75,7 +75,7 @@ abstract class AbstractTypeScriptGenerator(
         for (classDefinition in api.classDefinitions) {
             out.writeExportedClass(classDefinition.type.toString()) {
                 for (property in classDefinition.properties)
-                    out.writeLine("${property.name}: ${property.type};")
+                    out.writeLine("${property.name}: ${property.type.typeRepresentation()};")
             }
         }
 

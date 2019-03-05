@@ -5,16 +5,15 @@ sealed class ApiType {
     abstract fun typeRepresentation(): String
     open fun unwrapNullable(): ApiType = this
 
-    override fun toString() = typeRepresentation()
     abstract override fun equals(other: Any?): Boolean
     abstract override fun hashCode(): Int
 
     data class Array(val elementType: ApiType) : ApiType() {
-        override fun typeRepresentation() = "$elementType[]"
+        override fun typeRepresentation() = "${elementType.typeRepresentation()}[]"
     }
 
     data class BlackBox(val name: ApiTypeName) : ApiType() {
-        override fun typeRepresentation() = name.toString()
+        override fun typeRepresentation() = name.name
     }
 
     /**
@@ -23,12 +22,12 @@ sealed class ApiType {
     data class Class(val name: ApiTypeName) : ApiType(), Comparable<Class> {
 
         constructor(name: String): this(ApiTypeName(name))
-        override fun typeRepresentation() = name.toString()
+        override fun typeRepresentation() = name.name
         override fun compareTo(other: Class) = name.compareTo(other.name)
     }
 
     data class Dictionary(private val valueType: ApiType) : ApiType() {
-        override fun typeRepresentation() = "Dictionary<$valueType>"
+        override fun typeRepresentation() = "Dictionary<${valueType.typeRepresentation()}>"
     }
 
     data class Nullable(val type: ApiType) : ApiType() {
@@ -38,6 +37,7 @@ sealed class ApiType {
 
     class Primitive private constructor(private val name: String) : ApiType() {
 
+        override fun toString() = name
         override fun typeRepresentation() = name
         override fun hashCode() = System.identityHashCode(this)
         override fun equals(other: Any?) = other === this
