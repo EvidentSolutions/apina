@@ -438,7 +438,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">Juha Komulainen</span><br>
 <span id="email" class="email"><a href="mailto:juha.komulainen@evident.fi">juha.komulainen@evident.fi</a></span><br>
-<span id="revnumber">version 0.11.1-SNAPSHOT</span>
+<span id="revnumber">version 0.12.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -523,7 +523,7 @@ class HelloController {
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("fi.evident.apina") version "0.11.1-SNAPSHOT"
+    id("fi.evident.apina") version "0.12.0"
 }
 
 tasks.apina {
@@ -747,8 +747,8 @@ the sub-types and define their discriminator values explicitly:</p>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">@JsonTypeInfo(use=NAME, property="type")
 @JsonSubTypes(
-    Type(value = Bar::class, name = "my_foo"),
-    Type(value = Baz::class, name = "my_bar")
+    Type(value = Bar::class, name = "my_bar"),
+    Type(value = Baz::class, name = "my_baz")
 )
 abstract class Foo { ... }
 
@@ -763,11 +763,11 @@ class Baz : Foo() { ... }</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-typescript" data-lang="typescript">export interface Foo_Bar extends Bar {
-    type = "my_foo";
+    type: "my_bar";
 }
 
 export interface Foo_Baz extends Baz {
-    type = "my_bar";
+    type: "my_baz";
 }
 
 export type Foo = Foo_Bar | Foo_Baz;</code></pre>
@@ -780,7 +780,7 @@ export type Foo = Foo_Bar | Foo_Baz;</code></pre>
 <div class="sect2">
 <h3 id="_supported_annotations">Supported annotations</h3>
 <div class="paragraph">
-<p>That said, straightforward Jackson mappings should generally work without hassle. Most of the type you don&#8217;t
+<p>That said, straightforward Jackson mappings should generally work without hassle. Most of the time you don&#8217;t
 need any annotations. When you need to control the mappings, following Jackson annotations are recognized
 by Apina as well:</p>
 </div>
@@ -803,7 +803,8 @@ by Apina as well:</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@JsonValue</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Properties of the owning class will be ignored and class will be translated as a <em>black-box</em>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Properties of the owning class will be ignored and the return type of the annotated method will be
+used as its representation.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@JsonTypeInfo</code>, <code>@JsonSubTypes</code></p></td>
@@ -1017,7 +1018,7 @@ some cases which need higher-level knowledge of the requests.
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("fi.evident.apina") version "0.11.1-SNAPSHOT"
+    id("fi.evident.apina") version "0.12.0"
 }
 
 tasks.apina {
@@ -1170,8 +1171,8 @@ or we can generate code for standalone ES6, using the Fetch API for requests.</p
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.11.1-SNAPSHOT<br>
-Last updated 2019-02-22 15:59:10 +0200
+Version 0.12.0<br>
+Last updated 2019-03-05 12:49:33 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
