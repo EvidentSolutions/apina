@@ -8,6 +8,7 @@ import fi.evident.apina.model.settings.EnumMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
+import fi.evident.apina.output.common.RawCode
 import fi.evident.apina.utils.readResourceAsString
 import java.lang.String.format
 
@@ -18,7 +19,7 @@ abstract class AbstractTypeScriptGenerator(
     private val classDecorator: String
 ) {
 
-    internal val out = CodeWriter()
+    internal val out = TypeScriptWriter()
 
     val output: String
         get() = out.output

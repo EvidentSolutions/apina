@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test
 import java.util.Collections.emptyMap
 import kotlin.test.assertEquals
 
-class CodeWriterTest {
+class TypeScriptWriterTest {
 
-    private val writer = CodeWriter()
+    private val writer = TypeScriptWriter()
 
     @Test
     fun indents() {

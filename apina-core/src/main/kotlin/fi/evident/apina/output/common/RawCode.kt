@@ -1,4 +1,4 @@
-package fi.evident.apina.output.ts
+package fi.evident.apina.output.common
 
 /**
  * Represents raw piece of code written as it is when passed to [CodeWriter.writeValue].
