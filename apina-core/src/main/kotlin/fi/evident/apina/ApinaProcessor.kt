@@ -3,6 +3,7 @@ package fi.evident.apina
 import fi.evident.apina.java.reader.Classpath
 import fi.evident.apina.model.settings.Platform.*
 import fi.evident.apina.model.settings.TranslationSettings
+import fi.evident.apina.output.swift.SwiftGenerator
 import fi.evident.apina.output.ts.TypeScriptAngularGenerator
 import fi.evident.apina.output.ts.TypeScriptES6Generator
 import fi.evident.apina.spring.SpringModelReader
@@ -34,17 +35,28 @@ class ApinaProcessor(private val classpath: Classpath) {
         }
 
         @Suppress("DEPRECATION")
-        val writer = when (settings.platform) {
-            ANGULAR -> TypeScriptAngularGenerator(api, settings)
+        return when (settings.platform) {
+            ANGULAR -> TypeScriptAngularGenerator(api, settings).run {
+                writeApi()
+                output
+            }
             ANGULAR2 -> {
                 log.warn("Platform.ANGULAR2 is deprecated, use Platform.ANGULAR instead")
-                TypeScriptAngularGenerator(api, settings)
+                TypeScriptAngularGenerator(api, settings).run {
+                    writeApi()
+                    output
+                }
             }
-            ES6 -> TypeScriptES6Generator(api, settings)
+            ES6 -> TypeScriptES6Generator(api, settings).run {
+                writeApi()
+                output
+            }
+            SWIFT -> SwiftGenerator(api, settings).run {
+                log.warn("Apina's Swift-support is incubating and will have breaking changes in minor releases")
+                writeApi()
+                output
+            }
         }
-
-        writer.writeApi()
-        return writer.output
     }
 
     companion object {

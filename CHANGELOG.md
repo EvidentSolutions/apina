@@ -1,3 +1,8 @@
+## 0.12.2 (2019-06-05)
+
+- Initial support for targeting Swift. Note that this is still incubating and the generated code is might to have
+  breaking changes in minor releases.
+
 ## 0.12.1 (2019-03-27)
 
 - Support specifying platform and controller patterns when using command line runner
