@@ -19,6 +19,8 @@ class SpringAnnotation(
     inline fun <reified T : Any> getAttribute(attributeName: String): T? = getAttribute(attributeName, T::class.java)
     inline fun <reified T : Any> getUniqueAttributeValue(attributeName: String): T? =
         getUniqueAttributeValue(attributeName, T::class.java)
+    inline fun <reified T : Any> getFirstAttributeValue(attributeName: String): T? =
+        getFirstAttributeValue(attributeName, T::class.java)
 
     override fun toString() = "SpringAnnotation [annotationType=$annotationType, annotations=$annotations]"
 
@@ -39,6 +41,16 @@ class SpringAnnotation(
                 1 -> type.cast(value[0])
                 else -> throw IllegalArgumentException("Annotation '$annotationType' had multiple values for attribute '$attributeName' (annotations implied: $annotations)")
             }
+        } else {
+            type.cast(value)
+        }
+    }
+
+    fun <T> getFirstAttributeValue(attributeName: String, type: Class<T>): T? {
+        val value = getAttribute<Any>(attributeName)
+
+        return if (value is Array<*>) {
+            type.cast(value.firstOrNull())
         } else {
             type.cast(value)
         }

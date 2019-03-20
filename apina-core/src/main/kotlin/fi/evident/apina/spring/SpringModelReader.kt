@@ -123,7 +123,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         findHttpMethod(javaMethod) ?: findHttpMethod(javaMethod.owningClass)
 
     private fun findHttpMethod(element: JavaAnnotatedElement): HTTPMethod? =
-        annotationResolver.findAnnotation(element, REQUEST_MAPPING)?.getUniqueAttributeValue<EnumValue>("method")
+        annotationResolver.findAnnotation(element, REQUEST_MAPPING)?.getFirstAttributeValue<EnumValue>("method")
             ?.let { HTTPMethod.valueOf(it.constant) }
 
     companion object {
