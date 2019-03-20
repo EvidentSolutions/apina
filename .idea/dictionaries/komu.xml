@@ -7,6 +7,7 @@
       <w>axion</w>
       <w>checkerframework</w>
       <w>classreading</w>
+      <w>codable</w>
       <w>compatqual</w>
       <w>defs</w>
       <w>jcenter</w>
@@ -23,6 +24,7 @@
       <w>parameterizes</w>
       <w>quux</w>
       <w>rxjs</w>
+      <w>struct</w>
       <w>tsang</w>
       <w>tslint</w>
     </words>

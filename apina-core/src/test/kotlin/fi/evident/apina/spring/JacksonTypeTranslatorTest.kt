@@ -253,8 +253,8 @@ class JacksonTypeTranslatorTest {
         val types = definition.types
         assertEquals(2, types.size)
         assertEquals(setOf("car", "truck"), types.keys)
-        assertEquals("Car", types["car"]?.typeRepresentation())
-        assertEquals("Truck", types["truck"]?.typeRepresentation())
+        assertEquals("Car", types["car"]?.toTypeScript())
+        assertEquals("Truck", types["truck"]?.toTypeScript())
 
         // ensure subclasses themselves are also translated
         assertEquals(2, api.classDefinitions.size)
@@ -282,7 +282,7 @@ class JacksonTypeTranslatorTest {
         val api = ApiDefinition()
         val apiType = translateClass<T>(api)
 
-        return api.classDefinitions.find { d -> apiType.typeRepresentation().startsWith(d.type.toString()) }
+        return api.classDefinitions.find { d -> apiType.toTypeScript().startsWith(d.type.toString()) }
             ?: throw AssertionError("could not find definition for $apiType")
     }
 
@@ -290,7 +290,7 @@ class JacksonTypeTranslatorTest {
         val api = ApiDefinition()
         val apiType = translateClass<T>(api)
 
-        return api.enumDefinitions.find { d -> d.type.toString() == apiType.typeRepresentation() }
+        return api.enumDefinitions.find { d -> d.type.toString() == apiType.toTypeScript() }
             ?: throw AssertionError("could not find definition for $apiType")
     }
 

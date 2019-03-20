@@ -41,7 +41,7 @@ class Endpoint(/** Name of the original source element that specifies this endpo
         get() = _parameters.filterIsInstance<EndpointRequestParamParameter>()
 
     override fun toString(): String = String.format("%s %s(%s): %s %s",
-            responseBody?.typeRepresentation() ?: "void",
+            responseBody?.toTypeScript() ?: "void",
             name,
             _parameters.joinToString(", "),
             method,

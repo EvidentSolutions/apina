@@ -63,7 +63,7 @@ abstract class AbstractTypeScriptGenerator(
             out.writeLine("export type ${type.name} = {};")
 
         for ((alias, target) in api.typeAliases)
-            out.writeLine("export type ${alias.name} = ${target.typeRepresentation()};")
+            out.writeLine("export type ${alias.name} = ${target.toTypeScript()};")
 
         out.writeLine()
 
@@ -75,7 +75,7 @@ abstract class AbstractTypeScriptGenerator(
         for (classDefinition in api.classDefinitions) {
             out.writeExportedClass(classDefinition.type.name) {
                 for (property in classDefinition.properties)
-                    out.writeLine("${property.name}: ${property.type.typeRepresentation()};")
+                    out.writeLine("${property.name}: ${property.type.toTypeScript()};")
             }
         }
 
@@ -101,7 +101,7 @@ abstract class AbstractTypeScriptGenerator(
         // First individual members of the union...
         for ((discriminatorValue, type) in definition.types) {
             val typeName = discriminatedUnionMemberType(definition.type, type)
-            out.writeBlock("export interface $typeName extends ${type.typeRepresentation()}") {
+            out.writeBlock("export interface $typeName extends ${type.toTypeScript()}") {
                 out.writeLine("${definition.discriminator}: '$discriminatorValue';")
             }
             out.writeLine()
@@ -205,14 +205,14 @@ abstract class AbstractTypeScriptGenerator(
 
     private fun qualifiedTypeName(type: ApiType): String = when {
         type is ApiType.Nullable -> qualifiedTypeName(type.type) + " | null"
-        type is ApiType.Primitive -> type.typeRepresentation()
+        type is ApiType.Primitive -> type.toTypeScript()
         type is ApiType.Array -> qualifiedTypeName(type.elementType) + "[]"
-        settings.isImported(ApiTypeName(type.typeRepresentation())) -> type.typeRepresentation()
-        else -> type.typeRepresentation()
+        settings.isImported(ApiTypeName(type.toTypeScript())) -> type.toTypeScript()
+        else -> type.toTypeScript()
     }
 
     private fun discriminatedUnionMemberType(unionType: ApiTypeName, memberType: ApiType) =
-        "${unionType.name}_${memberType.typeRepresentation()}"
+        "${unionType.name}_${memberType.toTypeScript()}"
 
     private fun parameterListCode(parameters: List<EndpointParameter>) =
         parameters.joinToString(", ") { p -> p.name + ": " + qualifiedTypeName(p.type) }
@@ -270,7 +270,7 @@ abstract class AbstractTypeScriptGenerator(
         private fun typeDescriptor(type: ApiType): String {
             // Use ApiType's native representation as type descriptor.
             // This method encapsulates the call to make it meaningful in this context.
-            return type.unwrapNullable().typeRepresentation()
+            return type.unwrapNullable().toTypeScript()
         }
     }
 }
