@@ -54,23 +54,6 @@ abstract class CodeWriter<Self : CodeWriter<Self>> {
         writeLine()
     }
 
-    fun writeValue(obj: Any?): Self {
-        when (obj) {
-            is Number ->
-                write(obj.toString())
-            is String ->
-                writeString(obj)
-            is Collection<*> ->
-                writeCollection(obj)
-            is Map<*, *> ->
-                writeMap(obj)
-            else ->
-                write(obj.toString())
-        }
-
-        return self
-    }
-
     protected open fun writeString(s: String) {
         write('\'')
 
@@ -84,10 +67,6 @@ abstract class CodeWriter<Self : CodeWriter<Self>> {
 
         write('\'')
     }
-
-    protected abstract fun writeCollection(obj: Collection<*>)
-
-    protected abstract fun writeMap(obj: Map<*, *>)
 
     private fun indent() {
         indentationLevel++

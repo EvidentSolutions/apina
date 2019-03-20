@@ -23,7 +23,24 @@ class TypeScriptWriter : CodeWriter<TypeScriptWriter>() {
         writeLine("import { ${types.joinToString(", ")} } from '$module';")
     }
 
-    override fun writeMap(obj: Map<*, *>) {
+    fun writeValue(obj: Any?): TypeScriptWriter {
+        when (obj) {
+            is Number ->
+                write(obj.toString())
+            is String ->
+                writeString(obj)
+            is Collection<*> ->
+                writeCollection(obj)
+            is Map<*, *> ->
+                writeMap(obj)
+            else ->
+                write(obj.toString())
+        }
+
+        return this
+    }
+
+    private fun writeMap(obj: Map<*, *>) {
         if (obj.isEmpty()) {
             write("{}")
             return
@@ -45,7 +62,7 @@ class TypeScriptWriter : CodeWriter<TypeScriptWriter>() {
         }
     }
 
-    override fun writeCollection(obj: Collection<*>) {
+    private fun writeCollection(obj: Collection<*>) {
         write("[")
 
         val it = obj.iterator()
