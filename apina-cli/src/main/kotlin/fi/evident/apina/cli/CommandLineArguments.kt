@@ -1,5 +1,6 @@
 package fi.evident.apina.cli
 
+import fi.evident.apina.model.settings.Platform
 import java.util.*
 
 internal class CommandLineArguments {
@@ -7,6 +8,7 @@ internal class CommandLineArguments {
     val files: MutableList<String> = ArrayList()
     val blackBoxPatterns: MutableList<String> = ArrayList()
     val imports: MutableList<ImportArgument> = ArrayList()
+    var platform = Platform.ANGULAR
 
     private fun parse(arg: String) {
         // This could be more general, but this is all we need for now.
@@ -14,6 +16,12 @@ internal class CommandLineArguments {
         val blackBox = parseOptionalWithValue("black-box", arg)
         if (blackBox != null) {
             blackBoxPatterns.add(blackBox)
+            return
+        }
+
+        val platform = parseOptionalWithValue("platform", arg)
+        if (platform != null) {
+            this.platform = Platform.valueOf(platform.toUpperCase())
             return
         }
 

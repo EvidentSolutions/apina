@@ -1,3 +1,7 @@
+## Unreleased
+
+- Support specifying platform when using command line runner
+
 ## 0.12.0 (2019-03-05)
 
 - Add [manual](https://apina.evident.fi/)
