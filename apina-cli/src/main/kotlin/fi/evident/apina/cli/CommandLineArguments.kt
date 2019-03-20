@@ -5,9 +5,10 @@ import java.util.*
 
 internal class CommandLineArguments {
 
-    val files: MutableList<String> = ArrayList()
-    val blackBoxPatterns: MutableList<String> = ArrayList()
-    val imports: MutableList<ImportArgument> = ArrayList()
+    val files = mutableListOf<String>()
+    val blackBoxPatterns = mutableListOf<String>()
+    val controllerPatterns = mutableListOf<String>()
+    val imports = mutableListOf<ImportArgument>()
     var platform = Platform.ANGULAR
 
     private fun parse(arg: String) {
@@ -16,6 +17,12 @@ internal class CommandLineArguments {
         val blackBox = parseOptionalWithValue("black-box", arg)
         if (blackBox != null) {
             blackBoxPatterns.add(blackBox)
+            return
+        }
+
+        val controller = parseOptionalWithValue("controller", arg)
+        if (controller != null) {
+            controllerPatterns.add(controller)
             return
         }
 
@@ -29,7 +36,7 @@ internal class CommandLineArguments {
         if (anImport != null) {
             val colonIndex = anImport.indexOf(':')
             if (colonIndex == -1)
-                throw IllegalArgumentException("invalid import: " + anImport)
+                throw IllegalArgumentException("invalid import: $anImport")
 
             val types = anImport.substring(0, colonIndex).split(",".toRegex()).toTypedArray()
             val module = anImport.substring(colonIndex + 1)

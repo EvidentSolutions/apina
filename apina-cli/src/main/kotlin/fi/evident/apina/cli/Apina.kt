@@ -31,6 +31,9 @@ object Apina {
             for (blackBoxPattern in arguments.blackBoxPatterns)
                 processor.settings.blackBoxClasses.addPattern(blackBoxPattern)
 
+            for (pattern in arguments.controllerPatterns)
+                processor.settings.addControllerPattern(pattern)
+
             for (anImport in arguments.imports)
                 processor.settings.addImport(anImport.module, anImport.types)
 

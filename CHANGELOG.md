@@ -1,6 +1,6 @@
 ## Unreleased
 
-- Support specifying platform when using command line runner
+- Support specifying platform and controller patterns when using command line runner
 - Relax parsing HTTP methods: if multiple methods are specified, use first instead of failing.
 
 ## 0.12.0 (2019-03-05)
