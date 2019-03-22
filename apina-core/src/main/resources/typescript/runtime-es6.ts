@@ -29,7 +29,7 @@ export class ES6ApinaEndpointContext extends ApinaEndpointContext {
         return {
             method: data.method,
             body: data.requestBody
-        }
+        };
     }
 
     request(data: RequestData): Promise<any> {
@@ -44,9 +44,9 @@ export class ES6ApinaEndpointContext extends ApinaEndpointContext {
                 if (!r.ok) {
                     return Promise.reject(r);
                 } else if (data.responseType) {
-                    return r.json().then(body => this.config.deserialize(body, data.responseType))
+                    return r.json().then(body => this.config.deserialize(body, data.responseType));
                 } else {
-                    return r.text()
+                    return r.text();
                 }
             })
     }
@@ -56,22 +56,22 @@ export class ES6ApinaEndpointContext extends ApinaEndpointContext {
 
         const addQueryParameter = (encodedKey: string, value: any) => {
             if (value != null) {
-                queryParameters.push(`${encodedKey}=${encodeURIComponent(value)}`)
+                queryParameters.push(`${encodedKey}=${encodeURIComponent(value)}`);
             }
-        }
+        };
 
         for (const [key, value] of Object.entries(params || {})) {
-            const encodedKey = encodeURIComponent(key)
+            const encodedKey = encodeURIComponent(key);
 
             if (Array.isArray(value)) {
                 for (const arrayItemValue of value) {
-                    addQueryParameter(encodedKey, arrayItemValue)
+                    addQueryParameter(encodedKey, arrayItemValue);
                 }
             } else {
-                addQueryParameter(encodedKey, value)
+                addQueryParameter(encodedKey, value);
             }
         }
 
-        return queryParameters.length > 0 ? '?' + queryParameters.join('&') : ''
+        return queryParameters.length > 0 ? '?' + queryParameters.join('&') : '';
     }
 }
