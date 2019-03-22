@@ -41,10 +41,11 @@ export class ES6ApinaEndpointContext extends ApinaEndpointContext {
 
         return fetch(url + params, request)
             .then(r => {
+                const responseType = data.responseType;
                 if (!r.ok) {
                     return Promise.reject(r);
-                } else if (data.responseType) {
-                    return r.json().then(body => this.config.deserialize(body, data.responseType));
+                } else if (responseType) {
+                    return r.json().then(body => this.config.deserialize(body, responseType));
                 } else {
                     return r.text();
                 }
