@@ -45,6 +45,9 @@ internal class CommandLineArguments {
             return
         }
 
+        if (arg.startsWith("--"))
+            throw java.lang.IllegalArgumentException("unknown argument $arg")
+
         files.add(arg)
     }
 
