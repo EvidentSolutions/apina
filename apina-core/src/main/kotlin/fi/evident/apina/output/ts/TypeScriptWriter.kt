@@ -15,10 +15,6 @@ class TypeScriptWriter : CodeWriter<TypeScriptWriter>() {
         writeBlock("export interface $name", bodyWriter)
     }
 
-    fun writeExportedClass(name: String, bodyWriter: () -> Unit) {
-        writeBlock("export class $name", bodyWriter)
-    }
-
     fun writeImport(module: String, types: Collection<String>) {
         writeLine("import { ${types.joinToString(", ")} } from '$module';")
     }
