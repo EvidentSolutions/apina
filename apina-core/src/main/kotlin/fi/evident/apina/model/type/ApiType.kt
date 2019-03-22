@@ -46,7 +46,8 @@ sealed class ApiType {
             val ANY: ApiType = Primitive("any")
             val STRING: ApiType = Primitive("string")
             val BOOLEAN: ApiType = Primitive("boolean")
-            val NUMBER: ApiType = Primitive("number")
+            val INTEGER: ApiType = Primitive("number")
+            val FLOAT: ApiType = Primitive("number")
             val VOID: ApiType = Primitive("void")
         }
     }

@@ -7,6 +7,8 @@ import java.util.Map;
 public final class ClassWithFieldProperties {
 
     public int intField;
+    public float floatField;
+    public double doubleField;
     public Integer integerField;
     public String stringField;
     public boolean booleanField;

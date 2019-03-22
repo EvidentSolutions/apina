@@ -50,7 +50,13 @@ sealed class JavaType {
         override fun toBasicType(): Basic = this
 
         val isPrimitiveNumber: Boolean
-            get() = this == INT || this == SHORT || this == LONG || this == FLOAT || this == DOUBLE
+            get() = isPrimitiveIntegral || isPrimitiveFloatingPoint
+
+        val isPrimitiveIntegral: Boolean
+            get() = this == INT || this == SHORT || this == LONG
+
+        private val isPrimitiveFloatingPoint: Boolean
+            get() = this == FLOAT || this == DOUBLE
 
         override val isVoid: Boolean
             get() = name == "void"

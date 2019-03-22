@@ -48,6 +48,9 @@ class JavaModel(private val classDataLoader: ClassDataLoader) {
         }
     }
 
+    fun isIntegral(type: JavaType.Basic) =
+        type.isPrimitiveIntegral || isInstanceOf<Short>(type) || isInstanceOf<Int>(type) || isInstanceOf<Long>(type)
+
     fun isNumber(type: JavaType.Basic) = type.isPrimitiveNumber || isInstanceOf<Number>(type)
 
     fun classesUpwardsFrom(javaClass: BoundClass): List<BoundClass> {

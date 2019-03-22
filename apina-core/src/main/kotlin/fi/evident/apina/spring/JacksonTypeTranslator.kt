@@ -64,14 +64,20 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         type == JavaType.Basic(String::class.java) ->
             ApiType.Primitive.STRING
 
+        classes.isIntegral(type) ->
+            ApiType.Primitive.INTEGER
+
         classes.isNumber(type) ->
-            ApiType.Primitive.NUMBER
+            ApiType.Primitive.FLOAT
 
         type == JavaType.Basic.BOOLEAN || type == JavaType.Basic(Boolean::class.javaObjectType) ->
             ApiType.Primitive.BOOLEAN
 
-        type in OPTIONAL_NUMBER_TYPES ->
-            ApiType.Nullable(ApiType.Primitive.NUMBER)
+        type in OPTIONAL_INTEGRAL_TYPES ->
+            ApiType.Nullable(ApiType.Primitive.INTEGER)
+
+        type == OPTIONAL_DOUBLE ->
+            ApiType.Nullable(ApiType.Primitive.FLOAT)
 
         type == JavaType.Basic(Any::class.java) ->
             ApiType.Primitive.ANY
@@ -252,7 +258,8 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         private val JSON_VALUE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonValue")
         private val JSON_TYPE_INFO = JavaType.Basic("com.fasterxml.jackson.annotation.JsonTypeInfo")
         private val JSON_SUB_TYPES = JavaType.Basic("com.fasterxml.jackson.annotation.JsonSubTypes")
-        private val OPTIONAL_NUMBER_TYPES = listOf(JavaType.basic<OptionalInt>(), JavaType.basic<OptionalLong>(), JavaType.basic<OptionalDouble>())
+        private val OPTIONAL_INTEGRAL_TYPES = listOf(JavaType.basic<OptionalInt>(), JavaType.basic<OptionalLong>())
+        private val OPTIONAL_DOUBLE = JavaType.basic<OptionalDouble>()
 
         private fun JavaAnnotation.isIgnore() = getAttribute("value") ?: true
     }

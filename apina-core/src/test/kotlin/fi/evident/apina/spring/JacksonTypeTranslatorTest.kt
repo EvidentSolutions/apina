@@ -35,16 +35,18 @@ class JacksonTypeTranslatorTest {
 
         assertEquals(ApiTypeName(ClassWithFieldProperties::class.java.simpleName), classDefinition.type)
         assertThat(classDefinition.properties, hasProperties(
-                property("intField", ApiType.Primitive.NUMBER),
-                property("integerField", ApiType.Primitive.NUMBER),
+                property("intField", ApiType.Primitive.INTEGER),
+                property("floatField", ApiType.Primitive.FLOAT),
+                property("doubleField", ApiType.Primitive.FLOAT),
+                property("integerField", ApiType.Primitive.INTEGER),
                 property("stringField", ApiType.Primitive.STRING),
                 property("booleanField", ApiType.Primitive.BOOLEAN),
                 property("booleanNonPrimitiveField", ApiType.Primitive.BOOLEAN),
-                property("intArrayField", ApiType.Array(ApiType.Primitive.NUMBER)),
+                property("intArrayField", ApiType.Array(ApiType.Primitive.INTEGER)),
                 property("rawCollectionField", ApiType.Array(ApiType.Primitive.ANY)),
                 property("wildcardMapField", ApiType.Dictionary(ApiType.Primitive.ANY)),
                 property("rawMapField", ApiType.Dictionary(ApiType.Primitive.ANY)),
-                property("stringIntegerMapField", ApiType.Dictionary(ApiType.Primitive.NUMBER)),
+                property("stringIntegerMapField", ApiType.Dictionary(ApiType.Primitive.INTEGER)),
                 property("objectField", ApiType.Primitive.ANY),
                 property("stringCollectionField", ApiType.Array(ApiType.Primitive.STRING))))
     }
@@ -55,8 +57,8 @@ class JacksonTypeTranslatorTest {
 
         assertEquals(ApiTypeName(ClassWithGetters::class.java.simpleName), classDefinition.type)
         assertThat(classDefinition.properties, hasProperties(
-                property("int", ApiType.Primitive.NUMBER),
-                property("integer", ApiType.Primitive.NUMBER),
+                property("int", ApiType.Primitive.INTEGER),
+                property("integer", ApiType.Primitive.INTEGER),
                 property("string", ApiType.Primitive.STRING),
                 property("boolean", ApiType.Primitive.BOOLEAN),
                 property("booleanNonPrimitive", ApiType.Primitive.BOOLEAN)))
@@ -89,9 +91,9 @@ class JacksonTypeTranslatorTest {
         assertEquals(ApiTypeName(ClassWithOptionalTypes::class.java.simpleName), classDefinition.type)
         assertThat(classDefinition.properties, hasProperties(
                 property("optionalString", ApiType.Nullable(ApiType.Primitive.STRING)),
-                property("optionalInt", ApiType.Nullable(ApiType.Primitive.NUMBER)),
-                property("optionalLong", ApiType.Nullable(ApiType.Primitive.NUMBER)),
-                property("optionalDouble", ApiType.Nullable(ApiType.Primitive.NUMBER))))
+                property("optionalInt", ApiType.Nullable(ApiType.Primitive.INTEGER)),
+                property("optionalLong", ApiType.Nullable(ApiType.Primitive.INTEGER)),
+                property("optionalDouble", ApiType.Nullable(ApiType.Primitive.FLOAT))))
     }
 
     @Test
