@@ -14,6 +14,7 @@ class TranslationSettings {
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
     var platform = Platform.ANGULAR
+    var typeWriteMode = TypeWriteMode.CLASS
     var enumMode = EnumMode.DEFAULT
     var removedUrlPrefix = ""
 
