@@ -83,9 +83,9 @@ class ApinaIntegrationTest {
 
         assertTrue("import { Bar, Foo } from './apina-types';" in output, "output has imports")
 
-        assertTrue("export interface RequestType {" in output, "output has RequestType")
-        assertTrue("export interface ResponseType {" in output, "output has ResponseType")
-        assertTrue("export interface NestedType {" in output, "output has NestedType")
+        assertTrue("export class RequestType {" in output, "output has RequestType")
+        assertTrue("export class ResponseType {" in output, "output has ResponseType")
+        assertTrue("export class NestedType {" in output, "output has NestedType")
         assertTrue("export enum MyEnum { FOO = \"FOO\", BAR = \"BAR\" }" in output, "output has MyEnum")
 
         assertTrue("config.registerClassSerializer('RequestType', {" in output, "output has serializer for RequestType")

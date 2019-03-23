@@ -6,6 +6,7 @@ import fi.evident.apina.model.parameters.EndpointPathVariableParameter
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter
 import fi.evident.apina.model.settings.EnumMode
 import fi.evident.apina.model.settings.TranslationSettings
+import fi.evident.apina.model.settings.TypeWriteMode
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.output.common.RawCode
@@ -72,8 +73,13 @@ abstract class AbstractTypeScriptGenerator(
 
         out.writeLine()
 
+        val classDefinitionWriter = when (settings.typeWriteMode) {
+            TypeWriteMode.CLASS -> out::writeExportedClass
+            TypeWriteMode.INTERFACE -> out::writeExportedInterface
+        }
+
         for (classDefinition in api.classDefinitions) {
-            out.writeExportedInterface(classDefinition.type.name) {
+            classDefinitionWriter(classDefinition.type.name) {
                 for (property in classDefinition.properties)
                     out.writeLine("${property.name}: ${property.type.toTypeScript()};")
             }

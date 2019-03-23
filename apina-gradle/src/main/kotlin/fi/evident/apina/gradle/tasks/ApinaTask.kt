@@ -6,6 +6,7 @@ import fi.evident.apina.ApinaProcessor
 import fi.evident.apina.java.reader.Classpath
 import fi.evident.apina.model.settings.EnumMode
 import fi.evident.apina.model.settings.Platform
+import fi.evident.apina.model.settings.TypeWriteMode
 import fi.evident.apina.spring.EndpointParameterNameNotDefinedException
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
@@ -41,6 +42,9 @@ open class ApinaTask : DefaultTask() {
     var platform = Platform.ANGULAR
 
     @get:Input
+    var typeWriteMode = TypeWriteMode.CLASS
+
+    @get:Input
     var enumMode = EnumMode.DEFAULT
 
     @get:Input
@@ -72,6 +76,7 @@ open class ApinaTask : DefaultTask() {
             processor.settings.enumMode = enumMode
             processor.settings.removedUrlPrefix = removedUrlPrefix
             processor.settings.platform = platform
+            processor.settings.typeWriteMode = typeWriteMode
 
             endpoints.forEach { processor.settings.addControllerPattern(it) }
 
