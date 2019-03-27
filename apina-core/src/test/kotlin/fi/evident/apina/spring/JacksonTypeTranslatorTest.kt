@@ -18,6 +18,7 @@ import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.testclasses.*
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.Collections.emptyList
 import java.util.Collections.singletonMap
@@ -124,21 +125,22 @@ class JacksonTypeTranslatorTest {
         }
     }
 
-    @Test
-    fun classHierarchyWithIgnores() {
-        val classDefinition = translateClass<TypeWithIgnoresAndSuperClass>()
+    @Nested
+    inner class `handling @JsonIgnore` {
 
-        assertThat(classDefinition.properties, hasProperties(
-                property("bar", ApiType.Primitive.STRING),
-                property("baz", ApiType.Primitive.STRING)))
-    }
+        @Test
+        fun `class hierarchy with ignores`() {
+            val classDefinition = translateClass<TypeWithIgnoresAndSuperClass>()
 
-    @Test
-    fun ignoresOverriddenInSubClasses() {
-        val classDefinition = translateClass<TypeWithOverridingIgnore>()
+            assertEquals(setOf("bar", "baz"), classDefinition.propertyNames)
+        }
 
-        assertThat(classDefinition.properties, hasProperties(
-                property("foo", ApiType.Primitive.STRING)))
+        @Test
+        fun `ignores can be overridden in sub classes`() {
+            val classDefinition = translateClass<TypeWithOverridingIgnore>()
+
+            assertEquals(setOf("foo"), classDefinition.propertyNames)
+        }
     }
 
     @Test
@@ -303,5 +305,11 @@ class JacksonTypeTranslatorTest {
         val translator = JacksonTypeTranslator(settings, model, api)
 
         return translator.translateType(JavaType.basic<T>(), MockAnnotatedElement(), TypeEnvironment.empty())
+    }
+
+    companion object {
+
+        private val ClassDefinition.propertyNames: Set<String>
+            get() = properties.map { it.name }.toSet()
     }
 }
