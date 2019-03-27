@@ -1,7 +1,8 @@
-## Unreleased
+## 0.12.1 (2019-03-27)
 
 - Support specifying platform and controller patterns when using command line runner
 - Relax parsing HTTP methods: if multiple methods are specified, use first instead of failing.
+- Allow translating JSON objects to interfaces instead of classes
 
 ## 0.12.0 (2019-03-05)
 
