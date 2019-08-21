@@ -86,18 +86,24 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
 
     private fun parseParameter(typeTranslator: JacksonTypeTranslator, parameter: JavaParameter, env: TypeEnvironment, method: JavaMethod): EndpointParameter? {
         val name = parameter.name ?: throw EndpointParameterNameNotDefinedException(method)
-        val type = typeTranslator.translateType(parameter.type, parameter, env)
+
+        // The code here is a bit subtle: we don't wish to translate the type unless it is actually needed
+        // because translating the type will add it to the set of used types and it will be written to the model.
+        // This means that adding e.g. a HttpServletRequest parameter to controller will end up writing
+        // HttpServletRequest to the generated model, which is clearly not something we want. Therefore instead of
+        // declaring type as a variable here, we define a function that will be called when it's sure that we need it.
+        fun type() = typeTranslator.translateType(parameter.type, parameter, env)
 
         if (annotationResolver.hasAnnotation(parameter, REQUEST_BODY))
-            return EndpointRequestBodyParameter(name, type)
+            return EndpointRequestBodyParameter(name, type())
 
         val requestParam = annotationResolver.findAnnotation(parameter, REQUEST_PARAM)
         if (requestParam != null)
-            return EndpointRequestParamParameter(name, requestParam.getAttribute("name"), type)
+            return EndpointRequestParamParameter(name, requestParam.getAttribute("name"), type())
 
         val pathVariable = annotationResolver.findAnnotation(parameter, PATH_VARIABLE)
         if (pathVariable != null)
-            return EndpointPathVariableParameter(name, pathVariable.getAttribute("name"), type)
+            return EndpointPathVariableParameter(name, pathVariable.getAttribute("name"), type())
 
         return null
     }

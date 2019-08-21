@@ -13,6 +13,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.Callable
+import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -156,13 +157,36 @@ class SpringModelReaderTest {
         assertEquals(ApiType.Class("Foo"), group.endpointByName("baz").responseBody)
     }
 
+    @Test
+    fun `extra arguments are not added to model`() {
+
+        class Foo
+        class Bar
+        class Baz
+
+        @RestController
+        class MyController {
+
+            @Suppress("unused")
+            @RequestMapping("/foo")
+            fun foo(@RequestBody foo: Foo, @RequestParam bar: Bar, baz: Baz) {}
+        }
+
+        val model = readModel(MyController::class, Foo::class, Bar::class, Baz::class)
+        assertEquals(setOf("Foo", "Bar"), model.classDefinitions.map { it.type.name }.toSet())
+    }
 
     private fun EndpointGroup.endpointByName(name: String): Endpoint =
         assertNotNull(endpoints.find { it.name == name })
 
     private inline fun <reified T : Any> readModel(): ApiDefinition {
+        return readModel(T::class)
+    }
+
+    private fun readModel(vararg classes: KClass<*>): ApiDefinition {
         val model = JavaModel(TestClassMetadataLoader().apply {
-            loadClassesFromInheritanceTree<T>()
+            for (cl in classes)
+                loadClassesFromInheritanceTree(cl.java)
             loadClassesFromInheritanceTree<PostMapping>()
             loadClassesFromInheritanceTree<GetMapping>()
         })
