@@ -1,3 +1,7 @@
+## 0.12.3 (2019-07-21)
+
+- Exclude injected parameters from generated model. ([#54](https://github.com/EvidentSolutions/apina/pull/54))
+
 ## 0.12.2 (2019-06-05)
 
 - Initial support for targeting Swift. Note that this is still incubating and the generated code is might to have
