@@ -191,31 +191,20 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
     private fun initClassDefinition(classDefinition: ClassDefinition, boundClass: BoundClass) {
         val ignoredProperties = ignoredProperties(boundClass)
 
-        val acceptProperty = { name: String -> !classDefinition.hasProperty(name) && !ignoredProperties.contains(name) }
+        val acceptProperty = { name: String -> !classDefinition.hasProperty(name) && name !in ignoredProperties }
 
         for (cl in classes.classesUpwardsFrom(boundClass)) {
-            addPropertiesFromGetters(cl, classDefinition, acceptProperty)
-            addPropertiesFromFields(cl, classDefinition, acceptProperty)
+            for (getter in cl.javaClass.getters)
+                processProperty(cl, classDefinition, propertyNameForGetter(getter.name), getter, getter.returnType, acceptProperty)
+            for (field in cl.javaClass.publicInstanceFields)
+                processProperty(cl, classDefinition, field.name, field, field.type, acceptProperty)
         }
     }
 
-    private fun addPropertiesFromFields(boundClass: BoundClass, classDefinition: ClassDefinition, acceptProperty: (String) -> Boolean) {
-        for (field in boundClass.javaClass.publicInstanceFields) {
-            val name = field.name
-            if (acceptProperty(name)) {
-                val type = translateType(field.type, field, boundClass.environment)
-                classDefinition.addProperty(PropertyDefinition(name, type))
-            }
-        }
-    }
-
-    private fun addPropertiesFromGetters(boundClass: BoundClass, classDefinition: ClassDefinition, acceptProperty: (String) -> Boolean) {
-        for (getter in boundClass.javaClass.getters) {
-            val name = propertyNameForGetter(getter.name)
-            if (acceptProperty(name)) {
-                val type = translateType(getter.returnType, getter, boundClass.environment)
-                classDefinition.addProperty(PropertyDefinition(name, type))
-            }
+    private fun processProperty(boundClass: BoundClass, classDefinition: ClassDefinition, name: String, element: JavaAnnotatedElement, javaType: JavaType, acceptProperty: (String) -> Boolean) {
+        if (acceptProperty(name)) {
+            val type = translateType(javaType, element, boundClass.environment)
+            classDefinition.addProperty(PropertyDefinition(name, type))
         }
     }
 
