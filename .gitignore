@@ -2,7 +2,8 @@
 *~
 .idea/workspace.xml
 .idea/uiDesigner.xml
-.idea/libraries
+.idea/libraries/
+.idea/modules/
 .idea/markdown-navigator/
 .idea/markdown-navigator.xml
 /classes
