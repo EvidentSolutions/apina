@@ -1,3 +1,7 @@
+## Unreleased
+
+- Support Jackson's @JsonUnwrapped ([#16](https://github.com/EvidentSolutions/apina/issues/16))
+
 ## 0.12.3 (2019-07-21)
 
 - Exclude injected parameters from generated model. ([#54](https://github.com/EvidentSolutions/apina/pull/54))

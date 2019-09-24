@@ -122,6 +122,9 @@ by Apina as well:
 |Properties of the owning class will be ignored and the return type of the annotated method will be
 used as its representation.
 
+|`@JsonUnwrapped`
+|Properties of the target class will be inlined into the referencing class.
+
 |`@JsonTypeInfo`, `@JsonSubTypes`
 |Class will be translated into a _discriminated union_. These need to be specified together.
 |===

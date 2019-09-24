@@ -2,6 +2,7 @@ package fi.evident.apina.spring
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonUnwrapped
 import fi.evident.apina.java.model.JavaClass
 import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.JavaType
@@ -262,6 +263,52 @@ class JacksonTypeTranslatorTest {
 
         // ensure subclasses themselves are also translated
         assertEquals(2, api.classDefinitions.size)
+    }
+
+    @Test
+    fun `translating unwrapped properties`() {
+
+        @Suppress("unused")
+        class Name(val first: String, val last: String)
+        @Suppress("unused")
+        class Person(@get:JsonUnwrapped val name: Name, val age: Int)
+
+        val model = JavaModel(TestClassMetadataLoader().apply {
+            loadClassesFromInheritanceTree<Name>()
+            loadClassesFromInheritanceTree<Person>()
+        })
+
+        val api = ApiDefinition()
+        val translator = JacksonTypeTranslator(settings, model, api)
+        translator.translateType(JavaType.basic<Person>(), MockAnnotatedElement(), TypeEnvironment.empty())
+
+        assertEquals(1, api.classDefinitionCount)
+        val person = api.classDefinitions.find { it.type.name == "Person" } ?: error("no Person found")
+        assertEquals(setOf("age", "first", "last"), person.properties.map { it.name }.toSet())
+    }
+
+    @Test
+    fun `translating unwrapped with prefixes and suffixes`() {
+
+        @Suppress("unused")
+        class Name(val first: String, val last: String)
+        @Suppress("unused")
+        class Person(@get:JsonUnwrapped(suffix = "Name") val name: Name,
+                     @get:JsonUnwrapped(prefix = "foo", suffix = "bar") val name2: Name,
+                     val age: Int)
+
+        val model = JavaModel(TestClassMetadataLoader().apply {
+            loadClassesFromInheritanceTree<Name>()
+            loadClassesFromInheritanceTree<Person>()
+        })
+
+        val api = ApiDefinition()
+        val translator = JacksonTypeTranslator(settings, model, api)
+        translator.translateType(JavaType.basic<Person>(), MockAnnotatedElement(), TypeEnvironment.empty())
+
+        assertEquals(1, api.classDefinitionCount)
+        val person = api.classDefinitions.find { it.type.name == "Person" } ?: error("no Person found")
+        assertEquals(setOf("age", "firstName", "lastName", "foofirstbar", "foolastbar"), person.properties.map { it.name }.toSet())
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")

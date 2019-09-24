@@ -188,23 +188,38 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         return ApiTypeName(translatedName)
     }
 
-    private fun initClassDefinition(classDefinition: ClassDefinition, boundClass: BoundClass) {
+    private fun initClassDefinition(classDefinition: ClassDefinition, boundClass: BoundClass, prefix: String = "", suffix: String = "") {
         val ignoredProperties = ignoredProperties(boundClass)
 
         val acceptProperty = { name: String -> !classDefinition.hasProperty(name) && name !in ignoredProperties }
 
         for (cl in classes.classesUpwardsFrom(boundClass)) {
             for (getter in cl.javaClass.getters)
-                processProperty(cl, classDefinition, propertyNameForGetter(getter.name), getter, getter.returnType, acceptProperty)
+                processProperty(cl, classDefinition, propertyNameForGetter(getter.name), getter, getter.returnType, acceptProperty, prefix, suffix)
             for (field in cl.javaClass.publicInstanceFields)
-                processProperty(cl, classDefinition, field.name, field, field.type, acceptProperty)
+                processProperty(cl, classDefinition, field.name, field, field.type, acceptProperty, prefix, suffix)
         }
     }
 
-    private fun processProperty(boundClass: BoundClass, classDefinition: ClassDefinition, name: String, element: JavaAnnotatedElement, javaType: JavaType, acceptProperty: (String) -> Boolean) {
-        if (acceptProperty(name)) {
+    private fun processProperty(boundClass: BoundClass,
+                                classDefinition: ClassDefinition,
+                                name: String,
+                                element: JavaAnnotatedElement,
+                                javaType: JavaType,
+                                acceptProperty: (String) -> Boolean,
+                                prefix: String,
+                                suffix: String) {
+        val unwrappedAnnotation = element.findAnnotation(JSON_UNWRAPPED)
+        if (unwrappedAnnotation != null && unwrappedAnnotation.getAttribute("enabled", Boolean::class.java) != false) {
+            val newPrefix = unwrappedAnnotation.getAttribute("prefix", String::class.java) ?: ""
+            val newSuffix = unwrappedAnnotation.getAttribute("suffix", String::class.java) ?: ""
+            val type = classes.findClass(javaType.toBasicType())
+            if (type != null)
+                initClassDefinition(classDefinition, BoundClass(type, TypeEnvironment.empty()), prefix = newPrefix + prefix, suffix = suffix + newSuffix)
+
+        } else if (acceptProperty(name)) {
             val type = translateType(javaType, element, boundClass.environment)
-            classDefinition.addProperty(PropertyDefinition(name, type))
+            classDefinition.addProperty(PropertyDefinition(prefix + name + suffix, type))
         }
     }
 
@@ -247,6 +262,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         private val JSON_VALUE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonValue")
         private val JSON_TYPE_INFO = JavaType.Basic("com.fasterxml.jackson.annotation.JsonTypeInfo")
         private val JSON_SUB_TYPES = JavaType.Basic("com.fasterxml.jackson.annotation.JsonSubTypes")
+        private val JSON_UNWRAPPED = JavaType.Basic("com.fasterxml.jackson.annotation.JsonUnwrapped")
         private val OPTIONAL_INTEGRAL_TYPES = listOf(JavaType.basic<OptionalInt>(), JavaType.basic<OptionalLong>())
         private val OPTIONAL_DOUBLE = JavaType.basic<OptionalDouble>()
 
