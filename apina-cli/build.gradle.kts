@@ -1,7 +1,7 @@
 plugins {
     application
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version "4.0.2"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 dependencies {
@@ -15,4 +15,8 @@ application {
 
 tasks.assemble {
     dependsOn(tasks.shadowJar)
+}
+
+tasks.shadowJar {
+    classifier = "all"
 }
