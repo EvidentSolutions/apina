@@ -112,7 +112,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         val classUrl = findRequestMappingPath(owningClass)
         val methodUrl = findRequestMappingPath(method)
 
-        val url = (classUrl + methodUrl).removePrefix(settings.removedUrlPrefix)
+        val url = settings.normalizeUrl(classUrl + methodUrl)
         return parseSpringUriTemplate(url)
     }
 
