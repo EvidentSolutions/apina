@@ -11,7 +11,7 @@ internal class CommandLineArguments {
     val controllerPatterns = mutableListOf<String>()
     val imports = mutableListOf<ImportArgument>()
     var platform = Platform.ANGULAR
-    var typeWriteMode = TypeWriteMode.CLASS
+    var typeWriteMode = TypeWriteMode.INTERFACE
 
     private fun parse(arg: String) {
         // This could be more general, but this is all we need for now.

@@ -1,3 +1,9 @@
+## Unreleased
+
+### Breaking changes
+
+- Write generated data-types as interfaces instead of classes.
+
 ## 0.12.4 (2019-09-25)
 
 - Support Jackson's @JsonUnwrapped ([#16](https://github.com/EvidentSolutions/apina/issues/16))
