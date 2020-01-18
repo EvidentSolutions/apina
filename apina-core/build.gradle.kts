@@ -69,7 +69,7 @@ if (hasProperty("bintrayUser")) {
             websiteUrl = "https://github.com/EvidentSolutions/apina"
             vcsUrl = "https://github.com/EvidentSolutions/apina.git"
             desc = "Tool for generating TypeScript client code from Spring controllers and Jackson classes"
-            setLabels("typescript", "tsd", "angularjs", "jackson", "spring")
+            setLabels("typescript", "tsd", "angular", "jackson", "spring")
         })
     }
 }
