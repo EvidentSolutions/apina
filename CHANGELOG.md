@@ -1,3 +1,7 @@
+## Unreleased
+
+-  Fix race condition regarding the creation of shadowJar ([#56](https://github.com/EvidentSolutions/apina/pull/56))
+
 ## 0.13.0 (2020-01-18)
 
 ### Breaking changes
