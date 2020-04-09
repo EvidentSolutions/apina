@@ -1,6 +1,7 @@
-## Unreleased
+## 0.13.1 (2020-04-09)
 
--  Fix race condition regarding the creation of shadowJar ([#56](https://github.com/EvidentSolutions/apina/pull/56))
+- Fix race condition regarding the creation of shadowJar ([#56](https://github.com/EvidentSolutions/apina/pull/56))
+- Fix empty response as null serialization ([#58](https://github.com/EvidentSolutions/apina/pull/58))
 
 ## 0.13.0 (2020-01-18)
 
