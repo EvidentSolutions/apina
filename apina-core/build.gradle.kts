@@ -18,6 +18,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.8.6")
     testImplementation("org.springframework:spring-web:4.3.5.RELEASE")
+    testImplementation("org.springframework.data:spring-data-commons:2.2.6.RELEASE")
     testImplementation("org.hamcrest:hamcrest-all:1.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")

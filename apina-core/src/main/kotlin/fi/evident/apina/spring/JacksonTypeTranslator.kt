@@ -238,7 +238,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
             }
 
             for (getter in aClass.getters) {
-                val ignore = getter.findAnnotation(JSON_IGNORE)
+                val ignore = getter.findAnnotation(JSON_IGNORE) ?: getter.correspondingField?.findAnnotation(JSON_IGNORE)
 
                 if (ignore != null) {
                     if (ignore.isIgnore()) {
@@ -246,7 +246,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                     } else {
                         ignores.remove(getter.propertyName)
                     }
-                } else if (getter.hasExternalIgnoreAnnotation()) {
+                } else if (getter.hasExternalIgnoreAnnotation() || getter.correspondingField?.hasExternalIgnoreAnnotation() == true) {
                     ignores.add(getter.propertyName)
                 }
             }

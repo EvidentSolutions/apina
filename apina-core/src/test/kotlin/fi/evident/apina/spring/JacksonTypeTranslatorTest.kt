@@ -152,6 +152,13 @@ class JacksonTypeTranslatorTest {
     }
 
     @Test
+    fun `ignore properties annotated with Spring Data Transient`() {
+        val classDefinition = translateClass<ClassWithSpringDataTransient>()
+
+        assertEquals(setOf("foo"), classDefinition.propertyNames)
+    }
+
+    @Test
     fun `ignore transient fields`() {
         val classDefinition = translateClass<ClassWithTransientFields>()
 
