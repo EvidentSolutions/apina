@@ -82,7 +82,10 @@ class JavaClass(
     override fun toString() = type.toString()
 
     fun getField(name: String): JavaField =
-        fields.find { name == it.name } ?: throw RuntimeException("field not found $name")
+        findField(name) ?: throw RuntimeException("field not found $name")
+
+    fun findField(name: String): JavaField? =
+        fields.find { name == it.name }
 
     fun findMethodWithAnnotation(annotationType: JavaType.Basic) =
         methods.find { it.hasAnnotation(annotationType) }

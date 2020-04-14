@@ -11,7 +11,6 @@ import fi.evident.apina.model.*
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
-import fi.evident.apina.utils.propertyName
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -240,12 +239,12 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
             for (getter in aClass.getters) {
                 val ignore = getter.findAnnotation(JSON_IGNORE)
+
                 if (ignore != null) {
-                    val name = getter.propertyName
                     if (ignore.isIgnore()) {
-                        ignores.add(name)
+                        ignores.add(getter.propertyName)
                     } else {
-                        ignores.remove(name)
+                        ignores.remove(getter.propertyName)
                     }
                 } else if (getter.hasExternalIgnoreAnnotation()) {
                     ignores.add(getter.propertyName)

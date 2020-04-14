@@ -3,6 +3,7 @@ package fi.evident.apina.java.model
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.model.type.TypeSchema
+import fi.evident.apina.utils.propertyNameForGetter
 import java.lang.reflect.Modifier
 import java.util.*
 
@@ -15,6 +16,12 @@ class JavaMethod(val owningClass: JavaClass,
                  val schema: TypeSchema) : JavaAnnotatedElement {
 
     private val _annotations = ArrayList<JavaAnnotation>()
+
+    val propertyName: String
+        get() = propertyNameForGetter(name)
+
+    val correspondingField: JavaField?
+        get() = owningClass.findField(propertyName)
 
     override val annotations: List<JavaAnnotation>
         get() = _annotations
