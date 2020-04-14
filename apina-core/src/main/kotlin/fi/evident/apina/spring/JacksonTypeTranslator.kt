@@ -232,7 +232,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
             val aClass = classes[i].javaClass
 
             for (field in aClass.publicInstanceFields) {
-                if (field.findAnnotation(JSON_IGNORE)?.isIgnore() == true || field.hasExternalIgnoreAnnotation())
+                if (field.findAnnotation(JSON_IGNORE)?.isIgnore() == true || field.isTransient || field.hasExternalIgnoreAnnotation())
                     ignores.add(field.name)
                 else
                     ignores.remove(field.name)

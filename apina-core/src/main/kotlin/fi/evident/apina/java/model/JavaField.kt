@@ -24,6 +24,9 @@ class JavaField(val name: String,
     val isStatic: Boolean
         get() = Modifier.isStatic(modifiers)
 
+    val isTransient: Boolean
+        get() = Modifier.isTransient(modifiers)
+
     fun addAnnotation(annotation: JavaAnnotation) {
         _annotations += annotation
     }

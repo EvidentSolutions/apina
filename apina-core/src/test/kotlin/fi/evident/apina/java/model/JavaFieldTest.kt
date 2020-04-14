@@ -14,8 +14,9 @@ class JavaFieldTest {
         assertFalse(fieldWithModifiers(0).isEnumConstant)
         assertTrue(fieldWithModifiers(Opcodes.ACC_STATIC).isStatic)
         assertTrue(fieldWithModifiers(Opcodes.ACC_ENUM).isEnumConstant)
+        assertTrue(fieldWithModifiers(Opcodes.ACC_TRANSIENT).isTransient)
     }
 
     private fun fieldWithModifiers(modifiers: Int) =
-            JavaField("foo", JavaVisibility.PUBLIC, JavaType.basic<String>(), modifiers)
+        JavaField("foo", JavaVisibility.PUBLIC, JavaType.basic<String>(), modifiers)
 }

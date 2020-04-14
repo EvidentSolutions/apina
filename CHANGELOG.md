@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Ignore properties marked with `java.beans.Transient` or `org.springframework.data.annotation.Transient`
+- Ignore transient fields, unless they have getters
 
 ## 0.13.1 (2020-04-09)
 

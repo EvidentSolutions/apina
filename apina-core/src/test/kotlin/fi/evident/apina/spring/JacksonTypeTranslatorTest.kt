@@ -152,6 +152,13 @@ class JacksonTypeTranslatorTest {
     }
 
     @Test
+    fun `ignore transient fields`() {
+        val classDefinition = translateClass<ClassWithTransientFields>()
+
+        assertEquals(setOf("foo", "baz"), classDefinition.propertyNames)
+    }
+
+    @Test
     fun interfaceWithProperties() {
         val classDefinition = translateClass<TypeWithPropertiesFromInterface>()
 
