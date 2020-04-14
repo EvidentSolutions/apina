@@ -232,7 +232,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
             val aClass = classes[i].javaClass
 
             for (field in aClass.publicInstanceFields) {
-                if (field.findAnnotation(JSON_IGNORE)?.isIgnore() == true)
+                if (field.findAnnotation(JSON_IGNORE)?.isIgnore() == true || field.hasExternalIgnoreAnnotation())
                     ignores.add(field.name)
                 else
                     ignores.remove(field.name)
@@ -247,7 +247,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                     } else {
                         ignores.remove(name)
                     }
-                } else if (getter.hasAnnotation(JAVA_BEANS_TRANSIENT)) {
+                } else if (getter.hasExternalIgnoreAnnotation()) {
                     ignores.add(getter.propertyName)
                 }
             }
@@ -255,6 +255,9 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
         return ignores
     }
+
+    private fun JavaAnnotatedElement.hasExternalIgnoreAnnotation() =
+        hasAnnotation(JAVA_BEANS_TRANSIENT)
 
     companion object {
 
