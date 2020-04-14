@@ -257,7 +257,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
     }
 
     private fun JavaAnnotatedElement.hasExternalIgnoreAnnotation() =
-        hasAnnotation(JAVA_BEANS_TRANSIENT)
+        hasAnnotation(JAVA_BEANS_TRANSIENT) || hasAnnotation(SPRING_DATA_TRANSIENT)
 
     companion object {
 
@@ -269,6 +269,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         private val JSON_SUB_TYPES = JavaType.Basic("com.fasterxml.jackson.annotation.JsonSubTypes")
         private val JSON_UNWRAPPED = JavaType.Basic("com.fasterxml.jackson.annotation.JsonUnwrapped")
         private val JAVA_BEANS_TRANSIENT = JavaType.Basic(java.beans.Transient::class)
+        private val SPRING_DATA_TRANSIENT = JavaType.Basic("org.springframework.data.annotation.Transient")
         private val OPTIONAL_INTEGRAL_TYPES = listOf(JavaType.basic<OptionalInt>(), JavaType.basic<OptionalLong>())
         private val OPTIONAL_DOUBLE = JavaType.basic<OptionalDouble>()
 
