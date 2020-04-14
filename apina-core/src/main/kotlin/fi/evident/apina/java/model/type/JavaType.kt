@@ -1,5 +1,7 @@
 package fi.evident.apina.java.model.type
 
+import kotlin.reflect.KClass
+
 /**
  * Base class for all Java types, like [java.lang.reflect.Type].
  */
@@ -36,6 +38,8 @@ sealed class JavaType {
     data class Basic(val name: String) : JavaType() {
 
         constructor(cl: Class<*>) : this(cl.name)
+
+        constructor(cl: KClass<*>) : this(cl.java)
 
         override val nonGenericClassName: String
             get() = name

@@ -1,3 +1,7 @@
+## Unreleased
+
+- Ignore properties marked with `java.beans.Transient`.
+
 ## 0.13.1 (2020-04-09)
 
 - Fix race condition regarding the creation of shadowJar ([#56](https://github.com/EvidentSolutions/apina/pull/56))

@@ -129,4 +129,6 @@ used as its representation.
 |Class will be translated into a _discriminated union_. These need to be specified together.
 |===
 
+Finally, `java.beans.Transient` can be used as to ignore a property as well.
+
 Other annotations are not supported at the moment.

@@ -11,7 +11,7 @@ import fi.evident.apina.model.*
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
-import fi.evident.apina.utils.propertyNameForGetter
+import fi.evident.apina.utils.propertyName
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -195,7 +195,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
 
         for (cl in classes.classesUpwardsFrom(boundClass)) {
             for (getter in cl.javaClass.getters)
-                processProperty(cl, classDefinition, propertyNameForGetter(getter.name), getter, getter.returnType, acceptProperty, prefix, suffix)
+                processProperty(cl, classDefinition, getter.propertyName, getter, getter.returnType, acceptProperty, prefix, suffix)
             for (field in cl.javaClass.publicInstanceFields)
                 processProperty(cl, classDefinition, field.name, field, field.type, acceptProperty, prefix, suffix)
         }
@@ -241,12 +241,14 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
             for (getter in aClass.getters) {
                 val ignore = getter.findAnnotation(JSON_IGNORE)
                 if (ignore != null) {
-                    val name = propertyNameForGetter(getter.name)
+                    val name = getter.propertyName
                     if (ignore.isIgnore()) {
                         ignores.add(name)
                     } else {
                         ignores.remove(name)
                     }
+                } else if (getter.hasAnnotation(JAVA_BEANS_TRANSIENT)) {
+                    ignores.add(getter.propertyName)
                 }
             }
         }
@@ -263,6 +265,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         private val JSON_TYPE_INFO = JavaType.Basic("com.fasterxml.jackson.annotation.JsonTypeInfo")
         private val JSON_SUB_TYPES = JavaType.Basic("com.fasterxml.jackson.annotation.JsonSubTypes")
         private val JSON_UNWRAPPED = JavaType.Basic("com.fasterxml.jackson.annotation.JsonUnwrapped")
+        private val JAVA_BEANS_TRANSIENT = JavaType.Basic(java.beans.Transient::class)
         private val OPTIONAL_INTEGRAL_TYPES = listOf(JavaType.basic<OptionalInt>(), JavaType.basic<OptionalLong>())
         private val OPTIONAL_DOUBLE = JavaType.basic<OptionalDouble>()
 

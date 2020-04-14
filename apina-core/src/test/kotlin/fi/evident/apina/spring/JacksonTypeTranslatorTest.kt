@@ -145,6 +145,13 @@ class JacksonTypeTranslatorTest {
     }
 
     @Test
+    fun `ignore properties annotated with java beans Transient`() {
+        val classDefinition = translateClass<ClassWithTransientIgnore>()
+
+        assertEquals(setOf("bar"), classDefinition.propertyNames)
+    }
+
+    @Test
     fun interfaceWithProperties() {
         val classDefinition = translateClass<TypeWithPropertiesFromInterface>()
 
