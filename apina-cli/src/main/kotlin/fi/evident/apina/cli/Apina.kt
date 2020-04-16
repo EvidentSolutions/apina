@@ -8,6 +8,7 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 
 object Apina {
 
@@ -18,7 +19,7 @@ object Apina {
 
         if (arguments.files.size != 1 && arguments.files.size != 2) {
             System.err.printf("usage: apina INPUT1%sINPUT2%s... [OUTPUT]\n", File.pathSeparator, File.pathSeparator)
-            System.exit(1)
+            exitProcess(1)
         }
 
         try {
@@ -51,11 +52,11 @@ object Apina {
 
         } catch (e: IOException) {
             e.printStackTrace()
-            System.exit(1)
+            exitProcess(1)
 
         } catch (e: EndpointParameterNameNotDefinedException) {
             System.err.println(e.message)
-            System.exit(2)
+            exitProcess(2)
         }
     }
 }
