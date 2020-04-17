@@ -78,7 +78,7 @@ abstract class AbstractTypeScriptGenerator(
             TypeWriteMode.INTERFACE -> out::writeExportedInterface
         }
 
-        for (classDefinition in api.classDefinitions) {
+        for (classDefinition in api.structuralTypeDefinitions) {
             classDefinitionWriter(classDefinition.type.name) {
                 for (property in classDefinition.properties)
                     out.writeLine("${property.name}: ${property.type.toTypeScript()};")
@@ -105,9 +105,9 @@ abstract class AbstractTypeScriptGenerator(
 
     private fun writeDiscriminatedUnion(definition: DiscriminatedUnionDefinition) {
         // First individual members of the union...
-        for ((discriminatorValue, type) in definition.types) {
-            val typeName = discriminatedUnionMemberType(definition.type, type)
-            out.writeBlock("export interface $typeName extends ${type.toTypeScript()}") {
+        for ((discriminatorValue, member) in definition.types) {
+            val typeName = discriminatedUnionMemberType(definition.type, member)
+            out.writeBlock("export interface $typeName extends ${member.type.name}") {
                 out.writeLine("${definition.discriminator}: '$discriminatorValue';")
             }
             out.writeLine()
@@ -142,7 +142,7 @@ abstract class AbstractTypeScriptGenerator(
             }
             out.writeLine()
 
-            for (classDefinition in api.classDefinitions) {
+            for (classDefinition in api.structuralTypeDefinitions) {
                 val defs = LinkedHashMap<String, String>()
 
                 for (property in classDefinition.properties)
@@ -157,7 +157,7 @@ abstract class AbstractTypeScriptGenerator(
                 val defs = mutableMapOf<String, String>()
 
                 for ((discriminatorValue, type) in definition.types)
-                    defs[discriminatorValue] = typeDescriptor(type)
+                    defs[discriminatorValue] = typeDescriptor(ApiType.Class(type.type))
 
                 out.write("config.registerDiscriminatedUnionSerializer(")
                 out.writeValue(definition.type.name).write(", ")
@@ -217,8 +217,8 @@ abstract class AbstractTypeScriptGenerator(
         else -> type.toTypeScript()
     }
 
-    private fun discriminatedUnionMemberType(unionType: ApiTypeName, memberType: ApiType) =
-        "${unionType.name}_${memberType.toTypeScript()}"
+    private fun discriminatedUnionMemberType(unionType: ApiTypeName, memberType: ClassDefinition) =
+        "${unionType.name}_${memberType.type.name}"
 
     private fun parameterListCode(parameters: List<EndpointParameter>) =
         parameters.joinToString(", ") { p -> p.name + ": " + qualifiedTypeName(p.type) }
@@ -226,6 +226,17 @@ abstract class AbstractTypeScriptGenerator(
     protected open fun writePlatformSpecific() {}
 
     companion object {
+
+        /**
+         * When writing TypeScript, members of discriminated unions will produce
+         * interface definitions, so we'll include them as logical class definitions
+         * even though they are not in the model.
+         */
+        private val ApiDefinition.structuralTypeDefinitions: Collection<ClassDefinition>
+            get() = classDefinitions + discriminatedUnionDefinitions
+                .flatMap { du -> du.types.values }
+                .distinctBy { it.type }
+                .sortedBy { it.type }
 
         @JvmStatic
         protected fun createConfig(endpoint: Endpoint): Map<String, Any> {

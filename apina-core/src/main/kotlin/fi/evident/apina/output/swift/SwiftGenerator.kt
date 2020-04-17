@@ -61,10 +61,9 @@ class SwiftGenerator(val api: ApiDefinition, val settings: TranslationSettings) 
 
     private fun writeDiscriminatedUnion(definition: DiscriminatedUnionDefinition) {
         out.writeBlock("enum ${definition.type.name}") {
-            for (type in definition.types.values) {
-                val classDef = api.classDefinitions.find { it.type == type.name } ?: error("could not find class definition for $type")
+            for (classDef in definition.types.values) {
                 val body = classDef.properties.joinToString(", ") { "${it.name}: ${it.type.toSwift()}" }
-                out.writeLine("case ${type.toSwift()}($body)")
+                out.writeLine("case ${classDef.type.name}($body)")
             }
         }
 

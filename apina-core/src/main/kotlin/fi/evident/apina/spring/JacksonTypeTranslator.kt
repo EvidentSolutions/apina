@@ -130,7 +130,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                         api.addEnumDefinition(EnumDefinition(typeName, aClass.enumConstants))
                     aClass.hasAnnotation(JSON_TYPE_INFO) -> {
                         val typeInfo = aClass.findAnnotation(JSON_TYPE_INFO) ?: error("@JsonTypeInfo missing for $aClass")
-                        createDiscriminatedUnion(type, typeInfo, aClass)
+                        createDiscriminatedUnion(aClass, typeInfo)
                     }
                     else -> {
                         val classDefinition = ClassDefinition(typeName)
@@ -149,25 +149,28 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         return classType
     }
 
-    private fun createDiscriminatedUnion(javaType: JavaType.Basic, typeInfo: JavaAnnotation, javaClass: JavaClass) {
+    private fun createDiscriminatedUnion(javaClass: JavaClass, typeInfo: JavaAnnotation) {
         val use = typeInfo.getRequiredAttribute<EnumValue>("use").constant
         val include = typeInfo.getAttribute<EnumValue>("include")?.constant ?: "PROPERTY"
         val property = typeInfo.getAttribute("property") ?: ""
 
-        check(use == "NAME") { "Only 'use=NAME' is supported for @JsonTypeInfo (in $javaType)" }
-        check(include == "PROPERTY") { "Only 'include=PROPERTY' is supported for @JsonTypeInfo (in $javaType)" }
-        check(property.isNotEmpty()) { "No 'property' defined for @JsonTypeInfo (in $javaType)" }
+        check(use == "NAME") { "Only 'use=NAME' is supported for @JsonTypeInfo (in ${javaClass.name})" }
+        check(include == "PROPERTY") { "Only 'include=PROPERTY' is supported for @JsonTypeInfo (in ${javaClass.name})" }
+        check(property.isNotEmpty()) { "No 'property' defined for @JsonTypeInfo (in ${javaClass.name})" }
 
-        val union = DiscriminatedUnionDefinition(classNameForType(javaType), property)
+        val union = DiscriminatedUnionDefinition(classNameForType(javaClass.type.toBasicType()), property)
 
         // Add this before further processing because the type may be recursively referenced inside subclasses
         api.addDiscriminatedUnion(union)
 
-        for ((name, cl) in findSubtypes(javaClass))
-            union.addType(name, translateType(cl, TypeEnvironment.empty()) as ApiType.Class)
+        for ((name, cl) in findSubtypes(javaClass)) {
+            val def = ClassDefinition(classNameForType(cl.type.toBasicType()))
+            initClassDefinition(def, BoundClass(cl, TypeEnvironment.empty()))
+            union.addType(name, def)
+        }
     }
 
-    private fun findSubtypes(javaClass: JavaClass): List<Pair<String, JavaType>> {
+    private fun findSubtypes(javaClass: JavaClass): List<Pair<String, JavaClass>> {
         val subTypes = javaClass.findAnnotation(JSON_SUB_TYPES)
         if (subTypes != null) {
             return subTypes.getAttributeValues("value").map { subType ->
@@ -175,7 +178,8 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                 val value = annotation.getRequiredAttribute<JavaType>("value")
                 val name = annotation.getAttribute<String>("name")
                     ?: error("no name defined subclass $value (in ${javaClass.type})")
-                name to value
+                val cl = classes.findClass(value.toBasicType()) ?: error("could not find class $value")
+                name to cl
             }
         } else {
             // If there's no @JsonSubTypes annotation, we can still do the same thing as Jackson does and detect
@@ -187,7 +191,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                 val typeName = cl.findAnnotation(JSON_TYPE_NAME)
                     ?: error("No @JsonTypeName annotation found for ${cl.name}. Either specify @JsonTypeName or use @JsonSubTypes at ${javaClass.name}")
                 val name = typeName.getRequiredAttribute<String>("value")
-                name to cl.type
+                name to cl
             }
         }
     }

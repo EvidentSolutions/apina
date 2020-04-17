@@ -284,11 +284,11 @@ class JacksonTypeTranslatorTest {
             val types = definition.types
             assertEquals(2, types.size)
             assertEquals(setOf("car", "truck"), types.keys)
-            assertEquals("Car", types["car"]?.toTypeScript())
-            assertEquals("Truck", types["truck"]?.toTypeScript())
+            assertEquals("Car", types["car"]?.type?.name)
+            assertEquals("Truck", types["truck"]?.type?.name)
 
-            // ensure subclasses themselves are also translated
-            assertEquals(2, api.classDefinitions.size)
+            // ensure that subclasses themselves are not translated
+            assertEquals(0, api.classDefinitions.size)
         }
 
         @Test
@@ -311,11 +311,11 @@ class JacksonTypeTranslatorTest {
             val types = definition.types
             assertEquals(2, types.size)
             assertEquals(setOf("car", "truck"), types.keys)
-            assertEquals("Car", types["car"]?.toTypeScript())
-            assertEquals("Truck", types["truck"]?.toTypeScript())
+            assertEquals("Car", types["car"]?.type?.name)
+            assertEquals("Truck", types["truck"]?.type?.name)
 
-            // ensure subclasses themselves are also translated
-            assertEquals(2, api.classDefinitions.size)
+            // ensure that subclasses themselves are not translated
+            assertEquals(0, api.classDefinitions.size)
         }
     }
 
