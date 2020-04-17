@@ -1,6 +1,7 @@
 package fi.evident.apina.output.swift
 
 import fi.evident.apina.model.ApiDefinition
+import fi.evident.apina.model.DiscriminatedUnionDefinition
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 
@@ -54,6 +55,19 @@ class SwiftGenerator(val api: ApiDefinition, val settings: TranslationSettings) 
             out.writeLine()
         }
 
-        check(api.discriminatedUnionDefinitions.isEmpty()) { "Discriminated unions are not yet supported for Swift" }
+        for (union in api.discriminatedUnionDefinitions)
+            writeDiscriminatedUnion(union)
+    }
+
+    private fun writeDiscriminatedUnion(definition: DiscriminatedUnionDefinition) {
+        out.writeBlock("enum ${definition.type.name}") {
+            for (type in definition.types.values) {
+                val classDef = api.classDefinitions.find { it.type == type.name } ?: error("could not find class definition for $type")
+                val body = classDef.properties.joinToString(", ") { "${it.name}: ${it.type.toSwift()}" }
+                out.writeLine("case ${type.toSwift()}($body)")
+            }
+        }
+
+        out.writeLine()
     }
 }

@@ -8,12 +8,12 @@ class DiscriminatedUnionDefinition(
     val type: ApiTypeName,
     val discriminator: String) {
 
-    private val _types = TreeMap<String, ApiType>()
+    private val _types = TreeMap<String, ApiType.Class>()
 
-    val types: SortedMap<String, ApiType>
+    val types: SortedMap<String, ApiType.Class>
         get() = _types
 
-    fun addType(discriminator: String, type: ApiType) {
+    fun addType(discriminator: String, type: ApiType.Class) {
         val old = types.putIfAbsent(discriminator, type)
         check(old == null) { "Tried to add duplicated case '$discriminator' to discriminated union '$type" }
     }

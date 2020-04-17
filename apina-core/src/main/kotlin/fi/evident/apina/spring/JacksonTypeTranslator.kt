@@ -164,7 +164,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         api.addDiscriminatedUnion(union)
 
         for ((name, cl) in findSubtypes(javaClass))
-            union.addType(name, translateType(cl, TypeEnvironment.empty()))
+            union.addType(name, translateType(cl, TypeEnvironment.empty()) as ApiType.Class)
     }
 
     private fun findSubtypes(javaClass: JavaClass): List<Pair<String, JavaType>> {
