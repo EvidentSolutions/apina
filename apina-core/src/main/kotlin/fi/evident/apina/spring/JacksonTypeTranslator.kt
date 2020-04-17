@@ -1,9 +1,6 @@
 package fi.evident.apina.spring
 
-import fi.evident.apina.java.model.EnumValue
-import fi.evident.apina.java.model.JavaAnnotatedElement
-import fi.evident.apina.java.model.JavaAnnotation
-import fi.evident.apina.java.model.JavaModel
+import fi.evident.apina.java.model.*
 import fi.evident.apina.java.model.type.BoundClass
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
@@ -131,10 +128,9 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                 when {
                     aClass.isEnum ->
                         api.addEnumDefinition(EnumDefinition(typeName, aClass.enumConstants))
-                    aClass.hasAnnotation(JSON_SUB_TYPES) -> {
+                    aClass.hasAnnotation(JSON_TYPE_INFO) -> {
                         val typeInfo = aClass.findAnnotation(JSON_TYPE_INFO) ?: error("@JsonTypeInfo missing for $aClass")
-                        val subTypes = aClass.findAnnotation(JSON_SUB_TYPES) ?: error("@JsonSubTypes missing for $aClass")
-                        createDiscriminatedUnion(type, typeInfo, subTypes)
+                        createDiscriminatedUnion(type, typeInfo, aClass)
                     }
                     else -> {
                         val classDefinition = ClassDefinition(typeName)
@@ -153,7 +149,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         return classType
     }
 
-    private fun createDiscriminatedUnion(javaType: JavaType.Basic, typeInfo: JavaAnnotation, subTypes: JavaAnnotation) {
+    private fun createDiscriminatedUnion(javaType: JavaType.Basic, typeInfo: JavaAnnotation, javaClass: JavaClass) {
         val use = typeInfo.getRequiredAttribute<EnumValue>("use").constant
         val include = typeInfo.getAttribute<EnumValue>("include")?.constant ?: "PROPERTY"
         val property = typeInfo.getAttribute("property") ?: ""
@@ -167,13 +163,32 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         // Add this before further processing because the type may be recursively referenced inside subclasses
         api.addDiscriminatedUnion(union)
 
-        for (subType in subTypes.getAttributeValues("value")) {
-            val annotation = subType as JavaAnnotation
-            val value = annotation.getRequiredAttribute<JavaType>("value")
-            val type = translateType(value, TypeEnvironment.empty())
-            val name = annotation.getAttribute<String>("name") ?: error("no name defined subclass $value (in $javaType)")
+        for ((name, cl) in findSubtypes(javaClass))
+            union.addType(name, translateType(cl, TypeEnvironment.empty()))
+    }
 
-            union.addType(name, type)
+    private fun findSubtypes(javaClass: JavaClass): List<Pair<String, JavaType>> {
+        val subTypes = javaClass.findAnnotation(JSON_SUB_TYPES)
+        if (subTypes != null) {
+            return subTypes.getAttributeValues("value").map { subType ->
+                val annotation = subType as JavaAnnotation
+                val value = annotation.getRequiredAttribute<JavaType>("value")
+                val name = annotation.getAttribute<String>("name")
+                    ?: error("no name defined subclass $value (in ${javaClass.type})")
+                name to value
+            }
+        } else {
+            // If there's no @JsonSubTypes annotation, we can still do the same thing as Jackson does and detect
+            // subtypes of sealed class automatically. We could scan Kotlin's metadata, but there's actually a simpler
+            // way: we know that sealed classes must reside in the same package as the original class since they must
+            // be defined in the same source file and one source file can only output classes in one package. Therefore
+            // we can just scan the classes in the same package as the original class.
+            return classes.findDirectSubclassesInSamePackage(javaClass).map { cl ->
+                val typeName = cl.findAnnotation(JSON_TYPE_NAME)
+                    ?: error("No @JsonTypeName annotation found for ${cl.name}. Either specify @JsonTypeName or use @JsonSubTypes at ${javaClass.name}")
+                val name = typeName.getRequiredAttribute<String>("value")
+                name to cl.type
+            }
         }
     }
 
@@ -265,6 +280,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
         private val JSON_IGNORE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonIgnore")
         private val JSON_VALUE = JavaType.Basic("com.fasterxml.jackson.annotation.JsonValue")
         private val JSON_TYPE_INFO = JavaType.Basic("com.fasterxml.jackson.annotation.JsonTypeInfo")
+        private val JSON_TYPE_NAME = JavaType.Basic("com.fasterxml.jackson.annotation.JsonTypeName")
         private val JSON_SUB_TYPES = JavaType.Basic("com.fasterxml.jackson.annotation.JsonSubTypes")
         private val JSON_UNWRAPPED = JavaType.Basic("com.fasterxml.jackson.annotation.JsonUnwrapped")
         private val JAVA_BEANS_TRANSIENT = JavaType.Basic(java.beans.Transient::class)

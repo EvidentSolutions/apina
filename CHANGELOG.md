@@ -1,3 +1,7 @@
+## Unreleased
+
+- Find subclasses of sealed Kotlin classes without using `@JsonSubTypes`.
+
 ## 0.13.3 (2020-04-14)
 
 - Consult the field corresponding to a getter when considering ignore-annotations

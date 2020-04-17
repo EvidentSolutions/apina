@@ -13,7 +13,7 @@ sealed class JavaType {
     abstract val nonGenericClassName: String
 
     val packageName: String
-        get() = nonGenericClassName.substringBeforeLast('.', "")
+        get() = packageNameForClassName(nonGenericClassName)
 
     abstract fun resolve(env: TypeEnvironment): JavaType
 
@@ -33,6 +33,8 @@ sealed class JavaType {
 
     companion object {
         inline fun <reified T : Any> basic() = Basic(T::class.java)
+
+        fun packageNameForClassName(className: String) = className.substringBeforeLast('.', "")
     }
 
     /**

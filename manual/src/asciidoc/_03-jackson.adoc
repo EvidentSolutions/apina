@@ -104,6 +104,24 @@ export type Foo = Foo_Bar | Foo_Baz;
 
 This way you can easily pass heterogeneous data back and forth between client and server.
 
+==== Kotlin sealed classes
+
+With Java, you must use `@JsonSubTypes` to find the subtypes of a class, but when using
+Kotlin and sealed classes, you don't need it. However, you need to use `@JsonTypeName`
+to specify names for the types:
+
+[source,kotlin]
+----
+@JsonTypeInfo(use=NAME, property="type")
+sealed class Foo { ... }
+
+@JsonTypeName("my_bar")
+class Bar : Foo() { ... }
+
+@JsonTypeName("my_baz")
+class Baz : Foo() { ... }
+----
+
 === Supported annotations
 
 That said, straightforward Jackson mappings should generally work without hassle. Most of the time you don't
@@ -125,8 +143,8 @@ used as its representation.
 |`@JsonUnwrapped`
 |Properties of the target class will be inlined into the referencing class.
 
-|`@JsonTypeInfo`, `@JsonSubTypes`
-|Class will be translated into a _discriminated union_. These need to be specified together.
+|`@JsonTypeInfo`, `@JsonSubTypes`, `@JsonTypeName`
+|Class will be translated into a _discriminated union_.
 |===
 
 Finally, `java.beans.Transient` can be used as to ignore a property as well.

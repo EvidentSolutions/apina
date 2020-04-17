@@ -15,10 +15,13 @@ class JavaModel(private val classDataLoader: ClassDataLoader) {
 
     fun findClass(type: JavaType.Basic): JavaClass? = findClass(type.name)
 
-    fun findClassesWithAnnotation(namePredicate: (String) -> Boolean, annotationType: JavaType.Basic): List<JavaClass> =
+    private fun findClasses(namePredicate: (String) -> Boolean): List<JavaClass> =
         classDataLoader.classNames
             .filter { namePredicate(it) }
             .mapNotNull { classDataLoader.loadClass(it) }
+
+    fun findClassesWithAnnotation(namePredicate: (String) -> Boolean, annotationType: JavaType.Basic): List<JavaClass> =
+        findClasses(namePredicate)
             .filter { it.hasAnnotation(annotationType) }
 
     inline fun <reified T : Any> isInstanceOf(type: JavaType) = isInstanceOf(type, T::class.java)
@@ -84,4 +87,10 @@ class JavaModel(private val classDataLoader: ClassDataLoader) {
             else
                 BoundClass(c, TypeEnvironment.empty())
         }
+
+    fun findDirectSubclassesInSamePackage(cl: JavaClass): List<JavaClass> {
+        val packageName = cl.type.packageName
+        return findClasses { JavaType.packageNameForClassName(it) == packageName }
+            .filter { it.superClass == cl.type }
+    }
 }

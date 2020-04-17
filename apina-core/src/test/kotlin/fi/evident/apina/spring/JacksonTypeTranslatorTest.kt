@@ -2,6 +2,7 @@ package fi.evident.apina.spring
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.annotation.JsonUnwrapped
 import fi.evident.apina.java.model.JavaClass
 import fi.evident.apina.java.model.JavaModel
@@ -259,31 +260,63 @@ class JacksonTypeTranslatorTest {
         translateClass<GenericSubType<String>>()
     }
 
-    @Test
-    fun `translating discriminated unions`() {
-        val model = JavaModel(TestClassMetadataLoader().apply {
-            loadClassesFromInheritanceTree<Vehicle>()
-            loadClassesFromInheritanceTree<Vehicle.Car>()
-            loadClassesFromInheritanceTree<Vehicle.Truck>()
-        })
+    @Nested
+    inner class `discriminated unions` {
 
-        val api = ApiDefinition()
-        val translator = JacksonTypeTranslator(settings, model, api)
-        translator.translateType(JavaType.basic<Vehicle>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
-        assertEquals(1, api.discriminatedUnionDefinitions.size)
-        val definition = api.discriminatedUnionDefinitions.first()
-        assertEquals("Vehicle", definition.type.name)
-        assertEquals("type", definition.discriminator)
+        @Test
+        fun `translating discriminated unions`() {
+            val model = JavaModel(TestClassMetadataLoader().apply {
+                loadClassesFromInheritanceTree<Vehicle>()
+                loadClassesFromInheritanceTree<Vehicle.Car>()
+                loadClassesFromInheritanceTree<Vehicle.Truck>()
+            })
 
-        val types = definition.types
-        assertEquals(2, types.size)
-        assertEquals(setOf("car", "truck"), types.keys)
-        assertEquals("Car", types["car"]?.toTypeScript())
-        assertEquals("Truck", types["truck"]?.toTypeScript())
+            val api = ApiDefinition()
+            val translator = JacksonTypeTranslator(settings, model, api)
+            translator.translateType(JavaType.basic<Vehicle>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
-        // ensure subclasses themselves are also translated
-        assertEquals(2, api.classDefinitions.size)
+            assertEquals(1, api.discriminatedUnionDefinitions.size)
+            val definition = api.discriminatedUnionDefinitions.first()
+            assertEquals("Vehicle", definition.type.name)
+            assertEquals("type", definition.discriminator)
+
+            val types = definition.types
+            assertEquals(2, types.size)
+            assertEquals(setOf("car", "truck"), types.keys)
+            assertEquals("Car", types["car"]?.toTypeScript())
+            assertEquals("Truck", types["truck"]?.toTypeScript())
+
+            // ensure subclasses themselves are also translated
+            assertEquals(2, api.classDefinitions.size)
+        }
+
+        @Test
+        fun `without @JsonSubtypes`() {
+            val model = JavaModel(TestClassMetadataLoader().apply {
+                loadClassesFromInheritanceTree<Vehicle2>()
+                loadClassesFromInheritanceTree<Vehicle2.Car>()
+                loadClassesFromInheritanceTree<Vehicle2.Truck>()
+            })
+
+            val api = ApiDefinition()
+            val translator = JacksonTypeTranslator(settings, model, api)
+            translator.translateType(JavaType.basic<Vehicle2>(), MockAnnotatedElement(), TypeEnvironment.empty())
+
+            assertEquals(1, api.discriminatedUnionDefinitions.size)
+            val definition = api.discriminatedUnionDefinitions.first()
+            assertEquals("Vehicle2", definition.type.name)
+            assertEquals("type", definition.discriminator)
+
+            val types = definition.types
+            assertEquals(2, types.size)
+            assertEquals(setOf("car", "truck"), types.keys)
+            assertEquals("Car", types["car"]?.toTypeScript())
+            assertEquals("Truck", types["truck"]?.toTypeScript())
+
+            // ensure subclasses themselves are also translated
+            assertEquals(2, api.classDefinitions.size)
+        }
     }
 
     @Test
@@ -340,6 +373,14 @@ class JacksonTypeTranslatorTest {
     abstract class Vehicle {
         class Car : Vehicle()
         class Truck : Vehicle()
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    abstract class Vehicle2 {
+        @JsonTypeName("car")
+        class Car : Vehicle2()
+        @JsonTypeName("truck")
+        class Truck : Vehicle2()
     }
 
     private fun translateType(type: JavaType): ApiType {
