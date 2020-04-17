@@ -12,6 +12,9 @@ sealed class JavaType {
 
     abstract val nonGenericClassName: String
 
+    val packageName: String
+        get() = nonGenericClassName.substringBeforeLast('.', "")
+
     abstract fun resolve(env: TypeEnvironment): JavaType
 
     // Force subclass to implement equals, hashCode and toString since we really want them for all types
