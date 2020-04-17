@@ -32,6 +32,12 @@ abstract class CodeWriter<Self : CodeWriter<Self>> {
         writeLine()
     }
 
+    fun writeDedentedLine(s: String) {
+        dedent()
+        writeLine(s)
+        indent()
+    }
+
     fun writeLine(): Self {
         write("\n")
         return self
