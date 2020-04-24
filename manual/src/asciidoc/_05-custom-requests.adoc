@@ -1,5 +1,7 @@
 == Customizing HTTP requests
 
+=== Override request handling
+
 Sometimes you need more control over the HTTP requests Apina makes. Perhaps
 you are behind a proxy and need to mangle the URL somehow or perhaps you'll want
 to add some headers to requests.
@@ -62,3 +64,51 @@ TIP: When targeting Angular, Apina's `DefaultApinaEndpointContext` uses Angular'
 are probably best implemented as interceptors for `HttpClient` instead of writing an
 Apina-specific implementation. Custom endpoint context can still be useful for
 some cases which need higher-level knowledge of the requests.
+
+=== Build URLs without requests
+
+It's also possible to configure Apina to build methods that simply return the
+request URL without making a request. This could be used for a strongly typed
+download link or performing really exotic requests while still getting help
+from Apina.
+
+Suppose we have following controller:
+
+[source,kotlin]
+----
+package example
+
+@RestController
+class DownloadController {
+
+    @GetMapping("/download/{name}")
+    fun download(@PathVariable name: String, @RequestParam code: Int): Document {
+        ...
+    }
+}
+----
+
+We can now configure a regex matching to the fully qualified name of the method to
+tell Apina that we want URL-generation for this method:
+
+[source,kotlin]
+----
+tasks.apina {
+    endpointUrlMethods = listOf("""hello\.DownloadController\.download""")
+}
+----
+
+Now Apina creates two methods instead of one. First you can use to call the endpoint
+as normally, whereas you can use one with `Url`-suffix to create the URL:
+
+[source,typescript]
+----
+interface DownloadEndpoint {
+    download(name: String, code: Int): Observable<Document>;
+    downloadUrl(name: String, code: Int): string;
+}
+----
+
+Methods with `@RequestBody` parameter are supported, but they are omitted from the
+URL-method, since it's impossible to create a URL with request body. In that case,
+you need to  pass the body manually when you end up calling the URL.

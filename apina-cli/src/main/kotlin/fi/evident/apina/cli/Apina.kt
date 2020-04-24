@@ -35,6 +35,9 @@ object Apina {
             for (pattern in arguments.controllerPatterns)
                 processor.settings.addControllerPattern(pattern)
 
+            for (pattern in arguments.endpointUrlMethods)
+                processor.settings.addEndpointUrlMethodPattern(pattern)
+
             for (anImport in arguments.imports)
                 processor.settings.addImport(anImport.module, anImport.types)
 

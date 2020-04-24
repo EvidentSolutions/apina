@@ -36,6 +36,9 @@ open class ApinaTask : DefaultTask() {
     var endpoints: List<String> = ArrayList()
 
     @get:Input
+    var endpointUrlMethods: List<String> = ArrayList()
+
+    @get:Input
     var imports: Map<String, List<String>> = HashMap()
 
     @get:Input
@@ -79,6 +82,7 @@ open class ApinaTask : DefaultTask() {
             processor.settings.typeWriteMode = typeWriteMode
 
             endpoints.forEach { processor.settings.addControllerPattern(it) }
+            endpointUrlMethods.forEach { processor.settings.addEndpointUrlMethodPattern(it) }
 
             for (pattern in blackBoxClasses)
                 processor.settings.blackBoxClasses.addPattern(pattern)

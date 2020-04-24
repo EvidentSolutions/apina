@@ -11,6 +11,7 @@ class TranslationSettings {
 
     val blackBoxClasses = PatternSet()
     private val controllersToProcess = PatternSet()
+    private val endpointUrlMethods = PatternSet()
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
     var platform = Platform.ANGULAR
@@ -35,11 +36,21 @@ class TranslationSettings {
     val imports: Collection<ImportDefinition>
         get() = importsByModule.values
 
-    fun isImported(typeName: ApiTypeName) = typeName in importedTypes
-    fun isProcessableController(name: String) = controllersToProcess.isEmpty || name in controllersToProcess
+    fun isImported(typeName: ApiTypeName) =
+        typeName in importedTypes
+
+    fun isProcessableController(name: String) =
+        controllersToProcess.isEmpty || name in controllersToProcess
+
+    fun isUrlEndpoint(className: String, methodName: String) =
+        "$className.$methodName" in endpointUrlMethods
 
     fun addControllerPattern(pattern: String) {
         controllersToProcess.addPattern(pattern)
+    }
+
+    fun addEndpointUrlMethodPattern(pattern: String) {
+        endpointUrlMethods.addPattern(pattern)
     }
 
     fun normalizeUrl(url: String): String =

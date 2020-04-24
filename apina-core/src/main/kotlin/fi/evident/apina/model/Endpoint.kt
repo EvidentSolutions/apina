@@ -12,12 +12,15 @@ import java.util.*
  * of an endpoint is a single method on a controller.
  * Represents an single endpoint (e.g. a method in a controller)
  */
-class Endpoint(/** Name of the original source element that specifies this endpoint  */
-               val name: String,
+class Endpoint(
+    /** Name of the original source element that specifies this endpoint  */
+    val name: String,
 
-               /** URI template for the endpoint  */
-               val uriTemplate: URITemplate,
-               val responseBody: ApiType?) {
+    /** URI template for the endpoint  */
+    val uriTemplate: URITemplate,
+    val responseBody: ApiType?,
+    val generateUrlMethod: Boolean
+) {
 
     private val _parameters = ArrayList<EndpointParameter>()
 
@@ -26,6 +29,9 @@ class Endpoint(/** Name of the original source element that specifies this endpo
 
     val parameters: List<EndpointParameter>
         get() = _parameters
+
+    val urlParameters: List<EndpointParameter>
+        get() = _parameters.filter { it !is EndpointRequestBodyParameter }
 
     fun addParameter(parameter: EndpointParameter) {
         _parameters += parameter

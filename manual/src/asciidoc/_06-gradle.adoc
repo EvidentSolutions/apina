@@ -31,6 +31,11 @@ tasks.apina {
     // in your classpath to find the controllers.
     endpoints = listOf("""my\.package\.foo\..+""")
 
+    // Which methods to include when generating URL methods. This is a subset of normal
+    // endpoint methods. Pattern to match is 'package.name.ClassName.methodName'. By
+    // default this set is empty and no URL-methods are generated.
+    endpointUrlMethods = listOf(""".+\.download.*""")
+
     // If generated URLs would start with given prefix, removes it. Useful when configuring Apina
     // to work behind reverse proxies. Defaults to empty string (URL is not modified).
     removedUrlPrefix = "/foo"

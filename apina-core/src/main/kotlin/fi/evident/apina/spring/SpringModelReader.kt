@@ -50,9 +50,13 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     }
 
     private fun createEndpointForMethod(method: JavaMethod, owningClass: JavaClass, boundClass: BoundClass): Endpoint {
-        val responseBody = resolveResponseBody(method, boundClass.environment)
+        val endpoint = Endpoint(
+            name = method.name,
+            uriTemplate = resolveUriTemplate(method, owningClass),
+            responseBody = resolveResponseBody(method, boundClass.environment),
+            generateUrlMethod = settings.isUrlEndpoint(owningClass.name, method.name)
+        )
 
-        val endpoint = Endpoint(method.name, resolveUriTemplate(method, owningClass), responseBody)
         resolveRequestMethod(method)?.let { endpoint.method = it }
 
         val typeTranslator = JacksonTypeTranslator(settings, classes, api)

@@ -5,6 +5,11 @@ export abstract class ApinaEndpointContext {
 
     abstract request(data: RequestData): Promise<any>
 
+    url(data: UrlData): string {
+        const url = this.buildUrl(data.uriTemplate, data.pathVariables);
+        return url + formatQueryParameters(data.requestParams);
+    }
+
     serialize(value: any, type: string): any {
         return this.config.serialize(value, type);
     }
@@ -33,13 +38,9 @@ export class ES6ApinaEndpointContext extends ApinaEndpointContext {
     }
 
     request(data: RequestData): Promise<any> {
-        const url = this.buildUrl(data.uriTemplate, data.pathVariables);
-
-        const params = ES6ApinaEndpointContext.formatQueryParameters(data.requestParams);
-
         const request = this.buildRequestInit(data);
 
-        return fetch(url + params, request)
+        return fetch(this.url(data), request)
             .then(r => {
                 const responseType = data.responseType;
                 if (!r.ok) {
@@ -54,29 +55,5 @@ export class ES6ApinaEndpointContext extends ApinaEndpointContext {
                     })
                 }
             })
-    }
-
-    private static formatQueryParameters(params: { [key: string]: any }): string {
-        const queryParameters: string[] = [];
-
-        const addQueryParameter = (encodedKey: string, value: any) => {
-            if (value != null) {
-                queryParameters.push(`${encodedKey}=${encodeURIComponent(value)}`);
-            }
-        };
-
-        for (const [key, value] of Object.entries(params || {})) {
-            const encodedKey = encodeURIComponent(key);
-
-            if (Array.isArray(value)) {
-                for (const arrayItemValue of value) {
-                    addQueryParameter(encodedKey, arrayItemValue);
-                }
-            } else {
-                addQueryParameter(encodedKey, value);
-            }
-        }
-
-        return queryParameters.length > 0 ? '?' + queryParameters.join('&') : '';
     }
 }

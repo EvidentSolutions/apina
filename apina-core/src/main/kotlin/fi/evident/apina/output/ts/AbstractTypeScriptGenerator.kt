@@ -189,6 +189,11 @@ abstract class AbstractTypeScriptGenerator(
                 for (endpoint in endpointGroup.endpoints) {
                     writeEndpoint(endpoint)
                     out.writeLine().writeLine()
+
+                    if (endpoint.generateUrlMethod) {
+                        writeUrlEndpoint(endpoint)
+                        out.writeLine().writeLine()
+                    }
                 }
             }
         }
@@ -198,15 +203,22 @@ abstract class AbstractTypeScriptGenerator(
         endpointGroup.name + "Endpoint"
 
     private fun writeEndpoint(endpoint: Endpoint) {
-        out.write(endpointSignature(endpoint)).write(" ").writeBlock { out.write("return this.context.request(").writeValue(AbstractTypeScriptGenerator.createConfig(endpoint)).writeLine(");") }
-    }
-
-    private fun endpointSignature(endpoint: Endpoint): String {
-        val name = endpoint.name
         val parameters = parameterListCode(endpoint.parameters)
         val resultType = endpoint.responseBody?.let { qualifiedTypeName(it) } ?: "void"
+        val signature = "${endpoint.name}($parameters): $resultFunctor<$resultType>"
 
-        return format("%s(%s): %s<%s>", name, parameters, resultFunctor, resultType)
+        out.write(signature).write(" ").writeBlock {
+            out.write("return this.context.request(").writeValue(createConfig(endpoint)).writeLine(");")
+        }
+    }
+
+    private fun writeUrlEndpoint(endpoint: Endpoint) {
+        val parameters = parameterListCode(endpoint.urlParameters)
+        val signature = "${endpoint.name}Url($parameters): string"
+
+        out.write(signature).write(" ").writeBlock {
+            out.write("return this.context.url(").writeValue(createConfig(endpoint, onlyUrl = true)).writeLine(");")
+        }
     }
 
     private fun qualifiedTypeName(type: ApiType): String = when {
@@ -238,23 +250,26 @@ abstract class AbstractTypeScriptGenerator(
                 .distinctBy { it.type }
                 .sortedBy { it.type }
 
-        @JvmStatic
-        protected fun createConfig(endpoint: Endpoint): Map<String, Any> {
+        private fun createConfig(endpoint: Endpoint, onlyUrl: Boolean = false): Map<String, Any> {
             val config = LinkedHashMap<String, Any>()
 
             config["uriTemplate"] = endpoint.uriTemplate.toString()
-            config["method"] = endpoint.method.toString()
+
+            if (!onlyUrl)
+                config["method"] = endpoint.method.toString()
 
             val pathVariables = endpoint.pathVariables
-            if (!pathVariables.isEmpty())
+            if (pathVariables.isNotEmpty())
                 config["pathVariables"] = createPathVariablesMap(pathVariables)
 
             val requestParameters = endpoint.requestParameters
-            if (!requestParameters.isEmpty())
+            if (requestParameters.isNotEmpty())
                 config["requestParams"] = createRequestParamMap(requestParameters)
 
-            endpoint.requestBody?.let { body -> config["requestBody"] = serialize(body.name, body.type.unwrapNullable()) }
-            endpoint.responseBody?.let { body -> config["responseType"] = typeDescriptor(body) }
+            if (!onlyUrl) {
+                endpoint.requestBody?.let { body -> config["requestBody"] = serialize(body.name, body.type.unwrapNullable()) }
+                endpoint.responseBody?.let { body -> config["responseType"] = typeDescriptor(body) }
+            }
 
             return config
         }

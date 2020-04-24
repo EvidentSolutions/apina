@@ -133,11 +133,36 @@ function arraySerializer(elementSerializer: Serializer): Serializer {
     }
 }
 
-export interface RequestData {
+function formatQueryParameters(params: { [key: string]: any }): string {
+    const queryParameters: string[] = [];
+
+    const addQueryParameter = (encodedKey: string, value: any) => {
+        if (value != null)
+            queryParameters.push(`${encodedKey}=${encodeURIComponent(value)}`);
+    };
+
+    for (const [key, value] of Object.entries(params || {})) {
+        const encodedKey = encodeURIComponent(key);
+
+        if (Array.isArray(value)) {
+            for (const arrayItemValue of value)
+                addQueryParameter(encodedKey, arrayItemValue);
+        } else {
+            addQueryParameter(encodedKey, value);
+        }
+    }
+
+    return queryParameters.length > 0 ? '?' + queryParameters.join('&') : '';
+}
+
+export interface UrlData {
     uriTemplate: string;
-    method: string;
     pathVariables?: any;
     requestParams?: any;
+}
+
+export interface RequestData extends UrlData {
+    method: string;
     requestBody?: any;
     responseType?: string;
 }

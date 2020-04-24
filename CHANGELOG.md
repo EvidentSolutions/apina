@@ -2,6 +2,7 @@
 
 - Find subclasses of sealed Kotlin classes without using `@JsonSubTypes`.
 - Write Swift enum definitions for discriminated unions
+- Support generating methods that only create a request URL instead of making a real request ([#48](https://github.com/EvidentSolutions/apina/pull/48)) 
 
 ## 0.13.3 (2020-04-14)
 

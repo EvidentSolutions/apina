@@ -5,6 +5,11 @@ export abstract class ApinaEndpointContext {
 
     abstract request(data: RequestData): Observable<any>
 
+    url(data: UrlData): string {
+        const url = this.buildUrl(data.uriTemplate, data.pathVariables);
+        return url + formatQueryParameters(data.requestParams);
+    }
+
     serialize(value: any, type: string): any {
         return this.config.serialize(value, type);
     }

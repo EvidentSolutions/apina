@@ -8,6 +8,7 @@ internal class CommandLineArguments {
     val files = mutableListOf<String>()
     val blackBoxPatterns = mutableListOf<String>()
     val controllerPatterns = mutableListOf<String>()
+    val endpointUrlMethods = mutableListOf<String>()
     val imports = mutableListOf<ImportArgument>()
     var platform = Platform.ANGULAR
     var typeWriteMode = TypeWriteMode.INTERFACE
@@ -24,6 +25,12 @@ internal class CommandLineArguments {
         val controller = parseOptionalWithValue("controller", arg)
         if (controller != null) {
             controllerPatterns.add(controller)
+            return
+        }
+
+        val urlMethod = parseOptionalWithValue("url-method", arg)
+        if (urlMethod != null) {
+            endpointUrlMethods.add(urlMethod)
             return
         }
 
