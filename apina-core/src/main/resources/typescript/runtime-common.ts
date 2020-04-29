@@ -141,7 +141,8 @@ function formatQueryParameters(params: { [key: string]: any }): string {
             queryParameters.push(`${encodedKey}=${encodeURIComponent(value)}`);
     };
 
-    for (const [key, value] of Object.entries(params || {})) {
+    for (const key of Object.keys(params || {})) {
+        const value = params[key];
         const encodedKey = encodeURIComponent(key);
 
         if (Array.isArray(value)) {
