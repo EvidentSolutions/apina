@@ -438,7 +438,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">Juha Komulainen</span><br>
 <span id="email" class="email"><a href="mailto:juha.komulainen@evident.fi">juha.komulainen@evident.fi</a></span><br>
-<span id="revnumber">version 0.13.3</span>
+<span id="revnumber">version 0.13.4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -459,7 +459,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_configuring_runtime_serialization">Configuring runtime serialization</a></li>
 </ul>
 </li>
-<li><a href="#_customizing_http_requests">Customizing HTTP requests</a></li>
+<li><a href="#_customizing_http_requests">Customizing HTTP requests</a>
+<ul class="sectlevel2">
+<li><a href="#_override_request_handling">Override request handling</a></li>
+<li><a href="#_build_urls_without_requests">Build URLs without requests</a></li>
+</ul>
+</li>
 <li><a href="#_gradle_task_reference">Gradle task reference</a></li>
 <li><a href="#_translation_details">Translation details</a>
 <ul class="sectlevel2">
@@ -523,7 +528,7 @@ class HelloController {
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("fi.evident.apina") version "0.13.3"
+    id("fi.evident.apina") version "0.13.4"
 }
 
 tasks.apina {
@@ -776,6 +781,26 @@ export type Foo = Foo_Bar | Foo_Baz;</code></pre>
 <div class="paragraph">
 <p>This way you can easily pass heterogeneous data back and forth between client and server.</p>
 </div>
+<div class="sect3">
+<h4 id="_kotlin_sealed_classes">Kotlin sealed classes</h4>
+<div class="paragraph">
+<p>With Java, you must use <code>@JsonSubTypes</code> to find the subtypes of a class, but when using
+Kotlin and sealed classes, you don&#8217;t need it. However, you need to use <code>@JsonTypeName</code>
+to specify names for the types:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">@JsonTypeInfo(use=NAME, property="type")
+sealed class Foo { ... }
+
+@JsonTypeName("my_bar")
+class Bar : Foo() { ... }
+
+@JsonTypeName("my_baz")
+class Baz : Foo() { ... }</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_supported_annotations">Supported annotations</h3>
@@ -811,8 +836,8 @@ used as its representation.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Properties of the target class will be inlined into the referencing class.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@JsonTypeInfo</code>, <code>@JsonSubTypes</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Class will be translated into a <em>discriminated union</em>. These need to be specified together.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@JsonTypeInfo</code>, <code>@JsonSubTypes</code>, <code>@JsonTypeName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Class will be translated into a <em>discriminated union</em>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -930,6 +955,8 @@ simply pass configuration as a constructor parameter when instantiating endpoint
 <div class="sect1">
 <h2 id="_customizing_http_requests">Customizing HTTP requests</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_override_request_handling">Override request handling</h3>
 <div class="paragraph">
 <p>Sometimes you need more control over the HTTP requests Apina makes. Perhaps
 you are behind a proxy and need to mangle the URL somehow or perhaps you&#8217;ll want
@@ -1018,6 +1045,61 @@ some cases which need higher-level knowledge of the requests.
 </table>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_build_urls_without_requests">Build URLs without requests</h3>
+<div class="paragraph">
+<p>It&#8217;s also possible to configure Apina to build methods that simply return the
+request URL without making a request. This could be used for a strongly typed
+download link or performing really exotic requests while still getting help
+from Apina.</p>
+</div>
+<div class="paragraph">
+<p>Suppose we have following controller:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">package example
+
+@RestController
+class DownloadController {
+
+    @GetMapping("/download/{name}")
+    fun download(@PathVariable name: String, @RequestParam code: Int): Document {
+        ...
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can now configure a regex matching to the fully qualified name of the method to
+tell Apina that we want URL-generation for this method:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks.apina {
+    endpointUrlMethods = listOf("""hello\.DownloadController\.download""")
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now Apina creates two methods instead of one. First you can use to call the endpoint
+as normally, whereas you can use one with <code>Url</code>-suffix to create the URL:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-typescript" data-lang="typescript">interface DownloadEndpoint {
+    download(name: String, code: Int): Observable&lt;Document&gt;;
+    downloadUrl(name: String, code: Int): string;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Methods with <code>@RequestBody</code> parameter are supported, but they are omitted from the
+URL-method, since it&#8217;s impossible to create a URL with request body. In that case,
+you need to  pass the body manually when you end up calling the URL.</p>
+</div>
+</div>
+</div>
 </div>
 <div class="sect1">
 <h2 id="_gradle_task_reference">Gradle task reference</h2>
@@ -1025,7 +1107,7 @@ some cases which need higher-level knowledge of the requests.
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("fi.evident.apina") version "0.13.3"
+    id("fi.evident.apina") version "0.13.4"
 }
 
 tasks.apina {
@@ -1051,6 +1133,11 @@ tasks.apina {
     // limit the scope because otherwise Apina needs to parse bytecode of all the classes
     // in your classpath to find the controllers.
     endpoints = listOf("""my\.package\.foo\..+""")
+
+    // Which methods to include when generating URL methods. This is a subset of normal
+    // endpoint methods. Pattern to match is 'package.name.ClassName.methodName'. By
+    // default this set is empty and no URL-methods are generated.
+    endpointUrlMethods = listOf(""".+\.download.*""")
 
     // If generated URLs would start with given prefix, removes it. Useful when configuring Apina
     // to work behind reverse proxies. Defaults to empty string (URL is not modified).
@@ -1178,7 +1265,7 @@ or we can generate code for standalone ES6, using the Fetch API for requests.</p
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.13.3<br>
+Version 0.13.4<br>
 Last updated 2019-03-05 12:49:33 +0200
 </div>
 </div>
