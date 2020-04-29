@@ -1,3 +1,7 @@
+## 0.13.5 (2020-04-29)
+
+- Don't require support for`Object.entries` in generated TypeScript.
+
 ## 0.13.4 (2020-04-29)
 
 - Find subclasses of sealed Kotlin classes without using `@JsonSubTypes`.
