@@ -1,4 +1,4 @@
-## Unreleased
+## 0.13.4 (2020-04-29)
 
 - Find subclasses of sealed Kotlin classes without using `@JsonSubTypes`.
 - Write Swift enum definitions for discriminated unions
