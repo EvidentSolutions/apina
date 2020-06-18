@@ -21,7 +21,7 @@ internal object ClassMetadataReader {
         return visitor.getJavaClass()
     }
 
-    private class MyClassVisitor : ClassVisitor(Opcodes.ASM7) {
+    private class MyClassVisitor : ClassVisitor(Opcodes.ASM8) {
 
         private var javaClass: JavaClass? = null
 

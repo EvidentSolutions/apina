@@ -1,3 +1,7 @@
+## Unreleased
+
+- Update ASM to 8.0.1, supporting Java 14 bytecode.
+
 ## 0.13.5 (2020-04-29)
 
 - Don't require support for`Object.entries` in generated TypeScript.
