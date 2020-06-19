@@ -7,7 +7,7 @@ plugins {
 val kotlinVersion: String by rootProject.extra
 
 dependencies {
-    implementation(project(":apina-core"))
+    implementation(project(":apina-core", "shadow"))
     implementation(kotlin("stdlib", kotlinVersion))
 
     testImplementation(kotlin("test"))

@@ -5,6 +5,7 @@ plugins {
     java
     `maven-publish`
     id("com.jfrog.bintray")
+    id("com.github.johnrengelman.shadow")
 }
 
 val kotlinVersion: String by rootProject.extra
@@ -24,6 +25,16 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
+tasks.shadowJar {
+    relocate("org.objectweb.asm", "fi.evident.apina.libs.org.objectweb.asm")
+    dependencies {
+        exclude(dependency("org.slf4j:slf4j-api"))
+        exclude(dependency("org.jetbrains.kotlin:kotlin-stdlib"))
+        exclude(dependency("org.jetbrains.kotlin:kotlin-stdlib-common"))
+        exclude(dependency("org.jetbrains:annotations"))
+    }
+}
+
 val sourcesJar = task<Jar>("sourcesJar") {
     dependsOn("classes")
     archiveClassifier.set("sources")
@@ -39,13 +50,14 @@ val javadocJar = task<Jar>("javadocJar") {
     from(javadoc.destinationDir)
 }
 
-artifacts.add("archives", sourcesJar)
-artifacts.add("archives", javadocJar)
+artifacts.add(configurations.archives.name, tasks.shadowJar)
+artifacts.add(configurations.archives.name, sourcesJar)
+artifacts.add(configurations.archives.name, javadocJar)
 
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
+            project.shadow.component(this)
             artifact(sourcesJar)
             artifact(javadocJar)
         }
