@@ -5,14 +5,15 @@ plugins {
     java
     `maven-publish`
     id("com.jfrog.bintray")
+    id("com.github.johnrengelman.shadow")
 }
 
 val kotlinVersion: String by rootProject.extra
 
 dependencies {
     // We have to define explicit version here or invalid POM is generated
-    implementation(kotlin("stdlib", kotlinVersion))
-    implementation("org.slf4j:slf4j-api:1.7.12")
+    shadow(kotlin("stdlib", kotlinVersion))
+    shadow("org.slf4j:slf4j-api:1.7.12")
     implementation("org.ow2.asm:asm:8.0.1")
 
     testImplementation(kotlin("test"))
@@ -22,6 +23,16 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest-all:1.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+tasks.shadowJar {
+    archiveBaseName.set("apina-core")
+    archiveAppendix.set("")
+    archiveClassifier.set("")
+    relocate("org.objectweb.asm", "fi.evident.apina.libs.org.objectweb.asm")
+    dependencies {
+        include(dependency("org.ow2.asm:asm"))
+    }
 }
 
 val sourcesJar = task<Jar>("sourcesJar") {
@@ -39,13 +50,18 @@ val javadocJar = task<Jar>("javadocJar") {
     from(javadoc.destinationDir)
 }
 
-artifacts.add("archives", sourcesJar)
-artifacts.add("archives", javadocJar)
+tasks.jar {
+    enabled = false
+}
+
+artifacts.add(configurations.archives.name, tasks.shadowJar)
+artifacts.add(configurations.archives.name, sourcesJar)
+artifacts.add(configurations.archives.name, javadocJar)
 
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
+            project.shadow.component(this)
             artifact(sourcesJar)
             artifact(javadocJar)
         }

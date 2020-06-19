@@ -7,7 +7,7 @@ plugins {
 val kotlinVersion: String by rootProject.extra
 
 dependencies {
-    implementation(project(":apina-core"))
+    implementation(project(":apina-core", "shadow"))
     implementation("ch.qos.logback:logback-classic:1.1.3")
     implementation(kotlin("stdlib", kotlinVersion))
 }
