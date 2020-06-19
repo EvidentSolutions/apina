@@ -4,16 +4,16 @@ plugins {
     kotlin("jvm")
     java
     `maven-publish`
-    id("com.jfrog.bintray") version "1.8.4"
+    id("com.jfrog.bintray")
 }
 
 val kotlinVersion: String by rootProject.extra
 
 dependencies {
     // We have to define explicit version here or invalid POM is generated
-    compile(kotlin("stdlib", kotlinVersion))
-    compile("org.slf4j:slf4j-api:1.7.12")
-    compile("org.ow2.asm:asm:8.0.1")
+    implementation(kotlin("stdlib", kotlinVersion))
+    implementation("org.slf4j:slf4j-api:1.7.12")
+    implementation("org.ow2.asm:asm:8.0.1")
 
     testImplementation(kotlin("test"))
     testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.8.6")

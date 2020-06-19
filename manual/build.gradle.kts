@@ -1,6 +1,6 @@
 plugins {
-    id("org.asciidoctor.convert") version "1.5.9.2"
-    id("org.ajoberstar.github-pages") version "1.6.0"
+    id("org.asciidoctor.convert")
+    id("org.ajoberstar.github-pages")
 }
 
 tasks.asciidoctor {

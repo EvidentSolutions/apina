@@ -1,12 +1,15 @@
 plugins {
     application
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.github.johnrengelman.shadow")
 }
 
+val kotlinVersion: String by rootProject.extra
+
 dependencies {
-    compile(project(":apina-core"))
-    compile("ch.qos.logback:logback-classic:1.1.3")
+    implementation(project(":apina-core"))
+    implementation("ch.qos.logback:logback-classic:1.1.3")
+    implementation(kotlin("stdlib", kotlinVersion))
 }
 
 application {
