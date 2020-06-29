@@ -1,6 +1,7 @@
-## Unreleased
+# 0.14.0 (2020-06-29)
 
 - Update ASM to 8.0.1, supporting Java 14 bytecode.
+- Bundle relocated version of ASM to prevent classpath conflicts with other libraries.
 
 ## 0.13.5 (2020-04-29)
 
