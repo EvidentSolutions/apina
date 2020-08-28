@@ -26,7 +26,6 @@ open class ApinaTask : DefaultTask() {
 
     @get:CompileClasspath
     @get:InputFiles
-    @get:PathSensitive(PathSensitivity.NAME_ONLY)
     var classpath: FileCollection by Delegates.notNull()
 
     @get:Input
