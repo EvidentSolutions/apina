@@ -30,6 +30,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
 
     private val api = ApiDefinition()
     private val annotationResolver = SpringAnnotationResolver(classes)
+    private val typeTranslator = JacksonTypeTranslator(settings, classes, api)
 
     private fun createEndpointsForControllers() {
         for (controllerMetadata in classes.findClassesWithAnnotation(settings::isProcessableController, REST_CONTROLLER))
@@ -59,9 +60,8 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
 
         resolveRequestMethod(method)?.let { endpoint.method = it }
 
-        val typeTranslator = JacksonTypeTranslator(settings, classes, api)
         for (parameter in method.parameters)
-            parseParameter(typeTranslator, parameter, boundClass.environment, method)?.let { endpoint.addParameter(it) }
+            parseParameter(parameter, boundClass.environment, method)?.let { endpoint.addParameter(it) }
 
         return endpoint
     }
@@ -70,7 +70,6 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         val returnType = method.returnType
 
         return if (!returnType.isVoid) {
-            val typeTranslator = JacksonTypeTranslator(settings, classes, api)
             typeTranslator.translateType(unwrapReturnType(returnType), method, env)
         } else {
             null
@@ -88,7 +87,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
         return type
     }
 
-    private fun parseParameter(typeTranslator: JacksonTypeTranslator, parameter: JavaParameter, env: TypeEnvironment, method: JavaMethod): EndpointParameter? {
+    private fun parseParameter(parameter: JavaParameter, env: TypeEnvironment, method: JavaMethod): EndpointParameter? {
         val name = parameter.name ?: throw EndpointParameterNameNotDefinedException(method)
 
         // The code here is a bit subtle: we don't wish to translate the type unless it is actually needed
