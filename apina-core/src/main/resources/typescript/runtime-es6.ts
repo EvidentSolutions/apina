@@ -31,9 +31,18 @@ export class ES6ApinaEndpointContext extends ApinaEndpointContext {
     }
 
     protected buildRequestInit(data: RequestData): RequestInit {
+        const isSendingData = data.requestBody != null
+        const jsonContentType = 'application/json'
         return {
             method: data.method,
-            body: data.requestBody
+            headers: isSendingData ? {
+                'Accept': jsonContentType,
+                'Content-Type': jsonContentType
+            } : {
+                'Accept': jsonContentType
+            },
+            credentials: 'same-origin',
+            body: isSendingData ? JSON.stringify(data.requestBody) : null
         };
     }
 
