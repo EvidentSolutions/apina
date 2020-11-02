@@ -1,3 +1,8 @@
+## Unreleased
+
+- Send required request headers in ES6 runtime ([#63](https://github.com/EvidentSolutions/apina/pull/63))
+- Fix duplicate class name assertion ([#64](https://github.com/EvidentSolutions/apina/pull/64))
+
 # 0.14.0 (2020-06-29)
 
 - Update ASM to 8.0.1, supporting Java 14 bytecode.
