@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina.iml" filepath="$PROJECT_DIR$/.idea/modules/apina.iml" group="apina" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-cli/apina-cli.iml" group="apina/apina-cli" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-core/apina-core.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-core/apina-core.iml" group="apina/apina-core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle.iml" filepath="$PROJECT_DIR$/.idea/modules/apina-gradle/apina-gradle.iml" group="apina/apina-gradle" />
