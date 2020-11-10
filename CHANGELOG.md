@@ -1,5 +1,6 @@
-## Unreleased
+# 0.15.0 (2020-11-10)
 
+- Allow registering serializers for dictionaries ([#38](https://github.com/EvidentSolutions/apina/pull/38))
 - Send required request headers in ES6 runtime ([#63](https://github.com/EvidentSolutions/apina/pull/63))
 - Fix duplicate class name assertion ([#64](https://github.com/EvidentSolutions/apina/pull/64))
 

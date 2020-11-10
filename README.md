@@ -12,7 +12,7 @@ Include something like the following in your web application project:
 
 ```groovy
 plugins {
-    id "fi.evident.apina" version "0.14.0"
+    id "fi.evident.apina" version "0.15.0"
 }
 
 apina {
