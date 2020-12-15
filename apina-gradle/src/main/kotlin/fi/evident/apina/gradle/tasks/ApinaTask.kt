@@ -41,6 +41,9 @@ open class ApinaTask : DefaultTask() {
     var imports: Map<String, List<String>> = HashMap()
 
     @get:Input
+    var registeredClassNames: Map<String, String> = HashMap()
+
+    @get:Input
     var platform = Platform.ANGULAR
 
     @get:Input
@@ -88,6 +91,9 @@ open class ApinaTask : DefaultTask() {
 
             for ((key, value) in imports)
                 processor.settings.addImport(key, value)
+
+            for ((qualifiedName, translatedName) in registeredClassNames)
+                processor.settings.nameTranslator.registerClassName(qualifiedName, translatedName)
 
             val output = processor.process()
 

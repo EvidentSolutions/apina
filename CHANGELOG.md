@@ -1,3 +1,7 @@
+# 0.15.1 (2020-12-15)
+
+- Allow registering alternative translated names for classes
+
 # 0.15.0 (2020-11-10)
 
 - Allow registering serializers for dictionaries ([#38](https://github.com/EvidentSolutions/apina/pull/38))

@@ -365,6 +365,17 @@ class JacksonTypeTranslatorTest {
         assertEquals(setOf("age", "firstName", "lastName", "foofirstbar", "foolastbar"), person.properties.map { it.name }.toSet())
     }
 
+    @Test
+    fun `override translated class name`() {
+
+        @Suppress("unused")
+        class Foo(val foo: String)
+
+        settings.nameTranslator.registerClassName(Foo::class.java.name, "MyOverriddenFoo")
+
+        assertEquals("MyOverriddenFoo", translateClass<Foo>().type.name)
+    }
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes(
         JsonSubTypes.Type(value = Vehicle.Car::class, name = "car"),
