@@ -38,7 +38,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     }
 
     private fun createEndpointGroupForController(javaClass: JavaClass): EndpointGroup {
-        val endpointGroup = EndpointGroup(translateEndpointGroupName(javaClass.name))
+        val endpointGroup = EndpointGroup(settings.nameTranslator.translateEndpointGroupName(javaClass.name))
 
         val boundClass = BoundClass(javaClass, TypeEnvironment.empty())
 

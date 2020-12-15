@@ -1,6 +1,7 @@
 package fi.evident.apina.model.settings
 
 import fi.evident.apina.model.type.ApiTypeName
+import fi.evident.apina.spring.NameTranslator
 import fi.evident.apina.utils.PatternSet
 import java.util.*
 
@@ -14,6 +15,7 @@ class TranslationSettings {
     private val endpointUrlMethods = PatternSet()
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
+    val nameTranslator = NameTranslator()
     var platform = Platform.ANGULAR
     var typeWriteMode = TypeWriteMode.INTERFACE
     var enumMode = EnumMode.DEFAULT

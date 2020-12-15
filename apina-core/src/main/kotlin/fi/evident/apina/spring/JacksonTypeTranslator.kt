@@ -197,7 +197,7 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
     }
 
     private fun classNameForType(type: JavaType.Basic): ApiTypeName {
-        val translatedName = translateClassName(type.name)
+        val translatedName = settings.nameTranslator.translateClassName(type.name)
 
         val existingType = translatedNames.putIfAbsent(translatedName, type)
         if (existingType != null && type != existingType)
