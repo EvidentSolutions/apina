@@ -1,8 +1,10 @@
 package fi.evident.apina.model.type
 
+import fi.evident.apina.model.settings.OptionalTypeMode
+
 sealed class ApiType {
 
-    abstract fun toTypeScript(): String
+    abstract fun toTypeScript(optionalTypeMode: OptionalTypeMode = OptionalTypeMode.NULL): String
     abstract fun toSwift(): String
     open fun unwrapNullable(): ApiType = this
 
@@ -10,12 +12,12 @@ sealed class ApiType {
     abstract override fun hashCode(): Int
 
     data class Array(val elementType: ApiType) : ApiType() {
-        override fun toTypeScript() = "${elementType.toTypeScript()}[]"
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = "${elementType.toTypeScript(optionalTypeMode)}[]"
         override fun toSwift() = "[${elementType.toSwift()}]"
     }
 
     data class BlackBox(val name: ApiTypeName) : ApiType() {
-        override fun toTypeScript() = name.name
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = name.name
         override fun toSwift() = name.name
     }
 
@@ -25,18 +27,21 @@ sealed class ApiType {
     data class Class(val name: ApiTypeName) : ApiType(), Comparable<Class> {
 
         constructor(name: String): this(ApiTypeName(name))
-        override fun toTypeScript() = name.name
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = name.name
         override fun toSwift() = name.name
         override fun compareTo(other: Class) = name.compareTo(other.name)
     }
 
     data class Dictionary(private val valueType: ApiType) : ApiType() {
-        override fun toTypeScript() = "Dictionary<${valueType.toTypeScript()}>"
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = "Dictionary<${valueType.toTypeScript(optionalTypeMode)}>"
         override fun toSwift() = "[String: ${valueType.toSwift()}]"
     }
 
     data class Nullable(val type: ApiType) : ApiType() {
-        override fun toTypeScript() = type.toTypeScript() + " | null"
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = when (optionalTypeMode) {
+            OptionalTypeMode.UNDEFINED -> type.toTypeScript(optionalTypeMode) + " | undefined"
+            OptionalTypeMode.NULL -> type.toTypeScript(optionalTypeMode) + " | null"
+        }
         override fun toSwift() = type.toSwift() + "?"
         override fun unwrapNullable() = type
     }
@@ -46,7 +51,7 @@ sealed class ApiType {
         private val swiftName: String) : ApiType() {
 
         override fun toString() = typescriptName
-        override fun toTypeScript() = typescriptName
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = typescriptName
         override fun toSwift() = swiftName
         override fun hashCode() = System.identityHashCode(this)
         override fun equals(other: Any?) = other === this

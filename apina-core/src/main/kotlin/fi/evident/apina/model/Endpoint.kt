@@ -4,6 +4,7 @@ import fi.evident.apina.model.parameters.EndpointParameter
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter
 import fi.evident.apina.model.parameters.EndpointRequestBodyParameter
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter
+import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.type.ApiType
 import java.util.*
 
@@ -19,7 +20,8 @@ class Endpoint(
     /** URI template for the endpoint  */
     val uriTemplate: URITemplate,
     val responseBody: ApiType?,
-    val generateUrlMethod: Boolean
+    val generateUrlMethod: Boolean,
+    val optionalTypeMode: OptionalTypeMode
 ) {
 
     private val _parameters = ArrayList<EndpointParameter>()
@@ -47,7 +49,7 @@ class Endpoint(
         get() = _parameters.filterIsInstance<EndpointRequestParamParameter>()
 
     override fun toString(): String = String.format("%s %s(%s): %s %s",
-            responseBody?.toTypeScript() ?: "void",
+            responseBody?.toTypeScript(optionalTypeMode) ?: "void",
             name,
             _parameters.joinToString(", "),
             method,

@@ -5,6 +5,7 @@ package fi.evident.apina.gradle.tasks
 import fi.evident.apina.ApinaProcessor
 import fi.evident.apina.java.reader.Classpath
 import fi.evident.apina.model.settings.EnumMode
+import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.Platform
 import fi.evident.apina.model.settings.TypeWriteMode
 import fi.evident.apina.spring.EndpointParameterNameNotDefinedException
@@ -50,6 +51,9 @@ open class ApinaTask : DefaultTask() {
     var typeWriteMode = TypeWriteMode.INTERFACE
 
     @get:Input
+    var optionalTypeMode = OptionalTypeMode.NULL
+
+    @get:Input
     var enumMode = EnumMode.DEFAULT
 
     @get:Input
@@ -82,6 +86,7 @@ open class ApinaTask : DefaultTask() {
             processor.settings.removedUrlPrefix = removedUrlPrefix
             processor.settings.platform = platform
             processor.settings.typeWriteMode = typeWriteMode
+            processor.settings.optionalTypeMode = optionalTypeMode
 
             endpoints.forEach { processor.settings.addControllerPattern(it) }
             endpointUrlMethods.forEach { processor.settings.addEndpointUrlMethodPattern(it) }

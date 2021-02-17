@@ -18,6 +18,7 @@ class TranslationSettings {
     val nameTranslator = NameTranslator()
     var platform = Platform.ANGULAR
     var typeWriteMode = TypeWriteMode.INTERFACE
+    var optionalTypeMode = OptionalTypeMode.NULL
     var enumMode = EnumMode.DEFAULT
     var removedUrlPrefix = ""
 
