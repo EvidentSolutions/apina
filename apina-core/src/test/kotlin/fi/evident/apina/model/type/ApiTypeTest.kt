@@ -1,5 +1,6 @@
 package fi.evident.apina.model.type
 
+import fi.evident.apina.model.settings.OptionalTypeMode
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -13,7 +14,9 @@ class ApiTypeTest {
         assertEquals("Foo", ApiType.BlackBox(ApiTypeName("Foo")).toTypeScript())
         assertEquals("Foo", ApiType.Class(ApiTypeName("Foo")).toTypeScript())
         assertEquals("Dictionary<string>", ApiType.Dictionary(ApiType.Primitive.STRING).toTypeScript())
+        assertEquals("Dictionary<string | null>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript())
         assertEquals("string | null", ApiType.Nullable(ApiType.Primitive.STRING).toTypeScript())
+        assertEquals("string | undefined", ApiType.Nullable(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.UNDEFINED))
     }
 
     @Test

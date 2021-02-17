@@ -25,6 +25,11 @@ tasks.apina {
     //  - 'STRING_UNION' => type MyEnum = "FOO" | "BAR" | "BAZ"
     enumMode = EnumMode.DEFAULT
 
+    // How nullables are translated to TypeScript interfaces? (Default mode is 'NULL'.)
+    //  - 'NULL'      => name: Type | null
+    //  - 'UNDEFINED' => name?: Type
+    optionalTypeMode = OptionalTypeMode.NULL
+
     // Which controllers to include when generating API? Defaults to everything.
     // Given regexes may safely match other things that are not controllers, but it pays to
     // limit the scope because otherwise Apina needs to parse bytecode of all the classes

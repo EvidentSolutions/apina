@@ -55,7 +55,8 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
             name = method.name,
             uriTemplate = resolveUriTemplate(method, owningClass),
             responseBody = resolveResponseBody(method, boundClass.environment),
-            generateUrlMethod = settings.isUrlEndpoint(owningClass.name, method.name)
+            generateUrlMethod = settings.isUrlEndpoint(owningClass.name, method.name),
+            optionalTypeMode = settings.optionalTypeMode
         )
 
         resolveRequestMethod(method)?.let { endpoint.method = it }
