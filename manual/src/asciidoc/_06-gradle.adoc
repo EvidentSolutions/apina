@@ -27,7 +27,7 @@ tasks.apina {
 
     // How nullables are translated to TypeScript interfaces? (Default mode is 'NULL'.)
     //  - 'NULL'      => name: Type | null
-    //  - 'UNDEFINED' => name?: Type
+    //  - 'UNDEFINED' => name: Type | undefined
     optionalTypeMode = OptionalTypeMode.NULL
 
     // Which controllers to include when generating API? Defaults to everything.
