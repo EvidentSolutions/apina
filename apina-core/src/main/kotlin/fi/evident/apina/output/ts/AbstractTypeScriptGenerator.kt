@@ -82,7 +82,11 @@ abstract class AbstractTypeScriptGenerator(
         for (classDefinition in api.structuralTypeDefinitions) {
             classDefinitionWriter(classDefinition.type.name) {
                 for (property in classDefinition.properties)
-                    out.writeLine("${property.name}: ${property.type.toTypeScript(settings.optionalTypeMode)};")
+                    if (settings.optionalTypeMode == OptionalTypeMode.UNDEFINED && property.type is ApiType.Nullable) {
+                        out.writeLine("${property.name}?: ${property.type.unwrapNullable().toTypeScript(settings.optionalTypeMode)};")
+                    } else {
+                        out.writeLine("${property.name}: ${property.type.toTypeScript(settings.optionalTypeMode)};")
+                    }
             }
         }
 
@@ -236,8 +240,21 @@ abstract class AbstractTypeScriptGenerator(
     private fun discriminatedUnionMemberType(unionType: ApiTypeName, memberType: ClassDefinition) =
         "${unionType.name}_${memberType.type.name}"
 
-    private fun parameterListCode(parameters: List<EndpointParameter>) =
-        parameters.joinToString(", ") { p -> p.name + ": " + qualifiedTypeName(p.type) }
+    private fun parameterListCode(parameters: List<EndpointParameter>): String {
+        val firstOptionalIndex = parameters.indexOfLast { it.type !is ApiType.Nullable } + 1
+
+        return parameters.withIndex().joinToString(", ") { (index, p) ->
+            if (p.type is ApiType.Nullable) {
+                val type = qualifiedTypeName(p.type.unwrapNullable())
+                if (index >= firstOptionalIndex)
+                    "${p.name}?: $type | null"
+                else
+                    "${p.name}: $type | null | undefined"
+            } else {
+                "${p.name}: ${qualifiedTypeName(p.type)}"
+            }
+        }
+    }
 
     protected open fun writePlatformSpecific() {}
 

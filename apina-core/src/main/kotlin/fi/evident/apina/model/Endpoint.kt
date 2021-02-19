@@ -20,8 +20,7 @@ class Endpoint(
     /** URI template for the endpoint  */
     val uriTemplate: URITemplate,
     val responseBody: ApiType?,
-    val generateUrlMethod: Boolean,
-    val optionalTypeMode: OptionalTypeMode
+    val generateUrlMethod: Boolean
 ) {
 
     private val _parameters = ArrayList<EndpointParameter>()
@@ -49,7 +48,7 @@ class Endpoint(
         get() = _parameters.filterIsInstance<EndpointRequestParamParameter>()
 
     override fun toString(): String = String.format("%s %s(%s): %s %s",
-            responseBody?.toTypeScript(optionalTypeMode) ?: "void",
+            responseBody?.toTypeScript(OptionalTypeMode.NULL) ?: "void",
             name,
             _parameters.joinToString(", "),
             method,
