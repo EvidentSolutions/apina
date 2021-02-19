@@ -1,3 +1,8 @@
+# 0.15.3 (2021-02-19)
+
+- Add flag for translating nullable types as `Type | undefined` instead of `Type | null`
+  ([#65](https://github.com/EvidentSolutions/apina/pull/65), thanks to [tuomoa](https://github.com/tuomoa))
+
 # 0.15.2 (2020-12-15)
 
 - Allow registering alternative translated names for classes
