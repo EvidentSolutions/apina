@@ -1,5 +1,6 @@
 package fi.evident.apina.cli
 
+import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.Platform
 import fi.evident.apina.model.settings.TypeWriteMode
 
@@ -12,6 +13,7 @@ internal class CommandLineArguments {
     val imports = mutableListOf<ImportArgument>()
     var platform = Platform.ANGULAR
     var typeWriteMode = TypeWriteMode.INTERFACE
+    var optionalTypeMode = OptionalTypeMode.NULL
 
     private fun parse(arg: String) {
         // This could be more general, but this is all we need for now.
@@ -43,6 +45,12 @@ internal class CommandLineArguments {
         val typeWriteMode = parseOptionalWithValue("type-write-mode", arg)
         if (typeWriteMode != null) {
             this.typeWriteMode = TypeWriteMode.valueOf(typeWriteMode.toUpperCase())
+            return
+        }
+
+        val optionalTypeMode = parseOptionalWithValue("optional-type-mode", arg)
+        if (optionalTypeMode != null) {
+            this.optionalTypeMode = OptionalTypeMode.valueOf(optionalTypeMode.toUpperCase())
             return
         }
 

@@ -28,6 +28,8 @@ object Apina {
             val processor = ApinaProcessor(classpath)
 
             processor.settings.platform = arguments.platform
+            processor.settings.typeWriteMode = arguments.typeWriteMode
+            processor.settings.optionalTypeMode = arguments.optionalTypeMode
 
             for (blackBoxPattern in arguments.blackBoxPatterns)
                 processor.settings.blackBoxClasses.addPattern(blackBoxPattern)
