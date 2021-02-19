@@ -15,6 +15,7 @@ import fi.evident.apina.model.ClassDefinition
 import fi.evident.apina.model.EnumDefinition
 import fi.evident.apina.model.ModelMatchers.hasProperties
 import fi.evident.apina.model.ModelMatchers.property
+import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
@@ -406,7 +407,7 @@ class JacksonTypeTranslatorTest {
         val api = ApiDefinition()
         val apiType = translateClass<T>(api)
 
-        return api.classDefinitions.find { d -> apiType.toTypeScript().startsWith(d.type.toString()) }
+        return api.classDefinitions.find { d -> apiType.toTypeScript(OptionalTypeMode.NULL).startsWith(d.type.toString()) }
             ?: throw AssertionError("could not find definition for $apiType")
     }
 
@@ -414,7 +415,7 @@ class JacksonTypeTranslatorTest {
         val api = ApiDefinition()
         val apiType = translateClass<T>(api)
 
-        return api.enumDefinitions.find { d -> d.type.toString() == apiType.toTypeScript() }
+        return api.enumDefinitions.find { d -> d.type.toString() == apiType.toTypeScript(OptionalTypeMode.NULL) }
             ?: throw AssertionError("could not find definition for $apiType")
     }
 

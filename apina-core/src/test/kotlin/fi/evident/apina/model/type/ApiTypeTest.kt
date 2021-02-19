@@ -8,14 +8,14 @@ class ApiTypeTest {
 
     @Test
     fun `TypeScript representations`() {
-        assertEquals("string", ApiType.Primitive.STRING.toTypeScript())
-        assertEquals("string[]", ApiType.Array(ApiType.Primitive.STRING).toTypeScript())
-        assertEquals("string[][]", ApiType.Array(ApiType.Array(ApiType.Primitive.STRING)).toTypeScript())
-        assertEquals("Foo", ApiType.BlackBox(ApiTypeName("Foo")).toTypeScript())
-        assertEquals("Foo", ApiType.Class(ApiTypeName("Foo")).toTypeScript())
-        assertEquals("Dictionary<string>", ApiType.Dictionary(ApiType.Primitive.STRING).toTypeScript())
-        assertEquals("Dictionary<string | null>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript())
-        assertEquals("string | null", ApiType.Nullable(ApiType.Primitive.STRING).toTypeScript())
+        assertEquals("string", ApiType.Primitive.STRING.toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("string[]", ApiType.Array(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("string[][]", ApiType.Array(ApiType.Array(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("Foo", ApiType.BlackBox(ApiTypeName("Foo")).toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("Foo", ApiType.Class(ApiTypeName("Foo")).toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("Dictionary<string>", ApiType.Dictionary(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("Dictionary<string | null>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("string | null", ApiType.Nullable(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("string | undefined", ApiType.Nullable(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.UNDEFINED))
     }
 

@@ -31,7 +31,12 @@ apina {
     //  - 'default'      => enum MyEnum { FOO = "FOO", BAR = "BAR", BAZ = "BAZ" }
     //  - 'int_enum'     => enum MyEnum { FOO, BAR, BAZ }
     //  - 'string_union' => type MyEnum = "FOO" | "BAR" | "BAZ"
-    enumMode = 'default' 
+    enumMode = 'default'
+    
+    // How nullables are translated to TypeScript interfaces? (Default mode is 'NULL'.)
+    //  - 'NULL'      => name: Type | null
+    //  - 'UNDEFINED' => name: Type | undefined
+    optionalTypeMode = OptionalTypeMode.NULL
     
     // Which controllers to include when generating API? Defaults to everything.
     endpoints = [/my\.package\.foo\..+/]

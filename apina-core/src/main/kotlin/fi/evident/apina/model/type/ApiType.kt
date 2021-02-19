@@ -4,7 +4,7 @@ import fi.evident.apina.model.settings.OptionalTypeMode
 
 sealed class ApiType {
 
-    abstract fun toTypeScript(optionalTypeMode: OptionalTypeMode = OptionalTypeMode.NULL): String
+    abstract fun toTypeScript(optionalTypeMode: OptionalTypeMode): String
     abstract fun toSwift(): String
     open fun unwrapNullable(): ApiType = this
 
