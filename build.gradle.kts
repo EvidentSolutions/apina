@@ -4,10 +4,10 @@ import pl.allegro.tech.build.axion.release.domain.VersionConfig
 
 plugins {
     id("pl.allegro.tech.build.axion-release") version "1.4.1"
-    kotlin("jvm") version "1.3.21" apply false
+    kotlin("jvm") version "1.4.20" apply false
 }
 
-val kotlinVersion by extra("1.3.21") // same as above :(
+val kotlinVersion by extra("1.4.20") // duplicated from above
 val junitVersion = "5.4.0"
 
 configure<VersionConfig> {
