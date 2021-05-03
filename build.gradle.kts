@@ -56,6 +56,5 @@ tasks.register("publish") {
     description = "Publishes all artifacts"
 
     dependsOn(tasks.findByPath(":apina-gradle:publishPlugins"))
-    dependsOn(tasks.findByPath(":apina-core:bintrayUpload"))
     dependsOn(tasks.findByPath(":manual:publishGhPages"))
 }

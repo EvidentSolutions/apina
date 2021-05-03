@@ -1,10 +1,7 @@
-import com.jfrog.bintray.gradle.BintrayExtension
-
 plugins {
     kotlin("jvm")
     java
     `maven-publish`
-    id("com.jfrog.bintray")
     id("com.github.johnrengelman.shadow")
 }
 
@@ -65,28 +62,5 @@ publishing {
             artifact(sourcesJar)
             artifact(javadocJar)
         }
-    }
-}
-
-if (hasProperty("bintrayUser")) {
-    bintray {
-        user = property("bintrayUser") as String
-        key = property("bintrayApiKey") as String
-
-        setPublications("mavenJava")
-
-        publish = true
-
-        pkg(closureOf<BintrayExtension.PackageConfig> {
-            repo = "gradle-plugins"
-            name = "apina-core"
-            userOrg = "evident"
-
-            setLicenses("MIT")
-            websiteUrl = "https://github.com/EvidentSolutions/apina"
-            vcsUrl = "https://github.com/EvidentSolutions/apina.git"
-            desc = "Tool for generating TypeScript client code from Spring controllers and Jackson classes"
-            setLabels("typescript", "tsd", "angular", "jackson", "spring")
-        })
     }
 }
