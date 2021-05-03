@@ -1,3 +1,8 @@
+# 0.16.0 (2021-05-03)
+
+- Bump Gradle version to 7.0
+- Remove publishing dependencies to Bintray
+
 # 0.15.3 (2021-02-19)
 
 - Add flag for translating nullable types as `Type | undefined` instead of `Type | null`
