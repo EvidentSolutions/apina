@@ -23,7 +23,7 @@ class ApinaIntegrationTest {
             }
 
             repositories {
-                jcenter()
+                mavenCentral()
             }
 
             apina {

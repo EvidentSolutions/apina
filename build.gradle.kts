@@ -22,7 +22,7 @@ configure(allprojects) {
     this.version = rootProject.scmVersion.version
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     configurations.all {

@@ -7,7 +7,7 @@ the jars manually:
 ----
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath(files("/Users/komu/src/evident/apina/apina-core/build/libs/apina-core-0.10.4.jar"))
