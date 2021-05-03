@@ -14,7 +14,6 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.*
-import org.gradle.util.GFileUtils.writeFile
 import java.io.File
 import java.util.*
 import kotlin.properties.Delegates
@@ -102,7 +101,7 @@ open class ApinaTask : DefaultTask() {
 
             val output = processor.process()
 
-            writeFile(output, target, "UTF-8")
+            target.writeText(output)
 
         } catch (e: EndpointParameterNameNotDefinedException) {
             logger.error("{}\nConsider adding 'compileJava { options.compilerArgs = ['-parameters'] }' to your build file.", e.message)
