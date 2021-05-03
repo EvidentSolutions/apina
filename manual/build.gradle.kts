@@ -1,10 +1,11 @@
 plugins {
-    id("org.asciidoctor.convert")
+    id("org.asciidoctor.jvm.convert")
     id("org.ajoberstar.github-pages")
 }
 
 tasks.asciidoctor {
-    sourceDir = file("src/asciidoc")
+    sourceDirProperty.set(file("src/asciidoc"))
+    baseDirFollowsSourceDir()
     attributes = mapOf("revnumber" to project.version.toString())
 }
 
@@ -18,6 +19,6 @@ githubPages {
 
     pages(closureOf<CopySpec> {
         from(files("src/CNAME"))
-        from(files("build/asciidoc/html5"))
+        from(files("build/docs/asciidoc"))
     })
 }
