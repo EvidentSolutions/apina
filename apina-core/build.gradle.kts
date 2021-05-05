@@ -1,7 +1,10 @@
+import java.net.URI
+
 plugins {
     kotlin("jvm")
     java
     `maven-publish`
+    signing
     id("com.github.johnrengelman.shadow")
 }
 
@@ -61,6 +64,51 @@ publishing {
             project.shadow.component(this)
             artifact(sourcesJar)
             artifact(javadocJar)
+
+            pom {
+                name.set("apina-core")
+                description.set("Tool for creating TypeScript client code from Spring controllers and Jackson classes")
+                url.set("https://github.com/evidentsolutions/apina")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("komu")
+                        name.set("Juha Komulainen")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git@github.com:evidentsolutions/apina.git")
+                    developerConnection.set("scm:git:git@github.com:evidentsolutions/apina.git")
+                    url.set("https://github.com/evidentsolutions/apina")
+                }
+            }
         }
     }
+
+    if (hasProperty("sonatypeUsername")) {
+        repositories {
+            maven {
+                name = "sonatype"
+
+                url = if (version.toString().endsWith("-SNAPSHOT"))
+                    URI("https://oss.sonatype.org/content/repositories/snapshots/")
+                else
+                    URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+
+                credentials {
+                    username = property("sonatypeUsername") as String
+                    password = property("sonatypePassword") as String
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign(publishing.publications["mavenJava"])
 }
