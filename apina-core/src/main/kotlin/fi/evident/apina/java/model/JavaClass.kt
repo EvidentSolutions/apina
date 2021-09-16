@@ -97,6 +97,14 @@ class JavaClass(
         }
     }
 
+    /**
+     * Kotlin compiler generates synthetic methods for properties
+     */
+    fun findExtraAnnotationSource(getter: JavaMethod): JavaAnnotatedElement? {
+        val name = "${getter.name}\$annotations"
+        return methods.find { it.name == name }
+    }
+
     override fun toString() = type.toString()
 
     fun getField(name: String): JavaField =
