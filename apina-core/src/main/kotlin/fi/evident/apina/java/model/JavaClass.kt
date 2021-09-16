@@ -2,6 +2,9 @@ package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeSchema
+import kotlinx.metadata.KmClass
+import kotlinx.metadata.jvm.KotlinClassHeader
+import kotlinx.metadata.jvm.KotlinClassMetadata
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Modifier
 import java.util.*
@@ -79,6 +82,21 @@ class JavaClass(
             return fields.filter { it.isEnumConstant }.map { it.name }
         }
 
+    val kotlinMetadata: KmClass? by lazy {
+        findAnnotation(KOTLIN_METADATA_ANNOTATION)?.let { metadata ->
+            val header = KotlinClassHeader(
+                kind = metadata.getAttribute("k"),
+                metadataVersion = metadata.getAttribute("mv"),
+                data1 = metadata.getAttribute("d1"),
+                data2 = metadata.getAttribute("d2"),
+                extraString = metadata.getAttribute("xs"),
+                packageName = metadata.getAttribute("pn"),
+                extraInt = metadata.getAttribute("xi")
+            )
+            (KotlinClassMetadata.read(header) as? KotlinClassMetadata.Class)?.toKmClass()
+        }
+    }
+
     override fun toString() = type.toString()
 
     fun getField(name: String): JavaField =
@@ -95,5 +113,6 @@ class JavaClass(
 
     companion object {
         private val ANNOTATION_TYPE = JavaType.Basic(Annotation::class.java)
+        private val KOTLIN_METADATA_ANNOTATION = JavaType.Basic(Metadata::class.java)
     }
 }

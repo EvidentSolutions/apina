@@ -9,6 +9,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @Suppress("UNUSED_PARAMETER")
@@ -39,6 +40,20 @@ class ClassMetadataReaderTest {
 
         assertTrue(javaClass.isEnum)
         assertEquals(listOf("FOO", "BAR", "BAZ"), javaClass.enumConstants)
+    }
+
+    @Test
+    fun `kotlin metadata`() {
+        val metadata = loadClass(TestKotlinClass::class.java).kotlinMetadata
+        assertNotNull(metadata)
+
+        assertEquals(setOf("foo", "bar"), metadata.properties.map { it.name }.toSet())
+    }
+
+    @Suppress("unused")
+    private class TestKotlinClass {
+        val foo = ""
+        val bar = ""
     }
 
     @Suppress("unused")

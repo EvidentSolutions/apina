@@ -10,16 +10,17 @@ plugins {
 
 val kotlinVersion: String by rootProject.extra
 val asmVersion: String by rootProject.extra
+val kotlinMetadataVersion = "0.3.0"
 
 dependencies {
     // We have to define explicit version here or invalid POM is generated
     shadow(kotlin("stdlib", kotlinVersion))
     shadow("org.slf4j:slf4j-api:1.7.32")
-
+    shadow("org.jetbrains.kotlinx:kotlinx-metadata-jvm:$kotlinMetadataVersion")
     implementation("org.ow2.asm:asm:$asmVersion")
 
     testImplementation(kotlin("test"))
-
+    testImplementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:$kotlinMetadataVersion")
     testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.12.5")
     testImplementation("org.springframework:spring-web:5.3.9")
     testImplementation("org.springframework.data:spring-data-commons:2.5.4")
