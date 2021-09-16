@@ -7,6 +7,7 @@ sealed class ApiType {
     abstract fun toTypeScript(optionalTypeMode: OptionalTypeMode): String
     abstract fun toSwift(): String
     open fun unwrapNullable(): ApiType = this
+    open fun nullable(): Nullable = Nullable(this)
 
     abstract override fun equals(other: Any?): Boolean
     abstract override fun hashCode(): Int
@@ -44,6 +45,7 @@ sealed class ApiType {
         }
         override fun toSwift() = type.toSwift() + "?"
         override fun unwrapNullable() = type
+        override fun nullable(): Nullable = this
     }
 
     class Primitive private constructor(

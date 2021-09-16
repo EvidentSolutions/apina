@@ -21,6 +21,7 @@ internal class TypeTranslator(
 ) {
 
     private val jacksonTypeTranslator = JacksonTypeTranslator(this, classes, api)
+    private val kotlinSerializationTypeTranslator = KotlinSerializationTypeTranslator(this, classes, api)
 
     /**
      * Maps translated simple names back to their original types.
@@ -30,10 +31,7 @@ internal class TypeTranslator(
 
     fun translateType(javaType: JavaType, element: JavaAnnotatedElement, env: TypeEnvironment): ApiType {
         val type = translateType(javaType, env)
-        return if (element.hasNullableAnnotation)
-            ApiType.Nullable(type)
-        else
-            type
+        return if (element.hasNullableAnnotation) type.nullable() else type
     }
 
     fun translateType(type: JavaType, env: TypeEnvironment): ApiType = when (type) {
@@ -105,7 +103,10 @@ internal class TypeTranslator(
         val javaClass = classes.findClass(type.name) ?:
             return ApiType.Class(typeName)
 
-        return jacksonTypeTranslator.translateClass(javaClass, typeName, env)
+        if (kotlinSerializationTypeTranslator.supports(javaClass))
+            return kotlinSerializationTypeTranslator.translateClass(javaClass, typeName, env)
+        else
+            return jacksonTypeTranslator.translateClass(javaClass, typeName, env)
     }
 
     private fun translateParameterizedType(type: JavaType.Parameterized, env: TypeEnvironment): ApiType {

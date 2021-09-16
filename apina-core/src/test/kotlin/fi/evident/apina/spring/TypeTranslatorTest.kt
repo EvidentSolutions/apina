@@ -1,3 +1,5 @@
+@file:Suppress("PLUGIN_IS_NOT_ENABLED")
+
 package fi.evident.apina.spring
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
@@ -20,6 +22,7 @@ import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.testclasses.*
+import kotlinx.serialization.SerialName
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,6 +31,8 @@ import java.util.Collections.singletonMap
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlinx.serialization.Serializable
+import kotlin.test.fail
 
 class TypeTranslatorTest {
 
@@ -375,6 +380,65 @@ class TypeTranslatorTest {
         settings.nameTranslator.registerClassName(Foo::class.java.name, "MyOverriddenFoo")
 
         assertEquals("MyOverriddenFoo", translateClass<Foo>().type.name)
+    }
+
+    @Nested
+    inner class `kotlin serialization` {
+
+        @Test
+        fun `basic class definition`() {
+
+            @Suppress("unused")
+            @kotlinx.serialization.Serializable
+            class Example(
+                val normalProperty: String,
+                @kotlinx.serialization.Transient val ignoredProperty: String = "",
+                @kotlinx.serialization.SerialName("overriddenName") val propertyWithOverriddenName: String,
+                val fieldWithDefaultWillBeNullable: Int = 42,
+                @kotlinx.serialization.Required val requiredFieldWithDefaultWillNotBeNullable: Int = 42
+            )
+
+            val classDefinition = translateClass<Example>()
+
+            assertThat(classDefinition.properties, hasProperties(
+                property("normalProperty", ApiType.Primitive.STRING),
+                property("overriddenName", ApiType.Primitive.STRING),
+                property("fieldWithDefaultWillBeNullable", ApiType.Primitive.INTEGER.nullable()),
+                property("requiredFieldWithDefaultWillNotBeNullable", ApiType.Primitive.INTEGER)))
+        }
+
+        @Test
+        fun `discriminated unions`() {
+            val model = JavaModel(TestClassMetadataLoader().apply {
+                loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion>()
+                loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithCustomDiscriminator>()
+                loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator>()
+            })
+
+            val api = ApiDefinition()
+            val translator = TypeTranslator(settings, model, api)
+            translator.translateType(JavaType.basic<KotlinSerializationDiscriminatedUnion>(), MockAnnotatedElement(), TypeEnvironment.empty())
+
+            val definition = api.discriminatedUnionDefinitions.find { it.type.name == KotlinSerializationDiscriminatedUnion::class.simpleName }
+                ?: fail("could not find union")
+
+            assertEquals("type", definition.discriminator)
+
+            assertEquals(
+                setOf("CustomDiscriminator", KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator::class.qualifiedName),
+                definition.types.keys)
+        }
+    }
+
+    @kotlinx.serialization.Serializable
+    sealed class KotlinSerializationDiscriminatedUnion {
+
+        @Serializable
+        class SubClassWithDefaultDiscriminator(val x: Int) : KotlinSerializationDiscriminatedUnion()
+
+        @kotlinx.serialization.Serializable
+        @kotlinx.serialization.SerialName("CustomDiscriminator")
+        class SubClassWithCustomDiscriminator(val y: Int) : KotlinSerializationDiscriminatedUnion()
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")

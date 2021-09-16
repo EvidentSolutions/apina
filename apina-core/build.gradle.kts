@@ -26,6 +26,7 @@ dependencies {
     testImplementation("org.springframework.data:spring-data-commons:2.5.4")
     testImplementation("org.hamcrest:hamcrest-all:1.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.2.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 

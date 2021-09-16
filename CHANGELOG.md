@@ -1,3 +1,9 @@
+# 0.17.0 (unreleased)
+
+- Update ASM to 9.2, supporting Java 18
+- Initial support for [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization) as an alternative 
+  to Jackson 
+
 # 0.16.0 (2021-05-03)
 
 - Bump Gradle version to 7.0
