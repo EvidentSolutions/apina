@@ -32,15 +32,22 @@ class JavaAnnotation(val name: JavaType.Basic) {
     fun <T : Any> getAttribute(name: String, type: Class<T>): T? {
         val value = attributes[name] ?: return null
 
-        if (value.javaClass.isArray && !type.isArray) {
-            val length = ReflectArray.getLength(value)
-            if (length == 1)
-                return type.cast(ReflectArray.get(value, 0))
-            else
-                error("Expected single element for attribute '$name' of ${this.name}, but got $length")
-        }
-
-        return type.cast(value)
+        return type.cast(when {
+            value.javaClass.isArray && type.isArray && !type.componentType.isAssignableFrom(value.javaClass.componentType) -> {
+                val length = ReflectArray.getLength(value)
+                val array = ReflectArray.newInstance(type.componentType, length)
+                System.arraycopy(value, 0, array, 0, length)
+                array
+            }
+            value.javaClass.isArray && !type.isArray -> {
+                val length = ReflectArray.getLength(value)
+                if (length == 1)
+                    ReflectArray.get(value, 0)
+                else
+                    error("Expected single element for attribute '$name' of ${this.name}, but got $length")
+            }
+            else -> value
+        })
     }
 
     fun getAttributeValues(name: String): List<Any?> = when (val value = attributes[name]) {
