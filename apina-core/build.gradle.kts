@@ -14,13 +14,15 @@ val asmVersion: String by rootProject.extra
 dependencies {
     // We have to define explicit version here or invalid POM is generated
     shadow(kotlin("stdlib", kotlinVersion))
-    shadow("org.slf4j:slf4j-api:1.7.12")
+    shadow("org.slf4j:slf4j-api:1.7.32")
+
     implementation("org.ow2.asm:asm:$asmVersion")
 
     testImplementation(kotlin("test"))
-    testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.8.6")
-    testImplementation("org.springframework:spring-web:4.3.5.RELEASE")
-    testImplementation("org.springframework.data:spring-data-commons:2.2.6.RELEASE")
+
+    testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.12.5")
+    testImplementation("org.springframework:spring-web:5.3.9")
+    testImplementation("org.springframework.data:spring-data-commons:2.5.4")
     testImplementation("org.hamcrest:hamcrest-all:1.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
@@ -58,6 +60,9 @@ tasks.jar {
 artifacts.add(configurations.archives.name, tasks.shadowJar)
 artifacts.add(configurations.archives.name, sourcesJar)
 artifacts.add(configurations.archives.name, javadocJar)
+repositories {
+    mavenCentral()
+}
 
 publishing {
     publications {

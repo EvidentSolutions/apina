@@ -9,10 +9,12 @@ plugins {
 }
 
 val kotlinVersion: String by rootProject.extra
+val asmVersion: String by rootProject.extra
 
 dependencies {
     implementation(project(":apina-core", "shadow"))
-    implementation("ch.qos.logback:logback-classic:1.1.3")
+    implementation("org.ow2.asm:asm:$asmVersion")
+    implementation("ch.qos.logback:logback-classic:1.2.5")
     implementation(kotlin("stdlib", kotlinVersion))
 }
 
