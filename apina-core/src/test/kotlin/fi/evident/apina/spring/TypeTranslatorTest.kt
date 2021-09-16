@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-class JacksonTypeTranslatorTest {
+class TypeTranslatorTest {
 
     private val settings = TranslationSettings()
 
@@ -118,7 +118,7 @@ class JacksonTypeTranslatorTest {
         loader.addClass(class1)
         loader.addClass(class2)
         val classes = JavaModel(loader)
-        val translator = JacksonTypeTranslator(settings, classes, ApiDefinition())
+        val translator = TypeTranslator(settings, classes, ApiDefinition())
         val env = TypeEnvironment.empty()
 
         translator.translateType(class1.type, class1, env)
@@ -233,7 +233,7 @@ class JacksonTypeTranslatorTest {
             loadClassesFromInheritanceTree<Bar>()
         })
         val api = ApiDefinition()
-        val translator = JacksonTypeTranslator(settings, model, api)
+        val translator = TypeTranslator(settings, model, api)
         translator.translateType(JavaType.basic<Root>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
         assertTrue(api.classDefinitions.any { it.type.name == "Foo" }, "Class definition for Foo is created")
@@ -274,7 +274,7 @@ class JacksonTypeTranslatorTest {
             })
 
             val api = ApiDefinition()
-            val translator = JacksonTypeTranslator(settings, model, api)
+            val translator = TypeTranslator(settings, model, api)
             translator.translateType(JavaType.basic<Vehicle>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
             assertEquals(1, api.discriminatedUnionDefinitions.size)
@@ -301,7 +301,7 @@ class JacksonTypeTranslatorTest {
             })
 
             val api = ApiDefinition()
-            val translator = JacksonTypeTranslator(settings, model, api)
+            val translator = TypeTranslator(settings, model, api)
             translator.translateType(JavaType.basic<Vehicle2>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
             assertEquals(1, api.discriminatedUnionDefinitions.size)
@@ -334,7 +334,7 @@ class JacksonTypeTranslatorTest {
         })
 
         val api = ApiDefinition()
-        val translator = JacksonTypeTranslator(settings, model, api)
+        val translator = TypeTranslator(settings, model, api)
         translator.translateType(JavaType.basic<Person>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
         assertEquals(1, api.classDefinitionCount)
@@ -358,7 +358,7 @@ class JacksonTypeTranslatorTest {
         })
 
         val api = ApiDefinition()
-        val translator = JacksonTypeTranslator(settings, model, api)
+        val translator = TypeTranslator(settings, model, api)
         translator.translateType(JavaType.basic<Person>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
         assertEquals(1, api.classDefinitionCount)
@@ -398,7 +398,7 @@ class JacksonTypeTranslatorTest {
     private fun translateType(type: JavaType): ApiType {
         val classes = JavaModel(TestClassMetadataLoader())
         val api = ApiDefinition()
-        val translator = JacksonTypeTranslator(settings, classes, api)
+        val translator = TypeTranslator(settings, classes, api)
 
         return translator.translateType(type, MockAnnotatedElement(), TypeEnvironment.empty()) // TODO: create environment from type
     }
@@ -423,7 +423,7 @@ class JacksonTypeTranslatorTest {
         val model = JavaModel(TestClassMetadataLoader().apply {
             loadClassesFromInheritanceTree<T>()
         })
-        val translator = JacksonTypeTranslator(settings, model, api)
+        val translator = TypeTranslator(settings, model, api)
 
         return translator.translateType(JavaType.basic<T>(), MockAnnotatedElement(), TypeEnvironment.empty())
     }

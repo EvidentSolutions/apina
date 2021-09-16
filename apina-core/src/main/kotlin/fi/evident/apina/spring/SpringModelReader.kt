@@ -30,7 +30,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
 
     private val api = ApiDefinition()
     private val annotationResolver = SpringAnnotationResolver(classes)
-    private val typeTranslator = JacksonTypeTranslator(settings, classes, api)
+    private val typeTranslator = TypeTranslator(settings, classes, api)
 
     private fun createEndpointsForControllers() {
         for (controllerMetadata in classes.findClassesWithAnnotation(settings::isProcessableController, REST_CONTROLLER))
