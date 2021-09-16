@@ -9,12 +9,13 @@ plugins {
 }
 
 val kotlinVersion: String by rootProject.extra
+val asmVersion: String by rootProject.extra
 
 dependencies {
     // We have to define explicit version here or invalid POM is generated
     shadow(kotlin("stdlib", kotlinVersion))
     shadow("org.slf4j:slf4j-api:1.7.12")
-    implementation("org.ow2.asm:asm:8.0.1")
+    implementation("org.ow2.asm:asm:$asmVersion")
 
     testImplementation(kotlin("test"))
     testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.8.6")

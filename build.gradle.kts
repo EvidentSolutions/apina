@@ -8,6 +8,7 @@ plugins {
 }
 
 val kotlinVersion by extra("1.4.20") // duplicated from above
+val asmVersion by extra("9.2") // duplicated from above
 val junitVersion = "5.4.0"
 
 configure<VersionConfig> {
