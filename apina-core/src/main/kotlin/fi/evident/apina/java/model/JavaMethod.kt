@@ -20,6 +20,9 @@ class JavaMethod(val owningClass: JavaClass,
     val propertyName: String
         get() = propertyNameForGetter(name)
 
+    fun hasPropertyName(name: String) =
+        propertyName == name || (name.startsWith("is") && returnType == JavaType.Basic.BOOLEAN && name == this.name)
+
     val correspondingField: JavaField?
         get() = owningClass.findField(propertyName)
 

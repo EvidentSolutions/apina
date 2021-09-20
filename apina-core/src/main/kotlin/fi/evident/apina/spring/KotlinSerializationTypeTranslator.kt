@@ -87,8 +87,8 @@ internal class KotlinSerializationTypeTranslator(
         parameter: KmValueParameter,
         classDefinition: ClassDefinition
     ) {
-        val getter = javaClass.getters.find { it.propertyName == parameter.name }
-            ?: error("Cold not find getter for property ${parameter.name} of ${javaClass.name}")
+        val getter = javaClass.getters.find { it.hasPropertyName(parameter.name) }
+            ?: error("Could not find getter for property ${parameter.name} of ${javaClass.name}")
 
         val annotationSource = javaClass.findExtraAnnotationSource(getter)
         if (annotationSource?.hasAnnotation(TRANSIENT) == true)
