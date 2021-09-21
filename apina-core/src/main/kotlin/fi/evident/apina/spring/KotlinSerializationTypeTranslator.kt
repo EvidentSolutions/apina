@@ -9,7 +9,8 @@ import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import kotlinx.metadata.Flag
 import kotlinx.metadata.KmClass
-import kotlinx.metadata.KmValueParameter
+import kotlinx.metadata.KmProperty
+import kotlinx.metadata.jvm.fieldSignature
 
 /**
  * Translates kotlinx-serialization classes to model types.
@@ -40,7 +41,7 @@ internal class KotlinSerializationTypeTranslator(
                     val classDefinition = ClassDefinition(typeName)
                     // Add this before further processing because the type may be recursively referenced in definition
                     api.addClassDefinition(classDefinition)
-                    initClassDefinition(classDefinition, javaClass, metadata, env)
+                    initClassDefinition(classDefinition, javaClass, env)
                 }
             }
         }
@@ -49,7 +50,10 @@ internal class KotlinSerializationTypeTranslator(
     }
 
     private fun createDiscriminatedUnion(javaClass: JavaClass, metadata: KmClass) {
-        val union = DiscriminatedUnionDefinition(typeTranslator.classNameForType(javaClass.type.toBasicType()), discriminatorProperty)
+        val union = DiscriminatedUnionDefinition(
+            typeTranslator.classNameForType(javaClass.type.toBasicType()),
+            discriminatorProperty
+        )
 
         // Add this before further processing because the type may be recursively referenced inside subclasses
         api.addDiscriminatedUnion(union)
@@ -58,7 +62,7 @@ internal class KotlinSerializationTypeTranslator(
         for (cl in findSealedSubClasses(metadata)) {
             val name = cl.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: cl.name.replace('$', '.')
             val def = ClassDefinition(typeTranslator.classNameForType(cl.type.toBasicType()))
-            initClassDefinition(def, cl, cl.kotlinMetadata ?: error("no kotlin metadata for ${cl.name}"), TypeEnvironment.empty())
+            initClassDefinition(def, cl, TypeEnvironment.empty())
             union.addType(name, def)
         }
     }
@@ -69,35 +73,45 @@ internal class KotlinSerializationTypeTranslator(
     private fun kotlinNameToJavaName(name: String) =
         name.replace('.', '$').replace('/', '.')
 
-    private fun initClassDefinition(classDefinition: ClassDefinition,
-                                    javaClass: JavaClass,
-                                    metadata: KmClass,
-                                    env: TypeEnvironment) {
 
-        val primary = metadata.constructors.find { !Flag.Constructor.IS_SECONDARY(it.flags) }
-            ?: error("Could not find primary constructor for ${javaClass.name}")
+    private fun initClassDefinition(
+        classDefinition: ClassDefinition,
+        javaClass: JavaClass,
+        env: TypeEnvironment
+    ) {
 
-        for (parameter in primary.valueParameters)
-            processProperty(javaClass, env, parameter, classDefinition)
+        for (cl in classes.classesUpwardsFrom(BoundClass(javaClass, env))) {
+            val metadata = cl.javaClass.kotlinMetadata ?: break
+            val primaryConstructor = metadata.constructors.find { !Flag.Constructor.IS_SECONDARY(it.flags) } ?: break
+
+            for (property in metadata.properties.filter { it.fieldSignature != null }) {
+                val parameter = primaryConstructor.valueParameters.find { it.name == property.name }
+                processProperty(
+                    cl.javaClass, cl.environment, property, classDefinition,
+                    hasInitializer = parameter == null || Flag.ValueParameter.DECLARES_DEFAULT_VALUE(parameter.flags),
+                )
+            }
+        }
     }
 
     private fun processProperty(
         javaClass: JavaClass,
         env: TypeEnvironment,
-        parameter: KmValueParameter,
-        classDefinition: ClassDefinition
+        property: KmProperty,
+        classDefinition: ClassDefinition,
+        hasInitializer: Boolean
     ) {
-        val getter = javaClass.getters.find { it.hasPropertyName(parameter.name) }
-            ?: error("Could not find getter for property ${parameter.name} of ${javaClass.name}")
+        val getter = javaClass.getters.find { it.hasPropertyName(property.name) }
+            ?: error("Could not find getter for property ${property.name} of ${javaClass.name}")
 
         val annotationSource = javaClass.findExtraAnnotationSource(getter)
         if (annotationSource?.hasAnnotation(TRANSIENT) == true)
             return
 
-        val propertyName = annotationSource?.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: parameter.name
+        val propertyName = annotationSource?.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: property.name
 
         var type = typeTranslator.translateType(getter.returnType, getter, env)
-        if (Flag.ValueParameter.DECLARES_DEFAULT_VALUE(parameter.flags) && annotationSource?.findAnnotation(REQUIRED) == null)
+        if (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null)
             type = type.nullable() // TODO: strictly speaking these are undefined and not null
 
         classDefinition.addProperty(PropertyDefinition(propertyName, type))

@@ -22,7 +22,6 @@ import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.testclasses.*
-import kotlinx.serialization.SerialName
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -428,12 +427,56 @@ class TypeTranslatorTest {
                 setOf("CustomDiscriminator", KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator::class.qualifiedName),
                 definition.types.keys)
         }
+
+        @Suppress("unused")
+        @Test
+        fun `inherited fields`() {
+            @kotlinx.serialization.Serializable
+            open class ParentClass(val parentParameter: Int) {
+                var parentProperty = "string"
+                @kotlinx.serialization.Required
+                var requiredParentProperty = "string"
+
+                val propertyWithoutBackingField: String
+                    get() = "no-included"
+            }
+
+            @kotlinx.serialization.Serializable
+            class ChildClass(val ownParameter: Int) : ParentClass(42) {
+                var ownProperty = "string"
+
+                @kotlinx.serialization.Required
+                var requiredOwnProperty = "string"
+            }
+
+            val model = JavaModel(TestClassMetadataLoader().apply {
+                loadClassesFromInheritanceTree<ParentClass>()
+                loadClassesFromInheritanceTree<ChildClass>()
+            })
+
+            val api = ApiDefinition()
+            val translator = TypeTranslator(settings, model, api)
+            translator.translateType(JavaType.basic<ChildClass>(), MockAnnotatedElement(), TypeEnvironment.empty())
+
+            val classDefinition = api.classDefinitions.find { it.type.name == ChildClass::class.simpleName }
+                ?: fail("could not find class")
+
+            println(classDefinition.properties)
+
+            assertThat(classDefinition.properties, hasProperties(
+                property("ownParameter", ApiType.Primitive.INTEGER),
+                property("ownProperty", ApiType.Primitive.STRING.nullable()),
+                property("requiredOwnProperty", ApiType.Primitive.STRING),
+                property("parentParameter", ApiType.Primitive.INTEGER),
+                property("parentProperty", ApiType.Primitive.STRING.nullable()),
+                property("requiredParentProperty", ApiType.Primitive.STRING)))
+        }
     }
 
     @kotlinx.serialization.Serializable
     sealed class KotlinSerializationDiscriminatedUnion {
 
-        @Serializable
+        @kotlinx.serialization.Serializable
         class SubClassWithDefaultDiscriminator(val x: Int) : KotlinSerializationDiscriminatedUnion()
 
         @kotlinx.serialization.Serializable
