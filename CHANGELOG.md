@@ -1,3 +1,7 @@
+# 0.17.1 (2021-09-21)
+
+- Improved Kotlin Serialization -support: handle non-constructor properties and inheritance
+
 # 0.17.0 (2021-09-17)
 
 - Update ASM to 9.2, supporting Java 18
