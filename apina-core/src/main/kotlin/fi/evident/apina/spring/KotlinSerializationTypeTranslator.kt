@@ -102,15 +102,18 @@ internal class KotlinSerializationTypeTranslator(
         hasInitializer: Boolean
     ) {
         val getter = javaClass.getters.find { it.hasPropertyName(property.name) }
-            ?: error("Could not find getter for property ${property.name} of ${javaClass.name}")
+        val field = javaClass.findField(property.name)
+        val javaType = getter?.returnType
+            ?: field?.type
+            ?: error("No getter or field found for property ${property.name} in ${javaClass.name}")
 
-        val annotationSource = javaClass.findExtraAnnotationSource(getter)
+        val annotationSource = javaClass.findExtraAnnotationSource(property.name)
         if (annotationSource?.hasAnnotation(TRANSIENT) == true)
             return
 
         val propertyName = annotationSource?.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: property.name
 
-        var type = typeTranslator.translateType(getter.returnType, getter, env)
+        var type = typeTranslator.translateType(javaType, env)
         if (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null)
             type = type.nullable() // TODO: strictly speaking these are undefined and not null
 

@@ -22,6 +22,7 @@ import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.testclasses.*
+import kotlinx.serialization.SerialName
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -434,6 +435,7 @@ class TypeTranslatorTest {
             @kotlinx.serialization.Serializable
             open class ParentClass(val parentParameter: Int) {
                 var parentProperty = "string"
+
                 @kotlinx.serialization.Required
                 var requiredParentProperty = "string"
 
@@ -447,6 +449,20 @@ class TypeTranslatorTest {
 
                 @kotlinx.serialization.Required
                 var requiredOwnProperty = "string"
+
+                @kotlinx.serialization.Transient
+                private var transientPrivateProperty = "42"
+
+                @SerialName("renamedPrivatePropertyNewName")
+                private var renamedPrivateProperty = "42"
+
+                private var privateProperty = "42"
+
+                @kotlinx.serialization.Required
+                private var requiredPrivateProperty = "42"
+
+                @kotlinx.serialization.Required
+                private var isProperty = false
             }
 
             val model = JavaModel(TestClassMetadataLoader().apply {
@@ -467,6 +483,10 @@ class TypeTranslatorTest {
                 property("ownParameter", ApiType.Primitive.INTEGER),
                 property("ownProperty", ApiType.Primitive.STRING.nullable()),
                 property("requiredOwnProperty", ApiType.Primitive.STRING),
+                property("privateProperty", ApiType.Primitive.STRING.nullable()),
+                property("renamedPrivatePropertyNewName", ApiType.Primitive.STRING.nullable()),
+                property("requiredPrivateProperty", ApiType.Primitive.STRING),
+                property("isProperty", ApiType.Primitive.BOOLEAN),
                 property("parentParameter", ApiType.Primitive.INTEGER),
                 property("parentProperty", ApiType.Primitive.STRING.nullable()),
                 property("requiredParentProperty", ApiType.Primitive.STRING)))
