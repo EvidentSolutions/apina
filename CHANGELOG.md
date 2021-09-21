@@ -1,3 +1,7 @@
+# 0.17.3 (2021-09-21)
+
+- Improved nullability annotation handling in Kotlin Serialization
+
 # 0.17.2 (2021-09-21)
 
 - Support private properties in Kotlin Serialization
