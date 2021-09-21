@@ -1,3 +1,7 @@
+# 0.17.2 (2021-09-21)
+
+- Support private properties in Kotlin Serialization
+
 # 0.17.1 (2021-09-21)
 
 - Improved Kotlin Serialization -support: handle non-constructor properties and inheritance
