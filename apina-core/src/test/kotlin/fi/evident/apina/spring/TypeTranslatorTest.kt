@@ -395,7 +395,8 @@ class TypeTranslatorTest {
                 @kotlinx.serialization.Transient val ignoredProperty: String = "",
                 @kotlinx.serialization.SerialName("overriddenName") val propertyWithOverriddenName: String,
                 val fieldWithDefaultWillBeNullable: Int = 42,
-                @kotlinx.serialization.Required val requiredFieldWithDefaultWillNotBeNullable: Int = 42
+                @kotlinx.serialization.Required val requiredFieldWithDefaultWillNotBeNullable: Int = 42,
+                val nullableParameter: Int?
             )
 
             val classDefinition = translateClass<Example>()
@@ -404,6 +405,7 @@ class TypeTranslatorTest {
                 property("normalProperty", ApiType.Primitive.STRING),
                 property("overriddenName", ApiType.Primitive.STRING),
                 property("fieldWithDefaultWillBeNullable", ApiType.Primitive.INTEGER.nullable()),
+                property("nullableParameter", ApiType.Primitive.INTEGER.nullable()),
                 property("requiredFieldWithDefaultWillNotBeNullable", ApiType.Primitive.INTEGER)))
         }
 
@@ -476,8 +478,6 @@ class TypeTranslatorTest {
 
             val classDefinition = api.classDefinitions.find { it.type.name == ChildClass::class.simpleName }
                 ?: fail("could not find class")
-
-            println(classDefinition.properties)
 
             assertThat(classDefinition.properties, hasProperties(
                 property("ownParameter", ApiType.Primitive.INTEGER),

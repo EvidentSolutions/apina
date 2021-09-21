@@ -114,7 +114,7 @@ internal class KotlinSerializationTypeTranslator(
         val propertyName = annotationSource?.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: property.name
 
         var type = typeTranslator.translateType(javaType, env)
-        if (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null)
+        if (getter?.hasNullableAnnotation == true || field?.hasNullableAnnotation == true || (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null))
             type = type.nullable() // TODO: strictly speaking these are undefined and not null
 
         classDefinition.addProperty(PropertyDefinition(propertyName, type))
