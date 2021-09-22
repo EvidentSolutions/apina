@@ -1,3 +1,7 @@
+# 0.17.4 (2021-09-22)
+
+- Improve superclass lookup with Kotlin Serialization
+
 # 0.17.3 (2021-09-21)
 
 - Improved nullability annotation handling in Kotlin Serialization
