@@ -80,9 +80,10 @@ internal class KotlinSerializationTypeTranslator(
         env: TypeEnvironment
     ) {
 
-        for (cl in classes.classesUpwardsFrom(BoundClass(javaClass, env))) {
-            val metadata = cl.javaClass.kotlinMetadata ?: break
-            val primaryConstructor = metadata.constructors.find { !Flag.Constructor.IS_SECONDARY(it.flags) } ?: break
+        val classesUpwardsFrom = classes.classesUpwardsFrom(BoundClass(javaClass, env))
+        for (cl in classesUpwardsFrom) {
+            val metadata = cl.javaClass.kotlinMetadata ?: continue
+            val primaryConstructor = metadata.constructors.find { !Flag.Constructor.IS_SECONDARY(it.flags) } ?: continue
 
             for (property in metadata.properties.filter { it.fieldSignature != null }) {
                 val parameter = primaryConstructor.valueParameters.find { it.name == property.name }
