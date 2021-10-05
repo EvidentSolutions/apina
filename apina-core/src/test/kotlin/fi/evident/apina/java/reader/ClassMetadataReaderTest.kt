@@ -84,6 +84,9 @@ class ClassMetadataReaderTest {
     }
 
     private object AnonymousInnerClassWithOuterBounds {
-        fun <T> createInnerClassInstance(): Comparator<T> = Comparator { _, _ -> 0 }
+        @Suppress("ObjectLiteralToLambda")
+        fun <T> createInnerClassInstance(): Comparator<T> = object: Comparator<T> {
+            override fun compare(o1: T, o2: T) = 0
+        }
     }
 }
