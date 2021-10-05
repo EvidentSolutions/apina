@@ -1,7 +1,5 @@
 package fi.evident.apina.utils
 
-import java.util.Locale
-
 fun propertyNameForGetter(getterName: String): String =
     when {
         // Value/inline classes result in name suffixed with hash
@@ -11,9 +9,7 @@ fun propertyNameForGetter(getterName: String): String =
 
 private fun propertyNameForSimpleGetter(getterName: String): String =
     when {
-        getterName.startsWith("get") -> getterName.removePrefix("get")
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }
-        getterName.startsWith("is") -> getterName.removePrefix("is")
-            .replaceFirstChar { it.lowercase(Locale.getDefault()) }
+        getterName.startsWith("get") -> getterName.removePrefix("get").decapitalize()
+        getterName.startsWith("is") -> getterName.removePrefix("is").decapitalize()
         else -> error("not a valid name for getter $getterName")
     }
