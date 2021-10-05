@@ -28,7 +28,7 @@ class SkipZipPrefixStream(stream: InputStream) : InputStream() {
                     return -1
 
                 stream.reset()
-                if (count == 2 && buffer[0] == 'P'.toByte() && buffer[1] == 'K'.toByte())
+                if (count == 2 && buffer[0] == 'P'.code.toByte() && buffer[1] == 'K'.code.toByte())
                     break
                 else
                     stream.skip(1)

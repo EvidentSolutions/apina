@@ -5,19 +5,19 @@ import org.objectweb.asm.Opcodes
 enum class JavaVisibility {
     PUBLIC, PROTECTED, PACKAGE, PRIVATE;
 
-    override fun toString() = name.toLowerCase()
+    override fun toString() = name.lowercase()
 
     companion object {
 
         fun fromAccessFlags(access: Int): JavaVisibility = when {
             access and Opcodes.ACC_PUBLIC != 0 ->
-                JavaVisibility.PUBLIC
+                PUBLIC
             access and Opcodes.ACC_PROTECTED != 0 ->
-                JavaVisibility.PROTECTED
+                PROTECTED
             access and Opcodes.ACC_PRIVATE != 0 ->
-                JavaVisibility.PRIVATE
+                PRIVATE
             else ->
-                JavaVisibility.PACKAGE
+                PACKAGE
         }
     }
 }

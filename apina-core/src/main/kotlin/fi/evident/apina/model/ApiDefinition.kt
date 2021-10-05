@@ -74,7 +74,7 @@ class ApiDefinition {
         get() = _endpointGroups.size
 
     val endpointCount: Int
-        get() = _endpointGroups.sumBy { it.endpointCount }
+        get() = _endpointGroups.sumOf { it.endpointCount }
 
     val classDefinitionCount: Int
         get() = _classDefinitions.size

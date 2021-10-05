@@ -38,19 +38,19 @@ internal class CommandLineArguments {
 
         val platform = parseOptionalWithValue("platform", arg)
         if (platform != null) {
-            this.platform = Platform.valueOf(platform.toUpperCase())
+            this.platform = Platform.valueOf(platform.uppercase())
             return
         }
 
         val typeWriteMode = parseOptionalWithValue("type-write-mode", arg)
         if (typeWriteMode != null) {
-            this.typeWriteMode = TypeWriteMode.valueOf(typeWriteMode.toUpperCase())
+            this.typeWriteMode = TypeWriteMode.valueOf(typeWriteMode.uppercase())
             return
         }
 
         val optionalTypeMode = parseOptionalWithValue("optional-type-mode", arg)
         if (optionalTypeMode != null) {
-            this.optionalTypeMode = OptionalTypeMode.valueOf(optionalTypeMode.toUpperCase())
+            this.optionalTypeMode = OptionalTypeMode.valueOf(optionalTypeMode.uppercase())
             return
         }
 

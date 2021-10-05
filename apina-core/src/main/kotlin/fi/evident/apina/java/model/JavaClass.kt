@@ -2,7 +2,6 @@ package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeSchema
-import fi.evident.apina.utils.propertyNameForGetter
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
@@ -103,7 +102,7 @@ class JavaClass(
      */
     fun findExtraAnnotationSource(propertyName: String): JavaAnnotatedElement? {
         val basicName = "$propertyName\$annotations"
-        val getterName = "get" + basicName[0].toTitleCase() + basicName.substring(1)
+        val getterName = "get" + basicName.replaceFirstChar { it.titlecaseChar() }
         return methods.find { it.name == basicName || it.name == getterName }
     }
 
