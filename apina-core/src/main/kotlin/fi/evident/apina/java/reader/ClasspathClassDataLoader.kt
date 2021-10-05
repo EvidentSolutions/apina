@@ -87,7 +87,7 @@ class ClasspathClassDataLoader(classpath: Classpath) : ClassDataLoader, Closeabl
 
             if (entry.name.isProcessedClassFile()) {
                 log.trace("Processing class-file {} from {}", entry.name, stream)
-                addClassSupplier(entry.name.toClassName(), LazyClassData(jar.readBytes(entry.size.toInt())))
+                addClassSupplier(entry.name.toClassName(), LazyClassData(jar.readBytes()))
 
             } else if (entry.isNestedArchive()) {
                 log.trace("Processing nested library {}", entry.name)
