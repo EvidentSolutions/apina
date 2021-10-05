@@ -7,7 +7,6 @@ plugins {
     kotlin("jvm") version "1.4.20" apply false
 }
 
-val kotlinVersion by extra("1.4.20") // duplicated from above
 val asmVersion by extra("9.2") // duplicated from above
 val junitVersion = "5.7.2"
 

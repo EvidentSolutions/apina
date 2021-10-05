@@ -8,13 +8,12 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
-val kotlinVersion: String by rootProject.extra
 val asmVersion: String by rootProject.extra
 val kotlinMetadataVersion = "0.3.0"
 
 dependencies {
     // We have to define explicit version here or invalid POM is generated
-    shadow(kotlin("stdlib", kotlinVersion))
+    shadow(kotlin("stdlib"))
     shadow("org.slf4j:slf4j-api:1.7.32")
     shadow("org.jetbrains.kotlinx:kotlinx-metadata-jvm:$kotlinMetadataVersion")
     implementation("org.ow2.asm:asm:$asmVersion")

@@ -8,14 +8,13 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
-val kotlinVersion: String by rootProject.extra
 val asmVersion: String by rootProject.extra
 
 dependencies {
     implementation(project(":apina-core", "shadow"))
     implementation("org.ow2.asm:asm:$asmVersion")
     implementation("ch.qos.logback:logback-classic:1.2.5")
-    implementation(kotlin("stdlib", kotlinVersion))
+    implementation(kotlin("stdlib"))
 }
 
 application {

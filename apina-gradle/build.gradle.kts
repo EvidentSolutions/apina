@@ -5,8 +5,6 @@ plugins {
     `java-gradle-plugin`
 }
 
-val kotlinVersion: String by rootProject.extra
-
 val shadowImplementation by configurations.creating
 configurations["compileOnly"].extendsFrom(shadowImplementation)
 configurations["testImplementation"].extendsFrom(shadowImplementation)
@@ -14,7 +12,7 @@ configurations["testImplementation"].extendsFrom(shadowImplementation)
 dependencies {
     shadowImplementation(project(":apina-core", "shadow"))
     compileOnly(gradleApi())
-    compileOnly(kotlin("stdlib", kotlinVersion))
+    compileOnly(kotlin("stdlib"))
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
