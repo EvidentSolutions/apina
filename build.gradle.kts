@@ -4,7 +4,7 @@ import pl.allegro.tech.build.axion.release.domain.VersionConfig
 
 plugins {
     id("pl.allegro.tech.build.axion-release") version "1.4.1"
-    kotlin("jvm") version "1.4.20" apply false
+    kotlin("jvm") version "1.5.31" apply false
 }
 
 val asmVersion by extra("9.2") // duplicated from above
