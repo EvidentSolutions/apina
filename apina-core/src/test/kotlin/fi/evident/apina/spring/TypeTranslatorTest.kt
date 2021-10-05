@@ -31,12 +31,22 @@ import java.util.Collections.singletonMap
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import kotlinx.serialization.Serializable
 import kotlin.test.fail
 
 class TypeTranslatorTest {
 
     private val settings = TranslationSettings()
+
+    @Test
+    fun translatingClassWithValueAndInlineClasses() {
+        val classDefinition = translateClass<ClassWithValueClasses>()
+
+        assertEquals(ApiTypeName(ClassWithValueClasses::class.java.simpleName), classDefinition.type)
+        assertThat(classDefinition.properties, hasProperties(
+            property("valueString", ApiType.Primitive.STRING),
+            property("valueInteger", ApiType.Primitive.INTEGER),
+            property("privateValue", ApiType.Primitive.STRING)))
+    }
 
     @Test
     fun translatingClassWithFieldProperties() {
