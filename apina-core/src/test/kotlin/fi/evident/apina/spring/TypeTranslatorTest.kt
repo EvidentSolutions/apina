@@ -406,7 +406,8 @@ class TypeTranslatorTest {
                 @kotlinx.serialization.SerialName("overriddenName") val propertyWithOverriddenName: String,
                 val fieldWithDefaultWillBeNullable: Int = 42,
                 @kotlinx.serialization.Required val requiredFieldWithDefaultWillNotBeNullable: Int = 42,
-                val nullableParameter: Int?
+                val nullableParameter: Int?,
+                val valueString: ValueString
             )
 
             val classDefinition = translateClass<Example>()
@@ -416,7 +417,8 @@ class TypeTranslatorTest {
                 property("overriddenName", ApiType.Primitive.STRING),
                 property("fieldWithDefaultWillBeNullable", ApiType.Primitive.INTEGER.nullable()),
                 property("nullableParameter", ApiType.Primitive.INTEGER.nullable()),
-                property("requiredFieldWithDefaultWillNotBeNullable", ApiType.Primitive.INTEGER)))
+                property("requiredFieldWithDefaultWillNotBeNullable", ApiType.Primitive.INTEGER),
+                property("valueString", ApiType.Primitive.STRING)))
         }
 
         @Test
