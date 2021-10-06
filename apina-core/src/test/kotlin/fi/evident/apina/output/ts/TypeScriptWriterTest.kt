@@ -45,28 +45,28 @@ class TypeScriptWriterTest {
     }
 
     @Test
-    fun stringValues() {
+    fun `string values`() {
         writer.writeValue("foo 'bar' baz\nquux")
 
         assertEquals("'foo \\'bar\\' baz\\nquux'", writer.output)
     }
 
     @Test
-    fun numberValues() {
+    fun `number values`() {
         writer.writeValue(42)
 
         assertEquals("42", writer.output)
     }
 
     @Test
-    fun booleanValues() {
+    fun `boolean values`() {
         writer.writeValue(false)
 
         assertEquals("false", writer.output)
     }
 
     @Test
-    fun mapValues() {
+    fun `map values`() {
         writer.writeValue(mapOf(
                 "foo" to 1,
                 "bar" to 2,
@@ -82,14 +82,14 @@ class TypeScriptWriterTest {
     }
 
     @Test
-    fun emptyMapValues() {
+    fun `empty map values`() {
         writer.writeValue(emptyMap<Any, Any>())
 
         assertEquals("{}", writer.output)
     }
 
     @Test
-    fun collectionValues() {
+    fun `collection values`() {
         writer.writeValue(listOf(1, 2, 3))
 
         assertEquals("[1, 2, 3]", writer.output)

@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class PropertyDefinitionTest {
 
     @Test
-    fun toStringRepresentation() {
+    fun `toString representation`() {
         assertEquals("string foo", PropertyDefinition("foo", ApiType.Primitive.STRING).toString())
     }
 }

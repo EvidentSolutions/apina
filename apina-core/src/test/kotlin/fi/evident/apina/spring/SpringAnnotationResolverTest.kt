@@ -19,7 +19,7 @@ class SpringAnnotationResolverTest {
     private val resolver = SpringAnnotationResolver(model)
 
     @Test
-    fun impliedAnnotations() {
+    fun `implied annotations`() {
         loader.loadClassesFromInheritanceTree<MyClass>()
 
         val implied = resolver.findImpliedAnnotations(JavaAnnotation(JavaType.basic<MyAnnotation>()))
@@ -29,7 +29,7 @@ class SpringAnnotationResolverTest {
     }
 
     @Test
-    fun findAnnotation() {
+    fun `find annotation`() {
         loader.loadClassesFromInheritanceTree<MyClass>()
 
         val clazz = model.findClass(JavaType.basic<MyClass>())!!
@@ -40,7 +40,7 @@ class SpringAnnotationResolverTest {
     }
 
     @Test
-    fun attributesWithoutAliases() {
+    fun `attributes without aliases`() {
         loader.loadClassesFromInheritanceTree<MyController>()
 
         val requestMapping = getMethodAnnotation<MyController>("postMethod", JavaType.basic<RequestMapping>())
@@ -48,7 +48,7 @@ class SpringAnnotationResolverTest {
     }
 
     @Test
-    fun metaAnnotations() {
+    fun `meta annotations`() {
         loader.loadClassesFromInheritanceTree<MyController>()
         val controller = requireNotNull(model.findClass(JavaType.basic<MyController>()))
 
@@ -56,33 +56,33 @@ class SpringAnnotationResolverTest {
         assertNotNull(resolver.findAnnotation(controller, JavaType.basic<RestController>()))
 
         val requestMapping = resolver.getAnnotation<RequestMapping>(controller)
-        assertEquals("/base-path", requestMapping.getAttribute<String>("path"))
-        assertEquals("/base-path", requestMapping.getAttribute<String>("value"))
+        assertEquals("/base-path", requestMapping.getAttribute("path"))
+        assertEquals("/base-path", requestMapping.getAttribute("value"))
     }
 
     @Test
-    fun resolveImplicitAliases() {
+    fun `resolve implicit aliases`() {
         loader.loadClassesFromInheritanceTree<MyController>()
         loader.loadClassesFromInheritanceTree<GetMapping>()
 
         val fooAnnotation = getMethodAnnotation<MyController>("foo", JavaType.basic<RequestMapping>())
         val barAnnotation = getMethodAnnotation<MyController>("bar", JavaType.basic<RequestMapping>())
 
-        assertEquals("/foo", fooAnnotation.getAttribute<String>("path"))
-        assertEquals("/foo", fooAnnotation.getAttribute<String>("value"))
+        assertEquals("/foo", fooAnnotation.getAttribute("path"))
+        assertEquals("/foo", fooAnnotation.getAttribute("value"))
 
-        assertEquals("/bar", barAnnotation.getAttribute<String>("path"))
-        assertEquals("/bar", barAnnotation.getAttribute<String>("value"))
+        assertEquals("/bar", barAnnotation.getAttribute("path"))
+        assertEquals("/bar", barAnnotation.getAttribute("value"))
     }
 
     private inline fun <reified T : Any> getMethodAnnotation(method: String, annotationType: JavaType.Basic) =
-            requireNotNull(resolver.findAnnotation(model.getMethod<T>(method), annotationType))
+        requireNotNull(resolver.findAnnotation(model.getMethod<T>(method), annotationType))
 
     private inline fun <reified T : Any> JavaModel.getMethod(method: String): JavaMethod =
-            requireNotNull(findClass(JavaType.basic<T>())?.methods?.find { it.name == method })
+        requireNotNull(findClass(JavaType.basic<T>())?.methods?.find { it.name == method })
 
     private inline fun <reified T : Annotation> SpringAnnotationResolver.getAnnotation(element: JavaAnnotatedElement): SpringAnnotation =
-            requireNotNull(findAnnotation(element, JavaType.basic<T>()))
+        requireNotNull(findAnnotation(element, JavaType.basic<T>()))
 
     @Retention(AnnotationRetention.RUNTIME)
     private annotation class MyMetaMetaAnnotation
@@ -118,11 +118,11 @@ class SpringAnnotationResolverTest {
         fun foo() {
         }
 
-        @GetMapping(path = arrayOf("/bar"))
+        @GetMapping(path = ["/bar"])
         fun bar() {
         }
 
-        @RequestMapping(method = arrayOf(RequestMethod.POST))
+        @RequestMapping(method = [RequestMethod.POST])
         fun postMethod() {
         }
     }

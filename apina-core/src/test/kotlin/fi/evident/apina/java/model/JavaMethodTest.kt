@@ -17,8 +17,22 @@ class JavaMethodTest {
     }
 
     private fun methodWithModifiers(modifiers: Int) =
-            JavaMethod(arbitraryClass(), "foo", JavaVisibility.PUBLIC, JavaType.basic<String>(), emptyList(), modifiers, TypeSchema())
+        JavaMethod(
+            owningClass = arbitraryClass(),
+            name = "foo",
+            visibility = JavaVisibility.PUBLIC,
+            returnType = JavaType.basic<String>(),
+            parameters = emptyList(),
+            modifiers = modifiers,
+            schema = TypeSchema()
+        )
 
     private fun arbitraryClass() =
-            JavaClass(JavaType.Basic("test.Bar"), JavaType.basic<Any>(), emptyList(), 0, TypeSchema())
+        JavaClass(
+            type = JavaType.Basic("test.Bar"),
+            superClass = JavaType.basic<Any>(),
+            interfaces = emptyList(),
+            modifiers = 0,
+            schema = TypeSchema()
+        )
 }

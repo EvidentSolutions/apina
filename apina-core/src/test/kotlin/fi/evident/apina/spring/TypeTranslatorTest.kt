@@ -15,15 +15,12 @@ import fi.evident.apina.java.reader.TestClassMetadataLoader
 import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.ClassDefinition
 import fi.evident.apina.model.EnumDefinition
-import fi.evident.apina.model.ModelMatchers.hasProperties
-import fi.evident.apina.model.ModelMatchers.property
 import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.testclasses.*
 import kotlinx.serialization.SerialName
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.Collections.emptyList
@@ -35,106 +32,118 @@ import kotlin.test.fail
 
 class TypeTranslatorTest {
 
+    private val api = ApiDefinition()
     private val settings = TranslationSettings()
+    private val loader = TestClassMetadataLoader()
+    private val model = JavaModel(loader)
+    private val translator = TypeTranslator(settings, model, api)
 
     @Test
-    fun translatingClassWithValueAndInlineClasses() {
+    fun `translating class with value and inline classes`() {
         val classDefinition = translateClass<ClassWithValueClasses>()
 
         assertEquals(ApiTypeName(ClassWithValueClasses::class.java.simpleName), classDefinition.type)
-        assertThat(classDefinition.properties, hasProperties(
-            property("valueString", ApiType.Primitive.STRING),
-            property("valueInteger", ApiType.Primitive.INTEGER),
-            property("nestedValueInteger", ApiType.Primitive.INTEGER),
-            property("getterValue", ApiType.Primitive.STRING)))
+        assertHasProperties(
+            classDefinition,
+            "valueString" to ApiType.Primitive.STRING,
+            "valueInteger" to ApiType.Primitive.INTEGER,
+            "nestedValueInteger" to ApiType.Primitive.INTEGER,
+            "getterValue" to ApiType.Primitive.STRING
+        )
     }
 
     @Test
-    fun translatingClassWithFieldProperties() {
+    fun `translating class with field properties`() {
         val classDefinition = translateClass<ClassWithFieldProperties>()
 
         assertEquals(ApiTypeName(ClassWithFieldProperties::class.java.simpleName), classDefinition.type)
-        assertThat(classDefinition.properties, hasProperties(
-                property("intField", ApiType.Primitive.INTEGER),
-                property("floatField", ApiType.Primitive.FLOAT),
-                property("doubleField", ApiType.Primitive.FLOAT),
-                property("integerField", ApiType.Primitive.INTEGER),
-                property("stringField", ApiType.Primitive.STRING),
-                property("booleanField", ApiType.Primitive.BOOLEAN),
-                property("booleanNonPrimitiveField", ApiType.Primitive.BOOLEAN),
-                property("intArrayField", ApiType.Array(ApiType.Primitive.INTEGER)),
-                property("rawCollectionField", ApiType.Array(ApiType.Primitive.ANY)),
-                property("wildcardMapField", ApiType.Dictionary(ApiType.Primitive.ANY)),
-                property("rawMapField", ApiType.Dictionary(ApiType.Primitive.ANY)),
-                property("stringIntegerMapField", ApiType.Dictionary(ApiType.Primitive.INTEGER)),
-                property("objectField", ApiType.Primitive.ANY),
-                property("stringCollectionField", ApiType.Array(ApiType.Primitive.STRING))))
+        assertHasProperties(
+            classDefinition,
+            "intField" to ApiType.Primitive.INTEGER,
+            "floatField" to ApiType.Primitive.FLOAT,
+            "doubleField" to ApiType.Primitive.FLOAT,
+            "integerField" to ApiType.Primitive.INTEGER,
+            "stringField" to ApiType.Primitive.STRING,
+            "booleanField" to ApiType.Primitive.BOOLEAN,
+            "booleanNonPrimitiveField" to ApiType.Primitive.BOOLEAN,
+            "intArrayField" to ApiType.Array(ApiType.Primitive.INTEGER),
+            "rawCollectionField" to ApiType.Array(ApiType.Primitive.ANY),
+            "wildcardMapField" to ApiType.Dictionary(ApiType.Primitive.ANY),
+            "rawMapField" to ApiType.Dictionary(ApiType.Primitive.ANY),
+            "stringIntegerMapField" to ApiType.Dictionary(ApiType.Primitive.INTEGER),
+            "objectField" to ApiType.Primitive.ANY,
+            "stringCollectionField" to ApiType.Array(ApiType.Primitive.STRING)
+        )
     }
 
     @Test
-    fun translatingClassWithGetterProperties() {
+    fun `translating class with getter properties`() {
         val classDefinition = translateClass<ClassWithGetters>()
 
         assertEquals(ApiTypeName(ClassWithGetters::class.java.simpleName), classDefinition.type)
-        assertThat(classDefinition.properties, hasProperties(
-                property("int", ApiType.Primitive.INTEGER),
-                property("integer", ApiType.Primitive.INTEGER),
-                property("string", ApiType.Primitive.STRING),
-                property("boolean", ApiType.Primitive.BOOLEAN),
-                property("booleanNonPrimitive", ApiType.Primitive.BOOLEAN)))
+        assertHasProperties(
+            classDefinition,
+            "int" to ApiType.Primitive.INTEGER,
+            "integer" to ApiType.Primitive.INTEGER,
+            "string" to ApiType.Primitive.STRING,
+            "boolean" to ApiType.Primitive.BOOLEAN,
+            "booleanNonPrimitive" to ApiType.Primitive.BOOLEAN
+        )
     }
 
     @Test
-    fun translatingClassWithOverlappingFieldAndGetter() {
+    fun `translating class with overlapping field and getter`() {
         val classDefinition = translateClass<TypeWithOverlappingFieldAndGetter>()
 
-        assertThat(classDefinition.properties, hasProperties(
-                property("foo", ApiType.Primitive.STRING)))
+        assertHasProperties(classDefinition, "foo" to ApiType.Primitive.STRING)
     }
 
     @Test
-    fun translateVoidType() {
+    fun `translate void type`() {
         assertEquals(ApiType.Primitive.VOID, translateType(JavaType.Basic.VOID))
     }
 
     @Test
-    fun translateBlackBoxType() {
+    fun `translate black-box type`() {
         settings.blackBoxClasses.addPattern("foo\\..+")
 
-        assertEquals(ApiType.BlackBox(ApiTypeName("Baz")), translateType(JavaType.Basic("foo.bar.Baz")))
+        assertEquals(ApiType.BlackBox(ApiTypeName("Baz")),
+            translateType(JavaType.Basic("foo.bar.Baz"))
+        )
     }
 
     @Test
-    fun translatingOptionalTypes() {
+    fun `translating optional types`() {
         val classDefinition = translateClass<ClassWithOptionalTypes>()
 
         assertEquals(ApiTypeName(ClassWithOptionalTypes::class.java.simpleName), classDefinition.type)
-        assertThat(classDefinition.properties, hasProperties(
-                property("optionalString", ApiType.Nullable(ApiType.Primitive.STRING)),
-                property("optionalInt", ApiType.Nullable(ApiType.Primitive.INTEGER)),
-                property("optionalLong", ApiType.Nullable(ApiType.Primitive.INTEGER)),
-                property("optionalDouble", ApiType.Nullable(ApiType.Primitive.FLOAT))))
+        assertHasProperties(
+            classDefinition,
+            "optionalString" to ApiType.Nullable(ApiType.Primitive.STRING),
+            "optionalInt" to ApiType.Nullable(ApiType.Primitive.INTEGER),
+            "optionalLong" to ApiType.Nullable(ApiType.Primitive.INTEGER),
+            "optionalDouble" to ApiType.Nullable(ApiType.Primitive.FLOAT)
+        )
     }
 
     @Test
     fun `types with @JsonValue should be translated as aliased types`() {
-        val api = ApiDefinition()
-        val apiType = translateClass<ClassWithJsonValue>(api)
+        loader.loadClassesFromInheritanceTree<ClassWithJsonValue>()
+        val apiType = translateType<ClassWithJsonValue>()
 
         assertEquals(ApiType.BlackBox(ApiTypeName("ClassWithJsonValue")), apiType)
         assertEquals(singletonMap(ApiTypeName("ClassWithJsonValue"), ApiType.Primitive.STRING), api.typeAliases)
     }
 
     @Test
-    fun duplicateClassNames() {
-        val class1 = JavaClass(JavaType.Basic("foo.MyClass"), JavaType.Basic("java.lang.Object"), emptyList(), 0, TypeSchema())
-        val class2 = JavaClass(JavaType.Basic("bar.MyClass"), JavaType.Basic("java.lang.Object"), emptyList(), 0, TypeSchema())
+    fun `duplicate class names`() {
+        val class1 =
+            JavaClass(JavaType.Basic("foo.MyClass"), JavaType.Basic("java.lang.Object"), emptyList(), 0, TypeSchema())
+        val class2 =
+            JavaClass(JavaType.Basic("bar.MyClass"), JavaType.Basic("java.lang.Object"), emptyList(), 0, TypeSchema())
 
-        val loader = TestClassMetadataLoader()
         loader.addClass(class1)
         loader.addClass(class2)
-        val classes = JavaModel(loader)
-        val translator = TypeTranslator(settings, classes, ApiDefinition())
         val env = TypeEnvironment.empty()
 
         translator.translateType(class1.type, class1, env)
@@ -184,72 +193,68 @@ class TypeTranslatorTest {
     }
 
     @Test
-    fun interfaceWithProperties() {
+    fun `interface with properties`() {
         val classDefinition = translateClass<TypeWithPropertiesFromInterface>()
 
-        assertThat(classDefinition.properties, hasProperties(
-                property("foo", ApiType.Primitive.STRING),
-                property("bar", ApiType.Primitive.STRING)))
+        assertHasProperties(
+            classDefinition,
+            "foo" to ApiType.Primitive.STRING,
+            "bar" to ApiType.Primitive.STRING
+        )
     }
 
     @Test
-    fun enumTranslation() {
+    fun `enum translation`() {
         val enumDefinition = translateEnum<TestEnum>()
 
         assertEquals(listOf("FOO", "BAR", "BAZ"), enumDefinition.constants)
     }
 
     @Test
-    fun genericTypeWithoutKnownParameters() {
+    fun `generic type without known parameters`() {
         val classDefinition = translateClass<GenericType<*>>()
 
-        assertThat(classDefinition.properties, hasProperties(
-                property("genericField", ApiType.Primitive.ANY)))
+        assertHasProperties(classDefinition, "genericField" to ApiType.Primitive.ANY)
     }
 
     @Test
-    fun genericTypeInheritedByFixingParameters() {
+    fun `generic type inherited by fixing parameters`() {
         val classDefinition = translateClass<SubTypeOfGenericType>()
 
-        assertThat(classDefinition.properties, hasProperties(
-                property("genericField", ApiType.Primitive.STRING)))
+        assertHasProperties(classDefinition, "genericField" to ApiType.Primitive.STRING)
     }
 
     @Test
-    fun genericTypeInheritedThroughMiddleType() {
+    fun `generic type inherited through middle type`() {
         val classDefinition = translateClass<SecondOrderSubTypeOfGenericType>()
 
-        assertThat(classDefinition.properties, hasProperties(
-                property("genericField", ApiType.Primitive.STRING)))
+        assertHasProperties(classDefinition, "genericField" to ApiType.Primitive.STRING)
     }
 
     @Test
-    fun genericTypeInheritedThroughMiddleTypeThatParameterizesWithVariable() {
+    fun `generic type inherited through middle type that parameterizes with variable`() {
         val classDefinition = translateClass<SubTypeOfGenericTypeParameterizedWithVariable>()
 
-        assertThat(classDefinition.properties, hasProperties(
-                property("genericField", ApiType.Array(ApiType.Primitive.STRING))))
+        assertHasProperties(classDefinition, "genericField" to ApiType.Array(ApiType.Primitive.STRING))
     }
 
     @Test
     fun `generic type parameters are translated for unknown generic types`() {
         class Foo
         class Bar
-        @Suppress("unused") class GenericType<T, S>
+
+        @Suppress("unused")
+        class GenericType<T, S>
 
         class Root {
             @Suppress("unused")
             lateinit var foo: GenericType<Foo, Bar>
         }
 
-        val model = JavaModel(TestClassMetadataLoader().apply {
-            loadClassesFromInheritanceTree<Root>()
-            loadClassesFromInheritanceTree<GenericType<*, *>>()
-            loadClassesFromInheritanceTree<Foo>()
-            loadClassesFromInheritanceTree<Bar>()
-        })
-        val api = ApiDefinition()
-        val translator = TypeTranslator(settings, model, api)
+        loader.loadClassesFromInheritanceTree<Root>()
+        loader.loadClassesFromInheritanceTree<GenericType<*, *>>()
+        loader.loadClassesFromInheritanceTree<Foo>()
+        loader.loadClassesFromInheritanceTree<Bar>()
         translator.translateType(JavaType.basic<Root>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
         assertTrue(api.classDefinitions.any { it.type.name == "Foo" }, "Class definition for Foo is created")
@@ -257,7 +262,7 @@ class TypeTranslatorTest {
     }
 
     @Test
-    fun unboundTypeVariable() {
+    fun `unbound type variable`() {
         @Suppress("unused")
         abstract class Bar<A>
         class Foo<B> : Bar<B>()
@@ -273,24 +278,19 @@ class TypeTranslatorTest {
     interface GenericSubType<out T> : GenericSuperType<T>
 
     @Test
-    fun shadowedTypesShouldNotPreventTranslation() {
+    fun `shadowed types should not prevent translation`() {
         translateClass<GenericSubType<String>>()
     }
 
     @Nested
     inner class `discriminated unions` {
 
-
         @Test
         fun `translating discriminated unions`() {
-            val model = JavaModel(TestClassMetadataLoader().apply {
-                loadClassesFromInheritanceTree<Vehicle>()
-                loadClassesFromInheritanceTree<Vehicle.Car>()
-                loadClassesFromInheritanceTree<Vehicle.Truck>()
-            })
+            loader.loadClassesFromInheritanceTree<Vehicle>()
+            loader.loadClassesFromInheritanceTree<Vehicle.Car>()
+            loader.loadClassesFromInheritanceTree<Vehicle.Truck>()
 
-            val api = ApiDefinition()
-            val translator = TypeTranslator(settings, model, api)
             translator.translateType(JavaType.basic<Vehicle>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
             assertEquals(1, api.discriminatedUnionDefinitions.size)
@@ -310,13 +310,10 @@ class TypeTranslatorTest {
 
         @Test
         fun `without @JsonSubtypes`() {
-            val model = JavaModel(TestClassMetadataLoader().apply {
-                loadClassesFromInheritanceTree<Vehicle2>()
-                loadClassesFromInheritanceTree<Vehicle2.Car>()
-                loadClassesFromInheritanceTree<Vehicle2.Truck>()
-            })
+            loader.loadClassesFromInheritanceTree<Vehicle2>()
+            loader.loadClassesFromInheritanceTree<Vehicle2.Car>()
+            loader.loadClassesFromInheritanceTree<Vehicle2.Truck>()
 
-            val api = ApiDefinition()
             val translator = TypeTranslator(settings, model, api)
             translator.translateType(JavaType.basic<Vehicle2>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
@@ -341,16 +338,13 @@ class TypeTranslatorTest {
 
         @Suppress("unused")
         class Name(val first: String, val last: String)
+
         @Suppress("unused")
         class Person(@get:JsonUnwrapped val name: Name, val age: Int)
 
-        val model = JavaModel(TestClassMetadataLoader().apply {
-            loadClassesFromInheritanceTree<Name>()
-            loadClassesFromInheritanceTree<Person>()
-        })
+        loader.loadClassesFromInheritanceTree<Name>()
+        loader.loadClassesFromInheritanceTree<Person>()
 
-        val api = ApiDefinition()
-        val translator = TypeTranslator(settings, model, api)
         translator.translateType(JavaType.basic<Person>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
         assertEquals(1, api.classDefinitionCount)
@@ -363,23 +357,25 @@ class TypeTranslatorTest {
 
         @Suppress("unused")
         class Name(val first: String, val last: String)
+
         @Suppress("unused")
-        class Person(@get:JsonUnwrapped(suffix = "Name") val name: Name,
-                     @get:JsonUnwrapped(prefix = "foo", suffix = "bar") val name2: Name,
-                     val age: Int)
+        class Person(
+            @get:JsonUnwrapped(suffix = "Name") val name: Name,
+            @get:JsonUnwrapped(prefix = "foo", suffix = "bar") val name2: Name,
+            val age: Int
+        )
 
-        val model = JavaModel(TestClassMetadataLoader().apply {
-            loadClassesFromInheritanceTree<Name>()
-            loadClassesFromInheritanceTree<Person>()
-        })
+        loader.loadClassesFromInheritanceTree<Name>()
+        loader.loadClassesFromInheritanceTree<Person>()
 
-        val api = ApiDefinition()
-        val translator = TypeTranslator(settings, model, api)
         translator.translateType(JavaType.basic<Person>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
         assertEquals(1, api.classDefinitionCount)
         val person = api.classDefinitions.find { it.type.name == "Person" } ?: error("no Person found")
-        assertEquals(setOf("age", "firstName", "lastName", "foofirstbar", "foolastbar"), person.properties.map { it.name }.toSet())
+        assertEquals(
+            setOf("age", "firstName", "lastName", "foofirstbar", "foolastbar"),
+            person.properties.map { it.name }.toSet()
+        )
     }
 
     @Test
@@ -413,35 +409,42 @@ class TypeTranslatorTest {
 
             val classDefinition = translateClass<Example>()
 
-            assertThat(classDefinition.properties, hasProperties(
-                property("normalProperty", ApiType.Primitive.STRING),
-                property("overriddenName", ApiType.Primitive.STRING),
-                property("fieldWithDefaultWillBeNullable", ApiType.Primitive.INTEGER.nullable()),
-                property("nullableParameter", ApiType.Primitive.INTEGER.nullable()),
-                property("requiredFieldWithDefaultWillNotBeNullable", ApiType.Primitive.INTEGER),
-                property("valueString", ApiType.Primitive.STRING)))
+            assertHasProperties(
+                classDefinition,
+                "normalProperty" to ApiType.Primitive.STRING,
+                "overriddenName" to ApiType.Primitive.STRING,
+                "fieldWithDefaultWillBeNullable" to ApiType.Primitive.INTEGER.nullable(),
+                "nullableParameter" to ApiType.Primitive.INTEGER.nullable(),
+                "requiredFieldWithDefaultWillNotBeNullable" to ApiType.Primitive.INTEGER,
+                "valueString" to ApiType.Primitive.STRING
+            )
         }
 
         @Test
         fun `discriminated unions`() {
-            val model = JavaModel(TestClassMetadataLoader().apply {
-                loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion>()
-                loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithCustomDiscriminator>()
-                loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator>()
-            })
+            loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion>()
+            loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithCustomDiscriminator>()
+            loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator>()
 
-            val api = ApiDefinition()
-            val translator = TypeTranslator(settings, model, api)
-            translator.translateType(JavaType.basic<KotlinSerializationDiscriminatedUnion>(), MockAnnotatedElement(), TypeEnvironment.empty())
+            translator.translateType(
+                JavaType.basic<KotlinSerializationDiscriminatedUnion>(),
+                MockAnnotatedElement(),
+                TypeEnvironment.empty()
+            )
 
-            val definition = api.discriminatedUnionDefinitions.find { it.type.name == KotlinSerializationDiscriminatedUnion::class.simpleName }
-                ?: fail("could not find union")
+            val definition =
+                api.discriminatedUnionDefinitions.find { it.type.name == KotlinSerializationDiscriminatedUnion::class.simpleName }
+                    ?: fail("could not find union")
 
             assertEquals("type", definition.discriminator)
 
             assertEquals(
-                setOf("CustomDiscriminator", KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator::class.qualifiedName),
-                definition.types.keys)
+                setOf(
+                    "CustomDiscriminator",
+                    KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator::class.qualifiedName
+                ),
+                definition.types.keys
+            )
         }
 
         @Suppress("unused")
@@ -480,29 +483,27 @@ class TypeTranslatorTest {
                 private var isProperty = false
             }
 
-            val model = JavaModel(TestClassMetadataLoader().apply {
-                loadClassesFromInheritanceTree<ParentClass>()
-                loadClassesFromInheritanceTree<ChildClass>()
-            })
+            loader.loadClassesFromInheritanceTree<ParentClass>()
+            loader.loadClassesFromInheritanceTree<ChildClass>()
 
-            val api = ApiDefinition()
-            val translator = TypeTranslator(settings, model, api)
             translator.translateType(JavaType.basic<ChildClass>(), MockAnnotatedElement(), TypeEnvironment.empty())
 
             val classDefinition = api.classDefinitions.find { it.type.name == ChildClass::class.simpleName }
                 ?: fail("could not find class")
 
-            assertThat(classDefinition.properties, hasProperties(
-                property("ownParameter", ApiType.Primitive.INTEGER),
-                property("ownProperty", ApiType.Primitive.STRING.nullable()),
-                property("requiredOwnProperty", ApiType.Primitive.STRING),
-                property("privateProperty", ApiType.Primitive.STRING.nullable()),
-                property("renamedPrivatePropertyNewName", ApiType.Primitive.STRING.nullable()),
-                property("requiredPrivateProperty", ApiType.Primitive.STRING),
-                property("isProperty", ApiType.Primitive.BOOLEAN),
-                property("parentParameter", ApiType.Primitive.INTEGER),
-                property("parentProperty", ApiType.Primitive.STRING.nullable()),
-                property("requiredParentProperty", ApiType.Primitive.STRING)))
+            assertHasProperties(
+                classDefinition,
+                "ownParameter" to ApiType.Primitive.INTEGER,
+                "ownProperty" to ApiType.Primitive.STRING.nullable(),
+                "requiredOwnProperty" to ApiType.Primitive.STRING,
+                "privateProperty" to ApiType.Primitive.STRING.nullable(),
+                "renamedPrivatePropertyNewName" to ApiType.Primitive.STRING.nullable(),
+                "requiredPrivateProperty" to ApiType.Primitive.STRING,
+                "isProperty" to ApiType.Primitive.BOOLEAN,
+                "parentParameter" to ApiType.Primitive.INTEGER,
+                "parentProperty" to ApiType.Primitive.STRING.nullable(),
+                "requiredParentProperty" to ApiType.Primitive.STRING
+            )
         }
     }
 
@@ -531,44 +532,43 @@ class TypeTranslatorTest {
     abstract class Vehicle2 {
         @JsonTypeName("car")
         class Car : Vehicle2()
+
         @JsonTypeName("truck")
         class Truck : Vehicle2()
     }
 
-    private fun translateType(type: JavaType): ApiType {
-        val classes = JavaModel(TestClassMetadataLoader())
-        val api = ApiDefinition()
-        val translator = TypeTranslator(settings, classes, api)
+    private fun translateType(type: JavaType): ApiType =
+        translator.translateType(type, MockAnnotatedElement(), TypeEnvironment.empty()) // TODO: create environment from type
 
-        return translator.translateType(type, MockAnnotatedElement(), TypeEnvironment.empty()) // TODO: create environment from type
-    }
+    private inline fun <reified T : Any> translateType(): ApiType =
+        translateType(JavaType.basic<T>())
 
     private inline fun <reified T : Any> translateClass(): ClassDefinition {
-        val api = ApiDefinition()
-        val apiType = translateClass<T>(api)
+        loader.loadClassesFromInheritanceTree<T>()
+        val apiType = translateType<T>()
 
-        return api.classDefinitions.find { d -> apiType.toTypeScript(OptionalTypeMode.NULL).startsWith(d.type.toString()) }
-            ?: throw AssertionError("could not find definition for $apiType")
+        return api.classDefinitions.find { d ->
+            apiType.toTypeScript(OptionalTypeMode.NULL).startsWith(d.type.toString())
+        } ?: fail("could not find definition for $apiType")
     }
 
     private inline fun <reified T : Enum<T>> translateEnum(): EnumDefinition {
-        val api = ApiDefinition()
-        val apiType = translateClass<T>(api)
+        loader.loadClassesFromInheritanceTree<T>()
+        val apiType = translateType<T>()
 
         return api.enumDefinitions.find { d -> d.type.toString() == apiType.toTypeScript(OptionalTypeMode.NULL) }
-            ?: throw AssertionError("could not find definition for $apiType")
-    }
-
-    private inline fun <reified T : Any> translateClass(api: ApiDefinition): ApiType {
-        val model = JavaModel(TestClassMetadataLoader().apply {
-            loadClassesFromInheritanceTree<T>()
-        })
-        val translator = TypeTranslator(settings, model, api)
-
-        return translator.translateType(JavaType.basic<T>(), MockAnnotatedElement(), TypeEnvironment.empty())
+            ?: fail("could not find definition for $apiType")
     }
 
     companion object {
+
+        private fun assertHasProperties(classDefinition: ClassDefinition, vararg properties: Pair<String, ApiType>) {
+            assertEquals(
+                classDefinition.properties.associate { it.name to it.type }.toSortedMap(),
+                properties.toMap().toSortedMap(),
+                "Properties don't match"
+            )
+        }
 
         private val ClassDefinition.propertyNames: Set<String>
             get() = properties.map { it.name }.toSet()

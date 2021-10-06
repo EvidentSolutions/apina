@@ -8,137 +8,142 @@ import fi.evident.apina.java.reader.JavaTypeMatchers.genericType
 import fi.evident.apina.java.reader.JavaTypeMatchers.singletonSchema
 import fi.evident.apina.java.reader.JavaTypeMatchers.typeVariable
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.`is`
-import org.hamcrest.Matchers.notNullValue
+import org.hamcrest.Matchers.*
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.objectweb.asm.signature.SignatureReader
 import java.io.Serializable
 import java.util.function.Function
+import kotlin.test.assertEquals
 
 class TypeParserTest {
 
     private val schema = TypeSchema()
 
     @Test
-    fun parsingJavaTypesWithoutGenericSignatures() {
-        assertThat(parseTypeDescriptor("I"), `is`(basicType(Int::class.javaPrimitiveType!!)))
-        assertThat(parseTypeDescriptor("V"), `is`(basicType(Void.TYPE)))
-        assertThat(parseTypeDescriptor("Z"), `is`(basicType(Boolean::class.javaPrimitiveType!!)))
-        assertThat(parseTypeDescriptor("J"), `is`(basicType(Long::class.javaPrimitiveType!!)))
+    fun `parsing java types without generic signatures`() {
+        assertThat(parseTypeDescriptor("I"), basicType(Int::class.javaPrimitiveType!!))
+        assertThat(parseTypeDescriptor("V"), basicType(Void.TYPE))
+        assertThat(parseTypeDescriptor("Z"), basicType(Boolean::class.javaPrimitiveType!!))
+        assertThat(parseTypeDescriptor("J"), basicType(Long::class.javaPrimitiveType!!))
 
-        assertThat(parseTypeDescriptor("Ljava/lang/Integer;"), `is`(basicType(Int::class.javaObjectType)))
-        assertThat(parseTypeDescriptor("Ljava/util/List;"), `is`<JavaType>(basicType(List::class.java)))
+        assertThat(parseTypeDescriptor("Ljava/lang/Integer;"), basicType(Int::class.javaObjectType))
+        assertThat(parseTypeDescriptor("Ljava/util/List;"), basicType(List::class.java))
     }
 
     @Test
-    fun parsingArrayTypesWithoutGenericSignatures() {
-        assertThat(parseTypeDescriptor("[I"), `is`(arrayType(basicType(Int::class.javaPrimitiveType!!))))
-        assertThat(parseTypeDescriptor("[[[I"), `is`(arrayType(arrayType(arrayType(basicType(Int::class.javaPrimitiveType!!))))))
-        assertThat(parseTypeDescriptor("[Ljava/lang/Integer;"), `is`(arrayType(basicType(Int::class.javaObjectType))))
-        assertThat(parseTypeDescriptor("[[Ljava/lang/Integer;"), `is`(arrayType(arrayType(basicType(Int::class.javaObjectType)))))
+    fun `parsing array types without generic signatures`() {
+        assertThat(parseTypeDescriptor("[I"), arrayType(basicType(Int::class.javaPrimitiveType!!)))
+        assertThat(parseTypeDescriptor("[[[I"), arrayType(arrayType(arrayType(basicType(Int::class.javaPrimitiveType!!)))))
+        assertThat(parseTypeDescriptor("[Ljava/lang/Integer;"), arrayType(basicType(Int::class.javaObjectType)))
+        assertThat(parseTypeDescriptor("[[Ljava/lang/Integer;"), arrayType(arrayType(basicType(Int::class.javaObjectType))))
     }
 
     @Test
-    fun parsingGenericPrimitiveSignatures() {
-        assertThat(parseGenericType("I"), `is`(basicType(Int::class.javaPrimitiveType!!)))
-        assertThat(parseGenericType("V"), `is`(basicType(Void.TYPE)))
+    fun `parsing generic primitive signatures`() {
+        assertThat(parseGenericType("I"), basicType(Int::class.javaPrimitiveType!!))
+        assertThat(parseGenericType("V"), basicType(Void.TYPE))
     }
 
     @Test
-    fun parsingConcreteGenericSignatures() {
+    fun `parsing concrete generic signatures`() {
         assertThat(parseGenericType("Ljava/util/List<Ljava/lang/Integer;>;"),
-                `is`(genericType(List::class.java, basicType(Int::class.javaObjectType))))
+                genericType(List::class.java, basicType(Int::class.javaObjectType)))
 
         assertThat(parseGenericType("Ljava/util/Map<Ljava/lang/Integer;Ljava/lang/String;>;"),
-                `is`(genericType(Map::class.java, basicType(Int::class.javaObjectType), basicType(String::class.java))))
+                genericType(Map::class.java, basicType(Int::class.javaObjectType), basicType(String::class.java)))
     }
 
     @Test
-    fun parsingWildcardTypes() {
-        assertThat(parseGenericType("Ljava/util/List<*>;"), `is`(genericType(List::class.java, `is`(JavaType.Wildcard.unbounded()))))
-        assertThat(parseGenericType("Ljava/util/List<+Ljava/lang/String;>;"), `is`(genericType(List::class.java, `is`(JavaType.Wildcard.extending(JavaType.Basic(String::class.java))))))
-        assertThat(parseGenericType("Ljava/util/List<-Ljava/lang/String;>;"), `is`(genericType(List::class.java, `is`(JavaType.Wildcard.withSuper(JavaType.Basic(String::class.java))))))
+    fun `parsing wildcard types`() {
+        assertThat(parseGenericType("Ljava/util/List<*>;"), genericType(List::class.java, equalTo(JavaType.Wildcard.unbounded())))
+        assertThat(parseGenericType("Ljava/util/List<+Ljava/lang/String;>;"), genericType(List::class.java, equalTo(JavaType.Wildcard.extending(JavaType.Basic(String::class.java)))))
+        assertThat(parseGenericType("Ljava/util/List<-Ljava/lang/String;>;"), genericType(List::class.java, equalTo(JavaType.Wildcard.withSuper(JavaType.Basic(String::class.java)))))
     }
 
     @Test
-    fun parsingTypeVariables() {
+    fun `parsing type variables`() {
         schema.add(JavaType.Variable("T"))
 
-        assertThat(parseGenericType("TT;"), `is`(typeVariable("T")))
-        assertThat(parseGenericType("Ljava/util/List<TT;>;"), `is`(genericType(List::class.java, typeVariable("T"))))
+        assertThat(parseGenericType("TT;"), typeVariable("T"))
+        assertThat(parseGenericType("Ljava/util/List<TT;>;"), genericType(List::class.java, typeVariable("T")))
     }
 
     @Test
-    fun parsingGenericArrayTypes() {
-        assertThat(parseGenericType("[Ljava/lang/String;"), `is`(arrayType(basicType(String::class.java))))
+    fun `parsing generic array types`() {
+        assertThat(parseGenericType("[Ljava/lang/String;"), arrayType(basicType(String::class.java)))
     }
 
     @Test
-    fun parsingGenericArrayTypeForTypeVariable() {
+    fun `parsing generic array type for type variable`() {
         schema.add(JavaType.Variable("A"))
 
-        assertThat(parseGenericType("[TA;"), `is`(arrayType(typeVariable("A"))))
+        assertThat(parseGenericType("[TA;"), arrayType(typeVariable("A")))
     }
 
     @Test
-    fun parsingObjectType() {
-        assertThat(parseObjectType("java/lang/Integer"), `is`(basicType(Int::class.javaObjectType)))
+    fun `parsing object type`() {
+        assertThat(parseObjectType("java/lang/Integer"), basicType(Int::class.javaObjectType))
     }
 
     @Test
-    fun parsingNonGenericMethodSignaturesWithSingleParameter() {
+    fun `parsing non-generic method signatures with single parameter`() {
         val signature = parseMethodDescriptor("(Ljava/lang/Integer;)Ljava/lang/String;")
 
-        assertThat(signature.returnType, `is`(basicType(String::class.java)))
-        assertThat(signature.argumentTypes.size, `is`(1))
-        assertThat(signature.argumentTypes[0], `is`(basicType(Int::class.javaObjectType)))
+        assertThat(signature.returnType, basicType(String::class.java))
+        assertEquals(1, signature.argumentTypes.size)
+        assertThat(signature.argumentTypes[0], basicType(Int::class.javaObjectType))
     }
 
     @Test
-    fun parsingNonGenericMethodSignaturesWithMultipleParameters() {
+    fun `parsing non generic method signatures with multiple parameters`() {
         val signature = parseMethodDescriptor("(Ljava/lang/Class;Ljava/util/function/Function;Ljava/lang/Object;)Ljava/lang/Enum;")
 
-        assertThat<JavaType>(signature.returnType, `is`<JavaType>(basicType(Enum::class.java)))
-        assertThat(signature.argumentTypes.size, `is`(3))
-        assertThat<JavaType>(signature.argumentTypes[0], `is`<JavaType>(basicType(Class::class.java)))
-        assertThat<JavaType>(signature.argumentTypes[1], `is`<JavaType>(basicType(Function::class.java)))
-        assertThat(signature.argumentTypes[2], `is`(basicType(Any::class.java)))
+        assertThat(signature.returnType, basicType(Enum::class.java))
+        assertEquals(3, signature.argumentTypes.size)
+        assertThat(signature.argumentTypes[0], basicType(Class::class.java))
+        assertThat(signature.argumentTypes[1], basicType(Function::class.java))
+        assertThat(signature.argumentTypes[2], basicType(Any::class.java))
+    }
+
+    @Nested
+    inner class `parsing generic method signatures` {
+
+        @Test
+        fun `no declared variables`() {
+            val signature = parseGenericMethodSignature("(Ljava/util/List<Ljava/lang/String;>;)Ljava/util/Set<Ljava/lang/Integer;>;")
+
+            assertThat(signature.returnType, genericType(Set::class.java, basicType(Int::class.javaObjectType)))
+
+            assertEquals(1, signature.argumentTypes.size)
+            assertThat(signature.argumentTypes[0], genericType(List::class.java, basicType(String::class.java)))
+        }
+
+        @Test
+        fun `declared variables`() {
+            val signature = parseGenericMethodSignature("<T:Ljava/io/Serializable;>(TT;)Ljava/util/List<TT;>;")
+
+            assertThat(signature.schema, singletonSchema("T", basicType(Serializable::class.java)))
+
+            assertThat(signature.argumentTypes.size, `is`(1))
+            assertThat(signature.argumentTypes[0], typeVariable("T"))
+            assertThat(signature.returnType, genericType(List::class.java, typeVariable("T")))
+        }
+
+        @Test
+        fun `variable with multiple bounds`() {
+            val signature = parseGenericMethodSignature("<T:Ljava/lang/Cloneable;:Ljava/io/Serializable;>()Ljava/util/List<TT;>;")
+
+            assertThat(signature.schema, singletonSchema("T", basicType(Cloneable::class.java), basicType(Serializable::class.java)))
+            assertThat(signature.returnType, genericType(List::class.java, typeVariable("T")))
+        }
     }
 
     @Test
-    fun parsingGenericMethodSignatures_noDeclaredVariables() {
-        val signature = parseGenericMethodSignature("(Ljava/util/List<Ljava/lang/String;>;)Ljava/util/Set<Ljava/lang/Integer;>;")
-
-        assertThat(signature.returnType, `is`(genericType(Set::class.java, basicType(Int::class.javaObjectType))))
-
-        assertThat(signature.argumentTypes.size, `is`(1))
-        assertThat(signature.argumentTypes[0], `is`(genericType(List::class.java, basicType(String::class.java))))
-    }
-
-    @Test
-    fun parsingGenericMethodSignatures_declaredVariables() {
-        val signature = parseGenericMethodSignature("<T:Ljava/io/Serializable;>(TT;)Ljava/util/List<TT;>;")
-
-        assertThat(signature.schema, `is`(singletonSchema("T", basicType(Serializable::class.java))))
-
-        assertThat(signature.argumentTypes.size, `is`(1))
-        assertThat(signature.argumentTypes[0], typeVariable("T"))
-        assertThat(signature.returnType, `is`(genericType(List::class.java, typeVariable("T"))))
-    }
-
-    @Test
-    fun parsingGenericMethodSignatures_variableWithMultipleBounds() {
-        val signature = parseGenericMethodSignature("<T:Ljava/lang/Cloneable;:Ljava/io/Serializable;>()Ljava/util/List<TT;>;")
-
-        assertThat(signature.schema, singletonSchema("T", basicType(Cloneable::class.java), basicType(Serializable::class.java)))
-        assertThat(signature.returnType, `is`(genericType(List::class.java, typeVariable("T"))))
-    }
-
-    @Test
-    fun innerClassesInsideGenericClasses() {
+    fun `inner classes inside generic classes`() {
         val signature = parseGenericMethodSignature("()Lfoo/Bar\$Baz<TT;>.Bar;")
 
-        assertThat(signature.returnType, `is`(notNullValue()))
+        assertThat(signature.returnType, notNullValue())
     }
 
     private fun parseGenericType(signature: String): JavaType {

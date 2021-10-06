@@ -22,7 +22,7 @@ class SpringModelReaderTest {
     private val settings = TranslationSettings()
 
     @Test
-    fun parseSimpleController() {
+    fun `parse simple controller`() {
         @Suppress("unused")
         @RestController
         class MyController {
@@ -48,7 +48,7 @@ class SpringModelReaderTest {
 
     @Test
     @Suppress("unused")
-    fun referenceToGenericClass() {
+    fun `reference to generic class`() {
         abstract class Bar<A>
         abstract class Foo<B> : Bar<B>()
 
@@ -130,7 +130,7 @@ class SpringModelReaderTest {
     }
 
     @Test
-    fun wrappedResultTypes() {
+    fun `wrapped result types`() {
 
         class Foo
 
@@ -179,9 +179,8 @@ class SpringModelReaderTest {
     private fun EndpointGroup.endpointByName(name: String): Endpoint =
         assertNotNull(endpoints.find { it.name == name })
 
-    private inline fun <reified T : Any> readModel(): ApiDefinition {
-        return readModel(T::class)
-    }
+    private inline fun <reified T : Any> readModel(): ApiDefinition =
+        readModel(T::class)
 
     private fun readModel(vararg classes: KClass<*>): ApiDefinition {
         val model = JavaModel(TestClassMetadataLoader().apply {

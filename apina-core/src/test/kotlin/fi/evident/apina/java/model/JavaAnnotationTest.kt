@@ -8,13 +8,13 @@ import kotlin.test.assertEquals
 class JavaAnnotationTest {
 
     @Test
-    fun toStringWithoutParameters() {
+    fun `toString without parameters`() {
         val annotation = newAnnotation("foo.bar.Baz")
         assertEquals("@foo.bar.Baz", annotation.toString())
     }
 
     @Test
-    fun toStringWithJustValue() {
+    fun `toString with just value`() {
         val annotation = newAnnotation("foo.bar.Baz")
         annotation.setAttribute("value", 42)
 
@@ -22,7 +22,7 @@ class JavaAnnotationTest {
     }
 
     @Test
-    fun unwrapArrayArgumentsIfNecessary() {
+    fun `unwrap array arguments if necessary`() {
         val annotation = newAnnotation("foo.bar.Baz")
         annotation.setAttribute("value", arrayOf<Any>("foo"))
 
@@ -38,7 +38,7 @@ class JavaAnnotationTest {
     }
 
     @Test
-    fun toStringWithMultipleAttributes() {
+    fun `toString with multiple attributes`() {
         val annotation = newAnnotation("foo.bar.Baz")
         annotation.setAttribute("value", 1)
         annotation.setAttribute("foo", 2)
@@ -48,7 +48,7 @@ class JavaAnnotationTest {
     }
 
     @Test
-    fun arrayValues() {
+    fun `array values`() {
         val annotation = newAnnotation("foo.bar.Baz")
         annotation.setAttribute("array", arrayOf<Any>(1, 2, 3))
         annotation.setAttribute("single", 1)

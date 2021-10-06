@@ -9,13 +9,13 @@ class PatternSetTest {
     private val set = PatternSet()
 
     @Test
-    fun emptySetMatchesNothing() {
+    fun `empty set matches nothing`() {
         assertFalse("" in set)
         assertFalse("foo" in set)
     }
 
     @Test
-    fun setWithSinglePatternMatchesIfPatternMatches() {
+    fun `set with single pattern matches if pattern matches`() {
         set.addPattern("foo.*")
 
         assertFalse("" in set)
@@ -25,7 +25,7 @@ class PatternSetTest {
     }
 
     @Test
-    fun setWithMultiplePatternsMatchesIfAnyPatternMatches() {
+    fun `set with multiple patterns matches if any pattern matches`() {
         set.addPattern("foo.*")
         set.addPattern("bar.*")
         set.addPattern("baz.*")

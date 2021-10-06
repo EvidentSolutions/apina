@@ -12,7 +12,7 @@ class ClassDefinitionTest {
     private val classDefinition = ClassDefinition(ApiTypeName("foo.Bar"))
 
     @Test
-    fun duplicatePropertiesAreDisallowed() {
+    fun `duplicate properties are disallowed`() {
 
         classDefinition.addProperty(arbitraryProperty("foo"))
         assertThrows<IllegalArgumentException> {
@@ -21,7 +21,7 @@ class ClassDefinitionTest {
     }
 
     @Test
-    fun hasProperty() {
+    fun `has property`() {
         assertFalse(classDefinition.hasProperty("foo"))
         assertFalse(classDefinition.hasProperty("bar"))
 

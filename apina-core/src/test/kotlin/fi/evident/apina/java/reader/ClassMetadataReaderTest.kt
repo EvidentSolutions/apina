@@ -4,7 +4,6 @@ import fi.evident.apina.java.reader.JavaTypeMatchers.basicType
 import fi.evident.apina.java.reader.JavaTypeMatchers.singletonSchema
 import fi.evident.apina.java.reader.JavaTypeMatchers.typeVariable
 import fi.evident.apina.java.reader.JavaTypeMatchers.typeWithRepresentation
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -16,26 +15,26 @@ import kotlin.test.assertTrue
 class ClassMetadataReaderTest {
 
     @Test
-    fun loadingFields() {
+    fun `loading fields`() {
         val javaClass = loadClass(TestClass::class.java)
 
         val fields = javaClass.fields
 
-        assertThat(javaClass.schema, `is`(singletonSchema("T", basicType(CharSequence::class.java))))
+        assertThat(javaClass.schema, singletonSchema("T", basicType(CharSequence::class.java)))
 
         assertEquals(3, fields.size)
-        assertThat(javaClass.getField("field1").type, `is`(typeWithRepresentation("java.lang.String")))
-        assertThat(javaClass.getField("field2").type, `is`(typeWithRepresentation("java.util.List<java.lang.String>")))
-        assertThat(javaClass.getField("field3").type, `is`(typeVariable("T")))
+        assertThat(javaClass.getField("field1").type, typeWithRepresentation("java.lang.String"))
+        assertThat(javaClass.getField("field2").type, typeWithRepresentation("java.util.List<java.lang.String>"))
+        assertThat(javaClass.getField("field3").type, typeVariable("T"))
     }
 
     @Test
-    fun innerClassWithOuterBounds() {
+    fun `inner class with outer bounds`() {
         loadClass(AnonymousInnerClassWithOuterBounds.createInnerClassInstance<Any>().javaClass)
     }
 
     @Test
-    fun enumClasses() {
+    fun `enum classes`() {
         val javaClass = loadClass(TestEnum::class.java)
 
         assertTrue(javaClass.isEnum)

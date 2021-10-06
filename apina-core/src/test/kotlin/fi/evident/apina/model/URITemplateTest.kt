@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 class URITemplateTest {
 
     @Test
-    fun toStringRepresentation() {
+    fun `toString representation`() {
         assertEquals("/foo", URITemplate("/foo").toString())
     }
 }

@@ -8,12 +8,12 @@ import kotlin.test.assertFailsWith
 class ResourceUtilsTest {
 
     @Test
-    fun readingResourceAsString() {
+    fun `reading resource as string`() {
         assertEquals("Hello, world!", readResourceAsString("test-data/hello-world.txt").trim())
     }
 
     @Test
-    fun unknownResource() {
+    fun `unknown resource`() {
         assertFailsWith<FileNotFoundException> {
             readResourceAsString("unknown-file")
         }

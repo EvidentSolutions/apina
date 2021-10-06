@@ -44,12 +44,12 @@ internal object JavaTypeMatchers {
     }
 
     fun genericType(base: Class<*>, vararg args: Matcher<JavaType>): Matcher<JavaType> =
-            genericType(basicType(base), asList(*args))
+        genericType(basicType(base), args.asList())
 
     fun genericType(baseMatcher: Matcher<JavaType>, argMatchers: List<Matcher<JavaType>>): Matcher<JavaType> = object : JavaTypeMatcher() {
 
         override fun matchParameterizedType(item: JavaType.Parameterized) =
-                baseMatcher.matches(item.baseType) && matchList(item.arguments, argMatchers)
+            baseMatcher.matches(item.baseType) && matchList(item.arguments, argMatchers)
 
         override fun describeTo(description: Description) {
             description.appendDescriptionOf(baseMatcher).appendList("<", ",", ">", argMatchers)

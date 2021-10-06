@@ -10,7 +10,7 @@ class TranslationSettingsTest {
     private val settings = TranslationSettings()
 
     @Test
-    fun addImports() {
+    fun `add imports`() {
         settings.addImport("mod1", listOf("Foo", "Bar"))
         settings.addImport("mod2", listOf("Baz"))
 
@@ -22,7 +22,7 @@ class TranslationSettingsTest {
     }
 
     @Test
-    fun addImportsToExistingModule() {
+    fun `add imports to existing module`() {
         settings.addImport("mod1", listOf("Foo", "Bar"))
         settings.addImport("mod1", listOf("Baz"))
 
@@ -33,7 +33,7 @@ class TranslationSettingsTest {
     }
 
     @Test
-    fun importTwice() {
+    fun `import twice`() {
         settings.addImport("mod1", listOf("Foo", "Bar"))
 
         assertFailsWith<IllegalArgumentException> {
