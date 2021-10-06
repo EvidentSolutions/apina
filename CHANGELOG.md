@@ -1,3 +1,8 @@
+# 0.17.5 (2021-10-06)
+
+- Support Kotlin's value classes
+  ([#69](https://github.com/EvidentSolutions/apina/pull/69), thanks to [tuomoa](https://github.com/tuomoa))
+
 # 0.17.4 (2021-09-22)
 
 - Improve superclass lookup with Kotlin Serialization
