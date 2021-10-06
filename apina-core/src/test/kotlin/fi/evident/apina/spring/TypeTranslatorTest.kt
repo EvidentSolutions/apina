@@ -45,7 +45,8 @@ class TypeTranslatorTest {
         assertThat(classDefinition.properties, hasProperties(
             property("valueString", ApiType.Primitive.STRING),
             property("valueInteger", ApiType.Primitive.INTEGER),
-            property("privateValue", ApiType.Primitive.STRING)))
+            property("nestedValueInteger", ApiType.Primitive.INTEGER),
+            property("getterValue", ApiType.Primitive.STRING)))
     }
 
     @Test
