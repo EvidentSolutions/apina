@@ -10,7 +10,7 @@ import java.util.function.Supplier
 /**
  * [SignatureVisitor] that builds method signature for generic methods.
  */
-internal class MethodSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Supplier<MethodSignature> {
+internal class MethodSignatureVisitor : SignatureVisitor(Opcodes.ASM9), Supplier<MethodSignature> {
 
     private lateinit var returnTypeBuilder: Supplier<JavaType>
 

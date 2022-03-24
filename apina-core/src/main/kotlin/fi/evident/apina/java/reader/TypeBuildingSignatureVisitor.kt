@@ -9,7 +9,7 @@ import java.util.function.Supplier
 /**
  * [SignatureVisitor] implementation that visits the type hierarchy to build generic types.
  */
-internal class TypeBuildingSignatureVisitor : SignatureVisitor(Opcodes.ASM5), Supplier<JavaType> {
+internal class TypeBuildingSignatureVisitor : SignatureVisitor(Opcodes.ASM9), Supplier<JavaType> {
 
     private lateinit var builder: ((List<JavaType>) -> JavaType)
 

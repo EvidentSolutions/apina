@@ -15,7 +15,7 @@ import java.util.function.Supplier
  *  * generic super-class signature
  *  * generic signatures of implemented interfaces
  */
-internal class ClassSignatureVisitor private constructor() : SignatureVisitor(Opcodes.ASM5) {
+internal class ClassSignatureVisitor private constructor() : SignatureVisitor(Opcodes.ASM9) {
 
     private val typeSchemaBuilder = TypeSchemaBuilder()
 

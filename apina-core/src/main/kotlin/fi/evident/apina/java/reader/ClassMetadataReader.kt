@@ -85,7 +85,7 @@ internal object ClassMetadataReader {
             javaClass ?: error("no ClassMetadata available")
     }
 
-    private class MyAnnotationVisitor(private val annotation: JavaAnnotation) : AnnotationVisitor(Opcodes.ASM5) {
+    private class MyAnnotationVisitor(private val annotation: JavaAnnotation) : AnnotationVisitor(Opcodes.ASM9) {
 
         override fun visit(name: String, value: Any) {
             annotation.setAttribute(name, if (value is Type) javaType(value) else value)
@@ -108,7 +108,7 @@ internal object ClassMetadataReader {
         }
     }
 
-    private class ArrayAnnotationVisitor(private val annotation: JavaAnnotation, private val name: String) : AnnotationVisitor(Opcodes.ASM5) {
+    private class ArrayAnnotationVisitor(private val annotation: JavaAnnotation, private val name: String) : AnnotationVisitor(Opcodes.ASM9) {
         private val values = ArrayList<Any>()
 
         override fun visitEnd() {
@@ -132,7 +132,7 @@ internal object ClassMetadataReader {
         }
     }
 
-    private class MyFieldVisitor(private val field: JavaField) : FieldVisitor(Opcodes.ASM5) {
+    private class MyFieldVisitor(private val field: JavaField) : FieldVisitor(Opcodes.ASM9) {
 
         override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
             val annotation = JavaAnnotation(parseBasicTypeDescriptor(desc))
@@ -141,7 +141,7 @@ internal object ClassMetadataReader {
         }
     }
 
-    private class MyMethodVisitor(private val method: JavaMethod) : MethodVisitor(Opcodes.ASM5) {
+    private class MyMethodVisitor(private val method: JavaMethod) : MethodVisitor(Opcodes.ASM9) {
         private var parameterIndex = 0
 
         /** For each parameter the table contains the index of local variable describing the parameter  */
