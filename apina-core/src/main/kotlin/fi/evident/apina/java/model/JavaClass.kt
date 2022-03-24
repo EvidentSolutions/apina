@@ -23,6 +23,7 @@ class JavaClass(
     private val _annotations = ArrayList<JavaAnnotation>()
     private val _fields = ArrayList<JavaField>()
     private val _methods = ArrayList<JavaMethod>()
+    private val _recordComponent = ArrayList<JavaRecordComponent>()
 
     override val annotations: List<JavaAnnotation>
         get() = _annotations
@@ -33,8 +34,14 @@ class JavaClass(
     val fields: List<JavaField>
         get() = _fields
 
+    val recordComponents: List<JavaRecordComponent>
+        get() = _recordComponent
+
     val isEnum: Boolean
         get() = modifiers and Opcodes.ACC_ENUM != 0
+
+    val isRecord: Boolean
+        get() = modifiers and Opcodes.ACC_RECORD != 0
 
     val isAnnotation: Boolean
         get() = isInterface && interfaces.contains(ANNOTATION_TYPE)
@@ -67,6 +74,10 @@ class JavaClass(
 
     fun addMethod(method: JavaMethod) {
         _methods += method
+    }
+
+    fun addRecordComponent(component: JavaRecordComponent) {
+        _recordComponent += component
     }
 
     /**
@@ -119,6 +130,8 @@ class JavaClass(
 
     fun hasMethodWithAnnotation(annotationType: JavaType.Basic) =
         findMethodWithAnnotation(annotationType) != null
+
+
 
     companion object {
         private val ANNOTATION_TYPE = JavaType.Basic(Annotation::class.java)

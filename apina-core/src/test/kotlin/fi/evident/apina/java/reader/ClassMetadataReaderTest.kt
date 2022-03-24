@@ -1,9 +1,11 @@
 package fi.evident.apina.java.reader
 
+import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.reader.JavaTypeMatchers.basicType
 import fi.evident.apina.java.reader.JavaTypeMatchers.singletonSchema
 import fi.evident.apina.java.reader.JavaTypeMatchers.typeVariable
 import fi.evident.apina.java.reader.JavaTypeMatchers.typeWithRepresentation
+import fi.evident.apina.spring.testclasses.SimpleRecord
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -49,6 +51,16 @@ class ClassMetadataReaderTest {
         assertEquals(setOf("foo", "bar"), metadata.properties.map { it.name }.toSet())
     }
 
+    @Test
+    fun records() {
+        val record = loadClass(SimpleRecord::class.java)
+
+        assertTrue(record.isRecord)
+
+        assertEquals(listOf("foo", "bar"), record.recordComponents.map { it.name })
+        assertEquals(listOf(JavaType.Basic(String::class.java), JavaType.Basic.INT), record.recordComponents.map { it.type })
+    }
+
     @Suppress("unused")
     private class TestKotlinClass {
         val foo = ""
@@ -84,7 +96,7 @@ class ClassMetadataReaderTest {
 
     private object AnonymousInnerClassWithOuterBounds {
         @Suppress("ObjectLiteralToLambda")
-        fun <T> createInnerClassInstance(): Comparator<T> = object: Comparator<T> {
+        fun <T> createInnerClassInstance(): Comparator<T> = object : Comparator<T> {
             override fun compare(o1: T, o2: T) = 0
         }
     }
