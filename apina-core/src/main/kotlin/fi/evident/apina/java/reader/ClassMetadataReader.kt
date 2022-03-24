@@ -54,6 +54,16 @@ internal object ClassMetadataReader {
             this.javaClass = JavaClass(type, superType, interfaceTypes, access, schema)
         }
 
+        override fun visitRecordComponent(
+            name: String,
+            descriptor: String,
+            signature: String?
+        ): RecordComponentVisitor {
+            val component = JavaRecordComponent(name, parseJavaType(descriptor, signature))
+            getJavaClass().addRecordComponent(component)
+            return MyRecordComponentVisitor(component)
+        }
+
         override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
             val annotation = JavaAnnotation(parseBasicTypeDescriptor(desc))
             getJavaClass().addAnnotation(annotation)
@@ -83,6 +93,14 @@ internal object ClassMetadataReader {
 
         fun getJavaClass(): JavaClass =
             javaClass ?: error("no ClassMetadata available")
+    }
+
+    private class MyRecordComponentVisitor(private val component: JavaRecordComponent): RecordComponentVisitor(Opcodes.ASM9) {
+        override fun visitAnnotation(descriptor: String, visible: Boolean): AnnotationVisitor {
+            val annotation = JavaAnnotation(parseBasicTypeDescriptor(descriptor))
+            component.addAnnotation(annotation)
+            return MyAnnotationVisitor(annotation)
+        }
     }
 
     private class MyAnnotationVisitor(private val annotation: JavaAnnotation) : AnnotationVisitor(Opcodes.ASM9) {
