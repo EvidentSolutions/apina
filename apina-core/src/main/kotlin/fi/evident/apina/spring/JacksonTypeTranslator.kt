@@ -110,19 +110,15 @@ internal class JacksonTypeTranslator(
         val acceptProperty = { name: String -> !classDefinition.hasProperty(name) && name !in ignoredProperties }
 
         for (cl in classes.classesUpwardsFrom(boundClass)) {
-            for (getter in cl.javaClass.getters)
-                processProperty(
-                    cl,
-                    classDefinition,
-                    getter.propertyName,
-                    getter,
-                    getter.returnType,
-                    acceptProperty,
-                    prefix,
-                    suffix
-                )
-            for (field in cl.javaClass.publicInstanceFields)
-                processProperty(cl, classDefinition, field.name, field, field.type, acceptProperty, prefix, suffix)
+            if (cl.javaClass.isRecord) {
+                for (component in cl.javaClass.recordComponents)
+                    processProperty(cl, classDefinition, component.name, component, component.type, acceptProperty, prefix, suffix)
+            } else {
+                for (getter in cl.javaClass.getters)
+                    processProperty(cl, classDefinition, getter.propertyName, getter, getter.returnType, acceptProperty, prefix, suffix)
+                for (field in cl.javaClass.publicInstanceFields)
+                    processProperty(cl, classDefinition, field.name, field, field.type, acceptProperty, prefix, suffix)
+            }
         }
     }
 

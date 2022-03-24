@@ -171,6 +171,16 @@ class TypeTranslatorTest {
         }
     }
 
+    @Nested
+    inner class `translating records`() {
+        @Test
+        fun `simple records`() {
+            val classDefinition = translateClass<SimpleRecord>()
+
+            assertEquals(setOf("foo", "bar"), classDefinition.propertyNames)
+        }
+    }
+
     @Test
     fun `ignore properties annotated with java beans Transient`() {
         val classDefinition = translateClass<ClassWithTransientIgnore>()
