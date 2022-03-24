@@ -8,6 +8,10 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
+repositories {
+    mavenCentral()
+}
+
 val asmVersion: String by rootProject.extra
 val kotlinMetadataVersion = "0.3.0"
 
@@ -61,9 +65,6 @@ tasks.jar {
 artifacts.add(configurations.archives.name, tasks.shadowJar)
 artifacts.add(configurations.archives.name, sourcesJar)
 artifacts.add(configurations.archives.name, javadocJar)
-repositories {
-    mavenCentral()
-}
 
 publishing {
     publications {
