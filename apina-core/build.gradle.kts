@@ -33,6 +33,20 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
+tasks.compileTestJava {
+    sourceCompatibility = "17"
+    targetCompatibility = "17"
+    javaCompiler.set(javaToolchains.compilerFor {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    })
+}
+
+tasks.test {
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    })
+}
+
 tasks.shadowJar {
     archiveBaseName.set("apina-core")
     archiveAppendix.set("")
