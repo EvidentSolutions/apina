@@ -1,3 +1,8 @@
+# 0.17.6 (2022-03-25)
+
+- Support translating Java records
+  ([#71](https://github.com/EvidentSolutions/apina/pull/71)
+
 # 0.17.5 (2021-10-06)
 
 - Support Kotlin's value classes
