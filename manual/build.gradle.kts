@@ -9,7 +9,7 @@ tasks.asciidoctor {
     attributes = mapOf("revnumber" to project.version.toString())
 }
 
-tasks.publishGhPages {
+tasks.prepareGhPages {
     dependsOn(tasks.asciidoctor)
 }
 
