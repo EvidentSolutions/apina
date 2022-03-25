@@ -33,13 +33,13 @@ plugins {
 
 tasks.apina {
     // Output file that Apina generates
-    target = File(project(":frontend").projectDir, "gen/apina-api.ts")
+    target.set(project(":frontend").layout.projectDirectory.file("gen/apina-api.ts"))
 
     // Generate code for Angular
-    platform = Platform.ANGULAR
+    platform.set(Platform.ANGULAR)
 
     // Regex matching our controller classes
-    endpoints = listOf("""hello\..+""")
+    endpoints.set(listOf("""hello\..+"""))
 }
 ----
 

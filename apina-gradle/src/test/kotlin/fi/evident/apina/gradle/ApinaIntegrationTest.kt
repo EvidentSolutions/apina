@@ -27,9 +27,9 @@ class ApinaIntegrationTest {
             }
 
             apina {
-                target = file('apina-output.ts')
-                imports = ['./apina-types': ['Foo', 'Bar']]
-                enumMode = "default"
+                target.set(file('apina-output.ts'))
+                imports.set(['./apina-types': ['Foo', 'Bar']])
+                enumMode.set("default")
             }
 
             dependencies {

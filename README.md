@@ -10,50 +10,50 @@ Read [the manual](https://apina.evident.fi/) for details.
 
 Include something like the following in your web application project:
 
-```groovy
+```kotlin
 plugins {
-    id "fi.evident.apina" version "0.17.6"
+    id("fi.evident.apina") version "0.17.6"
 }
 
-apina {
+tasks.apina {
     // Set the name of the created TypeScript file. Default is 'build/apina/apina.ts'.
-    target = new File(project(":frontend").projectDir, 'app/apina-api.ts')
+    target.set(project(":frontend").layout.projectDirectory.file("app/apina-api.ts"))
     
     // Specify types that should not be generated, but are implemented manually
     // and should be imported to the generated code. Keys are module paths, values 
     // are list of types imported from the module.
-    imports = [
-      './my-time-module': ['Instant', 'LocalDate'],
-      './other-module': ['Foo', 'Bar']
-    ]
+    imports.set(mapOf(
+        "./my-time-module" to listOf("Instant", "LocalDate"),
+        "./other-module" to listOf("Foo", "Bar")
+    ))
     
     // How Java enums are translated to TypeScript enums? (Default mode is 'default'.)
     //  - 'default'      => enum MyEnum { FOO = "FOO", BAR = "BAR", BAZ = "BAZ" }
     //  - 'int_enum'     => enum MyEnum { FOO, BAR, BAZ }
     //  - 'string_union' => type MyEnum = "FOO" | "BAR" | "BAZ"
-    enumMode = 'default'
+    enumMode.set(EnumMode.DEFAULT)
     
     // How nullables are translated to TypeScript interfaces? (Default mode is 'NULL'.)
     //  - 'NULL'      => name: Type | null
     //  - 'UNDEFINED' => name?: Type
-    optionalTypeMode = OptionalTypeMode.NULL
+    optionalTypeMode.set(OptionalTypeMode.NULL)
     
     // Which controllers to include when generating API? Defaults to everything.
-    endpoints = [/my\.package\.foo\..+/]
+    endpoints.set(listOf("""my\.package\.foo\..+"""))
     
     // If generated URLs would start with given prefix, removes it. Useful when configuring Apina
     // to work behind reverse proxies. Defaults to empty string (URL is not modified).
-    removedUrlPrefix = "/foo"
+    removedUrlPrefix.set("/foo")
     
     // Code generation target (Default is 'angular')
     // - 'angular' => Generate Angular module that uses Angular's HttpClient 
     // - 'es6' => Generate code that uses Fetch API and has no dependencies apart from ES6
-    platform = 'angular' 
+    platform.set(Platform.ANGULAR) 
 }
 
 // Tell the frontend to run apina before setup 
 // (the 'setup' task will probably be different for you)
-tasks.findByPath(":frontend:setup").dependsOn apina
+tasks.findByPath(":frontend:setup").dependsOn(tasks.apina)
 ```
 
 ## Using generated code

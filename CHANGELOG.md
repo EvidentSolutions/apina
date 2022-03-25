@@ -1,60 +1,79 @@
-# Unreleased
+## Unreleased
+
+### Breaking changes
+
+To take advantage of Gradle's [lazy configuration support](https://docs.gradle.org/current/userguide/lazy_configuration.html),
+properties of the plugin are now instances of [Property](https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html).
+
+Basically this means that instead of assigning directly to a property, you must call `set` on it.
+
+```kotlin
+apina {
+    // Old way
+    target = file('apina-output.ts')
+  
+    // New way
+    target.set(file('apina-output.ts'))
+}
+```
+
+### Other changes
 
 - Use Gradle extensions instead of using deprecated conventions to be compatible with Gradle 8.x
 
-# 0.17.6 (2022-03-25)
+## 0.17.6 (2022-03-25)
 
 - Support translating Java records
   ([#71](https://github.com/EvidentSolutions/apina/pull/71)
 
-# 0.17.5 (2021-10-06)
+## 0.17.5 (2021-10-06)
 
 - Support Kotlin's value classes
   ([#69](https://github.com/EvidentSolutions/apina/pull/69), thanks to [tuomoa](https://github.com/tuomoa))
 
-# 0.17.4 (2021-09-22)
+## 0.17.4 (2021-09-22)
 
 - Improve superclass lookup with Kotlin Serialization
 
-# 0.17.3 (2021-09-21)
+## 0.17.3 (2021-09-21)
 
 - Improved nullability annotation handling in Kotlin Serialization
 
-# 0.17.2 (2021-09-21)
+## 0.17.2 (2021-09-21)
 
 - Support private properties in Kotlin Serialization
 
-# 0.17.1 (2021-09-21)
+## 0.17.1 (2021-09-21)
 
 - Improved Kotlin Serialization -support: handle non-constructor properties and inheritance
 
-# 0.17.0 (2021-09-17)
+## 0.17.0 (2021-09-17)
 
 - Update ASM to 9.2, supporting Java 18
 - Initial support for [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization) as an alternative 
   to Jackson 
 
-# 0.16.0 (2021-05-03)
+## 0.16.0 (2021-05-03)
 
 - Bump Gradle version to 7.0
 - Remove publishing dependencies to Bintray
 
-# 0.15.3 (2021-02-19)
+## 0.15.3 (2021-02-19)
 
 - Add flag for translating nullable types as `Type | undefined` instead of `Type | null`
   ([#65](https://github.com/EvidentSolutions/apina/pull/65), thanks to [tuomoa](https://github.com/tuomoa))
 
-# 0.15.2 (2020-12-15)
+## 0.15.2 (2020-12-15)
 
 - Allow registering alternative translated names for classes
 
-# 0.15.0 (2020-11-10)
+## 0.15.0 (2020-11-10)
 
 - Allow registering serializers for dictionaries ([#38](https://github.com/EvidentSolutions/apina/pull/38))
 - Send required request headers in ES6 runtime ([#63](https://github.com/EvidentSolutions/apina/pull/63))
 - Fix duplicate class name assertion ([#64](https://github.com/EvidentSolutions/apina/pull/64))
 
-# 0.14.0 (2020-06-29)
+## 0.14.0 (2020-06-29)
 
 - Update ASM to 8.0.1, supporting Java 14 bytecode.
 - Bundle relocated version of ASM to prevent classpath conflicts with other libraries.

@@ -23,7 +23,7 @@ of trying to translate it:
 ----
 tasks.apina {
     ...
-    imports = mapOf("./my-apina-types" to listOf("Instant"))
+    imports.set(mapOf("./my-apina-types" to listOf("Instant")))
 }
 ----
 

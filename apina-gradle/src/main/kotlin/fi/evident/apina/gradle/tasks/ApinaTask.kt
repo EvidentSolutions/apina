@@ -1,4 +1,4 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
+@file:Suppress("MemberVisibilityCanBePrivate", "LeakingThis")
 
 package fi.evident.apina.gradle.tasks
 
@@ -11,60 +11,64 @@ import fi.evident.apina.model.settings.TypeWriteMode
 import fi.evident.apina.spring.EndpointParameterNameNotDefinedException
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import java.io.File
-import java.util.*
-import kotlin.properties.Delegates
 
 @CacheableTask
-open class ApinaTask : DefaultTask() {
+abstract class ApinaTask : DefaultTask() {
 
     @get:OutputFile
-    var target: File by Delegates.notNull()
+    abstract val target: RegularFileProperty
 
     @get:CompileClasspath
     @get:InputFiles
-    var classpath: FileCollection by Delegates.notNull()
+    abstract var classpath: FileCollection
 
     @get:Input
-    var blackBoxClasses: List<String> = ArrayList()
+    abstract val blackBoxClasses: ListProperty<String>
 
     @get:Input
-    var endpoints: List<String> = ArrayList()
+    abstract val endpoints: ListProperty<String>
 
     @get:Input
-    var endpointUrlMethods: List<String> = ArrayList()
+    abstract val endpointUrlMethods: ListProperty<String>
 
     @get:Input
-    var imports: Map<String, List<String>> = HashMap()
+    abstract val imports: MapProperty<String, List<String>>
 
     @get:Input
-    var classNameMapping: Map<String, String> = HashMap()
+    abstract val classNameMapping: MapProperty<String, String>
 
     @get:Input
-    var platform = Platform.ANGULAR
+    abstract val platform: Property<Platform>
 
     @get:Input
-    var typeWriteMode = TypeWriteMode.INTERFACE
+    abstract val typeWriteMode: Property<TypeWriteMode>
 
     @get:Input
-    var optionalTypeMode = OptionalTypeMode.NULL
+    abstract val optionalTypeMode: Property<OptionalTypeMode>
 
     @get:Input
-    var enumMode = EnumMode.DEFAULT
+    abstract val enumMode: Property<EnumMode>
 
     @get:Input
-    var removedUrlPrefix = ""
+    abstract val removedUrlPrefix: Property<String>
 
     init {
         description = "Generates TypeScript client code from Spring controllers and Jackson classes"
         group = BasePlugin.BUILD_GROUP
 
-        // TODO: resolve the build directory from project. however we can't simply say project.buildDir
-        // here since it's not yet overridden when plugin is applied
-        target = project.file("build/apina/apina.ts")
+        target.convention(project.layout.buildDirectory.file("apina/apina.ts"))
+        platform.convention(Platform.ANGULAR)
+        typeWriteMode.convention(TypeWriteMode.INTERFACE)
+        optionalTypeMode.convention(OptionalTypeMode.NULL)
+        enumMode.convention(EnumMode.DEFAULT)
+        removedUrlPrefix.convention("")
 
         val javaExtension = project.extensions.getByType(JavaPluginExtension::class.java)
         val mainSourceSet = javaExtension.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
@@ -81,27 +85,27 @@ open class ApinaTask : DefaultTask() {
 
             val processor = ApinaProcessor(myClasspath)
 
-            processor.settings.enumMode = enumMode
-            processor.settings.removedUrlPrefix = removedUrlPrefix
-            processor.settings.platform = platform
-            processor.settings.typeWriteMode = typeWriteMode
-            processor.settings.optionalTypeMode = optionalTypeMode
+            processor.settings.enumMode = enumMode.get()
+            processor.settings.removedUrlPrefix = removedUrlPrefix.get()
+            processor.settings.platform = platform.get()
+            processor.settings.typeWriteMode = typeWriteMode.get()
+            processor.settings.optionalTypeMode = optionalTypeMode.get()
 
-            endpoints.forEach { processor.settings.addControllerPattern(it) }
-            endpointUrlMethods.forEach { processor.settings.addEndpointUrlMethodPattern(it) }
+            endpoints.get().forEach { processor.settings.addControllerPattern(it) }
+            endpointUrlMethods.get().forEach { processor.settings.addEndpointUrlMethodPattern(it) }
 
-            for (pattern in blackBoxClasses)
+            for (pattern in blackBoxClasses.get())
                 processor.settings.blackBoxClasses.addPattern(pattern)
 
-            for ((key, value) in imports)
+            for ((key, value) in imports.get())
                 processor.settings.addImport(key, value)
 
-            for ((qualifiedName, translatedName) in classNameMapping)
+            for ((qualifiedName, translatedName) in classNameMapping.get())
                 processor.settings.nameTranslator.registerClassName(qualifiedName, translatedName)
 
             val output = processor.process()
 
-            target.writeText(output)
+            target.get().asFile.writeText(output)
 
         } catch (e: EndpointParameterNameNotDefinedException) {
             logger.error("{}\nConsider adding 'compileJava { options.compilerArgs = ['-parameters'] }' to your build file.", e.message)

@@ -94,7 +94,7 @@ tell Apina that we want URL-generation for this method:
 [source,kotlin]
 ----
 tasks.apina {
-    endpointUrlMethods = listOf("""hello\.DownloadController\.download""")
+    endpointUrlMethods.set(listOf("""hello\.DownloadController\.download"""))
 }
 ----
 
