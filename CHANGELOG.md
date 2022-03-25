@@ -1,3 +1,7 @@
+# Unreleased
+
+- Use Gradle extensions instead of using deprecated conventions to be compatible with Gradle 8.x
+
 # 0.17.6 (2022-03-25)
 
 - Support translating Java records

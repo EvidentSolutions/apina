@@ -12,7 +12,7 @@ import fi.evident.apina.spring.EndpointParameterNameNotDefinedException
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.*
 import java.io.File
 import java.util.*
@@ -66,8 +66,8 @@ open class ApinaTask : DefaultTask() {
         // here since it's not yet overridden when plugin is applied
         target = project.file("build/apina/apina.ts")
 
-        val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-        val mainSourceSet = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+        val javaExtension = project.extensions.getByType(JavaPluginExtension::class.java)
+        val mainSourceSet = javaExtension.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
 
         classpath = mainSourceSet.output + mainSourceSet.compileClasspath
     }
