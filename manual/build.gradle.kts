@@ -13,6 +13,10 @@ tasks.prepareGhPages {
     dependsOn(tasks.asciidoctor)
 }
 
+tasks.check {
+    dependsOn(tasks.asciidoctor)
+}
+
 githubPages {
     setRepoUri("git@github.com:EvidentSolutions/apina.git")
     deleteExistingFiles = true
