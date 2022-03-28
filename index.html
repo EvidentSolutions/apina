@@ -444,7 +444,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">Juha Komulainen</span><br>
 <span id="email" class="email"><a href="mailto:juha.komulainen@evident.fi">juha.komulainen@evident.fi</a></span><br>
-<span id="revnumber">version 0.17.6</span>
+<span id="revnumber">version 0.18.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -534,18 +534,18 @@ class HelloController {
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code data-lang="kotlin">plugins {
-    id("fi.evident.apina") version "0.17.6"
+    id("fi.evident.apina") version "0.18.0"
 }
 
 tasks.apina {
     // Output file that Apina generates
-    target = File(project(":frontend").projectDir, "gen/apina-api.ts")
+    target.set(project(":frontend").layout.projectDirectory.file("gen/apina-api.ts"))
 
     // Generate code for Angular
-    platform = Platform.ANGULAR
+    platform.set(Platform.ANGULAR)
 
     // Regex matching our controller classes
-    endpoints = listOf("""hello\..+""")
+    endpoints.set(listOf("""hello\..+"""))
 }</code></pre>
 </div>
 </div>
@@ -886,7 +886,7 @@ of trying to translate it:</p>
 <div class="content">
 <pre class="prettyprint highlight"><code data-lang="kotlin">tasks.apina {
     ...
-    imports = mapOf("./my-apina-types" to listOf("Instant"))
+    imports.set(mapOf("./my-apina-types" to listOf("Instant")))
 }</code></pre>
 </div>
 </div>
@@ -1083,7 +1083,7 @@ tell Apina that we want URL-generation for this method:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code data-lang="kotlin">tasks.apina {
-    endpointUrlMethods = listOf("""hello\.DownloadController\.download""")
+    endpointUrlMethods.set(listOf("""hello\.DownloadController\.download"""))
 }</code></pre>
 </div>
 </div>
@@ -1113,51 +1113,51 @@ you need to  pass the body manually when you end up calling the URL.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code data-lang="kotlin">plugins {
-    id("fi.evident.apina") version "0.17.6"
+    id("fi.evident.apina") version "0.18.0"
 }
 
 tasks.apina {
     // Set the name of the created TypeScript file. Default is "build/apina/apina.ts".
-    target = File(project(":frontend").projectDir, "app/apina-api.ts")
+    target.set(project(":frontend").layout.projectDirectory.file("app/apina-api.ts"))
 
     // Specify types that should not be generated, but are implemented manually
     // and should be imported to the generated code. Keys are module paths, values
     // are list of types imported from the module.
-    imports = mapOf(
+    imports.set(mapOf(
       "./my-time-module" to listOf("Instant", "LocalDate"),
       "./other-module" to listOf("Foo", "Bar")
-    )
+    ))
 
     // How Java enums are translated to TypeScript enums? (Default mode is 'DEFAULT'.)
     //  - 'DEFAULT'      =&gt; enum MyEnum { FOO = "FOO", BAR = "BAR", BAZ = "BAZ" }
     //  - 'INT_ENUM'     =&gt; enum MyEnum { FOO, BAR, BAZ }
     //  - 'STRING_UNION' =&gt; type MyEnum = "FOO" | "BAR" | "BAZ"
-    enumMode = EnumMode.DEFAULT
+    enumMode.set(EnumMode.DEFAULT)
 
     // How nullables are translated to TypeScript interfaces? (Default mode is 'NULL'.)
     //  - 'NULL'      =&gt; name: Type | null
     //  - 'UNDEFINED' =&gt; name?: Type
-    optionalTypeMode = OptionalTypeMode.NULL
+    optionalTypeMode.set(OptionalTypeMode.NULL)
 
     // Which controllers to include when generating API? Defaults to everything.
     // Given regexes may safely match other things that are not controllers, but it pays to
     // limit the scope because otherwise Apina needs to parse bytecode of all the classes
     // in your classpath to find the controllers.
-    endpoints = listOf("""my\.package\.foo\..+""")
+    endpoints.set(listOf("""my\.package\.foo\..+"""))
 
     // Which methods to include when generating URL methods. This is a subset of normal
     // endpoint methods. Pattern to match is 'package.name.ClassName.methodName'. By
     // default this set is empty and no URL-methods are generated.
-    endpointUrlMethods = listOf(""".+\.download.*""")
+    endpointUrlMethods.set(listOf(""".+\.download.*"""))
 
     // If generated URLs would start with given prefix, removes it. Useful when configuring Apina
     // to work behind reverse proxies. Defaults to empty string (URL is not modified).
-    removedUrlPrefix = "/foo"
+    removedUrlPrefix.set("/foo")
 
     // Code generation target (Default is 'ANGULAR')
     // - 'ANGULAR' =&gt; Generate Angular module that uses Angular's HttpClient
     // - 'ES6' =&gt; Generate code that uses Fetch API and has no dependencies apart from ES6
-    platform = Platform.ANGULAR
+    platform.set(Platform.ANGULAR)
 }</code></pre>
 </div>
 </div>
@@ -1276,8 +1276,8 @@ or we can generate code for standalone ES6, using the Fetch API for requests.</p
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.17.6<br>
-Last updated 2021-05-03 14:46:45 +0300
+Version 0.18.0<br>
+Last updated 2022-03-25 09:27:12 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
