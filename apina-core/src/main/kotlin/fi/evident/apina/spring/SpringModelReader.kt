@@ -15,6 +15,7 @@ import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.spring.SpringTypes.CALLABLE
 import fi.evident.apina.spring.SpringTypes.HTTP_ENTITY
+import fi.evident.apina.spring.SpringTypes.MONO
 import fi.evident.apina.spring.SpringTypes.PATH_VARIABLE
 import fi.evident.apina.spring.SpringTypes.REQUEST_BODY
 import fi.evident.apina.spring.SpringTypes.REQUEST_MAPPING
@@ -138,7 +139,7 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     companion object {
 
         private val log = LoggerFactory.getLogger(SpringModelReader::class.java)
-        val RESPONSE_WRAPPERS = listOf(HTTP_ENTITY, RESPONSE_ENTITY, CALLABLE)
+        private val RESPONSE_WRAPPERS = listOf(HTTP_ENTITY, RESPONSE_ENTITY, CALLABLE, MONO)
 
         fun readApiDefinition(model: JavaModel, settings: TranslationSettings): ApiDefinition {
             val reader = SpringModelReader(model, settings)

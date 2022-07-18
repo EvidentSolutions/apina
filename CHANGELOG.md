@@ -1,3 +1,7 @@
+## Unreleased
+
+- Translate response type `Mono<T>` as `T`.
+
 ## 0.18.0 (2022-03-28)
 
 ### Breaking changes

@@ -15,5 +15,6 @@ object SpringTypes {
     val PATH_VARIABLE = JavaType.Basic("org.springframework.web.bind.annotation.PathVariable")
     val RESPONSE_ENTITY = JavaType.Basic("org.springframework.http.ResponseEntity")
     val HTTP_ENTITY = JavaType.Basic("org.springframework.http.HttpEntity")
+    val MONO = JavaType.Basic("reactor.core.publisher.Mono")
     val CALLABLE = JavaType.basic<Callable<*>>()
 }
