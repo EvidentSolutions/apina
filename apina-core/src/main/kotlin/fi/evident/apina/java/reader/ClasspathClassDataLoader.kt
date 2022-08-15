@@ -48,7 +48,7 @@ class ClasspathClassDataLoader(classpath: Classpath) : ClassDataLoader, Closeabl
                 scanClassesInArchiveFile(path)
 
             !path.exists() ->
-                log.warn("Skipping nonexistent classpath entry: {}", path)
+                log.debug("Skipping nonexistent classpath entry: {}", path)
 
             else ->
                 log.warn("Unknown classpath entry: $path")
