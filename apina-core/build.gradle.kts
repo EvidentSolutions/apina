@@ -13,7 +13,7 @@ repositories {
 }
 
 val asmVersion: String by rootProject.extra
-val kotlinMetadataVersion = "0.3.0"
+val kotlinMetadataVersion = "0.5.0"
 
 dependencies {
     // We have to define explicit version here or invalid POM is generated
