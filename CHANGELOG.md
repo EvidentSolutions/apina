@@ -1,4 +1,4 @@
-## Unreleased
+## 0.19.0 (2022-08-31)
 
 - Support Kotlin 1.7
 - Translate response type `Mono<T>` as `T`.
