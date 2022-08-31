@@ -29,7 +29,7 @@ internal class KotlinSerializationTypeTranslator(
     fun translateClass(javaClass: JavaClass, typeName: ApiTypeName, env: TypeEnvironment): ApiType {
         val classType = ApiType.Class(typeName)
 
-        val metadata = javaClass.kotlinMetadata ?: error("no kotlin metadata for ${javaClass.name}")
+        val metadata = javaClass.kotlinMetadata ?: error("Could not find Kotlin metadata for class ${javaClass.name}")
 
         if (!api.containsType(typeName)) {
             when {
