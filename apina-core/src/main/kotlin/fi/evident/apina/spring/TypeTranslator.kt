@@ -8,6 +8,8 @@ import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
+import kotlinx.metadata.KmClassifier
+import kotlinx.metadata.KmType
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -37,17 +39,22 @@ internal class TypeTranslator(
     fun translateType(type: JavaType, env: TypeEnvironment): ApiType = when (type) {
         is JavaType.Basic ->
             translateBasicType(type, env)
+
         is JavaType.Parameterized ->
             translateParameterizedType(type, env)
+
         is JavaType.Array ->
             ApiType.Array(translateType(type.elementType, env))
+
         is JavaType.Variable ->
             env.lookup(type)?.let {
                 check(it != type) { "Looking up type returned itself: $type in $env" }
                 translateType(it, env)
             } ?: ApiType.Primitive.ANY
+
         is JavaType.Wildcard ->
             type.lowerBound?.let { translateType(it, env) } ?: ApiType.Primitive.ANY
+
         is JavaType.InnerClass ->
             throw UnsupportedOperationException("translating inner class types is not supported: $type")
     }
@@ -100,13 +107,24 @@ internal class TypeTranslator(
             return ApiType.BlackBox(typeName)
         }
 
-        val javaClass = classes.findClass(type.name) ?:
-            return ApiType.Class(typeName)
+        val javaClass = classes.findClass(type.name) ?: return ApiType.Class(typeName)
 
-        if (kotlinSerializationTypeTranslator.supports(javaClass))
-            return kotlinSerializationTypeTranslator.translateClass(javaClass, typeName, env)
-        else
-            return jacksonTypeTranslator.translateClass(javaClass, typeName, env)
+        val inlineType = javaClass.kotlinMetadata?.inlineClassUnderlyingType
+        return when {
+            inlineType != null ->
+                translateInlineClass(typeName, inlineType, env)
+
+            kotlinSerializationTypeTranslator.supports(javaClass) ->
+                kotlinSerializationTypeTranslator.translateClass(javaClass, typeName, env)
+
+            else ->
+                jacksonTypeTranslator.translateClass(javaClass, typeName, env)
+        }
+    }
+
+    private fun translateInlineClass(type: ApiTypeName, inlineType: KmType, env: TypeEnvironment): ApiType {
+        api.addTypeAlias(type, translateType(typeForKotlinType(inlineType), env))
+        return ApiType.BlackBox(type)
     }
 
     private fun translateParameterizedType(type: JavaType.Parameterized, env: TypeEnvironment): ApiType {
@@ -116,10 +134,13 @@ internal class TypeTranslator(
         return when {
             classes.isInstanceOf<Collection<*>>(baseType) && arguments.size == 1 ->
                 ApiType.Array(arguments[0])
+
             classes.isInstanceOf<Map<*, *>>(baseType) && arguments.size == 2 && arguments[0] == ApiType.Primitive.STRING ->
                 ApiType.Dictionary(arguments[1])
+
             classes.isInstanceOf<Optional<*>>(baseType) && arguments.size == 1 ->
                 ApiType.Nullable(arguments[0])
+
             else ->
                 translateType(baseType, env)
         }
@@ -135,7 +156,28 @@ internal class TypeTranslator(
         return ApiTypeName(translatedName)
     }
 
+    fun typeForKotlinType(type: KmType): JavaType = when (val classifier = type.classifier) {
+        is KmClassifier.Class -> resolveJavaTypeForKotlinClassName(classifier.name)
+        is KmClassifier.TypeAlias -> throw java.lang.UnsupportedOperationException("can't resolve Java-types for type-alias: ${classifier.name}'")
+        is KmClassifier.TypeParameter -> throw java.lang.UnsupportedOperationException("can't resolve Java-types for type-parameter: '${classifier.id}'")
+    }
+
+    private fun resolveJavaTypeForKotlinClassName(name: String): JavaType = when (name) {
+        "kotlin/Boolean" -> JavaType.Basic.BOOLEAN
+        "kotlin/Int" -> JavaType.Basic.INT
+        "kotlin/Short" -> JavaType.Basic.SHORT
+        "kotlin/Long" -> JavaType.Basic.LONG
+        "kotlin/Float" -> JavaType.Basic.FLOAT
+        "kotlin/Double" -> JavaType.Basic.DOUBLE
+        "kotlin/Unit" -> JavaType.Basic.VOID
+        "kotlin/String" -> JavaType.Basic(String::class.java)
+        else -> JavaType.Basic(kotlinNameToJavaName(name))
+    }
+
     companion object {
+
+        fun kotlinNameToJavaName(name: String) =
+            name.replace('.', '$').replace('/', '.')
 
         private val log = LoggerFactory.getLogger(TypeTranslator::class.java)
 

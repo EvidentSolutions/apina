@@ -7,10 +7,10 @@ import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.model.*
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
+import fi.evident.apina.spring.TypeTranslator.Companion.kotlinNameToJavaName
 import kotlinx.metadata.*
 import kotlinx.metadata.jvm.fieldSignature
 import kotlinx.metadata.jvm.syntheticMethodForAnnotations
-import java.lang.UnsupportedOperationException
 
 /**
  * Translates kotlinx-serialization classes to model types.
@@ -72,10 +72,6 @@ internal class KotlinSerializationTypeTranslator(
     private fun findSealedSubClasses(metadata: KmClass) =
         metadata.sealedSubclasses.mapNotNull { classes.findClass(kotlinNameToJavaName(it)) }
 
-    private fun kotlinNameToJavaName(name: String) =
-        name.replace('.', '$').replace('/', '.')
-
-
     private fun initClassDefinition(
         classDefinition: ClassDefinition,
         javaClass: JavaClass,
@@ -104,7 +100,7 @@ internal class KotlinSerializationTypeTranslator(
         classDefinition: ClassDefinition,
         hasInitializer: Boolean
     ) {
-        val javaType = resolveJavaType(property.returnType)
+        val javaType = typeTranslator.typeForKotlinType(property.returnType)
 
         val annotationSource = property.syntheticMethodForAnnotations
             ?.let { p -> javaClass.methods.find { it.name == p.name && it.descriptor == p.desc } }
@@ -119,24 +115,6 @@ internal class KotlinSerializationTypeTranslator(
             type = type.nullable() // TODO: strictly speaking these are undefined and not null
 
         classDefinition.addProperty(PropertyDefinition(propertyName, type))
-    }
-
-    private fun resolveJavaType(type: KmType): JavaType = when (val classifier = type.classifier) {
-        is KmClassifier.Class -> resolveJavaTypeForKotlinClassName(classifier.name)
-        is KmClassifier.TypeAlias -> throw UnsupportedOperationException("can't resolve Java-types for type-alias: ${classifier.name}'")
-        is KmClassifier.TypeParameter -> throw UnsupportedOperationException("can't resolve Java-types for type-parameter: '${classifier.id}'")
-    }
-
-    private fun resolveJavaTypeForKotlinClassName(name: String): JavaType = when (name) {
-        "kotlin/Boolean" -> JavaType.Basic.BOOLEAN
-        "kotlin/Int" -> JavaType.Basic.INT
-        "kotlin/Short" -> JavaType.Basic.SHORT
-        "kotlin/Long" -> JavaType.Basic.LONG
-        "kotlin/Float" -> JavaType.Basic.FLOAT
-        "kotlin/Double" -> JavaType.Basic.DOUBLE
-        "kotlin/Unit" -> JavaType.Basic.VOID
-        "kotlin/String" -> JavaType.Basic(String::class.java)
-        else -> JavaType.Basic(kotlinNameToJavaName(name))
     }
 
     companion object {

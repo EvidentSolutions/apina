@@ -11,12 +11,12 @@ import fi.evident.apina.model.ClassDefinition
 import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
+import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.testclasses.*
 import kotlinx.serialization.Required
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -167,6 +167,27 @@ class KotlinSerializationTypeTranslatorTest {
             "floatProperty" to ApiType.Primitive.FLOAT,
             "doubleProperty" to ApiType.Primitive.FLOAT,
         )
+    }
+
+    @Test
+    fun `check that inline classses are translated as type-aliases`() {
+        @Serializable
+        @Suppress("unused")
+        class MyClass(
+            val integerProperty: Int,
+            val integerValueTypeProperty: ValueInteger
+        )
+
+        loader.loadClassesFromInheritanceTree<ValueInteger>()
+
+        val classDefinition = translateClass<MyClass>()
+        assertHasProperties(
+            classDefinition,
+            "integerProperty" to ApiType.Primitive.INTEGER,
+            "integerValueTypeProperty" to ApiType.BlackBox(ApiTypeName("ValueInteger"))
+        )
+
+        assertHasTypeAlias(api, "ValueInteger", ApiType.Primitive.INTEGER)
     }
 
     @Serializable
