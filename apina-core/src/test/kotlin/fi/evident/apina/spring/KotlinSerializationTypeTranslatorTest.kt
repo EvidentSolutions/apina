@@ -201,6 +201,22 @@ class KotlinSerializationTypeTranslatorTest {
         class SubClassWithCustomDiscriminator(val y: Int) : KotlinSerializationDiscriminatedUnion()
     }
 
+    @Test
+    fun `translating nullable types`() {
+        @Serializable
+        @Suppress("unused")
+        class MyClass(
+            val nullableIntegerProperty: Int?,
+        )
+
+        val classDefinition = translateClass<MyClass>()
+
+        assertHasProperties(
+            classDefinition,
+            "nullableIntegerProperty" to ApiType.Nullable(ApiType.Primitive.INTEGER),
+        )
+    }
+
     private fun translateType(type: JavaType): ApiType =
         translator.translateType(
             type,

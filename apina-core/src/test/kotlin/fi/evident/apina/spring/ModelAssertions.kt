@@ -8,16 +8,16 @@ import kotlin.test.assertEquals
 
 fun assertHasProperties(classDefinition: ClassDefinition, vararg properties: Pair<String, ApiType>) {
     assertEquals(
-        classDefinition.properties.associate { it.name to it.type }.toSortedMap(),
         properties.toMap().toSortedMap(),
+        classDefinition.properties.associate { it.name to it.type }.toSortedMap(),
         "Properties don't match"
     )
 }
 
 fun assertHasProperties(classDefinition: ClassDefinition, vararg properties: String) {
     assertEquals(
-        classDefinition.properties.map { it.name }.toSortedSet(),
         properties.toSortedSet(),
+        classDefinition.properties.map { it.name }.toSortedSet(),
         "Properties don't match"
     )
 }
