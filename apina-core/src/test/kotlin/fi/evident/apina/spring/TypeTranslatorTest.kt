@@ -20,7 +20,6 @@ import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.testclasses.*
-import kotlinx.serialization.SerialName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.Collections.emptyList
@@ -160,24 +159,24 @@ class TypeTranslatorTest {
         fun `class hierarchy with ignores`() {
             val classDefinition = translateClass<TypeWithIgnoresAndSuperClass>()
 
-            assertEquals(setOf("bar", "baz"), classDefinition.propertyNames)
+            assertHasProperties(classDefinition, "bar", "baz")
         }
 
         @Test
         fun `ignores can be overridden in sub classes`() {
             val classDefinition = translateClass<TypeWithOverridingIgnore>()
 
-            assertEquals(setOf("foo"), classDefinition.propertyNames)
+            assertHasProperties(classDefinition, "foo")
         }
     }
 
     @Nested
-    inner class `translating records`() {
+    inner class `translating records` {
         @Test
         fun `simple records`() {
             val classDefinition = translateClass<SimpleRecord>()
 
-            assertEquals(setOf("foo", "bar"), classDefinition.propertyNames)
+            assertHasProperties(classDefinition, "foo", "bar")
         }
     }
 
@@ -185,21 +184,21 @@ class TypeTranslatorTest {
     fun `ignore properties annotated with java beans Transient`() {
         val classDefinition = translateClass<ClassWithTransientIgnore>()
 
-        assertEquals(setOf("bar"), classDefinition.propertyNames)
+        assertHasProperties(classDefinition, "bar")
     }
 
     @Test
     fun `ignore properties annotated with Spring Data Transient`() {
         val classDefinition = translateClass<ClassWithSpringDataTransient>()
 
-        assertEquals(setOf("foo"), classDefinition.propertyNames)
+        assertHasProperties(classDefinition, "foo")
     }
 
     @Test
     fun `ignore transient fields`() {
         val classDefinition = translateClass<ClassWithTransientFields>()
 
-        assertEquals(setOf("foo", "baz"), classDefinition.propertyNames)
+        assertHasProperties(classDefinition, "foo", "baz")
     }
 
     @Test
@@ -399,135 +398,6 @@ class TypeTranslatorTest {
         assertEquals("MyOverriddenFoo", translateClass<Foo>().type.name)
     }
 
-    @Nested
-    inner class `kotlin serialization` {
-
-        @Test
-        fun `basic class definition`() {
-
-            @Suppress("unused")
-            @kotlinx.serialization.Serializable
-            class Example(
-                val normalProperty: String,
-                @kotlinx.serialization.Transient val ignoredProperty: String = "",
-                @kotlinx.serialization.SerialName("overriddenName") val propertyWithOverriddenName: String,
-                val fieldWithDefaultWillBeNullable: Int = 42,
-                @kotlinx.serialization.Required val requiredFieldWithDefaultWillNotBeNullable: Int = 42,
-                val nullableParameter: Int?,
-                val valueString: ValueString
-            )
-
-            val classDefinition = translateClass<Example>()
-
-            assertHasProperties(
-                classDefinition,
-                "normalProperty" to ApiType.Primitive.STRING,
-                "overriddenName" to ApiType.Primitive.STRING,
-                "fieldWithDefaultWillBeNullable" to ApiType.Primitive.INTEGER.nullable(),
-                "nullableParameter" to ApiType.Primitive.INTEGER.nullable(),
-                "requiredFieldWithDefaultWillNotBeNullable" to ApiType.Primitive.INTEGER,
-                "valueString" to ApiType.Primitive.STRING
-            )
-        }
-
-        @Test
-        fun `discriminated unions`() {
-            loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion>()
-            loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithCustomDiscriminator>()
-            loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator>()
-
-            translator.translateType(
-                JavaType.basic<KotlinSerializationDiscriminatedUnion>(),
-                MockAnnotatedElement(),
-                TypeEnvironment.empty()
-            )
-
-            val definition =
-                api.discriminatedUnionDefinitions.find { it.type.name == KotlinSerializationDiscriminatedUnion::class.simpleName }
-                    ?: fail("could not find union")
-
-            assertEquals("type", definition.discriminator)
-
-            assertEquals(
-                setOf(
-                    "CustomDiscriminator",
-                    KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator::class.qualifiedName
-                ),
-                definition.types.keys
-            )
-        }
-
-        @Suppress("unused")
-        @Test
-        fun `inherited fields`() {
-            @kotlinx.serialization.Serializable
-            open class ParentClass(val parentParameter: Int) {
-                var parentProperty = "string"
-
-                @kotlinx.serialization.Required
-                var requiredParentProperty = "string"
-
-                val propertyWithoutBackingField: String
-                    get() = "no-included"
-            }
-
-            @kotlinx.serialization.Serializable
-            class ChildClass(val ownParameter: Int) : ParentClass(42) {
-                var ownProperty = "string"
-
-                @kotlinx.serialization.Required
-                var requiredOwnProperty = "string"
-
-                @kotlinx.serialization.Transient
-                private var transientPrivateProperty = "42"
-
-                @SerialName("renamedPrivatePropertyNewName")
-                private var renamedPrivateProperty = "42"
-
-                private var privateProperty = "42"
-
-                @kotlinx.serialization.Required
-                private var requiredPrivateProperty = "42"
-
-                @kotlinx.serialization.Required
-                private var isProperty = false
-            }
-
-            loader.loadClassesFromInheritanceTree<ParentClass>()
-            loader.loadClassesFromInheritanceTree<ChildClass>()
-
-            translator.translateType(JavaType.basic<ChildClass>(), MockAnnotatedElement(), TypeEnvironment.empty())
-
-            val classDefinition = api.classDefinitions.find { it.type.name == ChildClass::class.simpleName }
-                ?: fail("could not find class")
-
-            assertHasProperties(
-                classDefinition,
-                "ownParameter" to ApiType.Primitive.INTEGER,
-                "ownProperty" to ApiType.Primitive.STRING.nullable(),
-                "requiredOwnProperty" to ApiType.Primitive.STRING,
-                "privateProperty" to ApiType.Primitive.STRING.nullable(),
-                "renamedPrivatePropertyNewName" to ApiType.Primitive.STRING.nullable(),
-                "requiredPrivateProperty" to ApiType.Primitive.STRING,
-                "isProperty" to ApiType.Primitive.BOOLEAN,
-                "parentParameter" to ApiType.Primitive.INTEGER,
-                "parentProperty" to ApiType.Primitive.STRING.nullable(),
-                "requiredParentProperty" to ApiType.Primitive.STRING
-            )
-        }
-    }
-
-    @kotlinx.serialization.Serializable
-    sealed class KotlinSerializationDiscriminatedUnion {
-
-        @kotlinx.serialization.Serializable
-        class SubClassWithDefaultDiscriminator(val x: Int) : KotlinSerializationDiscriminatedUnion()
-
-        @kotlinx.serialization.Serializable
-        @kotlinx.serialization.SerialName("CustomDiscriminator")
-        class SubClassWithCustomDiscriminator(val y: Int) : KotlinSerializationDiscriminatedUnion()
-    }
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes(
         JsonSubTypes.Type(value = Vehicle.Car::class, name = "car"),
@@ -568,19 +438,5 @@ class TypeTranslatorTest {
 
         return api.enumDefinitions.find { d -> d.type.toString() == apiType.toTypeScript(OptionalTypeMode.NULL) }
             ?: fail("could not find definition for $apiType")
-    }
-
-    companion object {
-
-        private fun assertHasProperties(classDefinition: ClassDefinition, vararg properties: Pair<String, ApiType>) {
-            assertEquals(
-                classDefinition.properties.associate { it.name to it.type }.toSortedMap(),
-                properties.toMap().toSortedMap(),
-                "Properties don't match"
-            )
-        }
-
-        private val ClassDefinition.propertyNames: Set<String>
-            get() = properties.map { it.name }.toSet()
     }
 }

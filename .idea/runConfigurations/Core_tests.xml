@@ -2,7 +2,7 @@
   <configuration default="false" name="Core tests" type="JUnit" factoryName="JUnit" singleton="true">
     <module name="apina.apina-core.test" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+    <option name="ALTERNATIVE_JRE_PATH" value="17" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
