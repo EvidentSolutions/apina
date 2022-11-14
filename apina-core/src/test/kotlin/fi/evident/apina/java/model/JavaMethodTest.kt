@@ -18,6 +18,7 @@ class JavaMethodTest {
 
     private fun methodWithModifiers(modifiers: Int) =
         JavaMethod(
+            descriptor = "()V",
             owningClass = arbitraryClass(),
             name = "foo",
             visibility = JavaVisibility.PUBLIC,

@@ -7,10 +7,10 @@ import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.model.*
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
-import kotlinx.metadata.Flag
-import kotlinx.metadata.KmClass
-import kotlinx.metadata.KmProperty
+import kotlinx.metadata.*
 import kotlinx.metadata.jvm.fieldSignature
+import kotlinx.metadata.jvm.syntheticMethodForAnnotations
+import java.lang.UnsupportedOperationException
 
 /**
  * Translates kotlinx-serialization classes to model types.
@@ -35,8 +35,10 @@ internal class KotlinSerializationTypeTranslator(
             when {
                 javaClass.isEnum ->
                     api.addEnumDefinition(EnumDefinition(typeName, javaClass.enumConstants))
+
                 Flag.IS_SEALED(metadata.flags) ->
                     createDiscriminatedUnion(javaClass, metadata)
+
                 else -> {
                     val classDefinition = ClassDefinition(typeName)
                     // Add this before further processing because the type may be recursively referenced in definition
@@ -102,23 +104,39 @@ internal class KotlinSerializationTypeTranslator(
         classDefinition: ClassDefinition,
         hasInitializer: Boolean
     ) {
-        val getter = javaClass.getters.find { it.hasPropertyName(property.name) }
-        val field = javaClass.findField(property.name)
-        val javaType = getter?.returnType
-            ?: field?.type
-            ?: error("No getter or field found for property ${property.name} in ${javaClass.name}")
+        val javaType = resolveJavaType(property.returnType)
 
-        val annotationSource = javaClass.findExtraAnnotationSource(property.name)
+        val annotationSource = property.syntheticMethodForAnnotations
+            ?.let { p -> javaClass.methods.find { it.name == p.name && it.descriptor == p.desc } }
+
         if (annotationSource?.hasAnnotation(TRANSIENT) == true)
             return
 
         val propertyName = annotationSource?.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: property.name
 
         var type = typeTranslator.translateType(javaType, env)
-        if (getter?.hasNullableAnnotation == true || field?.hasNullableAnnotation == true || (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null))
+        if (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null)
             type = type.nullable() // TODO: strictly speaking these are undefined and not null
 
         classDefinition.addProperty(PropertyDefinition(propertyName, type))
+    }
+
+    private fun resolveJavaType(type: KmType): JavaType = when (val classifier = type.classifier) {
+        is KmClassifier.Class -> resolveJavaTypeForKotlinClassName(classifier.name)
+        is KmClassifier.TypeAlias -> throw UnsupportedOperationException("can't resolve Java-types for type-alias: ${classifier.name}'")
+        is KmClassifier.TypeParameter -> throw UnsupportedOperationException("can't resolve Java-types for type-parameter: '${classifier.id}'")
+    }
+
+    private fun resolveJavaTypeForKotlinClassName(name: String): JavaType = when (name) {
+        "kotlin/Boolean" -> JavaType.Basic.BOOLEAN
+        "kotlin/Int" -> JavaType.Basic.INT
+        "kotlin/Short" -> JavaType.Basic.SHORT
+        "kotlin/Long" -> JavaType.Basic.LONG
+        "kotlin/Float" -> JavaType.Basic.FLOAT
+        "kotlin/Double" -> JavaType.Basic.DOUBLE
+        "kotlin/Unit" -> JavaType.Basic.VOID
+        "kotlin/String" -> JavaType.Basic(String::class.java)
+        else -> JavaType.Basic(kotlinNameToJavaName(name))
     }
 
     companion object {

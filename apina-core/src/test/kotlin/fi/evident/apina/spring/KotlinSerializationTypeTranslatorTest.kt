@@ -16,6 +16,7 @@ import kotlinx.serialization.Required
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -39,8 +40,7 @@ class KotlinSerializationTypeTranslatorTest {
             @SerialName("overriddenName") val propertyWithOverriddenName: String,
             val fieldWithDefaultWillBeNullable: Int = 42,
             @Required val requiredFieldWithDefaultWillNotBeNullable: Int = 42,
-            val nullableParameter: Int?,
-            val valueString: ValueString
+            val nullableParameter: Int? = null
         )
 
         val classDefinition = translateClass<Example>()
@@ -51,8 +51,7 @@ class KotlinSerializationTypeTranslatorTest {
             "overriddenName" to ApiType.Primitive.STRING,
             "fieldWithDefaultWillBeNullable" to ApiType.Primitive.INTEGER.nullable(),
             "nullableParameter" to ApiType.Primitive.INTEGER.nullable(),
-            "requiredFieldWithDefaultWillNotBeNullable" to ApiType.Primitive.INTEGER,
-            "valueString" to ApiType.Primitive.STRING
+            "requiredFieldWithDefaultWillNotBeNullable" to ApiType.Primitive.INTEGER
         )
     }
 
@@ -139,6 +138,34 @@ class KotlinSerializationTypeTranslatorTest {
             "parentParameter" to ApiType.Primitive.INTEGER,
             "parentProperty" to ApiType.Primitive.STRING.nullable(),
             "requiredParentProperty" to ApiType.Primitive.STRING
+        )
+    }
+
+    @Test
+    fun `translate kotlin type types to Java types`() {
+
+        @Serializable
+        @Suppress("unused")
+        class MyClass(
+            val stringProperty: String,
+            val booleanProperty: Boolean,
+            val intProperty: Int,
+            val shortProperty: Short,
+            val longProperty: Long,
+            val floatProperty: Float,
+            val doubleProperty: Double,
+        )
+
+        val classDefinition = translateClass<MyClass>()
+        assertHasProperties(
+            classDefinition,
+            "stringProperty" to ApiType.Primitive.STRING,
+            "booleanProperty" to ApiType.Primitive.BOOLEAN,
+            "intProperty" to ApiType.Primitive.INTEGER,
+            "shortProperty" to ApiType.Primitive.INTEGER,
+            "longProperty" to ApiType.Primitive.INTEGER,
+            "floatProperty" to ApiType.Primitive.FLOAT,
+            "doubleProperty" to ApiType.Primitive.FLOAT,
         )
     }
 

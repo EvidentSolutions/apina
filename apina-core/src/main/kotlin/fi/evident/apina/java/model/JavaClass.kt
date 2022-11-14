@@ -108,15 +108,6 @@ class JavaClass(
         }
     }
 
-    /**
-     * Kotlin compiler generates synthetic methods for properties
-     */
-    fun findExtraAnnotationSource(propertyName: String): JavaAnnotatedElement? {
-        val basicName = "$propertyName\$annotations"
-        val getterName = "get" + basicName.replaceFirstChar { it.titlecaseChar() }
-        return methods.find { it.name == basicName || it.name == getterName }
-    }
-
     override fun toString() = type.toString()
 
     fun getField(name: String): JavaField =
@@ -127,11 +118,6 @@ class JavaClass(
 
     fun findMethodWithAnnotation(annotationType: JavaType.Basic) =
         methods.find { it.hasAnnotation(annotationType) }
-
-    fun hasMethodWithAnnotation(annotationType: JavaType.Basic) =
-        findMethodWithAnnotation(annotationType) != null
-
-
 
     companion object {
         private val ANNOTATION_TYPE = JavaType.Basic(Annotation::class.java)

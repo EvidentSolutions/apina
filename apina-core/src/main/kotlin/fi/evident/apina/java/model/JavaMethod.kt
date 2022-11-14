@@ -7,7 +7,8 @@ import fi.evident.apina.utils.propertyNameForGetter
 import java.lang.reflect.Modifier
 import java.util.*
 
-class JavaMethod(val owningClass: JavaClass,
+class JavaMethod(val descriptor: String,
+                 val owningClass: JavaClass,
                  val name: String,
                  private val visibility: JavaVisibility,
                  val returnType: JavaType,
@@ -19,9 +20,6 @@ class JavaMethod(val owningClass: JavaClass,
 
     val propertyName: String
         get() = propertyNameForGetter(name)
-
-    fun hasPropertyName(name: String) =
-        propertyName == name || (name.startsWith("is") && returnType == JavaType.Basic.BOOLEAN && name == this.name)
 
     val correspondingField: JavaField?
         get() = owningClass.findField(propertyName)
