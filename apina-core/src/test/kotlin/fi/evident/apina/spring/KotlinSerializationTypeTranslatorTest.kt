@@ -217,6 +217,37 @@ class KotlinSerializationTypeTranslatorTest {
         )
     }
 
+    @Test
+    fun `translating kotlin collection types`() {
+
+        @Serializable
+        @Suppress("unused")
+        class MyClass(
+            val stringList: List<String>,
+            val intCollection: List<Int>,
+            val doubleSet: Set<Double>,
+            val stringIntMap: Map<String, Int>,
+            val mutableSet: MutableSet<Int>,
+            val mutableList: MutableList<Int>,
+            val mutableCollection: MutableList<Int>,
+            val mutableMap: MutableMap<String, Int>,
+        )
+
+        val classDefinition = translateClass<MyClass>()
+
+        assertHasProperties(
+            classDefinition,
+            "stringList" to ApiType.Array(ApiType.Primitive.STRING),
+            "intCollection" to ApiType.Array(ApiType.Primitive.INTEGER),
+            "doubleSet" to ApiType.Array(ApiType.Primitive.FLOAT),
+            "stringIntMap" to ApiType.Dictionary(ApiType.Primitive.INTEGER),
+            "mutableSet" to ApiType.Array(ApiType.Primitive.INTEGER),
+            "mutableList" to ApiType.Array(ApiType.Primitive.INTEGER),
+            "mutableCollection" to ApiType.Array(ApiType.Primitive.INTEGER),
+            "mutableMap" to ApiType.Dictionary(ApiType.Primitive.INTEGER),
+        )
+    }
+
     private fun translateType(type: JavaType): ApiType =
         translator.translateType(
             type,

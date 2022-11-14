@@ -100,8 +100,6 @@ internal class KotlinSerializationTypeTranslator(
         classDefinition: ClassDefinition,
         hasInitializer: Boolean
     ) {
-        val javaType = typeTranslator.typeForKotlinType(property.returnType)
-
         val annotationSource = property.syntheticMethodForAnnotations
             ?.let { p -> javaClass.methods.find { it.name == p.name && it.descriptor == p.desc } }
 
@@ -110,7 +108,7 @@ internal class KotlinSerializationTypeTranslator(
 
         val propertyName = annotationSource?.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: property.name
 
-        var type = typeTranslator.translateType(javaType, env)
+        var type  = typeTranslator.translateKotlinType(property.returnType, env)
         if (Flag.Type.IS_NULLABLE(property.returnType.flags) || (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null))
             type = type.nullable() // TODO: strictly speaking these are undefined and not null
 

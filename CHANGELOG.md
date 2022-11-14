@@ -1,3 +1,7 @@
+## 0.20.2 (2022-11-14)
+
+- Improve translation of Kotlin collections
+
 ## 0.20.1 (2022-11-14)
 
 - Fix nullability analysis of Kotlin properties

@@ -123,15 +123,19 @@ internal class TypeTranslator(
     }
 
     private fun translateInlineClass(type: ApiTypeName, inlineType: KmType, env: TypeEnvironment): ApiType {
-        api.addTypeAlias(type, translateType(typeForKotlinType(inlineType), env))
+        api.addTypeAlias(type, translateKotlinType(inlineType, env))
         return ApiType.BlackBox(type)
     }
 
-    private fun translateParameterizedType(type: JavaType.Parameterized, env: TypeEnvironment): ApiType {
-        val baseType = type.baseType
-        val arguments = type.arguments.map { translateType(it, env) }
+    private fun translateParameterizedType(type: JavaType.Parameterized, env: TypeEnvironment): ApiType =
+        translateParameterizedType(type.baseType, type.arguments.map { translateType(it, env) }, env)
 
-        return when {
+    private fun translateParameterizedType(
+        baseType: JavaType,
+        arguments: List<ApiType>,
+        env: TypeEnvironment
+    ): ApiType =
+        when {
             classes.isInstanceOf<Collection<*>>(baseType) && arguments.size == 1 ->
                 ApiType.Array(arguments[0])
 
@@ -144,7 +148,6 @@ internal class TypeTranslator(
             else ->
                 translateType(baseType, env)
         }
-    }
 
     fun classNameForType(type: JavaType.Basic): ApiTypeName {
         val translatedName = settings.nameTranslator.translateClassName(type.name)
@@ -156,13 +159,21 @@ internal class TypeTranslator(
         return ApiTypeName(translatedName)
     }
 
-    fun typeForKotlinType(type: KmType): JavaType = when (val classifier = type.classifier) {
-        is KmClassifier.Class -> resolveJavaTypeForKotlinClassName(classifier.name)
-        is KmClassifier.TypeAlias -> throw java.lang.UnsupportedOperationException("can't resolve Java-types for type-alias: ${classifier.name}'")
-        is KmClassifier.TypeParameter -> throw java.lang.UnsupportedOperationException("can't resolve Java-types for type-parameter: '${classifier.id}'")
+    fun translateKotlinType(type: KmType, env: TypeEnvironment): ApiType {
+        val arguments = type.arguments.map { t -> t.type?.let { translateKotlinType(it, env) } ?: ApiType.Primitive.ANY }
+        val baseType = when (val classifier = type.classifier) {
+            is KmClassifier.Class -> resolveJavaTypeForKotlinClassName(classifier.name)
+            is KmClassifier.TypeAlias -> throw java.lang.UnsupportedOperationException("can't resolve Java-types for type-alias: ${classifier.name}'")
+            is KmClassifier.TypeParameter -> throw java.lang.UnsupportedOperationException("can't resolve Java-types for type-parameter: '${classifier.id}'")
+        }
+
+        return if (arguments.isEmpty())
+            translateBasicType(baseType, env)
+        else
+            translateParameterizedType(baseType, arguments, env)
     }
 
-    private fun resolveJavaTypeForKotlinClassName(name: String): JavaType = when (name) {
+    private fun resolveJavaTypeForKotlinClassName(name: String): JavaType.Basic = when (name) {
         "kotlin/Boolean" -> JavaType.Basic.BOOLEAN
         "kotlin/Int" -> JavaType.Basic.INT
         "kotlin/Short" -> JavaType.Basic.SHORT
@@ -171,6 +182,10 @@ internal class TypeTranslator(
         "kotlin/Double" -> JavaType.Basic.DOUBLE
         "kotlin/Unit" -> JavaType.Basic.VOID
         "kotlin/String" -> JavaType.Basic(String::class.java)
+        "kotlin/collections/List", "kotlin/collections/MutableList" -> JavaType.Basic(List::class.java)
+        "kotlin/collections/Collection", "kotlin/collections/MutableCollection" -> JavaType.Basic(Collection::class.java)
+        "kotlin/collections/Set", "kotlin/collections/MutableSet" -> JavaType.Basic(Set::class.java)
+        "kotlin/collections/Map", "kotlin/collections/MutableMap" -> JavaType.Basic(Map::class.java)
         else -> JavaType.Basic(kotlinNameToJavaName(name))
     }
 
