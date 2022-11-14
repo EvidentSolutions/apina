@@ -124,22 +124,29 @@ abstract class AbstractTypeScriptGenerator(
         out.writeLine()
     }
 
-    private fun writeSerializerDefinitions() {
-        fun writeEnumSerializer(enumDefinition: EnumDefinition) {
-            val enumName = enumDefinition.type.toString()
-            when (settings.enumMode) {
-                EnumMode.INT_ENUM ->
-                    out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ").write(enumName).writeLine(");")
-                EnumMode.DEFAULT, EnumMode.STRING_UNION ->
-                    out.write("config.registerIdentitySerializer(").writeValue(enumName).writeLine(");")
+    private fun writeEnumSerializer(enumDefinition: EnumDefinition) {
+        when (settings.enumMode) {
+            EnumMode.INT_ENUM -> {
+                val enumName = enumDefinition.type.toString()
+                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ").write(enumName).writeLine(");")
             }
+            EnumMode.DEFAULT, EnumMode.STRING_UNION ->
+                writeIdentitySerializer(enumDefinition.type)
         }
+    }
 
+    private fun writeIdentitySerializer(type: ApiTypeName) {
+        out.write("config.registerIdentitySerializer(").writeValue(type.toString()).writeLine(");")
+    }
+
+    private fun writeSerializerDefinitions() {
         out.write("export function registerDefaultSerializers(config: ApinaConfig) ").writeBlock {
             for (aliasedType in api.typeAliases.keys)
-                out.write("config.registerIdentitySerializer(").writeValue(aliasedType.name).writeLine(");")
+                writeIdentitySerializer(aliasedType)
+
             for (unknownType in api.allBlackBoxClasses)
-                out.write("config.registerIdentitySerializer(").writeValue(unknownType.name).writeLine(");")
+                writeIdentitySerializer(unknownType)
+
             out.writeLine()
 
             for (enumDefinition in api.enumDefinitions) {
