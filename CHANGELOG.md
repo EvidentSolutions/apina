@@ -1,4 +1,4 @@
-## Unreleased
+## 0.20.0 (2022-11-14)
 
 - Improve translation of Kotlin inline classes. Preserve the original class names of inline-classes and register 
   type-aliases for them. This allows one to override the translation by importing another type.
