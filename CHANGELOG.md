@@ -1,3 +1,7 @@
+## 0.20.1 (2022-11-14)
+
+- Fix nullability analysis of Kotlin properties
+
 ## 0.20.0 (2022-11-14)
 
 - Improve translation of Kotlin inline classes. Preserve the original class names of inline-classes and register 
