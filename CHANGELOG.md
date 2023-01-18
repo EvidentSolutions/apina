@@ -1,3 +1,7 @@
+## 0.20.3 (2022-01-18)
+
+- Support detecting generic parameters from contra-variant types
+
 ## 0.20.2 (2022-11-14)
 
 - Improve translation of Kotlin collections

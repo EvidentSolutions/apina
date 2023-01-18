@@ -9,6 +9,7 @@ import fi.evident.apina.model.HTTPMethod
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import org.junit.jupiter.api.Test
+import org.springframework.data.util.ParameterTypes
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -16,6 +17,7 @@ import java.util.concurrent.Callable
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class SpringModelReaderTest {
 
@@ -130,6 +132,23 @@ class SpringModelReaderTest {
     }
 
     @Test
+    @Suppress("unused")
+    fun `resolve types from list typed parameters`() {
+
+        @RestController
+        @Suppress("unused")
+        abstract class MyController {
+            @GetMapping("/foo")
+            fun foo(@RequestParam s: List<MyEnum>): String = error("")
+        }
+
+        val group = readModel<MyController>().endpointGroups.single()
+        val endpoint = group.endpointByName("foo")
+
+        assertEquals(ApiType.Array(ApiType.Class("MyEnum")), endpoint.parameters[0].type)
+    }
+
+    @Test
     fun `wrapped result types`() {
 
         class Foo
@@ -192,5 +211,8 @@ class SpringModelReaderTest {
 
         return SpringModelReader.readApiDefinition(model, settings)
     }
+
+    @Suppress("unused")
+    private enum class MyEnum { C1, C2 }
 }
 

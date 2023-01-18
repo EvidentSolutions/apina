@@ -53,7 +53,9 @@ internal class TypeTranslator(
             } ?: ApiType.Primitive.ANY
 
         is JavaType.Wildcard ->
-            type.lowerBound?.let { translateType(it, env) } ?: ApiType.Primitive.ANY
+            type.lowerBound?.let { translateType(it, env) }
+                ?: type.upperBound?.let { translateType(it, env) }
+                ?: ApiType.Primitive.ANY
 
         is JavaType.InnerClass ->
             throw UnsupportedOperationException("translating inner class types is not supported: $type")
