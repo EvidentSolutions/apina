@@ -6,6 +6,7 @@ import fi.evident.apina.java.model.type.JavaType
 private val nullableAnnotations = listOf(
     "org.jetbrains.annotations.Nullable",
     "javax.annotation.Nullable",
+    "jakarta.annotation.Nullable",
     "javax.annotation.CheckForNull",
     "edu.umd.cs.findbugs.annotations.Nullable",
     "android.support.annotation.Nullable",
