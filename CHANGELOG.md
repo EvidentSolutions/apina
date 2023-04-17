@@ -1,4 +1,8 @@
-## 0.20.3 (2022-01-18)
+## 0.20.4 (2023-04-17)
+
+- Support for jakarta.annotation.Nullable ([#72](https://github.com/EvidentSolutions/apina/pull/72)) by [jussiko](https://github.com/jussiko)
+
+## 0.20.3 (2023-01-18)
 
 - Support detecting generic parameters from contra-variant types
 
@@ -12,7 +16,7 @@
 
 ## 0.20.0 (2022-11-14)
 
-- Improve translation of Kotlin inline classes. Preserve the original class names of inline-classes and register 
+- Improve translation of Kotlin inline classes. Preserve the original class names of inline-classes and register
   type-aliases for them. This allows one to override the translation by importing another type.
 
 ## 0.19.0 (2022-08-31)
@@ -33,7 +37,7 @@ Basically this means that instead of assigning directly to a property, you must 
 apina {
     // Old way
     target = file('apina-output.ts')
-  
+
     // New way
     target.set(file('apina-output.ts'))
 }
@@ -72,8 +76,8 @@ apina {
 ## 0.17.0 (2021-09-17)
 
 - Update ASM to 9.2, supporting Java 18
-- Initial support for [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization) as an alternative 
-  to Jackson 
+- Initial support for [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization) as an alternative
+  to Jackson
 
 ## 0.16.0 (2021-05-03)
 
@@ -108,7 +112,7 @@ apina {
 
 - Find subclasses of sealed Kotlin classes without using `@JsonSubTypes`.
 - Write Swift enum definitions for discriminated unions
-- Support generating methods that only create a request URL instead of making a real request ([#48](https://github.com/EvidentSolutions/apina/pull/48)) 
+- Support generating methods that only create a request URL instead of making a real request ([#48](https://github.com/EvidentSolutions/apina/pull/48))
 
 ## 0.13.3 (2020-04-14)
 
@@ -159,16 +163,16 @@ apina {
 
 ## 0.11.0 (2019-02-08)
 
-- Add new `es6` platform target, allowing using Apina without Angular. 
+- Add new `es6` platform target, allowing using Apina without Angular.
 
 ## 0.10.14 (2019-01-29)
 
 - Support resolving base path and generic parameters from subclass when controller methods
-  are defined in superclass. 
+  are defined in superclass.
 
 ## 0.10.13 (2019-01-29)
 
-- Search controller methods for superclasses of controllers 
+- Search controller methods for superclasses of controllers
 
 ## 0.10.12 (2019-01-25)
 
@@ -223,7 +227,7 @@ apina {
 
 ### Breaking changes
 
-- Usage `HttpClient` instead of `Http` for making request, thus requiring Angular 4.3. 
+- Usage `HttpClient` instead of `Http` for making request, thus requiring Angular 4.3.
 
 ### Improvements
 
@@ -290,13 +294,13 @@ apina {
 
 ### Fixes
 
-- Fix imports in generated Angular 2 code  
+- Fix imports in generated Angular 2 code
 
 ## 0.7.3 (2017-04-22)
 
 ### Fixes
 
-- Fix passing request parameters in Angular 2 backend. 
+- Fix passing request parameters in Angular 2 backend.
 
 ## 0.7.2 (2017-04-18)
 
@@ -312,7 +316,7 @@ apina {
 
 ### Improvements
 
-- Unwrap logical return type from a possible wrapper before analyzing it. That is, interpret 
+- Unwrap logical return type from a possible wrapper before analyzing it. That is, interpret
   methods returning `ResponseEntity<T>`, `HttpEntity<T>` or `Callable<T>` as methods returning just `T`.
 
 ### Fixes
@@ -360,19 +364,19 @@ apina {
 
 ### Improvements
 
-- Support @AliasFor without explicit attribute name. Use the name of the original attribute 
+- Support @AliasFor without explicit attribute name. Use the name of the original attribute
   if @AliasFor does not specify a name.
 
 ## 0.6.0 (2017-01-01)
 
 ### Improvements
 
-- Add support for Spring's meta-annotations and `@AliasFor` when resolving annotations. 
+- Add support for Spring's meta-annotations and `@AliasFor` when resolving annotations.
   ([#30](https://github.com/EvidentSolutions/apina/issues/30))
 
 ### Other changes
 
-- Converted most of the codebase to Kotlin. 
+- Converted most of the codebase to Kotlin.
 
 ## 0.5.3 (2016-12-21)
 
@@ -402,7 +406,7 @@ apina {
 
 ### Breaking changes
 
-- Code is now generated for Angular 2 by default, you need to specify `framework = 'angular1'` 
+- Code is now generated for Angular 2 by default, you need to specify `framework = 'angular1'`
   to build for AngularJS.
 
 ## 0.4.3 (2016-04-21)
@@ -472,7 +476,7 @@ apina {
 
 ### Bug fixes
 
-- Support parsing method descriptors with differing argument counts for 
+- Support parsing method descriptors with differing argument counts for
   generic and non-generic signatures. These are not common, yet are present
   in some legacy class files.
 
@@ -492,12 +496,12 @@ apina {
 - Expose `Support.EndpointContext` as angular-service `apinaEndpointContext` and `Support.SerializationConfig` as
   `apinaSerializationConfig`. This allows us to override serializers.
   ([#3](https://github.com/EvidentSolutions/apina/issues/3))
-- Expose `apina.endpoints` module that directly binds all endpoint groups to angular module so that we don't need 
+- Expose `apina.endpoints` module that directly binds all endpoint groups to angular module so that we don't need
   to inject `endpointGroups.` The keys are available as constants of form `Endpoints.Foo.KEY`.
   ([#7](https://github.com/EvidentSolutions/apina/issues/7))
 
 ### Breaking changes
 
-- Generated code is simplified by translating endpoint groups directly to classes. The types are now named 
+- Generated code is simplified by translating endpoint groups directly to classes. The types are now named
  `Endpoints.Foo` instead of `Endpoints.Foo`. Endpoint group properties of `Endpoints.IEndpointGroups` now begin
-  with lowercase letter, e.g. `endpointGroups.Foo` is now `endpointGroups.foo`. 
+  with lowercase letter, e.g. `endpointGroups.Foo` is now `endpointGroups.foo`.
