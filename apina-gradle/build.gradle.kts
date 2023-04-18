@@ -50,7 +50,7 @@ tasks.jar {
 pluginBundle {
     website = "https://github.com/EvidentSolutions/apina"
     vcsUrl = "https://github.com/EvidentSolutions/apina"
-    description = "Gradle plugin for creating TypeScript client code from Spring controllers and Jackson classes"
+    description = "Gradle plugin for creating TypeScript client code from Spring controllers and Jackson (or Kotlin serialization) classes"
     tags = listOf("typescript", "angular", "jackson", "spring")
 
     (plugins) {
