@@ -20,15 +20,21 @@ dependencies {
 }
 
 gradlePlugin {
+    website.set("https://github.com/EvidentSolutions/apina")
+    vcsUrl.set("https://github.com/EvidentSolutions/apina")
+
     plugins {
         create("apinaPlugin") {
             id = "fi.evident.apina"
+            displayName = "Gradle Apina plugin"
             implementationClass = "fi.evident.apina.gradle.ApinaPlugin"
+            description = "Gradle plugin for creating TypeScript client code from Spring controllers and Jackson (or Kotlin serialization) classes"
+            tags.set(listOf("typescript", "angular", "jackson", "spring"))
         }
     }
 }
 
-tasks.shadowJar {
+tasks.shadowJar.configure {
     archiveBaseName.set("apina-gradle")
     archiveAppendix.set("")
     archiveClassifier.set("")
@@ -45,17 +51,4 @@ tasks.shadowJar {
 tasks.jar {
     enabled = false
     dependsOn(tasks.shadowJar)
-}
-
-pluginBundle {
-    website = "https://github.com/EvidentSolutions/apina"
-    vcsUrl = "https://github.com/EvidentSolutions/apina"
-    description = "Gradle plugin for creating TypeScript client code from Spring controllers and Jackson (or Kotlin serialization) classes"
-    tags = listOf("typescript", "angular", "jackson", "spring")
-
-    (plugins) {
-        "apinaPlugin" {
-            displayName = "Gradle Apina plugin"
-        }
-    }
 }

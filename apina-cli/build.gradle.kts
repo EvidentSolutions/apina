@@ -13,12 +13,12 @@ val asmVersion: String by rootProject.extra
 dependencies {
     implementation(project(":apina-core", "shadow"))
     implementation("org.ow2.asm:asm:$asmVersion")
-    implementation("ch.qos.logback:logback-classic:1.2.5")
+    implementation("ch.qos.logback:logback-classic:1.2.9")
     implementation(kotlin("stdlib"))
 }
 
 application {
-    mainClassName = "fi.evident.apina.cli.Apina"
+    mainClass.set("fi.evident.apina.cli.Apina")
 }
 
 val sourcesJar = task<Jar>("sourcesJar") {
@@ -36,8 +36,12 @@ val javadocJar = task<Jar>("javadocJar") {
     from(javadoc.destinationDir)
 }
 
-tasks.shadowJar {
-    classifier = ""
+tasks.shadowJar.configure {
+    archiveClassifier.set("")
+}
+
+tasks.startScripts.configure {
+    dependsOn(tasks.shadowJar)
 }
 
 tasks.jar {
