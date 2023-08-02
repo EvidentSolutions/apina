@@ -5,6 +5,7 @@ import fi.evident.apina.java.model.type.TypeSchema
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
+import kotlinx.metadata.jvm.Metadata
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Modifier
 import java.util.*
@@ -95,7 +96,7 @@ class JavaClass(
 
     val kotlinMetadata: KmClass? by lazy {
         findAnnotation(KOTLIN_METADATA_ANNOTATION)?.let { metadata ->
-            val header = KotlinClassHeader(
+            val header = Metadata(
                 kind = metadata.getAttribute("k"),
                 metadataVersion = metadata.getAttribute("mv"),
                 data1 = metadata.getAttribute("d1"),
