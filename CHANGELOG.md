@@ -1,3 +1,9 @@
+## 0.21.0 (2023-08-02)
+
+- Update to Gradle 8.2.1
+- Update to ASM 9.5, supporting Java 21
+- Update to Kotlin Metadata 0.6.1, supporting Kotlin 1.9
+
 ## 0.20.4 (2023-04-17)
 
 - Support for jakarta.annotation.Nullable ([#72](https://github.com/EvidentSolutions/apina/pull/72)) by [jussiko](https://github.com/jussiko)
