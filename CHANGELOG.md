@@ -3,6 +3,8 @@
 - Update to Gradle 8.2.1
 - Update to ASM 9.5, supporting Java 21
 - Update to Kotlin Metadata 0.6.1, supporting Kotlin 1.9
+- The JAR coordinates of the plugin have changed from legacy `gradle.plugin.fi.evident.apina:apina-gradle` to just
+  `fi.evident.apina:apina-gradle`. This will probably not affect you, the plugin id is still the same as before.
 
 ## 0.20.4 (2023-04-17)
 
