@@ -1,6 +1,6 @@
 export abstract class ApinaEndpointContext {
 
-    constructor(protected config: ApinaConfig) {
+    constructor(protected readonly config: ApinaConfig) {
     }
 
     abstract request(data: RequestData): Observable<any>
@@ -19,14 +19,14 @@ export abstract class ApinaEndpointContext {
     }
 
     protected buildUrl(uriTemplate: String, pathVariables: any): string {
-        return this.config.baseUrl + uriTemplate.replace(/{([^}]+)}/g, (match, name) => pathVariables[name]);
+        return this.config.baseUrl + uriTemplate.replace(/{([^}]+)}/g, (_match, name) => pathVariables[name]);
     }
 }
 
 @Injectable()
 export class DefaultApinaEndpointContext extends ApinaEndpointContext {
 
-    constructor(private httpClient: HttpClient, config: ApinaConfig) {
+    constructor(private readonly httpClient: HttpClient, config: ApinaConfig) {
         super(config);
     }
 
@@ -46,21 +46,19 @@ export class DefaultApinaEndpointContext extends ApinaEndpointContext {
             params = new HttpParams({fromObject: filteredParams});
         }
 
-
         return this.httpClient.request(data.method, url, { params: params, body: data.requestBody })
             .pipe(map(r => data.responseType ? this.config.deserialize(r, data.responseType) : r));
     }
 }
 
-function apinaConfigFactory() {
-    return new ApinaConfig();
+interface ProvideParams {
+    config?: ApinaConfig;
+    endpointContextClass?: Type<ApinaEndpointContext>;
 }
 
-@NgModule({
-    imports: [HttpClientModule],
-    providers: [
-        { provide: ApinaEndpointContext, useClass: DefaultApinaEndpointContext },
-        { provide: ApinaConfig, useFactory: apinaConfigFactory }
-    ]
-})
-export class ApinaModule {}
+export function provideApina(params: ProvideParams = {}): Provider[] {
+    return [
+        { provide: ApinaConfig, useValue: params.config ?? new ApinaConfig() },
+        { provide: ApinaEndpointContext, useClass: params.endpointContextClass ?? DefaultApinaEndpointContext },
+    ];
+}

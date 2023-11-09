@@ -58,16 +58,18 @@ tasks.findByPath(":frontend:setup").dependsOn(tasks.apina)
 
 ## Using generated code
 
-First make your own module dependent on Apina:
+Make your application dependent on Apina and HttpClient:
 
 ```typescript
-import { ApinaModule } from 'apina';
+import { provideHttpClient } from "@angular/common/http";
+import { provideApina } from 'apina';
 
-@NgModule({
-    imports: [ApinaModule],
-    providers: [MyService]
-})
-class MyModule { }
+bootstrapApplication(AppComponent, {
+    providers: [
+        provideHttpClient(),
+        provideApina()
+    ]
+});
 ```
 
 Then just inject the generated endpoint and use it:
@@ -75,13 +77,15 @@ Then just inject the generated endpoint and use it:
 ```typescript
 import { DocumentsEndpoint } from 'apina';
 
-@Injectable()
+@Injectable({providedIn: 'root'})
 class MyService {
 
     constructor(private readonly documentsEndpoint: DocumentsEndpoint) { }
 
     load() {
-        this.documentsEndpoint.findDocument(42).forEach(doc => this.document = doc);
+        this.documentsEndpoint.findDocument(42).subscribe(doc =>
+            console.log("loaded", doc);
+        );
     }
 }
 ```

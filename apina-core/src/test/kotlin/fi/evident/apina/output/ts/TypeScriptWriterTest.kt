@@ -97,8 +97,8 @@ class TypeScriptWriterTest {
 
     @Test
     fun imports() {
-        writer.writeImport("@angular/common/http", listOf("HttpClient", "HttpClientModule", "HttpParams"))
+        writer.writeImport("@angular/common/http", listOf("HttpClient", "HttpParams"))
 
-        assertEquals("import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';\n", writer.output)
+        assertEquals("import { HttpClient, HttpParams } from '@angular/common/http';\n", writer.output)
     }
 }

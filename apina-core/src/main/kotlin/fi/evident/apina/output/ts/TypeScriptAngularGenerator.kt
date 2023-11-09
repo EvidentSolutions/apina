@@ -13,8 +13,8 @@ class TypeScriptAngularGenerator(api: ApiDefinition, settings: TranslationSettin
     classDecorator = "@Injectable({providedIn: 'root'})",
     platformRuntimeCodePath = "typescript/runtime-angular.ts",
     platformSpecificImports = mapOf(
-        "@angular/core" to listOf("Injectable", "NgModule"),
-        "@angular/common/http" to listOf("HttpClient", "HttpClientModule", "HttpParams"),
+        "@angular/core" to listOf("Injectable", "Provider", "Type"),
+        "@angular/common/http" to listOf("HttpClient", "HttpParams"),
         "rxjs" to listOf("Observable"),
         "rxjs/operators" to listOf("map"),
     )
