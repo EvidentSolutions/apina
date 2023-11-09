@@ -5,7 +5,7 @@
 - Use `{providedIn: 'root'}` for Angular endpoints. This facilitates tree-shaking of unused code.
 - Don't create `ApinaModule` for Angular, but a `provideApina`-function instead that you can use to create.
   a provider. Also, `HttpClient` is not automatically imported anymore, you should use Angular's `provideHttpClient`
-  to register a client. To migrate, remove `ApinaModule from imports` and use this instead:
+  to register a client. To migrate, remove `ApinaModule` from imports and use this instead:
     ```typescript
     {
         providers: [
