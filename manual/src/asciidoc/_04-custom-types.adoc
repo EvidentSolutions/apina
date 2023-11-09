@@ -1,4 +1,4 @@
-== Customization type mappings
+== Customization of type mappings
 
 While most of the time Apina does the right thing without additional configuration,
 every now and then you need to customize either the build time translation or
