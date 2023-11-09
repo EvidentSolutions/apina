@@ -1,3 +1,7 @@
+## Unreleased
+
+- Use `{providedIn: 'root'}` for Angular endpoints. This facilitates tree-shaking of unused code.
+
 ## 0.21.0 (2023-08-02)
 
 - Update to Gradle 8.2.1

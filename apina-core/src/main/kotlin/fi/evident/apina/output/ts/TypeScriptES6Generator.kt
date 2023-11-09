@@ -4,10 +4,10 @@ import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.utils.readResourceAsString
 
-class TypeScriptES6Generator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(api, settings, "Promise", "") {
-
-    override fun writeRuntime() {
-        out.write(readResourceAsString("typescript/runtime-es6.ts"))
-        out.writeLine()
-    }
-}
+class TypeScriptES6Generator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(
+    api = api,
+    settings = settings,
+    resultFunctor = "Promise",
+    classDecorator = "",
+    platformRuntimeCodePath = "typescript/runtime-es6.ts"
+)

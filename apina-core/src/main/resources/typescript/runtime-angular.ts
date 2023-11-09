@@ -51,3 +51,16 @@ export class DefaultApinaEndpointContext extends ApinaEndpointContext {
             .pipe(map(r => data.responseType ? this.config.deserialize(r, data.responseType) : r));
     }
 }
+
+function apinaConfigFactory() {
+    return new ApinaConfig();
+}
+
+@NgModule({
+    imports: [HttpClientModule],
+    providers: [
+        { provide: ApinaEndpointContext, useClass: DefaultApinaEndpointContext },
+        { provide: ApinaConfig, useFactory: apinaConfigFactory }
+    ]
+})
+export class ApinaModule {}

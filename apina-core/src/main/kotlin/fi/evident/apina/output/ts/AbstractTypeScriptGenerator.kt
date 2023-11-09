@@ -18,10 +18,12 @@ abstract class AbstractTypeScriptGenerator(
     val api: ApiDefinition,
     val settings: TranslationSettings,
     private val resultFunctor: String,
-    private val classDecorator: String
+    private val classDecorator: String,
+    private val platformRuntimeCodePath: String,
+    private val platformSpecificImports: Map<String, List<String>> = emptyMap()
 ) {
 
-    internal val out = TypeScriptWriter()
+    private val out = TypeScriptWriter()
 
     val output: String
         get() = out.output
@@ -29,12 +31,10 @@ abstract class AbstractTypeScriptGenerator(
     fun writeApi() {
         writeHeader()
         writeImports()
-        writePlatformSpecificImports()
         writeTypes()
-        writeCommonRuntime()
-        writeRuntime()
+        writeResource("typescript/runtime-common.ts")
+        writeResource(platformRuntimeCodePath)
         writeEndpoints(api.endpointGroups)
-        writePlatformSpecific()
     }
 
     private fun writeHeader() {
@@ -47,15 +47,20 @@ abstract class AbstractTypeScriptGenerator(
     private fun writeImports() {
         val imports = settings.imports
 
-        if (!imports.isEmpty()) {
+        if (imports.isNotEmpty()) {
             for (anImport in imports)
                 out.writeImport(anImport.moduleName, anImport.types.map { it.name })
 
             out.writeLine()
         }
-    }
 
-    protected open fun writePlatformSpecificImports() {}
+        if (platformSpecificImports.isNotEmpty()) {
+            for ((module, imps) in platformSpecificImports)
+                out.writeImport(module, imps)
+
+            out.writeLine()
+        }
+    }
 
     private fun writeTypes() {
 
@@ -83,7 +88,11 @@ abstract class AbstractTypeScriptGenerator(
             classDefinitionWriter(classDefinition.type.name) {
                 for (property in classDefinition.properties)
                     if (settings.optionalTypeMode == OptionalTypeMode.UNDEFINED && property.type is ApiType.Nullable) {
-                        out.writeLine("${property.name}?: ${property.type.unwrapNullable().toTypeScript(settings.optionalTypeMode)};")
+                        out.writeLine(
+                            "${property.name}?: ${
+                                property.type.unwrapNullable().toTypeScript(settings.optionalTypeMode)
+                            };"
+                        )
                     } else {
                         out.writeLine("${property.name}: ${property.type.toTypeScript(settings.optionalTypeMode)};")
                     }
@@ -98,14 +107,21 @@ abstract class AbstractTypeScriptGenerator(
 
     private fun writeEnum(enumDefinition: EnumDefinition) {
         val constants = enumDefinition.constants
-        out.writeLine(when (settings.enumMode) {
-            EnumMode.DEFAULT ->
-                format("export enum %s { %s }", enumDefinition.type, constants.joinToString(", ") { "$it = \"$it\"" })
-            EnumMode.STRING_UNION ->
-                format("export type %s = %s;", enumDefinition.type, constants.joinToString(" | ") { "\"$it\"" })
-            EnumMode.INT_ENUM ->
-                format("export enum %s { %s }", enumDefinition.type, constants.joinToString(", "))
-        })
+        out.writeLine(
+            when (settings.enumMode) {
+                EnumMode.DEFAULT ->
+                    format(
+                        "export enum %s { %s }",
+                        enumDefinition.type,
+                        constants.joinToString(", ") { "$it = \"$it\"" })
+
+                EnumMode.STRING_UNION ->
+                    format("export type %s = %s;", enumDefinition.type, constants.joinToString(" | ") { "\"$it\"" })
+
+                EnumMode.INT_ENUM ->
+                    format("export enum %s { %s }", enumDefinition.type, constants.joinToString(", "))
+            }
+        )
     }
 
     private fun writeDiscriminatedUnion(definition: DiscriminatedUnionDefinition) {
@@ -128,8 +144,10 @@ abstract class AbstractTypeScriptGenerator(
         when (settings.enumMode) {
             EnumMode.INT_ENUM -> {
                 val enumName = enumDefinition.type.toString()
-                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ").write(enumName).writeLine(");")
+                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ").write(enumName)
+                    .writeLine(");")
             }
+
             EnumMode.DEFAULT, EnumMode.STRING_UNION ->
                 writeIdentitySerializer(enumDefinition.type)
         }
@@ -182,12 +200,10 @@ abstract class AbstractTypeScriptGenerator(
         out.writeLine().writeLine()
     }
 
-    private fun writeCommonRuntime() {
-        out.write(readResourceAsString("typescript/runtime-common.ts"))
+    private fun writeResource(path: String) {
+        out.write(readResourceAsString(path))
         out.writeLine()
     }
-
-    protected abstract fun writeRuntime()
 
     private fun writeEndpoints(endpointGroups: Collection<EndpointGroup>) {
         for (endpointGroup in endpointGroups) {
@@ -196,7 +212,7 @@ abstract class AbstractTypeScriptGenerator(
             }
             out.writeBlock("export class " + endpointClassName(endpointGroup)) {
 
-                out.writeBlock("constructor(private context: ApinaEndpointContext)") { }
+                out.writeBlock("constructor(private readonly context: ApinaEndpointContext)") { }
 
                 for (endpoint in endpointGroup.endpoints) {
                     writeEndpoint(endpoint)
@@ -211,7 +227,7 @@ abstract class AbstractTypeScriptGenerator(
         }
     }
 
-    protected fun endpointClassName(endpointGroup: EndpointGroup): String =
+    private fun endpointClassName(endpointGroup: EndpointGroup): String =
         endpointGroup.name + "Endpoint"
 
     private fun writeEndpoint(endpoint: Endpoint) {
@@ -220,7 +236,8 @@ abstract class AbstractTypeScriptGenerator(
         val signature = "${endpoint.name}($parameters): $resultFunctor<$resultType>"
 
         out.write(signature).write(" ").writeBlock {
-            out.write("return this.context.request(").writeValue(createConfig(endpoint, optionalTypeMode = settings.optionalTypeMode)).writeLine(");")
+            out.write("return this.context.request(")
+                .writeValue(createConfig(endpoint, optionalTypeMode = settings.optionalTypeMode)).writeLine(");")
         }
     }
 
@@ -229,7 +246,9 @@ abstract class AbstractTypeScriptGenerator(
         val signature = "${endpoint.name}Url($parameters): string"
 
         out.write(signature).write(" ").writeBlock {
-            out.write("return this.context.url(").writeValue(createConfig(endpoint, onlyUrl = true, optionalTypeMode = settings.optionalTypeMode)).writeLine(");")
+            out.write("return this.context.url(")
+                .writeValue(createConfig(endpoint, onlyUrl = true, optionalTypeMode = settings.optionalTypeMode))
+                .writeLine(");")
         }
     }
 
@@ -238,6 +257,7 @@ abstract class AbstractTypeScriptGenerator(
             OptionalTypeMode.UNDEFINED -> qualifiedTypeName(type.type) + " | undefined"
             OptionalTypeMode.NULL -> qualifiedTypeName(type.type) + " | null"
         }
+
         type is ApiType.Primitive -> type.toTypeScript(settings.optionalTypeMode)
         type is ApiType.Array -> qualifiedTypeName(type.elementType) + "[]"
         settings.isImported(ApiTypeName(type.toTypeScript(settings.optionalTypeMode))) -> type.toTypeScript(settings.optionalTypeMode)
@@ -263,8 +283,6 @@ abstract class AbstractTypeScriptGenerator(
         }
     }
 
-    protected open fun writePlatformSpecific() {}
-
     companion object {
 
         /**
@@ -278,7 +296,11 @@ abstract class AbstractTypeScriptGenerator(
                 .distinctBy { it.type }
                 .sortedBy { it.type }
 
-        private fun createConfig(endpoint: Endpoint, onlyUrl: Boolean = false, optionalTypeMode: OptionalTypeMode): Map<String, Any> {
+        private fun createConfig(
+            endpoint: Endpoint,
+            onlyUrl: Boolean = false,
+            optionalTypeMode: OptionalTypeMode
+        ): Map<String, Any> {
             val config = LinkedHashMap<String, Any>()
 
             config["uriTemplate"] = endpoint.uriTemplate.toString()
@@ -295,11 +317,15 @@ abstract class AbstractTypeScriptGenerator(
                 config["requestParams"] = createRequestParamMap(requestParameters, optionalTypeMode)
 
             if (!onlyUrl) {
-                endpoint.requestBody?.let { body -> config["requestBody"] = serialize(body.name, body.type.unwrapNullable(), optionalTypeMode) }
-                endpoint.responseBody?.let { body -> config["responseType"] = typeDescriptor(
-                    body,
-                    optionalTypeMode
-                ) }
+                endpoint.requestBody?.let { body ->
+                    config["requestBody"] = serialize(body.name, body.type.unwrapNullable(), optionalTypeMode)
+                }
+                endpoint.responseBody?.let { body ->
+                    config["responseType"] = typeDescriptor(
+                        body,
+                        optionalTypeMode
+                    )
+                }
             }
 
             return config
