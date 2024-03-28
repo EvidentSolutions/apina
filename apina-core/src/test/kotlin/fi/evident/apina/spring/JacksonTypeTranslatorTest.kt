@@ -237,6 +237,9 @@ class JacksonTypeTranslatorTest {
 
         assertTrue(api.classDefinitions.any { it.type.name == "Foo" }, "Class definition for Foo is created")
         assertTrue(api.classDefinitions.any { it.type.name == "Bar" }, "Class definition for Bar is created")
+
+        val translated = translateClass<Root>()
+        println(translated)
     }
 
     @Test

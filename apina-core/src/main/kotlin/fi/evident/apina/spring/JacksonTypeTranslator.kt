@@ -96,9 +96,59 @@ internal class JacksonTypeTranslator(private val settings: TranslationSettings,
                 ApiType.Dictionary(arguments[1])
             classes.isInstanceOf<Optional<*>>(baseType) && arguments.size == 1 ->
                 ApiType.Nullable(arguments[0])
+            classes.isInstanceOf<JavaType.Basic>(baseType) ->
+                translateGenericType(baseType as JavaType.Basic, arguments, env)
             else ->
                 translateType(baseType, env)
         }
+    }
+
+    private fun translateGenericType(type: JavaType.Basic, arguments: List<ApiType>, env: TypeEnvironment): ApiType {
+        val typeName = classNameForType(type)
+
+        if (settings.isImported(typeName))
+            return ApiType.BlackBox(typeName)
+
+        if (settings.isBlackBoxClass(type.name)) {
+            log.debug("Translating {} as black box", type.name)
+
+            api.addBlackBox(typeName)
+            return ApiType.BlackBox(typeName)
+        }
+
+        val jsonValueMethod = classes.findClass(type.name)?.findMethodWithAnnotation(JSON_VALUE)
+        if (jsonValueMethod != null) {
+            api.addTypeAlias(typeName, translateType(jsonValueMethod.returnType, env))
+            return ApiType.BlackBox(typeName)
+        }
+
+        val classType = ApiType.GenericClass(typeName, arguments)
+
+        if (!api.containsType(typeName)) {
+            val aClass = classes.findClass(type.name)
+            if (aClass != null) {
+                when {
+                    aClass.isEnum ->
+                        api.addEnumDefinition(EnumDefinition(typeName, aClass.enumConstants))
+                    aClass.hasAnnotation(JSON_TYPE_INFO) -> {
+                        val typeInfo = aClass.findAnnotation(JSON_TYPE_INFO) ?: error("@JsonTypeInfo missing for $aClass")
+                        createDiscriminatedUnion(aClass, typeInfo)
+                    }
+                    else -> {
+                        val classDefinition = ClassDefinition(typeName)
+
+                        // We must first add the definition to api and only then proceed to
+                        // initialize it because initialization of properties could refer
+                        // back to this same class and we'd get infinite recursion if the
+                        // class is not already installed.
+                        api.addClassDefinition(classDefinition)
+                        initClassDefinition(classDefinition, BoundClass(aClass, env))
+                    }
+                }
+            }
+        }
+
+        return classType
     }
 
     private fun translateClassType(type: JavaType.Basic, env: TypeEnvironment): ApiType {
