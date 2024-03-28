@@ -26,6 +26,31 @@ internal class KotlinSerializationTypeTranslator(
     fun supports(javaClass: JavaClass) =
         javaClass.hasAnnotation(SERIALIZABLE)
 
+    fun translateGenericClass(javaClass: JavaClass, typeName: ApiTypeName, arguments: List<ApiType>, env: TypeEnvironment): ApiType {
+        val classType = ApiType.GenericClass(typeName, arguments)
+
+        val metadata = javaClass.kotlinMetadata ?: error("Could not find Kotlin metadata for class ${javaClass.name}")
+
+        if (!api.containsType(typeName)) {
+            when {
+                javaClass.isEnum ->
+                    api.addEnumDefinition(EnumDefinition(typeName, javaClass.enumConstants))
+
+                Flag.IS_SEALED(metadata.flags) ->
+                    createDiscriminatedUnion(javaClass, metadata)
+
+                else -> {
+                    val classDefinition = ClassDefinition(typeName)
+                    // Add this before further processing because the type may be recursively referenced in definition
+                    api.addClassDefinition(classDefinition)
+                    initClassDefinition(classDefinition, javaClass, env)
+                }
+            }
+        }
+
+        return classType
+    }
+
     fun translateClass(javaClass: JavaClass, typeName: ApiTypeName, env: TypeEnvironment): ApiType {
         val classType = ApiType.Class(typeName)
 

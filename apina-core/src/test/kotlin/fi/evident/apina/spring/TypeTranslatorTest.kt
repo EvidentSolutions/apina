@@ -19,6 +19,7 @@ import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
+import fi.evident.apina.output.ts.TypeScriptES6Generator
 import fi.evident.apina.spring.testclasses.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -268,6 +269,15 @@ class TypeTranslatorTest {
 
         assertTrue(api.classDefinitions.any { it.type.name == "Foo" }, "Class definition for Foo is created")
         assertTrue(api.classDefinitions.any { it.type.name == "Bar" }, "Class definition for Bar is created")
+
+        val translated = translateClass<Root>()
+        println(translated)
+
+        TypeScriptES6Generator(api, TranslationSettings()).also {
+            it.writeApi()
+            println(it.output)
+        }
+
     }
 
     @Test

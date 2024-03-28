@@ -96,6 +96,34 @@ internal class TypeTranslator(
             translateClassType(type, env)
     }
 
+    fun translateGenericClassType(type: JavaType.Basic, arguments: List<ApiType>, env: TypeEnvironment): ApiType {
+        val typeName = classNameForType(type)
+
+        if (settings.isImported(typeName))
+            return ApiType.BlackBox(typeName)
+
+        if (settings.isBlackBoxClass(type.name)) {
+            log.debug("Translating {} as black box", type.name)
+
+            api.addBlackBox(typeName)
+            return ApiType.BlackBox(typeName)
+        }
+
+        val javaClass = classes.findClass(type.name) ?: return ApiType.GenericClass(typeName, arguments)
+
+        val inlineType = javaClass.kotlinMetadata?.inlineClassUnderlyingType
+        return when {
+            inlineType != null ->
+                translateGenericInlineClass(typeName, inlineType, arguments, env)
+
+            kotlinSerializationTypeTranslator.supports(javaClass) ->
+                kotlinSerializationTypeTranslator.translateGenericClass(javaClass, typeName, arguments, env) // TODO
+
+            else ->
+                jacksonTypeTranslator.translateClass(javaClass, typeName, env)
+        }
+    }
+
     private fun translateClassType(type: JavaType.Basic, env: TypeEnvironment): ApiType {
         val typeName = classNameForType(type)
 
@@ -124,6 +152,11 @@ internal class TypeTranslator(
         }
     }
 
+    private fun translateGenericInlineClass(type: ApiTypeName, inlineType: KmType, arguments: List<ApiType>, env: TypeEnvironment): ApiType {
+        api.addTypeAlias(type, translateKotlinType(inlineType, env)) // TODO
+        return ApiType.BlackBox(type)
+    }
+
     private fun translateInlineClass(type: ApiTypeName, inlineType: KmType, env: TypeEnvironment): ApiType {
         api.addTypeAlias(type, translateKotlinType(inlineType, env))
         return ApiType.BlackBox(type)
@@ -146,6 +179,9 @@ internal class TypeTranslator(
 
             classes.isInstanceOf<Optional<*>>(baseType) && arguments.size == 1 ->
                 ApiType.Nullable(arguments[0])
+
+            baseType is JavaType.Basic ->
+                translateGenericClassType(baseType, arguments, env)
 
             else ->
                 translateType(baseType, env)

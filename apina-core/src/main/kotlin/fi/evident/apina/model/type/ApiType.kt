@@ -33,6 +33,13 @@ sealed class ApiType {
         override fun compareTo(other: Class) = name.compareTo(other.name)
     }
 
+    data class GenericClass(val name: ApiTypeName, val arguments: List<ApiType>) : ApiType(), Comparable<GenericClass> {
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) =
+            name.name + arguments.joinToString(separator = ",", prefix = "<", postfix = ">") { it.toTypeScript(optionalTypeMode) }
+        override fun toSwift() = name.name // TODO
+        override fun compareTo(other: GenericClass) = name.compareTo(other.name)
+    }
+
     data class Dictionary(private val valueType: ApiType) : ApiType() {
         override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = "Dictionary<${valueType.toTypeScript(optionalTypeMode)}>"
         override fun toSwift() = "[String: ${valueType.toSwift()}]"
