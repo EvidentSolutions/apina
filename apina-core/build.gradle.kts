@@ -41,6 +41,12 @@ tasks.compileTestJava {
     })
 }
 
+tasks.compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
 tasks.test {
     javaLauncher.set(javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(17))
