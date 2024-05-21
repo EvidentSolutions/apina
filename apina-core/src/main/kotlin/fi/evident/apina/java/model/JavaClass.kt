@@ -3,7 +3,6 @@ package fi.evident.apina.java.model
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeSchema
 import kotlinx.metadata.KmClass
-import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import kotlinx.metadata.jvm.Metadata
 import org.objectweb.asm.Opcodes
@@ -105,7 +104,7 @@ class JavaClass(
                 packageName = metadata.getAttribute("pn"),
                 extraInt = metadata.getAttribute("xi")
             )
-            (KotlinClassMetadata.read(header) as? KotlinClassMetadata.Class)?.toKmClass()
+            (KotlinClassMetadata.readLenient(header) as? KotlinClassMetadata.Class)?.kmClass
         }
     }
 

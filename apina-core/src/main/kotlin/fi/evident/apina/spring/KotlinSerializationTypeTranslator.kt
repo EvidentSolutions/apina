@@ -36,7 +36,7 @@ internal class KotlinSerializationTypeTranslator(
                 javaClass.isEnum ->
                     api.addEnumDefinition(EnumDefinition(typeName, javaClass.enumConstants))
 
-                Flag.IS_SEALED(metadata.flags) ->
+                metadata.modality == Modality.SEALED ->
                     createDiscriminatedUnion(javaClass, metadata)
 
                 else -> {
@@ -81,13 +81,13 @@ internal class KotlinSerializationTypeTranslator(
         val classesUpwardsFrom = classes.classesUpwardsFrom(BoundClass(javaClass, env))
         for (cl in classesUpwardsFrom) {
             val metadata = cl.javaClass.kotlinMetadata ?: continue
-            val primaryConstructor = metadata.constructors.find { !Flag.Constructor.IS_SECONDARY(it.flags) } ?: continue
+            val primaryConstructor = metadata.constructors.find { !it.isSecondary } ?: continue
 
             for (property in metadata.properties.filter { it.fieldSignature != null }) {
                 val parameter = primaryConstructor.valueParameters.find { it.name == property.name }
                 processProperty(
                     cl.javaClass, cl.environment, property, classDefinition,
-                    hasInitializer = parameter == null || Flag.ValueParameter.DECLARES_DEFAULT_VALUE(parameter.flags),
+                    hasInitializer = parameter == null || parameter.declaresDefaultValue,
                 )
             }
         }
@@ -101,7 +101,7 @@ internal class KotlinSerializationTypeTranslator(
         hasInitializer: Boolean
     ) {
         val annotationSource = property.syntheticMethodForAnnotations
-            ?.let { p -> javaClass.methods.find { it.name == p.name && it.descriptor == p.desc } }
+            ?.let { p -> javaClass.methods.find { it.name == p.name && it.descriptor == p.descriptor } }
 
         if (annotationSource?.hasAnnotation(TRANSIENT) == true)
             return
@@ -109,7 +109,7 @@ internal class KotlinSerializationTypeTranslator(
         val propertyName = annotationSource?.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: property.name
 
         var type  = typeTranslator.translateKotlinType(property.returnType, env)
-        if (Flag.Type.IS_NULLABLE(property.returnType.flags) || (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null))
+        if (property.returnType.isNullable || (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null))
             type = type.nullable() // TODO: strictly speaking these are undefined and not null
 
         classDefinition.addProperty(PropertyDefinition(propertyName, type))
