@@ -12,7 +12,7 @@ Include something like the following in your web application project:
 
 ```kotlin
 plugins {
-    id("fi.evident.apina") version "0.23.0"
+    id("fi.evident.apina") version "0.23.1"
 }
 
 tasks.apina {
