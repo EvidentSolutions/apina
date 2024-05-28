@@ -176,9 +176,9 @@ internal object ClassMetadataReader {
         }
 
         override fun visitParameter(name: String?, access: Int) {
-            val nextParameter = method.parameters[parameterIndex++]
+            val nextParameter = method.parameters.getOrNull(parameterIndex++)
 
-            if (name != null)
+            if (name != null && nextParameter != null)
                 nextParameter.name = name
         }
 
