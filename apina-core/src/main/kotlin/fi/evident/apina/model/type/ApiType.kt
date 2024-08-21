@@ -34,7 +34,7 @@ sealed class ApiType {
     }
 
     data class Dictionary(private val valueType: ApiType) : ApiType() {
-        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = "Dictionary<${valueType.toTypeScript(optionalTypeMode)}>"
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = "Record<string, ${valueType.toTypeScript(optionalTypeMode)}>"
         override fun toSwift() = "[String: ${valueType.toSwift()}]"
     }
 

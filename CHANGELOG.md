@@ -1,3 +1,9 @@
+## 0.24.0 unreleased
+
+- Remove Dictionary<T> in generated TypeScript code and replace uses with Record<string, T>. This will probably
+  not affect you unless you have imported Dictionary (in which case you can define your own alias with
+  `type Dictionary<T> = Record<string, T>`).
+
 ## 0.23.1 (2024-05-28)
 
 - Fix crash when processing some obscure class files

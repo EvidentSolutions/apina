@@ -64,8 +64,6 @@ abstract class AbstractTypeScriptGenerator(
 
     private fun writeTypes() {
 
-        out.writeExportedInterface("Dictionary<V>") { out.writeLine("[key: string]: V;") }
-
         for (type in api.allBlackBoxClasses)
             out.writeLine("export type ${type.name} = {};")
 

@@ -107,7 +107,7 @@ export class ApinaConfig {
             return arraySerializer(elementSerializer);
         }
 
-        const dictionaryMatched = /^Dictionary<(.+)>$/.exec(type);
+        const dictionaryMatched = /^Record<string,\s*(.+)>$/.exec(type);
         if (dictionaryMatched) {
             return dictionarySerializer(this.lookupSerializer(dictionaryMatched[1]));
         }
@@ -143,7 +143,7 @@ function arraySerializer(elementSerializer: Serializer): Serializer {
 }
 
 function dictionarySerializer(valueSerializer: Serializer): Serializer {
-    function safeMap(dictionary: Dictionary<any>, mapper: (a: any) => any) {
+    function safeMap(dictionary: Record<string, any>, mapper: (a: any) => any) {
         if (!dictionary)
             return dictionary;
         else {

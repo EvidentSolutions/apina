@@ -13,9 +13,9 @@ class ApiTypeTest {
         assertEquals("string[][]", ApiType.Array(ApiType.Array(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("Foo", ApiType.BlackBox(ApiTypeName("Foo")).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("Foo", ApiType.Class(ApiTypeName("Foo")).toTypeScript(OptionalTypeMode.NULL))
-        assertEquals("Dictionary<string>", ApiType.Dictionary(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.NULL))
-        assertEquals("Dictionary<string | null>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.NULL))
-        assertEquals("Dictionary<string | undefined>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.UNDEFINED))
+        assertEquals("Record<string, string>", ApiType.Dictionary(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("Record<string, string | null>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.NULL))
+        assertEquals("Record<string, string | undefined>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.UNDEFINED))
         assertEquals("string | null", ApiType.Nullable(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("string | undefined", ApiType.Nullable(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.UNDEFINED))
     }
