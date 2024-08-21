@@ -1,4 +1,4 @@
-## 0.24.0 unreleased
+## 0.24.0 (2024-08-21)
 
 - Incubating support for branded primitive types.
 - Stricter typing in the runtime library.
