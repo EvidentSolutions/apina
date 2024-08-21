@@ -156,7 +156,7 @@ abstract class AbstractTypeScriptGenerator(
     }
 
     private fun writeSerializerDefinitions() {
-        out.write("export function registerDefaultSerializers(config: ApinaConfig) ").writeBlock {
+        out.write("function registerDefaultSerializers(config: ApinaConfig): void ").writeBlock {
             for (aliasedType in api.typeAliases.keys)
                 writeIdentitySerializer(aliasedType)
 
@@ -165,9 +165,9 @@ abstract class AbstractTypeScriptGenerator(
 
             out.writeLine()
 
-            for (enumDefinition in api.enumDefinitions) {
+            for (enumDefinition in api.enumDefinitions)
                 writeEnumSerializer(enumDefinition)
-            }
+
             out.writeLine()
 
             for (classDefinition in api.structuralTypeDefinitions) {
@@ -176,7 +176,8 @@ abstract class AbstractTypeScriptGenerator(
                 for (property in classDefinition.properties)
                     defs[property.name] = typeDescriptor(property.type, settings.optionalTypeMode)
 
-                out.write("config.registerClassSerializer(").writeValue(classDefinition.type.toString()).write(", ")
+                val typeName = classDefinition.type.name
+                out.write("config.registerClassSerializer<$typeName>(").writeValue(typeName).write(", ")
                 out.writeValue(defs).writeLine(");")
                 out.writeLine()
             }
@@ -187,8 +188,9 @@ abstract class AbstractTypeScriptGenerator(
                 for ((discriminatorValue, type) in definition.types)
                     defs[discriminatorValue] = typeDescriptor(ApiType.Class(type.type), settings.optionalTypeMode)
 
-                out.write("config.registerDiscriminatedUnionSerializer(")
-                out.writeValue(definition.type.name).write(", ")
+                val typeName = definition.type.name
+                out.write("config.registerDiscriminatedUnionSerializer<$typeName>(")
+                out.writeValue(typeName).write(", ")
                 out.writeValue(definition.discriminator).write(", ")
                 out.writeValue(defs).writeLine(");")
                 out.writeLine()

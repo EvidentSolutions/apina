@@ -91,9 +91,9 @@ class ApinaIntegrationTest {
         assertTrue("export interface NestedType {" in output, "output has NestedType")
         assertTrue("export enum MyEnum { FOO = \"FOO\", BAR = \"BAR\" }" in output, "output has MyEnum")
 
-        assertTrue("config.registerClassSerializer('RequestType', {" in output, "output has serializer for RequestType")
-        assertTrue("config.registerClassSerializer('ResponseType', {" in output, "output has serializer for ResponseType")
-        assertTrue("config.registerClassSerializer('NestedType', {" in output, "output has serializer for Nested")
+        assertTrue("config.registerClassSerializer<RequestType>('RequestType', {" in output, "output has serializer for RequestType")
+        assertTrue("config.registerClassSerializer<ResponseType>('ResponseType', {" in output, "output has serializer for ResponseType")
+        assertTrue("config.registerClassSerializer<NestedType>('NestedType', {" in output, "output has serializer for Nested")
         assertTrue("config.registerIdentitySerializer('MyEnum')" in output, "MyEnum has identity serializer")
     }
 }

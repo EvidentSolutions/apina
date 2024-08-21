@@ -3,22 +3,22 @@ export class ApinaConfig {
     /** Prefix added for all API calls */
     baseUrl: string = "";
 
-    private serializers: SerializerMap = {
-        any: identitySerializer,
-        string: identitySerializer,
-        number: identitySerializer,
-        boolean: identitySerializer
-    };
+    private readonly serializers: Record<string, Serializer> = {};
 
     constructor() {
+        this.registerIdentitySerializer("any");
+        this.registerIdentitySerializer("string");
+        this.registerIdentitySerializer("number");
+        this.registerIdentitySerializer("boolean");
+
         registerDefaultSerializers(this);
     }
 
-    serialize(value: any, type: string): any {
+    serialize(value: unknown, type: string): any {
         return this.lookupSerializer(type).serialize(value);
     }
 
-    deserialize(value: any, type: string): any {
+    deserialize(value: unknown, type: string): any {
         return this.lookupSerializer(type).deserialize(value);
     }
 
@@ -27,159 +27,89 @@ export class ApinaConfig {
     }
 
     registerEnumSerializer(name: string, enumObject: any) {
-        this.registerSerializer(name, enumSerializer(enumObject));
+        this.registerSerializer(name, nullSafeSerializer({
+            serialize: o => enumObject[o],
+            deserialize: o => enumObject[o],
+        }));
     }
 
-    registerClassSerializer(name: string, fields: any) {
-        this.registerSerializer(name, this.classSerializer(fields));
+    registerClassSerializer<T = unknown>(name: string, fields: Record<keyof T, string>) {
+        this.registerSerializer(name, nullSafeSerializer({
+            serialize: o => Object.fromEntries(Object.entries(fields).map(([name, type]) => [name, this.serialize(o[name], type as string)])),
+            deserialize: o => Object.fromEntries(Object.entries(fields).map(([name, type]) => [name, this.deserialize(o[name], type as string)])),
+        }));
     }
 
     registerIdentitySerializer(name: string) {
-        this.registerSerializer(name, identitySerializer);
+        this.registerSerializer(name, {
+            serialize: o => o,
+            deserialize: o => o
+        });
     }
 
-    registerDiscriminatedUnionSerializer(name: string, discriminator: string, types: { [key: string]: string; }) {
-        this.registerSerializer(name, this.discriminatedUnionSerializer(discriminator, types));
-    }
-
-    private classSerializer(fields: any): Serializer {
-        function mapProperties(obj: any, propertyMapper: (value: any, type: string) => any) {
-            if (obj === null || obj === undefined) {
-                return obj;
-            }
-
-            const result: any = {};
-
-            for (const name in fields) {
-                if (fields.hasOwnProperty(name)) {
-                    const value: any = obj[name];
-                    const type: string = fields[name];
-                    result[name] = propertyMapper(value, type);
-                }
-            }
-
-            return result;
-        }
-
-        const serialize = this.serialize.bind(this);
-        const deserialize = this.deserialize.bind(this);
-        return {
+    registerDiscriminatedUnionSerializer<T = unknown>(name: string, discriminator: keyof T, types: Record<string, string>) {
+        const self = this;
+        this.registerSerializer(name, nullSafeSerializer({
             serialize(obj) {
-                return mapProperties(obj, serialize);
+                const localType = obj[discriminator];
+                return {
+                    ...self.lookupSerializer(types[localType]).serialize(obj),
+                    [discriminator]: localType
+                };
             },
             deserialize(obj) {
-                return mapProperties(obj, deserialize);
+                const localType = obj[discriminator];
+                return {
+                    ...self.lookupSerializer(types[localType]).deserialize(obj),
+                    [discriminator]: localType
+                };
             }
-        };
-    }
-
-    private discriminatedUnionSerializer(discriminatorProperty: string, types: { [key: string]: string; }): Serializer {
-        const resolveSerializer = (localType: string) => {
-            return this.lookupSerializer(types[localType]);
-        };
-
-        return {
-            serialize(obj) {
-                if (obj == null) return null;
-
-                const localType = obj[discriminatorProperty];
-                const result = resolveSerializer(localType).serialize(obj);
-                result[discriminatorProperty] = localType;
-                return result;
-            },
-            deserialize(obj) {
-                if (obj == null) return null;
-
-                const localType = obj[discriminatorProperty];
-                const result = resolveSerializer(localType).deserialize(obj);
-                result[discriminatorProperty] = localType;
-                return result;
-            }
-        };
+        }));
     }
 
     private lookupSerializer(type: string): Serializer {
         if (!type) throw new Error("no type given");
 
-        if (type.indexOf('[]', type.length - 2) !== -1) { // type.endsWith('[]')
+        if (type.endsWith("[]")) {
             const elementType = type.substring(0, type.length - 2);
-            const elementSerializer = this.lookupSerializer(elementType);
-            return arraySerializer(elementSerializer);
+            return arraySerializer(this.lookupSerializer(elementType));
         }
 
-        const dictionaryMatched = /^Record<string,\s*(.+)>$/.exec(type);
-        if (dictionaryMatched) {
-            return dictionarySerializer(this.lookupSerializer(dictionaryMatched[1]));
-        }
+        const dictionaryMatch = /^Record<string,\s*(.+)>$/.exec(type);
+        if (dictionaryMatch)
+            return dictionarySerializer(this.lookupSerializer(dictionaryMatch[1]));
 
         const serializer = this.serializers[type];
-        if (serializer) {
+        if (serializer)
             return serializer;
-        } else {
-            throw new Error(`could not find serializer for type '${type}'`);
-        }
+
+        throw new Error(`could not find serializer for type '${type}'`);
     }
 }
 
 function arraySerializer(elementSerializer: Serializer): Serializer {
-    function safeMap(value: any[], mapper: (a: any) => any) {
-        if (!value)
-            return value;
-        else
-            return value.map(mapper);
-    }
-
-    const serialize = elementSerializer.serialize.bind(elementSerializer);
-    const deserialize = elementSerializer.deserialize.bind(elementSerializer);
-
-    return {
-        serialize(value) {
-            return safeMap(value, serialize);
-        },
-        deserialize(value) {
-            return safeMap(value, deserialize);
-        }
-    }
+    return nullSafeSerializer({
+        serialize: o => o.map((v: any) => elementSerializer.serialize(v)),
+        deserialize: o => o.map((v: any) => elementSerializer.deserialize(v)),
+    });
 }
 
-function dictionarySerializer(valueSerializer: Serializer): Serializer {
-    function safeMap(dictionary: Record<string, any>, mapper: (a: any) => any) {
-        if (!dictionary)
-            return dictionary;
-        else {
-            const result: any = {};
-            for (const key in dictionary) {
-                if (dictionary.hasOwnProperty(key)) {
-                    result[key] = mapper(dictionary[key])
-                }
-            }
-            return result
-        }
-    }
-
-    const serialize = valueSerializer.serialize.bind(valueSerializer);
-    const deserialize = valueSerializer.deserialize.bind(valueSerializer);
-
-    return {
-        serialize(value) {
-            return safeMap(value, serialize);
-        },
-        deserialize(value) {
-            return safeMap(value, deserialize);
-        }
-    }
+function dictionarySerializer(elementSerializer: Serializer): Serializer {
+    return nullSafeSerializer({
+        serialize: o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, elementSerializer.serialize(v)])),
+        deserialize: o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, elementSerializer.deserialize(v)])),
+    });
 }
 
-function formatQueryParameters(params: { [key: string]: any }): string {
-    const queryParameters: string[] = [];
+function formatQueryParameters(params: Record<string, unknown>): string {
+    const components: string[] = [];
 
-    const addQueryParameter = (encodedKey: string, value: any) => {
+    const addQueryParameter = (encodedKey: string, value: any): void => {
         if (value != null)
-            queryParameters.push(`${encodedKey}=${encodeURIComponent(value)}`);
+            components.push(`${encodedKey}=${encodeURIComponent(value)}`);
     };
 
-    for (const key of Object.keys(params || {})) {
-        const value = params[key];
+    for (const [key, value] of Object.entries(params || {})) {
         const encodedKey = encodeURIComponent(key);
 
         if (Array.isArray(value)) {
@@ -190,7 +120,7 @@ function formatQueryParameters(params: { [key: string]: any }): string {
         }
     }
 
-    return queryParameters.length > 0 ? '?' + queryParameters.join('&') : '';
+    return components.length > 0 ? '?' + components.join('&') : '';
 }
 
 export interface UrlData {
@@ -205,37 +135,15 @@ export interface RequestData extends UrlData {
     responseType?: string;
 }
 
-export interface Serializer {
-    serialize(o: any): any;
-    deserialize(o: any): any;
+export interface Serializer<A = any, B = any> {
+    serialize(o: A): B;
+
+    deserialize(o: B): A;
 }
 
-const identitySerializer: Serializer = {
-    serialize(o) {
-        return o;
-    },
-    deserialize(o) {
-        return o;
-    }
-};
-
-function enumSerializer(enumObject: any): Serializer {
+function nullSafeSerializer<A, B>(serializer: Serializer<A, B>): Serializer<A | null | undefined, B | null | undefined> {
     return {
-        serialize(o) {
-            if (o === null || o === undefined)
-                return o;
-            else
-                return enumObject[o];
-        },
-        deserialize(o) {
-            if (o === null || o === undefined)
-                return o;
-            else
-                return enumObject[o];
-        }
-    }
-}
-
-interface SerializerMap {
-    [name: string]: Serializer;
+        serialize: (o: A) => (o === null) ? null : (o === undefined) ? undefined : serializer.serialize(o),
+        deserialize: (o: B) => (o === null) ? null : (o === undefined) ? undefined : serializer.deserialize(o),
+    };
 }
