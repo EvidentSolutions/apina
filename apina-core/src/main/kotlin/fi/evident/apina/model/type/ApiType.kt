@@ -13,7 +13,9 @@ sealed class ApiType {
     abstract override fun hashCode(): Int
 
     data class Array(val elementType: ApiType) : ApiType() {
-        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = "${elementType.toTypeScript(optionalTypeMode)}[]"
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) =
+            "${elementType.toTypeScript(optionalTypeMode)}[]"
+
         override fun toSwift() = "[${elementType.toSwift()}]"
     }
 
@@ -27,14 +29,16 @@ sealed class ApiType {
      */
     data class Class(val name: ApiTypeName) : ApiType(), Comparable<Class> {
 
-        constructor(name: String): this(ApiTypeName(name))
+        constructor(name: String) : this(ApiTypeName(name))
+
         override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = name.name
         override fun toSwift() = name.name
         override fun compareTo(other: Class) = name.compareTo(other.name)
     }
 
     data class Dictionary(private val valueType: ApiType) : ApiType() {
-        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = "Record<string, ${valueType.toTypeScript(optionalTypeMode)}>"
+        override fun toTypeScript(optionalTypeMode: OptionalTypeMode) =
+            "Record<string, ${valueType.toTypeScript(optionalTypeMode)}>"
         override fun toSwift() = "[String: ${valueType.toSwift()}]"
     }
 
@@ -43,6 +47,7 @@ sealed class ApiType {
             OptionalTypeMode.UNDEFINED -> type.toTypeScript(optionalTypeMode) + " | undefined"
             OptionalTypeMode.NULL -> type.toTypeScript(optionalTypeMode) + " | null"
         }
+
         override fun toSwift() = type.toSwift() + "?"
         override fun unwrapNullable() = type
         override fun nullable(): Nullable = this
@@ -50,7 +55,8 @@ sealed class ApiType {
 
     class Primitive private constructor(
         private val typescriptName: String,
-        private val swiftName: String) : ApiType() {
+        private val swiftName: String,
+    ) : ApiType() {
 
         override fun toString() = typescriptName
         override fun toTypeScript(optionalTypeMode: OptionalTypeMode) = typescriptName
@@ -65,6 +71,16 @@ sealed class ApiType {
             val INTEGER: ApiType = Primitive("number", swiftName = "Int")
             val FLOAT: ApiType = Primitive(typescriptName = "number", swiftName = "Float")
             val VOID: ApiType = Primitive(typescriptName = "void", swiftName = "Void")
+
+            fun forName(name: String): ApiType = when (name) {
+                "any" -> ANY
+                "string" -> STRING
+                "boolean" -> BOOLEAN
+                "integer" -> INTEGER
+                "float" -> FLOAT
+                "void" -> VOID
+                else -> throw IllegalArgumentException("unknown primitive type: '$name'")
+            }
         }
     }
 }

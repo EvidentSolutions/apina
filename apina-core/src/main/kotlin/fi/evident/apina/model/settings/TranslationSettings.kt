@@ -15,6 +15,7 @@ class TranslationSettings {
     private val endpointUrlMethods = PatternSet()
     private val importsByModule = TreeMap<String, ImportDefinition>()
     private val importedTypes = TreeSet<ApiTypeName>()
+    val brandedPrimitiveTypes = mutableListOf<BrandedPrimitiveType>()
     val nameTranslator = NameTranslator()
     var platform = Platform.ANGULAR
     var typeWriteMode = TypeWriteMode.INTERFACE
@@ -39,8 +40,8 @@ class TranslationSettings {
     val imports: Collection<ImportDefinition>
         get() = importsByModule.values
 
-    fun isImported(typeName: ApiTypeName) =
-        typeName in importedTypes
+    fun isImportedOrBrandedType(typeName: ApiTypeName) =
+        typeName in importedTypes || brandedPrimitiveTypes.any { typeName == it.brandedType }
 
     fun isProcessableController(name: String) =
         controllersToProcess.isEmpty || name in controllersToProcess
@@ -58,4 +59,5 @@ class TranslationSettings {
 
     fun normalizeUrl(url: String): String =
         url.removePrefix(removedUrlPrefix)
+
 }

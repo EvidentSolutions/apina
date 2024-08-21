@@ -64,6 +64,9 @@ abstract class AbstractTypeScriptGenerator(
 
     private fun writeTypes() {
 
+        for (type in settings.brandedPrimitiveTypes)
+            out.writeLine("export type ${type.brandedType.name} = Branded<${type.implementationType.toTypeScript(settings.optionalTypeMode)}, '${type.brandedType.name}'>;")
+
         for (type in api.allBlackBoxClasses)
             out.writeLine("export type ${type.name} = {};")
 
@@ -157,6 +160,9 @@ abstract class AbstractTypeScriptGenerator(
 
     private fun writeSerializerDefinitions() {
         out.write("function registerDefaultSerializers(config: ApinaConfig): void ").writeBlock {
+            for (type in settings.brandedPrimitiveTypes)
+                writeIdentitySerializer(type.brandedType)
+
             for (aliasedType in api.typeAliases.keys)
                 writeIdentitySerializer(aliasedType)
 
@@ -260,7 +266,7 @@ abstract class AbstractTypeScriptGenerator(
 
         type is ApiType.Primitive -> type.toTypeScript(settings.optionalTypeMode)
         type is ApiType.Array -> qualifiedTypeName(type.elementType) + "[]"
-        settings.isImported(ApiTypeName(type.toTypeScript(settings.optionalTypeMode))) -> type.toTypeScript(settings.optionalTypeMode)
+        settings.isImportedOrBrandedType(ApiTypeName(type.toTypeScript(settings.optionalTypeMode))) -> type.toTypeScript(settings.optionalTypeMode)
         else -> type.toTypeScript(settings.optionalTypeMode)
     }
 

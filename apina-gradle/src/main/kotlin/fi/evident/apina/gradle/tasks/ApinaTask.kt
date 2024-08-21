@@ -4,10 +4,13 @@ package fi.evident.apina.gradle.tasks
 
 import fi.evident.apina.ApinaProcessor
 import fi.evident.apina.java.reader.Classpath
+import fi.evident.apina.model.settings.BrandedPrimitiveType
 import fi.evident.apina.model.settings.EnumMode
 import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.Platform
 import fi.evident.apina.model.settings.TypeWriteMode
+import fi.evident.apina.model.type.ApiType
+import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.EndpointParameterNameNotDefinedException
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
@@ -43,6 +46,9 @@ abstract class ApinaTask : DefaultTask() {
 
     @get:Input
     abstract val classNameMapping: MapProperty<String, String>
+
+    @get:Input
+    abstract val brandedPrimitiveTypes: MapProperty<String, String>
 
     @get:Input
     abstract val platform: Property<Platform>
@@ -99,6 +105,12 @@ abstract class ApinaTask : DefaultTask() {
 
             for ((key, value) in imports.get())
                 processor.settings.addImport(key, value)
+
+            for ((brandedType, implementationType) in brandedPrimitiveTypes.get())
+                processor.settings.brandedPrimitiveTypes += BrandedPrimitiveType(
+                    brandedType = ApiTypeName(brandedType),
+                    implementationType = ApiType.Primitive.forName(implementationType)
+                )
 
             for ((qualifiedName, translatedName) in classNameMapping.get())
                 processor.settings.nameTranslator.registerClassName(qualifiedName, translatedName)

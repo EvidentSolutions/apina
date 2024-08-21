@@ -99,7 +99,7 @@ internal class TypeTranslator(
     private fun translateClassType(type: JavaType.Basic, env: TypeEnvironment): ApiType {
         val typeName = classNameForType(type)
 
-        if (settings.isImported(typeName))
+        if (settings.isImportedOrBrandedType(typeName))
             return ApiType.BlackBox(typeName)
 
         if (settings.isBlackBoxClass(type.name)) {

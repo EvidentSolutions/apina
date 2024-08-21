@@ -1,8 +1,11 @@
 package fi.evident.apina.cli
 
+import fi.evident.apina.model.settings.BrandedPrimitiveType
 import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.Platform
 import fi.evident.apina.model.settings.TypeWriteMode
+import fi.evident.apina.model.type.ApiType
+import fi.evident.apina.model.type.ApiTypeName
 
 internal class CommandLineArguments {
 
@@ -11,6 +14,7 @@ internal class CommandLineArguments {
     val controllerPatterns = mutableListOf<String>()
     val endpointUrlMethods = mutableListOf<String>()
     val imports = mutableListOf<ImportArgument>()
+    val brandedPrimitiveTypes = mutableListOf<BrandedPrimitiveType>()
     var platform = Platform.ANGULAR
     var typeWriteMode = TypeWriteMode.INTERFACE
     var optionalTypeMode = OptionalTypeMode.NULL
@@ -64,6 +68,22 @@ internal class CommandLineArguments {
             val module = anImport.substring(colonIndex + 1)
 
             imports.add(ImportArgument(types.asList(), module))
+            return
+        }
+
+        val brandedPrimitiveType = parseOptionalWithValue("branded-primitive-types", arg)
+        if (brandedPrimitiveType != null) {
+            val definitions = brandedPrimitiveType.split(",")
+            for (definition in definitions) {
+                val values = definition.split(":", limit = 2)
+                if (values.size != 2)
+                    throw IllegalArgumentException("invalid branded primitive type: $definition")
+
+                brandedPrimitiveTypes += BrandedPrimitiveType(
+                    brandedType = ApiTypeName(values[0]),
+                    implementationType = ApiType.Primitive.forName(values[1])
+                )
+            }
             return
         }
 

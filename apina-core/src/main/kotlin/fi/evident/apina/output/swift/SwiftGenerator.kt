@@ -22,6 +22,7 @@ class SwiftGenerator(val api: ApiDefinition, val settings: TranslationSettings) 
 
     private fun writeTypes() {
         check(settings.imports.isEmpty()) { "Imports are not yet supported for Swift" }
+        check(settings.brandedPrimitiveTypes.isEmpty()) { "Branded primitive types are not yet supported for Swift" }
 
         if (api.typeAliases.isNotEmpty()) {
             for ((alias, target) in api.typeAliases)

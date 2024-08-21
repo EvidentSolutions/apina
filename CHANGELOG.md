@@ -1,5 +1,6 @@
 ## 0.24.0 unreleased
 
+- Incubating support for branded primitive types.
 - Stricter typing in the runtime library.
 - Remove Dictionary<T> in generated TypeScript code and replace uses with Record<string, T>. This will probably
   not affect you unless you have imported Dictionary (in which case you can define your own alias with

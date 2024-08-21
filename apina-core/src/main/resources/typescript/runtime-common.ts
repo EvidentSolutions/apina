@@ -1,3 +1,7 @@
+declare const brand: unique symbol;
+
+export type Branded<T, TBrand extends string> = T & { [brand]: TBrand };
+
 export class ApinaConfig {
 
     /** Prefix added for all API calls */

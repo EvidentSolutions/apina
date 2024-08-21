@@ -43,6 +43,8 @@ object Apina {
             for (anImport in arguments.imports)
                 processor.settings.addImport(anImport.module, anImport.types)
 
+            processor.settings.brandedPrimitiveTypes += arguments.brandedPrimitiveTypes
+
             val output = processor.process()
 
             if (arguments.files.size == 2) {

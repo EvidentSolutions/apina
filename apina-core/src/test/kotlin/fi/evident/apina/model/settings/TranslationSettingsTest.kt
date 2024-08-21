@@ -18,7 +18,7 @@ class TranslationSettingsTest {
         settings.imports.any { it.moduleName == "mod2" && it.types == listOf("Baz") }
 
         for (type in listOf("Foo", "Bar", "Baz"))
-            assertTrue(settings.isImported(ApiTypeName(type)))
+            assertTrue(settings.isImportedOrBrandedType(ApiTypeName(type)))
     }
 
     @Test
@@ -29,7 +29,7 @@ class TranslationSettingsTest {
         settings.imports.any { it.moduleName == "mod1" && it.types == listOf("Foo", "Bar", "Baz") }
 
         for (type in listOf("Foo", "Bar", "Baz"))
-            assertTrue(settings.isImported(ApiTypeName(type)))
+            assertTrue(settings.isImportedOrBrandedType(ApiTypeName(type)))
     }
 
     @Test
