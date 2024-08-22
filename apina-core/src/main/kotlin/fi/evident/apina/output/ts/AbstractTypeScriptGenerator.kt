@@ -35,6 +35,7 @@ abstract class AbstractTypeScriptGenerator(
         writeResource("typescript/runtime-common.ts")
         writeResource(platformRuntimeCodePath)
         writeEndpoints(api.endpointGroups)
+        writeApinaConfig()
     }
 
     private fun writeHeader() {
@@ -65,7 +66,13 @@ abstract class AbstractTypeScriptGenerator(
     private fun writeTypes() {
 
         for (type in settings.brandedPrimitiveTypes)
-            out.writeLine("export type ${type.brandedType.name} = Branded<${type.implementationType.toTypeScript(settings.optionalTypeMode)}, '${type.brandedType.name}'>;")
+            out.writeLine(
+                "export type ${type.brandedType.name} = Branded<${
+                    type.implementationType.toTypeScript(
+                        settings.optionalTypeMode
+                    )
+                }, '${type.brandedType.name}'>;"
+            )
 
         for (type in api.allBlackBoxClasses)
             out.writeLine("export type ${type.name} = {};")
@@ -102,8 +109,6 @@ abstract class AbstractTypeScriptGenerator(
 
         for (definition in api.discriminatedUnionDefinitions)
             writeDiscriminatedUnion(definition)
-
-        writeSerializerDefinitions()
     }
 
     private fun writeEnum(enumDefinition: EnumDefinition) {
@@ -145,7 +150,7 @@ abstract class AbstractTypeScriptGenerator(
         when (settings.enumMode) {
             EnumMode.INT_ENUM -> {
                 val enumName = enumDefinition.type.toString()
-                out.write("config.registerEnumSerializer(").writeValue(enumName).write(", ").write(enumName)
+                out.write("this.registerEnumSerializer(").writeValue(enumName).write(", ").write(enumName)
                     .writeLine(");")
             }
 
@@ -155,55 +160,62 @@ abstract class AbstractTypeScriptGenerator(
     }
 
     private fun writeIdentitySerializer(type: ApiTypeName) {
-        out.write("config.registerIdentitySerializer(").writeValue(type.toString()).writeLine(");")
+        out.write("this.registerIdentitySerializer(").writeValue(type.toString()).writeLine(");")
+    }
+
+    private fun writeApinaConfig() {
+        out.writeBlock("export class ApinaConfig extends ApinaConfigBase") {
+            out.writeBlock("constructor()") {
+                out.writeLine("super();")
+                out.writeLine()
+
+                writeSerializerDefinitions()
+            }
+        }
     }
 
     private fun writeSerializerDefinitions() {
-        out.write("function registerDefaultSerializers(config: ApinaConfig): void ").writeBlock {
-            for (type in settings.brandedPrimitiveTypes)
-                writeIdentitySerializer(type.brandedType)
+        for (type in settings.brandedPrimitiveTypes)
+            writeIdentitySerializer(type.brandedType)
 
-            for (aliasedType in api.typeAliases.keys)
-                writeIdentitySerializer(aliasedType)
+        for (aliasedType in api.typeAliases.keys)
+            writeIdentitySerializer(aliasedType)
 
-            for (unknownType in api.allBlackBoxClasses)
-                writeIdentitySerializer(unknownType)
+        for (unknownType in api.allBlackBoxClasses)
+            writeIdentitySerializer(unknownType)
 
+        out.writeLine()
+
+        for (enumDefinition in api.enumDefinitions)
+            writeEnumSerializer(enumDefinition)
+
+        out.writeLine()
+
+        for (classDefinition in api.structuralTypeDefinitions) {
+            val defs = LinkedHashMap<String, String>()
+
+            for (property in classDefinition.properties)
+                defs[property.name] = typeDescriptor(property.type, settings.optionalTypeMode)
+
+            val typeName = classDefinition.type.name
+            out.write("this.registerClassSerializer<$typeName>(").writeValue(typeName).write(", ")
+            out.writeValue(defs).writeLine(");")
             out.writeLine()
-
-            for (enumDefinition in api.enumDefinitions)
-                writeEnumSerializer(enumDefinition)
-
-            out.writeLine()
-
-            for (classDefinition in api.structuralTypeDefinitions) {
-                val defs = LinkedHashMap<String, String>()
-
-                for (property in classDefinition.properties)
-                    defs[property.name] = typeDescriptor(property.type, settings.optionalTypeMode)
-
-                val typeName = classDefinition.type.name
-                out.write("config.registerClassSerializer<$typeName>(").writeValue(typeName).write(", ")
-                out.writeValue(defs).writeLine(");")
-                out.writeLine()
-            }
-
-            for (definition in api.discriminatedUnionDefinitions) {
-                val defs = mutableMapOf<String, String>()
-
-                for ((discriminatorValue, type) in definition.types)
-                    defs[discriminatorValue] = typeDescriptor(ApiType.Class(type.type), settings.optionalTypeMode)
-
-                val typeName = definition.type.name
-                out.write("config.registerDiscriminatedUnionSerializer<$typeName>(")
-                out.writeValue(typeName).write(", ")
-                out.writeValue(definition.discriminator).write(", ")
-                out.writeValue(defs).writeLine(");")
-                out.writeLine()
-            }
         }
 
-        out.writeLine().writeLine()
+        for (definition in api.discriminatedUnionDefinitions) {
+            val defs = mutableMapOf<String, String>()
+
+            for ((discriminatorValue, type) in definition.types)
+                defs[discriminatorValue] = typeDescriptor(ApiType.Class(type.type), settings.optionalTypeMode)
+
+            val typeName = definition.type.name
+            out.write("this.registerDiscriminatedUnionSerializer<$typeName>(")
+            out.writeValue(typeName).write(", ")
+            out.writeValue(definition.discriminator).write(", ")
+            out.writeValue(defs).writeLine(");")
+            out.writeLine()
+        }
     }
 
     private fun writeResource(path: String) {
@@ -266,7 +278,10 @@ abstract class AbstractTypeScriptGenerator(
 
         type is ApiType.Primitive -> type.toTypeScript(settings.optionalTypeMode)
         type is ApiType.Array -> qualifiedTypeName(type.elementType) + "[]"
-        settings.isImportedOrBrandedType(ApiTypeName(type.toTypeScript(settings.optionalTypeMode))) -> type.toTypeScript(settings.optionalTypeMode)
+        settings.isImportedOrBrandedType(ApiTypeName(type.toTypeScript(settings.optionalTypeMode))) -> type.toTypeScript(
+            settings.optionalTypeMode
+        )
+
         else -> type.toTypeScript(settings.optionalTypeMode)
     }
 

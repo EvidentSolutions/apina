@@ -2,20 +2,18 @@ declare const brand: unique symbol;
 
 export type Branded<T, TBrand extends string> = T & { [brand]: TBrand };
 
-export class ApinaConfig {
+abstract class ApinaConfigBase {
 
     /** Prefix added for all API calls */
     baseUrl: string = "";
 
     private readonly serializers: Record<string, Serializer> = {};
 
-    constructor() {
+    protected constructor() {
         this.registerIdentitySerializer("any");
         this.registerIdentitySerializer("string");
         this.registerIdentitySerializer("number");
         this.registerIdentitySerializer("boolean");
-
-        registerDefaultSerializers(this);
     }
 
     serialize(value: unknown, type: string): any {
@@ -45,10 +43,7 @@ export class ApinaConfig {
     }
 
     registerIdentitySerializer(name: string) {
-        this.registerSerializer(name, {
-            serialize: o => o,
-            deserialize: o => o
-        });
+        this.registerSerializer(name, identitySerializer);
     }
 
     registerDiscriminatedUnionSerializer<T = unknown>(name: string, discriminator: keyof T, types: Record<string, string>) {
@@ -144,6 +139,11 @@ export interface Serializer<A = any, B = any> {
 
     deserialize(o: B): A;
 }
+
+const identitySerializer: Serializer = {
+    serialize: o => o,
+    deserialize: o => o
+};
 
 function nullSafeSerializer<A, B>(serializer: Serializer<A, B>): Serializer<A | null | undefined, B | null | undefined> {
     return {
