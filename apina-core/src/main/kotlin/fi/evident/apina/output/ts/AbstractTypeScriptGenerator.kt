@@ -2,8 +2,6 @@ package fi.evident.apina.output.ts
 
 import fi.evident.apina.model.*
 import fi.evident.apina.model.parameters.EndpointParameter
-import fi.evident.apina.model.parameters.EndpointPathVariableParameter
-import fi.evident.apina.model.parameters.EndpointRequestParamParameter
 import fi.evident.apina.model.settings.EnumMode
 import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
@@ -65,14 +63,10 @@ abstract class AbstractTypeScriptGenerator(
 
     private fun writeTypes() {
 
-        for (type in settings.brandedPrimitiveTypes)
-            out.writeLine(
-                "export type ${type.brandedType.name} = Branded<${
-                    type.implementationType.toTypeScript(
-                        settings.optionalTypeMode
-                    )
-                }, '${type.brandedType.name}'>;"
-            )
+        for (type in settings.brandedPrimitiveTypes) {
+            val tsType = type.implementationType.toTypeScript(settings.optionalTypeMode)
+            out.writeLine("export type ${type.brandedType.name} = Branded<$tsType, '${type.brandedType.name}'>;")
+        }
 
         for (type in api.allBlackBoxClasses)
             out.writeLine("export type ${type.name} = {};")
@@ -192,28 +186,20 @@ abstract class AbstractTypeScriptGenerator(
         out.writeLine()
 
         for (classDefinition in api.structuralTypeDefinitions) {
-            val defs = LinkedHashMap<String, String>()
-
-            for (property in classDefinition.properties)
-                defs[property.name] = typeDescriptor(property.type, settings.optionalTypeMode)
-
             val typeName = classDefinition.type.name
             out.write("this.registerClassSerializer<$typeName>(").writeValue(typeName).write(", ")
-            out.writeValue(defs).writeLine(");")
+            out.writeValue(classDefinition.properties.associate { it.name to typeDescriptor(it.type).toJs() })
+            out.writeLine(");")
             out.writeLine()
         }
 
         for (definition in api.discriminatedUnionDefinitions) {
-            val defs = mutableMapOf<String, String>()
-
-            for ((discriminatorValue, type) in definition.types)
-                defs[discriminatorValue] = typeDescriptor(ApiType.Class(type.type), settings.optionalTypeMode)
-
             val typeName = definition.type.name
             out.write("this.registerDiscriminatedUnionSerializer<$typeName>(")
             out.writeValue(typeName).write(", ")
             out.writeValue(definition.discriminator).write(", ")
-            out.writeValue(defs).writeLine(");")
+            out.writeValue(definition.types.mapValues { (_, type) -> typeDescriptor(ApiType.Class(type.type)).toJs() })
+            out.writeLine(");")
             out.writeLine()
         }
     }
@@ -254,8 +240,7 @@ abstract class AbstractTypeScriptGenerator(
         val signature = "${endpoint.name}($parameters): $resultFunctor<$resultType>"
 
         out.write(signature).write(" ").writeBlock {
-            out.write("return this.context.request(")
-                .writeValue(createConfig(endpoint, optionalTypeMode = settings.optionalTypeMode)).writeLine(");")
+            out.write("return this.context.request(").writeValue(createConfig(endpoint)).writeLine(");")
         }
     }
 
@@ -264,9 +249,7 @@ abstract class AbstractTypeScriptGenerator(
         val signature = "${endpoint.name}Url($parameters): string"
 
         out.write(signature).write(" ").writeBlock {
-            out.write("return this.context.url(")
-                .writeValue(createConfig(endpoint, onlyUrl = true, optionalTypeMode = settings.optionalTypeMode))
-                .writeLine(");")
+            out.write("return this.context.url(").writeValue(createConfig(endpoint, onlyUrl = true)).writeLine(");")
         }
     }
 
@@ -304,6 +287,62 @@ abstract class AbstractTypeScriptGenerator(
         }
     }
 
+    private fun typeDescriptor(type: ApiType): TypeDescriptor = when (type) {
+        is ApiType.Array -> TypeDescriptor("[]", listOf(typeDescriptor(type.elementType)))
+        is ApiType.Dictionary -> TypeDescriptor("{}", listOf(typeDescriptor(type.valueType)))
+        is ApiType.BlackBox -> TypeDescriptor(type.name.name)
+        is ApiType.Class -> TypeDescriptor(type.name.name)
+        is ApiType.Nullable -> typeDescriptor(type.type)
+        is ApiType.Primitive -> TypeDescriptor(type.typescriptName)
+    }
+
+    private fun createConfig(
+        endpoint: Endpoint,
+        onlyUrl: Boolean = false,
+    ): Map<String, Any> {
+        val config = LinkedHashMap<String, Any>()
+
+        config["uriTemplate"] = endpoint.uriTemplate.toString()
+
+        if (!onlyUrl)
+            config["method"] = endpoint.method.toString()
+
+        val pathVariables = endpoint.pathVariables
+        if (pathVariables.isNotEmpty())
+            config["pathVariables"] = pathVariables.associate { it.pathVariable to serialize(it.name, it.type) }
+
+        val requestParameters = endpoint.requestParameters
+        if (requestParameters.isNotEmpty())
+            config["requestParams"] = requestParameters.associate { it.queryParameter to serialize(it.name, it.type) }
+
+        if (!onlyUrl) {
+            endpoint.requestBody?.let { body ->
+                config["requestBody"] = serialize(body.name, body.type.unwrapNullable())
+            }
+            endpoint.responseBody?.let { body ->
+                config["responseType"] = typeDescriptor(body).toJs()
+            }
+        }
+
+        return config
+    }
+
+    /**
+     * Returns TypeScript code to serialize `variable` of given `type`
+     * to transfer representation.
+     */
+    private fun serialize(variable: String, type: ApiType): RawCode {
+        val writer = TypeScriptWriter()
+        writer.write("this.context.serialize($variable, ").writeValue(typeDescriptor(type).toJs()).write(")")
+        return RawCode(writer.output)
+    }
+
+    private class TypeDescriptor(private val name: String, val args: List<TypeDescriptor> = emptyList()) {
+
+        /** Convert this descriptor to a form that can be serialized and processed by JS */
+        fun toJs(): List<Any> = listOf(name) + args.map { it.toJs() }
+    }
+
     companion object {
 
         /**
@@ -317,76 +356,5 @@ abstract class AbstractTypeScriptGenerator(
                 .distinctBy { it.type }
                 .sortedBy { it.type }
 
-        private fun createConfig(
-            endpoint: Endpoint,
-            onlyUrl: Boolean = false,
-            optionalTypeMode: OptionalTypeMode
-        ): Map<String, Any> {
-            val config = LinkedHashMap<String, Any>()
-
-            config["uriTemplate"] = endpoint.uriTemplate.toString()
-
-            if (!onlyUrl)
-                config["method"] = endpoint.method.toString()
-
-            val pathVariables = endpoint.pathVariables
-            if (pathVariables.isNotEmpty())
-                config["pathVariables"] = createPathVariablesMap(pathVariables, optionalTypeMode)
-
-            val requestParameters = endpoint.requestParameters
-            if (requestParameters.isNotEmpty())
-                config["requestParams"] = createRequestParamMap(requestParameters, optionalTypeMode)
-
-            if (!onlyUrl) {
-                endpoint.requestBody?.let { body ->
-                    config["requestBody"] = serialize(body.name, body.type.unwrapNullable(), optionalTypeMode)
-                }
-                endpoint.responseBody?.let { body ->
-                    config["responseType"] = typeDescriptor(
-                        body,
-                        optionalTypeMode
-                    )
-                }
-            }
-
-            return config
-        }
-
-        private fun createRequestParamMap(
-            parameters: Collection<EndpointRequestParamParameter>,
-            optionalTypeMode: OptionalTypeMode
-        ): Map<String, Any> {
-            val result = LinkedHashMap<String, Any>()
-
-            for (param in parameters)
-                result[param.queryParameter] = serialize(param.name, param.type, optionalTypeMode)
-
-            return result
-        }
-
-        private fun createPathVariablesMap(
-            pathVariables: List<EndpointPathVariableParameter>,
-            optionalTypeMode: OptionalTypeMode
-        ): Map<String, Any> {
-            val result = LinkedHashMap<String, Any>()
-
-            for (param in pathVariables)
-                result[param.pathVariable] = serialize(param.name, param.type, optionalTypeMode)
-
-            return result
-        }
-
-        /**
-         * Returns TypeScript code to serialize `variable` of given `type`
-         * to transfer representation.
-         */
-        private fun serialize(variable: String, type: ApiType, optionalTypeMode: OptionalTypeMode) =
-            RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type, optionalTypeMode) + "')")
-
-        private fun typeDescriptor(type: ApiType, optionalTypeMode: OptionalTypeMode): String {
-            // Use ApiType's native representation as type descriptor.
-            // This method encapsulates the call to make it meaningful in this context.
-            return type.unwrapNullable().toTypeScript(optionalTypeMode)
-        }
     }
 }

@@ -36,7 +36,7 @@ sealed class ApiType {
         override fun compareTo(other: Class) = name.compareTo(other.name)
     }
 
-    data class Dictionary(private val valueType: ApiType) : ApiType() {
+    data class Dictionary(val valueType: ApiType) : ApiType() {
         override fun toTypeScript(optionalTypeMode: OptionalTypeMode) =
             "Record<string, ${valueType.toTypeScript(optionalTypeMode)}>"
         override fun toSwift() = "[String: ${valueType.toSwift()}]"
@@ -54,7 +54,7 @@ sealed class ApiType {
     }
 
     class Primitive private constructor(
-        private val typescriptName: String,
+        val typescriptName: String,
         private val swiftName: String,
     ) : ApiType() {
 
