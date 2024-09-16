@@ -23,6 +23,10 @@ class TypeScriptWriter : CodeWriter<TypeScriptWriter>() {
         writeLine("import { ${types.joinToString(", ")} } from '$module';")
     }
 
+    fun writeExport(types: Collection<String>) {
+        writeLine("export { ${types.joinToString(", ")} };")
+    }
+
     fun writeValue(obj: Any?): TypeScriptWriter {
         when (obj) {
             is Number ->

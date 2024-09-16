@@ -61,6 +61,13 @@ abstract class AbstractTypeScriptGenerator(
 
             out.writeLine()
         }
+
+        if (settings.reexportImports && imports.isNotEmpty()) {
+            for (anImport in imports)
+                out.writeExport(anImport.types.map { it.name })
+
+            out.writeLine()
+        }
     }
 
     private fun writeTypes() {

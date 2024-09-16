@@ -1,3 +1,7 @@
+## Unreleased
+
+- Allow reexporting imports.
+
 ## 0.24.0 (2024-08-21)
 
 - Incubating support for branded primitive types.

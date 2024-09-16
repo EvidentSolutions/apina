@@ -65,6 +65,9 @@ abstract class ApinaTask : DefaultTask() {
     @get:Input
     abstract val removedUrlPrefix: Property<String>
 
+    @get:Input
+    abstract val reexportImports: Property<Boolean>
+
     init {
         description = "Generates TypeScript client code from Spring controllers and Jackson classes"
         group = BasePlugin.BUILD_GROUP
@@ -75,6 +78,7 @@ abstract class ApinaTask : DefaultTask() {
         optionalTypeMode.convention(OptionalTypeMode.NULL)
         enumMode.convention(EnumMode.DEFAULT)
         removedUrlPrefix.convention("")
+        reexportImports.convention(false)
 
         val javaExtension = project.extensions.getByType(JavaPluginExtension::class.java)
         val mainSourceSet = javaExtension.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
@@ -96,6 +100,7 @@ abstract class ApinaTask : DefaultTask() {
             processor.settings.platform = platform.get()
             processor.settings.typeWriteMode = typeWriteMode.get()
             processor.settings.optionalTypeMode = optionalTypeMode.get()
+            processor.settings.reexportImports = reexportImports.get()
 
             endpoints.get().forEach { processor.settings.addControllerPattern(it) }
             endpointUrlMethods.get().forEach { processor.settings.addEndpointUrlMethodPattern(it) }

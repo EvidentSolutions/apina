@@ -18,6 +18,7 @@ internal class CommandLineArguments {
     var platform = Platform.ANGULAR
     var typeWriteMode = TypeWriteMode.INTERFACE
     var optionalTypeMode = OptionalTypeMode.NULL
+    var reexportImports = false
 
     private fun parse(arg: String) {
         // This could be more general, but this is all we need for now.
@@ -84,6 +85,11 @@ internal class CommandLineArguments {
                     implementationType = ApiType.Primitive.forName(values[1])
                 )
             }
+            return
+        }
+
+        if (arg == "--reexport-imports") {
+            reexportImports = true
             return
         }
 

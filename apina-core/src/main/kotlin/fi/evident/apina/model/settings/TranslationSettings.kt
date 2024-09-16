@@ -22,6 +22,7 @@ class TranslationSettings {
     var optionalTypeMode = OptionalTypeMode.NULL
     var enumMode = EnumMode.DEFAULT
     var removedUrlPrefix = ""
+    var reexportImports = false
 
     fun isBlackBoxClass(name: String) = name in blackBoxClasses
 
