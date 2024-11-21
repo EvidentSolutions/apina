@@ -7,7 +7,7 @@ import fi.evident.apina.utils.readResourceAsString
 class TypeScriptES6Generator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(
     api = api,
     settings = settings,
-    resultFunctor = "Promise",
+    resultFunctor = ResultFunctor.PROMISE,
     classDecorator = "",
     platformRuntimeCodePath = "typescript/runtime-es6.ts"
 )

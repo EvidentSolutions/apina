@@ -17,7 +17,7 @@ import java.lang.String.format
 abstract class AbstractTypeScriptGenerator(
     val api: ApiDefinition,
     val settings: TranslationSettings,
-    private val resultFunctor: String,
+    private val resultFunctor: ResultFunctor,
     private val classDecorator: String,
     private val platformRuntimeCodePath: String,
     private val platformSpecificImports: Map<String, List<String>> = emptyMap()
@@ -258,7 +258,7 @@ abstract class AbstractTypeScriptGenerator(
     private fun writeEndpoint(endpoint: Endpoint) {
         val parameters = parameterListCode(endpoint.parameters)
         val resultType = endpoint.responseBody?.let { qualifiedTypeName(it) } ?: "void"
-        val signature = "${endpoint.name}($parameters): $resultFunctor<$resultType>"
+        val signature = "${endpoint.name}($parameters): ${resultFunctor.apply(resultType)}"
 
         out.write(signature).write(" ").writeBlock {
             out.write("return this.context.request(")

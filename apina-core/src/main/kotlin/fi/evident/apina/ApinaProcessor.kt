@@ -4,6 +4,7 @@ import fi.evident.apina.java.reader.Classpath
 import fi.evident.apina.model.settings.Platform.*
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.output.swift.SwiftGenerator
+import fi.evident.apina.output.ts.ResultFunctor
 import fi.evident.apina.output.ts.TypeScriptAngularGenerator
 import fi.evident.apina.output.ts.TypeScriptES6Generator
 import fi.evident.apina.spring.SpringModelReader
@@ -36,13 +37,17 @@ class ApinaProcessor(private val classpath: Classpath) {
 
         @Suppress("DEPRECATION")
         return when (settings.platform) {
-            ANGULAR -> TypeScriptAngularGenerator(api, settings).run {
+            ANGULAR -> TypeScriptAngularGenerator(api, settings, ResultFunctor.OBSERVABLE).run {
+                writeApi()
+                output
+            }
+            ANGULAR_PROMISE -> TypeScriptAngularGenerator(api, settings, ResultFunctor.PROMISE).run {
                 writeApi()
                 output
             }
             ANGULAR2 -> {
                 log.warn("Platform.ANGULAR2 is deprecated, use Platform.ANGULAR instead")
-                TypeScriptAngularGenerator(api, settings).run {
+                TypeScriptAngularGenerator(api, settings, ResultFunctor.OBSERVABLE).run {
                     writeApi()
                     output
                 }

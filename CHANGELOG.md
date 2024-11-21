@@ -1,6 +1,7 @@
-## Unreleased
+## 0.25.0 (2024-11-21)
 
 - Allow reexporting imports.
+- Incubating support for using Promises instead of Observables with Angular.
 
 ## 0.24.0 (2024-08-21)
 
