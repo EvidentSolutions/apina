@@ -1,3 +1,7 @@
+## 0.25.1 (2024-12-16)
+
+- Improve error messages
+
 ## 0.25.0 (2024-11-21)
 
 - Allow reexporting imports.

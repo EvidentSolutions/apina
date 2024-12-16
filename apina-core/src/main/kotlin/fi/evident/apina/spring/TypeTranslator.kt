@@ -165,8 +165,8 @@ internal class TypeTranslator(
         val arguments = type.arguments.map { t -> t.type?.let { translateKotlinType(it, env) } ?: ApiType.Primitive.ANY }
         val baseType = when (val classifier = type.classifier) {
             is KmClassifier.Class -> resolveJavaTypeForKotlinClassName(classifier.name)
-            is KmClassifier.TypeAlias -> throw java.lang.UnsupportedOperationException("can't resolve Java-types for type-alias: ${classifier.name}'")
-            is KmClassifier.TypeParameter -> throw java.lang.UnsupportedOperationException("can't resolve Java-types for type-parameter: '${classifier.id}'")
+            is KmClassifier.TypeAlias -> throw UnsupportedOperationException("can't resolve Java-types for type-alias: ${classifier.name}' in $type")
+            is KmClassifier.TypeParameter -> throw UnsupportedOperationException("can't resolve Java-types for type-parameter: '${classifier.id}' in $type")
         }
 
         return if (arguments.isEmpty())
