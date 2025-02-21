@@ -86,6 +86,7 @@ abstract class AbstractTypeScriptGenerator(
 
         out.writeLine()
 
+        @Suppress("DEPRECATION")
         val classDefinitionWriter = when (settings.typeWriteMode) {
             TypeWriteMode.CLASS -> out::writeExportedClass
             TypeWriteMode.INTERFACE -> out::writeExportedInterface
@@ -95,7 +96,7 @@ abstract class AbstractTypeScriptGenerator(
             classDefinitionWriter(classDefinition.type.name) {
                 for (property in classDefinition.properties)
                     if (settings.optionalTypeMode == OptionalTypeMode.UNDEFINED && property.type is ApiType.Nullable) {
-                        out.writeLine("${property.name}?: ${property.type.unwrapNullable().toTypeScript()};")
+                        out.writeLine("${property.name}?: ${property.type.type.toTypeScript()};")
                     } else {
                         out.writeLine("${property.name}: ${property.type.toTypeScript()};")
                     }
@@ -107,20 +108,18 @@ abstract class AbstractTypeScriptGenerator(
     }
 
     private fun writeEnum(enumDefinition: EnumDefinition) {
+        val typeName = enumDefinition.type.name
         val constants = enumDefinition.constants
         out.writeLine(
             when (settings.enumMode) {
                 EnumMode.DEFAULT ->
-                    format(
-                        "export enum %s { %s }",
-                        enumDefinition.type,
-                        constants.joinToString(", ") { "$it = \"$it\"" })
+                    format("export enum %s { %s }", typeName, constants.joinToString(", ") { "$it = \"$it\"" })
 
                 EnumMode.STRING_UNION ->
-                    format("export type %s = %s;", enumDefinition.type, constants.joinToString(" | ") { "\"$it\"" })
+                    format("export type %s = %s;", typeName, constants.joinToString(" | ") { "\"$it\"" })
 
                 EnumMode.INT_ENUM ->
-                    format("export enum %s { %s }", enumDefinition.type, constants.joinToString(", "))
+                    format("export enum %s { %s }", typeName, constants.joinToString(", "))
             }
         )
     }
@@ -144,7 +143,7 @@ abstract class AbstractTypeScriptGenerator(
     private fun writeEnumSerializer(enumDefinition: EnumDefinition) {
         when (settings.enumMode) {
             EnumMode.INT_ENUM -> {
-                val enumName = enumDefinition.type.toString()
+                val enumName = enumDefinition.type.name
                 out.write("this.registerEnumSerializer(").writeValue(enumName).write(", ").write(enumName)
                     .writeLine(");")
             }
@@ -155,7 +154,7 @@ abstract class AbstractTypeScriptGenerator(
     }
 
     private fun writeIdentitySerializer(type: ApiTypeName) {
-        out.write("this.registerIdentitySerializer(").writeValue(type.toString()).writeLine(");")
+        out.write("this.registerIdentitySerializer(").writeValue(type.name).writeLine(");")
     }
 
     private fun writeApinaConfig() {
@@ -223,7 +222,7 @@ abstract class AbstractTypeScriptGenerator(
             if (classDecorator.isNotBlank()) {
                 out.writeLine(classDecorator)
             }
-            out.writeBlock("export class " + endpointClassName(endpointGroup)) {
+            out.writeBlock("export class ${endpointGroup.name}Endpoint") {
 
                 out.writeBlock("constructor(private readonly context: ApinaEndpointContext)") { }
 
@@ -239,9 +238,6 @@ abstract class AbstractTypeScriptGenerator(
             }
         }
     }
-
-    private fun endpointClassName(endpointGroup: EndpointGroup): String =
-        endpointGroup.name + "Endpoint"
 
     private fun writeEndpoint(endpoint: Endpoint) {
         val parameters = parameterListCode(endpoint.parameters)
@@ -285,7 +281,7 @@ abstract class AbstractTypeScriptGenerator(
 
         return parameters.withIndex().joinToString(", ") { (index, p) ->
             if (p.type is ApiType.Nullable) {
-                val type = qualifiedTypeName(p.type.unwrapNullable())
+                val type = qualifiedTypeName(p.type.type)
                 if (index >= firstOptionalIndex)
                     "${p.name}?: $type | null"
                 else
