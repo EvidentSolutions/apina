@@ -82,7 +82,7 @@ class JavaModel(private val classDataLoader: ClassDataLoader) {
     private fun boundClassFor(type: JavaType, env: TypeEnvironment): BoundClass? =
         findClass(type.nonGenericClassName)?.let { c ->
             if (type is JavaType.Parameterized)
-                BoundClass(c, c.schema.apply(env.resolve(type.arguments)))
+                BoundClass(c, c.schema.apply(type.arguments.map { it.resolve(env) }))
             else
                 BoundClass(c, TypeEnvironment.empty())
         }

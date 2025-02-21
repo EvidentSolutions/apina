@@ -1,47 +1,42 @@
 package fi.evident.apina.java.model.type
 
-import java.util.*
+class TypeEnvironment(
+    bindings: List<Pair<JavaType.Variable, JavaType>>
+) {
 
-class TypeEnvironment private constructor() {
-
-    private val env = HashMap<JavaType.Variable, JavaType>()
-
-    constructor(parentSchema: TypeSchema, childSchema: TypeSchema): this() {
-        addBindingsFromSchema(parentSchema)
-        addBindingsFromSchema(childSchema)
+    /**
+     * The number of generic arguments is typically so slow that an association list should be
+     * better fit than hash-map. Furthermore, we retain indices which is important when resolving
+     * the types by index.
+     */
+    private val bindings = bindings.filter { (k, v) ->
+        // If we try to install a binding to the same variable name, it means that we actually already have
+        // a super-class variable of the same name. We can just keep the old binding around because it points
+        // to the right ultimate target anyway. Part of the problem is that in binding 'T=T' we have no way
+        // to specify that left and right T are actually two separate variables in the program. Therefore, we'd
+        // end up with a self referring infinite cycle.
+        k != v
     }
 
-    private fun addBindingsFromSchema(schema: TypeSchema) {
-        for (v in schema.variables)
-            this[v] = effectiveBounds(schema.getTypeBounds(v))
-    }
+    fun lookup(type: JavaType.Variable): JavaType? = bindings.firstOrNull { it.first == type }?.second
+    fun lookup(index: Int): JavaType? = bindings.firstOrNull { it.first == type }?.second
 
-    operator fun set(v: JavaType.Variable, type: JavaType) {
-        if (v == type) {
-            // If we try to install a binding to the same variable name, it means that
-            // we actually already have a super-class variable of the same name. We can
-            // just keep the old binding around because it points to the right ultimate
-            // target anyway. Part of the problem is that in binding 'T=T' we have no way
-            // to specify that left and right T are actually two separate variables in
-            // the program. Therefore we'd end up with a self referring infinite cycle.
-            // However, just omitting the binding gives correct result.
-            return
-        }
-        env[v] = type
-    }
-
-    fun resolve(arguments: List<JavaType>): List<JavaType> = arguments.map { it.resolve(this) }
-
-    fun lookup(type: JavaType.Variable): JavaType? = env[type]
-
-    override fun toString(): String = env.toString()
+    override fun toString(): String =
+        bindings.joinToString(separator = ", ", prefix = "{", postfix = "}") { "${it.first}=${it.second}" }
 
     companion object {
 
-        fun empty(): TypeEnvironment = TypeEnvironment()
+        fun empty(): TypeEnvironment = TypeEnvironment(emptyList())
 
-        private fun effectiveBounds(bounds: List<JavaType>): JavaType =
+        operator fun invoke(parentSchema: TypeSchema, childSchema: TypeSchema) =
+            TypeEnvironment(buildList {
+                for (schema in listOf(parentSchema, childSchema))
+                    for (v in schema.variables)
+                        add(v to schema.getTypeBounds(v).toEffectiveBounds())
+            })
+
+        private fun List<JavaType>.toEffectiveBounds(): JavaType =
             // TODO: merge the bounds instead of picking the first one
-            bounds.firstOrNull() ?: JavaType.Basic(Any::class.java)
+            firstOrNull() ?: JavaType.Basic(Any::class.java)
     }
 }

@@ -32,12 +32,6 @@ class TypeSchema {
     fun apply(arguments: List<JavaType>): TypeEnvironment {
         require(arguments.size == variables.size) { "expected ${variables.size} arguments, but got ${arguments.size}" }
 
-        val env = TypeEnvironment.empty()
-
-        variables.forEachIndexed { i, v ->
-            env[v] = arguments[i]
-        }
-
-        return env
+        return TypeEnvironment(variables.mapIndexed { i, v -> v to arguments[i] })
     }
 }
