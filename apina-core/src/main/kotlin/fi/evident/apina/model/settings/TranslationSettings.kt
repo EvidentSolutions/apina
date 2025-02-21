@@ -18,6 +18,8 @@ class TranslationSettings {
     val brandedPrimitiveTypes = mutableListOf<BrandedPrimitiveType>()
     val nameTranslator = NameTranslator()
     var platform = Platform.ANGULAR
+
+    @Deprecated("Writing types as interfaces is preferred and selection will be removed in future")
     var typeWriteMode = TypeWriteMode.INTERFACE
     var optionalTypeMode = OptionalTypeMode.NULL
     var enumMode = EnumMode.DEFAULT
