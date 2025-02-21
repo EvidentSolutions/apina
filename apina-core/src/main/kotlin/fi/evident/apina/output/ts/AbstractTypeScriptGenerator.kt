@@ -2,8 +2,6 @@ package fi.evident.apina.output.ts
 
 import fi.evident.apina.model.*
 import fi.evident.apina.model.parameters.EndpointParameter
-import fi.evident.apina.model.parameters.EndpointPathVariableParameter
-import fi.evident.apina.model.parameters.EndpointRequestParamParameter
 import fi.evident.apina.model.settings.EnumMode
 import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
@@ -73,19 +71,13 @@ abstract class AbstractTypeScriptGenerator(
     private fun writeTypes() {
 
         for (type in settings.brandedPrimitiveTypes)
-            out.writeLine(
-                "export type ${type.brandedType.name} = Branded<${
-                    type.implementationType.toTypeScript(
-                        settings.optionalTypeMode
-                    )
-                }, '${type.brandedType.name}'>;"
-            )
+            out.writeLine("export type ${type.brandedType.name} = Branded<${type.implementationType.toTypeScript()}, '${type.brandedType.name}'>;")
 
         for (type in api.allBlackBoxClasses)
             out.writeLine("export type ${type.name} = {};")
 
         for ((alias, target) in api.typeAliases)
-            out.writeLine("export type ${alias.name} = ${target.toTypeScript(settings.optionalTypeMode)};")
+            out.writeLine("export type ${alias.name} = ${target.toTypeScript()};")
 
         out.writeLine()
 
@@ -103,13 +95,9 @@ abstract class AbstractTypeScriptGenerator(
             classDefinitionWriter(classDefinition.type.name) {
                 for (property in classDefinition.properties)
                     if (settings.optionalTypeMode == OptionalTypeMode.UNDEFINED && property.type is ApiType.Nullable) {
-                        out.writeLine(
-                            "${property.name}?: ${
-                                property.type.unwrapNullable().toTypeScript(settings.optionalTypeMode)
-                            };"
-                        )
+                        out.writeLine("${property.name}?: ${property.type.unwrapNullable().toTypeScript()};")
                     } else {
-                        out.writeLine("${property.name}: ${property.type.toTypeScript(settings.optionalTypeMode)};")
+                        out.writeLine("${property.name}: ${property.type.toTypeScript()};")
                     }
             }
         }
@@ -202,7 +190,7 @@ abstract class AbstractTypeScriptGenerator(
             val defs = LinkedHashMap<String, String>()
 
             for (property in classDefinition.properties)
-                defs[property.name] = typeDescriptor(property.type, settings.optionalTypeMode)
+                defs[property.name] = typeDescriptor(property.type)
 
             val typeName = classDefinition.type.name
             out.write("this.registerClassSerializer<$typeName>(").writeValue(typeName).write(", ")
@@ -214,7 +202,7 @@ abstract class AbstractTypeScriptGenerator(
             val defs = mutableMapOf<String, String>()
 
             for ((discriminatorValue, type) in definition.types)
-                defs[discriminatorValue] = typeDescriptor(ApiType.Class(type.type), settings.optionalTypeMode)
+                defs[discriminatorValue] = typeDescriptor(ApiType.Class(type.type))
 
             val typeName = definition.type.name
             out.write("this.registerDiscriminatedUnionSerializer<$typeName>(")
@@ -262,7 +250,7 @@ abstract class AbstractTypeScriptGenerator(
 
         out.write(signature).write(" ").writeBlock {
             out.write("return this.context.request(")
-                .writeValue(createConfig(endpoint, optionalTypeMode = settings.optionalTypeMode)).writeLine(");")
+                .writeValue(createConfig(endpoint)).writeLine(");")
         }
     }
 
@@ -272,7 +260,7 @@ abstract class AbstractTypeScriptGenerator(
 
         out.write(signature).write(" ").writeBlock {
             out.write("return this.context.url(")
-                .writeValue(createConfig(endpoint, onlyUrl = true, optionalTypeMode = settings.optionalTypeMode))
+                .writeValue(createConfig(endpoint, onlyUrl = true))
                 .writeLine(");")
         }
     }
@@ -283,13 +271,10 @@ abstract class AbstractTypeScriptGenerator(
             OptionalTypeMode.NULL -> qualifiedTypeName(type.type) + " | null"
         }
 
-        type is ApiType.Primitive -> type.toTypeScript(settings.optionalTypeMode)
+        type is ApiType.Primitive -> type.toTypeScript()
         type is ApiType.Array -> qualifiedTypeName(type.elementType) + "[]"
-        settings.isImportedOrBrandedType(ApiTypeName(type.toTypeScript(settings.optionalTypeMode))) -> type.toTypeScript(
-            settings.optionalTypeMode
-        )
-
-        else -> type.toTypeScript(settings.optionalTypeMode)
+        settings.isImportedOrBrandedType(ApiTypeName(type.toTypeScript())) -> type.toTypeScript()
+        else -> type.toTypeScript()
     }
 
     private fun discriminatedUnionMemberType(unionType: ApiTypeName, memberType: ClassDefinition) =
@@ -311,6 +296,46 @@ abstract class AbstractTypeScriptGenerator(
         }
     }
 
+    private fun createConfig(endpoint: Endpoint, onlyUrl: Boolean = false): Map<String, Any> = buildMap {
+        put("uriTemplate", endpoint.uriTemplate.toString())
+
+        if (!onlyUrl)
+            put("method", endpoint.method.toString())
+
+        val pathVariables = endpoint.pathVariables
+        if (pathVariables.isNotEmpty())
+            put("pathVariables", pathVariables.associate { it.pathVariable to serialize(it.name, it.type) })
+
+        val requestParameters = endpoint.requestParameters
+        if (requestParameters.isNotEmpty())
+            put("requestParams", requestParameters.associate { it.queryParameter to serialize(it.name, it.type) })
+
+        if (!onlyUrl) {
+            endpoint.requestBody?.let { body ->
+                put("requestBody", serialize(body.name, body.type.unwrapNullable()))
+            }
+
+            endpoint.responseBody?.let { body ->
+                put("responseType", typeDescriptor(body))
+            }
+        }
+    }
+
+    /**
+     * Returns TypeScript code to serialize `variable` of given `type`
+     * to transfer representation.
+     */
+    private fun serialize(variable: String, type: ApiType) =
+        RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type) + "')")
+
+    private fun typeDescriptor(type: ApiType): String {
+        // Use ApiType's native representation as type descriptor.
+        // This method encapsulates the call to make it meaningful in this context.
+        return type.unwrapNullable().toTypeScript()
+    }
+
+    private fun ApiType.toTypeScript(): String = toTypeScript(settings.optionalTypeMode)
+
     companion object {
 
         /**
@@ -323,77 +348,27 @@ abstract class AbstractTypeScriptGenerator(
                 .flatMap { du -> du.types.values }
                 .distinctBy { it.type }
                 .sortedBy { it.type }
-
-        private fun createConfig(
-            endpoint: Endpoint,
-            onlyUrl: Boolean = false,
-            optionalTypeMode: OptionalTypeMode
-        ): Map<String, Any> {
-            val config = LinkedHashMap<String, Any>()
-
-            config["uriTemplate"] = endpoint.uriTemplate.toString()
-
-            if (!onlyUrl)
-                config["method"] = endpoint.method.toString()
-
-            val pathVariables = endpoint.pathVariables
-            if (pathVariables.isNotEmpty())
-                config["pathVariables"] = createPathVariablesMap(pathVariables, optionalTypeMode)
-
-            val requestParameters = endpoint.requestParameters
-            if (requestParameters.isNotEmpty())
-                config["requestParams"] = createRequestParamMap(requestParameters, optionalTypeMode)
-
-            if (!onlyUrl) {
-                endpoint.requestBody?.let { body ->
-                    config["requestBody"] = serialize(body.name, body.type.unwrapNullable(), optionalTypeMode)
-                }
-                endpoint.responseBody?.let { body ->
-                    config["responseType"] = typeDescriptor(
-                        body,
-                        optionalTypeMode
-                    )
-                }
-            }
-
-            return config
-        }
-
-        private fun createRequestParamMap(
-            parameters: Collection<EndpointRequestParamParameter>,
-            optionalTypeMode: OptionalTypeMode
-        ): Map<String, Any> {
-            val result = LinkedHashMap<String, Any>()
-
-            for (param in parameters)
-                result[param.queryParameter] = serialize(param.name, param.type, optionalTypeMode)
-
-            return result
-        }
-
-        private fun createPathVariablesMap(
-            pathVariables: List<EndpointPathVariableParameter>,
-            optionalTypeMode: OptionalTypeMode
-        ): Map<String, Any> {
-            val result = LinkedHashMap<String, Any>()
-
-            for (param in pathVariables)
-                result[param.pathVariable] = serialize(param.name, param.type, optionalTypeMode)
-
-            return result
-        }
-
-        /**
-         * Returns TypeScript code to serialize `variable` of given `type`
-         * to transfer representation.
-         */
-        private fun serialize(variable: String, type: ApiType, optionalTypeMode: OptionalTypeMode) =
-            RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type, optionalTypeMode) + "')")
-
-        private fun typeDescriptor(type: ApiType, optionalTypeMode: OptionalTypeMode): String {
-            // Use ApiType's native representation as type descriptor.
-            // This method encapsulates the call to make it meaningful in this context.
-            return type.unwrapNullable().toTypeScript(optionalTypeMode)
-        }
     }
+}
+
+internal fun ApiType.toTypeScript(optionalTypeMode: OptionalTypeMode): String = when (this) {
+    is ApiType.Array -> elementType.toTypeScript(optionalTypeMode) + "[]"
+    is ApiType.BlackBox -> name.name
+    is ApiType.Class -> name.name
+    is ApiType.Dictionary -> "Record<string, ${valueType.toTypeScript(optionalTypeMode)}>"
+    is ApiType.Nullable -> when (optionalTypeMode) {
+        OptionalTypeMode.UNDEFINED -> type.toTypeScript(optionalTypeMode) + " | undefined"
+        OptionalTypeMode.NULL -> type.toTypeScript(optionalTypeMode) + " | null"
+    }
+
+    is ApiType.Primitive -> toTypeScript()
+}
+
+private fun ApiType.Primitive.toTypeScript(): String = when (this) {
+    ApiType.Primitive.ANY -> "any"
+    ApiType.Primitive.STRING -> "string"
+    ApiType.Primitive.BOOLEAN -> "boolean"
+    ApiType.Primitive.INTEGER -> "number"
+    ApiType.Primitive.FLOAT -> "number"
+    ApiType.Primitive.VOID -> "void"
 }

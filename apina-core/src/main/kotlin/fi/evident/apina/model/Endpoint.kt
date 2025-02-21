@@ -6,6 +6,7 @@ import fi.evident.apina.model.parameters.EndpointRequestBodyParameter
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter
 import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.type.ApiType
+import fi.evident.apina.output.ts.toTypeScript
 import java.util.*
 
 /**
@@ -48,7 +49,7 @@ class Endpoint(
         get() = _parameters.filterIsInstance<EndpointRequestParamParameter>()
 
     override fun toString(): String = String.format("%s %s(%s): %s %s",
-            responseBody?.toTypeScript(OptionalTypeMode.NULL) ?: "void",
+            responseBody?.toDescription() ?: "void",
             name,
             _parameters.joinToString(", "),
             method,

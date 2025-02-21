@@ -12,6 +12,7 @@ import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
+import fi.evident.apina.output.ts.toTypeScript
 import fi.evident.apina.spring.testclasses.*
 import kotlinx.serialization.Required
 import kotlinx.serialization.SerialName
@@ -260,10 +261,9 @@ class KotlinSerializationTypeTranslatorTest {
 
     private inline fun <reified T : Any> translateClass(): ClassDefinition {
         loader.loadClassesFromInheritanceTree<T>()
-        val apiType = translateType<T>()
+        val apiType = translateType<T>() as ApiType.Class
 
-        return api.classDefinitions.find { d ->
-            apiType.toTypeScript(OptionalTypeMode.NULL).startsWith(d.type.toString())
-        } ?: fail("could not find definition for $apiType")
+        return api.classDefinitions.find { d -> apiType.name.name.startsWith(d.type.name) }
+            ?: fail("could not find definition for $apiType")
     }
 }

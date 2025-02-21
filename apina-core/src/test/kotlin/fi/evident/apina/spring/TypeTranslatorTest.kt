@@ -19,6 +19,7 @@ import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
+import fi.evident.apina.output.ts.toTypeScript
 import fi.evident.apina.spring.testclasses.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -106,7 +107,8 @@ class TypeTranslatorTest {
     fun `translate black-box type`() {
         settings.blackBoxClasses.addPattern("foo\\..+")
 
-        assertEquals(ApiType.BlackBox(ApiTypeName("Baz")),
+        assertEquals(
+            ApiType.BlackBox(ApiTypeName("Baz")),
             translateType(JavaType.Basic("foo.bar.Baz"))
         )
     }
@@ -418,25 +420,28 @@ class TypeTranslatorTest {
     }
 
     private fun translateType(type: JavaType): ApiType =
-        translator.translateType(type, MockAnnotatedElement(), TypeEnvironment.empty()) // TODO: create environment from type
+        translator.translateType(
+            type,
+            MockAnnotatedElement(),
+            TypeEnvironment.empty()
+        ) // TODO: create environment from type
 
     private inline fun <reified T : Any> translateType(): ApiType =
         translateType(JavaType.basic<T>())
 
     private inline fun <reified T : Any> translateClass(): ClassDefinition {
         loader.loadClassesFromInheritanceTree<T>()
-        val apiType = translateType<T>()
+        val apiType = translateType<T>() as ApiType.Class
 
-        return api.classDefinitions.find { d ->
-            apiType.toTypeScript(OptionalTypeMode.NULL).startsWith(d.type.toString())
-        } ?: fail("could not find definition for $apiType")
+        return api.classDefinitions.find { it.type == apiType.name }
+            ?: fail("could not find definition for $apiType")
     }
 
     private inline fun <reified T : Enum<T>> translateEnum(): EnumDefinition {
         loader.loadClassesFromInheritanceTree<T>()
-        val apiType = translateType<T>()
+        val apiType = translateType<T>() as ApiType.Class
 
-        return api.enumDefinitions.find { d -> d.type.toString() == apiType.toTypeScript(OptionalTypeMode.NULL) }
+        return api.enumDefinitions.find { it.type == apiType.name }
             ?: fail("could not find definition for $apiType")
     }
 }

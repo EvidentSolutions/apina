@@ -109,3 +109,21 @@ class SwiftGenerator(val api: ApiDefinition, val settings: TranslationSettings) 
         }
     }
 }
+
+internal fun ApiType.toSwift(): String = when (this) {
+    is ApiType.Array -> "[${elementType.toSwift()}]"
+    is ApiType.BlackBox -> name.name
+    is ApiType.Class -> name.name
+    is ApiType.Dictionary -> "[String: ${valueType.toSwift()}]"
+    is ApiType.Nullable -> type.toSwift() + "?"
+    is ApiType.Primitive -> toSwift()
+}
+
+private fun ApiType.Primitive.toSwift(): String = when (this) {
+    ApiType.Primitive.ANY -> "Any"
+    ApiType.Primitive.STRING -> "String"
+    ApiType.Primitive.BOOLEAN -> "Bool"
+    ApiType.Primitive.INTEGER -> "Int"
+    ApiType.Primitive.FLOAT -> "Float"
+    ApiType.Primitive.VOID -> "Void"
+}

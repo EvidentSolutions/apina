@@ -1,10 +1,12 @@
-package fi.evident.apina.model.type
+package fi.evident.apina.output.ts
 
 import fi.evident.apina.model.settings.OptionalTypeMode
+import fi.evident.apina.model.type.ApiType
+import fi.evident.apina.model.type.ApiTypeName
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class ApiTypeTest {
+class ApiTypeTypeScriptTest {
 
     @Test
     fun `TypeScript representations`() {
@@ -18,16 +20,5 @@ class ApiTypeTest {
         assertEquals("Record<string, string | undefined>", ApiType.Dictionary(ApiType.Nullable(ApiType.Primitive.STRING)).toTypeScript(OptionalTypeMode.UNDEFINED))
         assertEquals("string | null", ApiType.Nullable(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.NULL))
         assertEquals("string | undefined", ApiType.Nullable(ApiType.Primitive.STRING).toTypeScript(OptionalTypeMode.UNDEFINED))
-    }
-
-    @Test
-    fun `Swift representations`() {
-        assertEquals("String", ApiType.Primitive.STRING.toSwift())
-        assertEquals("[String]", ApiType.Array(ApiType.Primitive.STRING).toSwift())
-        assertEquals("[[String]]", ApiType.Array(ApiType.Array(ApiType.Primitive.STRING)).toSwift())
-        assertEquals("Foo", ApiType.BlackBox(ApiTypeName("Foo")).toSwift())
-        assertEquals("Foo", ApiType.Class(ApiTypeName("Foo")).toSwift())
-        assertEquals("[String: String]", ApiType.Dictionary(ApiType.Primitive.STRING).toSwift())
-        assertEquals("String?", ApiType.Nullable(ApiType.Primitive.STRING).toSwift())
     }
 }
