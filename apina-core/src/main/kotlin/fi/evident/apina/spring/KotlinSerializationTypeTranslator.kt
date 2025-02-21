@@ -101,19 +101,24 @@ internal class KotlinSerializationTypeTranslator(
         classDefinition: ClassDefinition,
         hasInitializer: Boolean
     ) {
-        val annotationSource = property.syntheticMethodForAnnotations
-            ?.let { p -> javaClass.methods.find { it.name == p.name && it.descriptor == p.descriptor } }
+        try {
+            val annotationSource = property.syntheticMethodForAnnotations
+                ?.let { p -> javaClass.methods.find { it.name == p.name && it.descriptor == p.descriptor } }
 
-        if (annotationSource?.hasAnnotation(TRANSIENT) == true)
-            return
+            if (annotationSource?.hasAnnotation(TRANSIENT) == true)
+                return
 
-        val propertyName = annotationSource?.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: property.name
+            val propertyName = annotationSource?.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: property.name
 
-        var type  = typeTranslator.translateKotlinType(property.returnType, env)
-        if (property.returnType.isNullable || (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null))
-            type = type.nullable() // TODO: strictly speaking these are undefined and not null
+            var type = typeTranslator.translateKotlinType(property.returnType, env)
+            if (property.returnType.isNullable || (hasInitializer && annotationSource?.findAnnotation(REQUIRED) == null))
+                type = type.nullable() // TODO: strictly speaking these are undefined and not null
 
-        classDefinition.addProperty(PropertyDefinition(propertyName, type))
+            classDefinition.addProperty(PropertyDefinition(propertyName, type))
+
+        } catch (e: Exception) {
+            throw TypeTranslationException("Failed to translate property '${property.name}' of ${javaClass.name}", e)
+        }
     }
 
     companion object {
@@ -124,3 +129,5 @@ internal class KotlinSerializationTypeTranslator(
         private val REQUIRED = JavaType.Basic("kotlinx.serialization.Required")
     }
 }
+
+class TypeTranslationException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
