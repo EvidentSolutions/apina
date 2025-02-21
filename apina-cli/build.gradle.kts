@@ -5,15 +5,13 @@ plugins {
     kotlin("jvm")
     `maven-publish`
     signing
-    id("com.github.johnrengelman.shadow")
+    alias(libs.plugins.shadow)
 }
-
-val asmVersion: String by rootProject.extra
 
 dependencies {
     implementation(project(":apina-core", "shadow"))
-    implementation("org.ow2.asm:asm:$asmVersion")
-    implementation("ch.qos.logback:logback-classic:1.2.9")
+    implementation(libs.asm)
+    implementation(libs.logback)
     implementation(kotlin("stdlib"))
 }
 

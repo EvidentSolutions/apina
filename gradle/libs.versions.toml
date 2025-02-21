@@ -1,0 +1,33 @@
+[versions]
+kotlin = "2.0.21"
+kotlin-metadata = "0.9.0"
+kotlin-serialization = "1.2.2"
+asm = "9.5"
+logback = "1.2.9"
+slf4j = "1.7.32"
+junit = "5.7.2"
+hamcrest = "1.3"
+jackson = "2.12.5"
+spring = "5.3.9"
+spring-data = "2.5.4"
+
+[libraries]
+kotlin-metadata = { module = "org.jetbrains.kotlinx:kotlinx-metadata-jvm", version.ref = "kotlin-metadata" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm", version.ref = "kotlin-serialization" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
+spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
+spring-data-commons = { module = "org.springframework.data:spring-data-commons", version.ref = "spring-data" }
+hamcrest = { module = "org.hamcrest:hamcrest-all", version.ref = "hamcrest" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+axion-release = "pl.allegro.tech.build.axion-release:1.4.1"
+shadow = "com.github.johnrengelman.shadow:8.1.0"
+asciidoctor = "org.asciidoctor.jvm.convert:3.3.2"
+githubPages = "org.ajoberstar.github-pages:1.6.0"
+pluginPublish = "com.gradle.plugin-publish:1.2.0"

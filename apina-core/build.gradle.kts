@@ -1,55 +1,52 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 import java.net.URI
 
 plugins {
-    kotlin("jvm")
     java
+    alias(libs.plugins.kotlin.jvm)
     `maven-publish`
     signing
-    id("com.github.johnrengelman.shadow")
+    alias(libs.plugins.shadow)
 }
 
 repositories {
     mavenCentral()
 }
 
-val asmVersion: String by rootProject.extra
-val kotlinMetadataVersion = "0.9.0"
-
 dependencies {
-    // We have to define explicit version here or invalid POM is generated
     shadow(kotlin("stdlib"))
-    shadow("org.slf4j:slf4j-api:1.7.32")
-    shadow("org.jetbrains.kotlinx:kotlinx-metadata-jvm:$kotlinMetadataVersion")
-    implementation("org.ow2.asm:asm:$asmVersion")
+    shadow(libs.slf4j)
+    shadow(libs.kotlin.metadata)
+    implementation(libs.asm)
 
     testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:$kotlinMetadataVersion")
-    testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.12.5")
-    testImplementation("org.springframework:spring-web:5.3.9")
-    testImplementation("org.springframework.data:spring-data-commons:2.5.4")
-    testImplementation("org.hamcrest:hamcrest-all:1.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.2.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation(libs.kotlin.metadata)
+    testImplementation(libs.jackson.annotations)
+    testImplementation(libs.spring.web)
+    testImplementation(libs.spring.data.commons)
+    testImplementation(libs.hamcrest)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.kotlinx.serialization.core)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
 tasks.compileTestJava {
     sourceCompatibility = "17"
     targetCompatibility = "17"
     javaCompiler.set(javaToolchains.compilerFor {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion = JavaLanguageVersion.of(17)
     })
 }
 
 tasks.compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "17"
+    compilerOptions {
+        jvmTarget = JVM_17
     }
 }
 
 tasks.test {
     javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion = JavaLanguageVersion.of(17)
     })
 }
 

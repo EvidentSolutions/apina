@@ -1,14 +1,12 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 import pl.allegro.tech.build.axion.release.domain.VersionConfig
 
 plugins {
-    id("pl.allegro.tech.build.axion-release") version "1.4.1"
-    kotlin("jvm") version "1.9.24" apply false
+    alias(libs.plugins.axion.release)
+    alias(libs.plugins.kotlin.jvm) apply false
 }
-
-val asmVersion by extra("9.5") // duplicated from above
-val junitVersion = "5.7.2"
 
 configure<VersionConfig> {
     tag(closureOf<TagNameSerializationConfig> {
@@ -25,15 +23,6 @@ configure(allprojects) {
         mavenCentral()
     }
 
-    configurations.all {
-        resolutionStrategy.eachDependency {
-            when (requested.name) {
-                "junit-jupiter-api" -> useVersion(junitVersion)
-                "junit-jupiter-engine" -> useVersion(junitVersion)
-            }
-        }
-    }
-
     tasks.withType<JavaCompile> {
         options.encoding = "UTF-8"
         sourceCompatibility = "1.8"
@@ -41,8 +30,8 @@ configure(allprojects) {
     }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
+        compilerOptions {
+            jvmTarget = JVM_1_8
         }
     }
 

@@ -1,13 +1,19 @@
 plugins {
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("com.gradle.plugin-publish")
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.pluginPublish)
     `java-gradle-plugin`
 }
 
 val shadowImplementation by configurations.creating
-configurations["compileOnly"].extendsFrom(shadowImplementation)
-configurations["testImplementation"].extendsFrom(shadowImplementation)
+
+configurations.compileOnly.configure {
+    extendsFrom(shadowImplementation)
+}
+
+configurations.testImplementation.configure {
+    extendsFrom(shadowImplementation)
+}
 
 dependencies {
     shadowImplementation(project(":apina-core", "shadow"))
@@ -15,8 +21,8 @@ dependencies {
     compileOnly(kotlin("stdlib"))
 
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
 gradlePlugin {

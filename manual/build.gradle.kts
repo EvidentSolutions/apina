@@ -1,6 +1,6 @@
 plugins {
-    id("org.asciidoctor.jvm.convert")
-    id("org.ajoberstar.github-pages")
+    alias(libs.plugins.asciidoctor)
+    alias(libs.plugins.githubPages)
 }
 
 tasks.asciidoctor {
