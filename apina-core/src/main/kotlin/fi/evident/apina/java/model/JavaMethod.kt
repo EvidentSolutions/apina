@@ -5,7 +5,6 @@ import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.model.type.TypeSchema
 import fi.evident.apina.utils.propertyNameForGetter
 import java.lang.reflect.Modifier
-import java.util.*
 
 class JavaMethod(val descriptor: String,
                  val owningClass: JavaClass,

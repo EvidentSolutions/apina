@@ -4,7 +4,6 @@ import fi.evident.apina.java.model.JavaAnnotatedElement
 import fi.evident.apina.java.model.JavaAnnotation
 import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.JavaType
-import java.util.*
 
 /**
  * Implements Spring-compatible annotation resolving. This means that resolution

@@ -7,7 +7,6 @@ import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.model.*
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
-import java.util.*
 
 /**
  * Translates Jackson classes to model types.

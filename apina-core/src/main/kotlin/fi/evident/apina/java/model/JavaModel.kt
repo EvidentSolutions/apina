@@ -4,7 +4,6 @@ import fi.evident.apina.java.model.type.BoundClass
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.reader.ClassDataLoader
-import java.util.*
 
 /**
  * Contains metadata for all loaded classes.

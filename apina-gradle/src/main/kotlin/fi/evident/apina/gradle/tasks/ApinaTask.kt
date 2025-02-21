@@ -4,11 +4,7 @@ package fi.evident.apina.gradle.tasks
 
 import fi.evident.apina.ApinaProcessor
 import fi.evident.apina.java.reader.Classpath
-import fi.evident.apina.model.settings.BrandedPrimitiveType
-import fi.evident.apina.model.settings.EnumMode
-import fi.evident.apina.model.settings.OptionalTypeMode
-import fi.evident.apina.model.settings.Platform
-import fi.evident.apina.model.settings.TypeWriteMode
+import fi.evident.apina.model.settings.*
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.EndpointParameterNameNotDefinedException

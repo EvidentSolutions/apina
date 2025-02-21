@@ -15,11 +15,9 @@ import fi.evident.apina.java.reader.TestClassMetadataLoader
 import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.ClassDefinition
 import fi.evident.apina.model.EnumDefinition
-import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
-import fi.evident.apina.output.ts.toTypeScript
 import fi.evident.apina.spring.testclasses.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

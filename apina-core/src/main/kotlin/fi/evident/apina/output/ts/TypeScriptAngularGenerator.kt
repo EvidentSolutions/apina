@@ -2,7 +2,8 @@ package fi.evident.apina.output.ts
 
 import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.settings.TranslationSettings
-import fi.evident.apina.output.ts.ResultFunctor.*
+import fi.evident.apina.output.ts.ResultFunctor.OBSERVABLE
+import fi.evident.apina.output.ts.ResultFunctor.PROMISE
 
 /**
  * Generates Angular TypeScript code for client side.

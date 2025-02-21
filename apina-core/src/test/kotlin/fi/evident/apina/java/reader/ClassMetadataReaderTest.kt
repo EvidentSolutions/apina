@@ -8,7 +8,6 @@ import fi.evident.apina.java.reader.JavaTypeMatchers.typeWithRepresentation
 import fi.evident.apina.spring.testclasses.SimpleRecord
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
-import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

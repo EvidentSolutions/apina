@@ -3,7 +3,6 @@ package fi.evident.apina.java.model
 import fi.evident.apina.java.model.type.JavaType
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Modifier
-import java.util.*
 
 class JavaField(val name: String,
                 private val visibility: JavaVisibility,

@@ -3,8 +3,8 @@ package fi.evident.apina.java.model
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeSchema
 import org.junit.jupiter.api.Test
-import java.lang.reflect.Modifier
-import java.lang.reflect.Modifier.*
+import java.lang.reflect.Modifier.INTERFACE
+import java.lang.reflect.Modifier.PUBLIC
 import java.util.Collections.emptyList
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

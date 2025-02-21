@@ -1,7 +1,6 @@
 package fi.evident.apina.utils
 
 import org.intellij.lang.annotations.Language
-import java.util.*
 import java.util.regex.Pattern
 
 /**

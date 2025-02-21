@@ -1,7 +1,6 @@
 package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType
-import java.util.*
 
 /**
  * Parameter definition for a [JavaMethod].

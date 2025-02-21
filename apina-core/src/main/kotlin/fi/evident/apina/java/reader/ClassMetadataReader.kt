@@ -5,7 +5,6 @@ import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeSchema
 import org.objectweb.asm.*
 import java.io.InputStream
-import java.util.*
 
 /**
  * Reads class metadata.

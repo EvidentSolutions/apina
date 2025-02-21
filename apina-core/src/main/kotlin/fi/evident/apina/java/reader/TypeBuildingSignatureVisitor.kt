@@ -3,7 +3,6 @@ package fi.evident.apina.java.reader
 import fi.evident.apina.java.model.type.JavaType
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.signature.SignatureVisitor
-import java.util.*
 import java.util.function.Supplier
 
 /**

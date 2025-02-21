@@ -1,7 +1,6 @@
 package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType
-import java.util.*
 import java.lang.reflect.Array as ReflectArray
 
 class JavaAnnotation(val name: JavaType.Basic) {

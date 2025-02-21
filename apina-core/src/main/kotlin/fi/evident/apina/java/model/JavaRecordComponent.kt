@@ -1,9 +1,6 @@
 package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType
-import org.objectweb.asm.Opcodes
-import java.lang.reflect.Modifier
-import java.util.*
 
 class JavaRecordComponent(val name: String,
                           val type: JavaType) : JavaAnnotatedElement {

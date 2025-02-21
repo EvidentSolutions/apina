@@ -1,6 +1,7 @@
 package fi.evident.apina.spring
 
-import fi.evident.apina.java.model.*
+import fi.evident.apina.java.model.JavaClass
+import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.BoundClass
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment

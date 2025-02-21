@@ -6,7 +6,6 @@ import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
-import java.util.Arrays.asList
 import java.util.Collections.singletonMap
 
 /**

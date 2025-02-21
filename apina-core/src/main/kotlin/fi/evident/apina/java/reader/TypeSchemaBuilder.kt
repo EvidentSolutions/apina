@@ -2,7 +2,6 @@ package fi.evident.apina.java.reader
 
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeSchema
-import java.util.*
 import java.util.function.Supplier
 
 /**

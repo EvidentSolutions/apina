@@ -7,7 +7,6 @@ import kotlinx.metadata.jvm.KotlinClassMetadata
 import kotlinx.metadata.jvm.Metadata
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Modifier
-import java.util.*
 
 /**
  * Contains all information read about class.

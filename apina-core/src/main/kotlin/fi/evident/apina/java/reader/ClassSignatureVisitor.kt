@@ -5,7 +5,6 @@ import fi.evident.apina.java.model.type.TypeSchema
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.signature.SignatureReader
 import org.objectweb.asm.signature.SignatureVisitor
-import java.util.*
 import java.util.function.Supplier
 
 /**

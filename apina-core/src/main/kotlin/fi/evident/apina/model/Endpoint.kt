@@ -4,10 +4,7 @@ import fi.evident.apina.model.parameters.EndpointParameter
 import fi.evident.apina.model.parameters.EndpointPathVariableParameter
 import fi.evident.apina.model.parameters.EndpointRequestBodyParameter
 import fi.evident.apina.model.parameters.EndpointRequestParamParameter
-import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.type.ApiType
-import fi.evident.apina.output.ts.toTypeScript
-import java.util.*
 
 /**
  * API endpoint reachable at an URL using given method and parameters. An example

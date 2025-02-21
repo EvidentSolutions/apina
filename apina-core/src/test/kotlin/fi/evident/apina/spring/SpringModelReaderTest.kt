@@ -9,7 +9,6 @@ import fi.evident.apina.model.HTTPMethod
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import org.junit.jupiter.api.Test
-import org.springframework.data.util.ParameterTypes
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -17,7 +16,6 @@ import java.util.concurrent.Callable
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class SpringModelReaderTest {
 
