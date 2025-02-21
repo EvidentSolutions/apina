@@ -171,7 +171,7 @@ class KotlinSerializationTypeTranslatorTest {
     }
 
     @Test
-    fun `check that inline classses are translated as type-aliases`() {
+    fun `check that inline classes are translated as type-aliases`() {
         @Serializable
         @Suppress("unused")
         class MyClass(
