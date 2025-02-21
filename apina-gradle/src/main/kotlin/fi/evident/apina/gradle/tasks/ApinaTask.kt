@@ -1,4 +1,4 @@
-@file:Suppress("MemberVisibilityCanBePrivate", "LeakingThis")
+@file:Suppress("MemberVisibilityCanBePrivate", "LeakingThis", "DEPRECATION")
 
 package fi.evident.apina.gradle.tasks
 
@@ -50,6 +50,7 @@ abstract class ApinaTask : DefaultTask() {
     abstract val platform: Property<Platform>
 
     @get:Input
+    @Deprecated("Writing types as interfaces is preferred and selection will be removed in future")
     abstract val typeWriteMode: Property<TypeWriteMode>
 
     @get:Input

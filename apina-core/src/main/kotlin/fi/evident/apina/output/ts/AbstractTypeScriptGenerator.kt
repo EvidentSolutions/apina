@@ -86,7 +86,6 @@ abstract class AbstractTypeScriptGenerator(
 
         out.writeLine()
 
-        @Suppress("DEPRECATION")
         val classDefinitionWriter = when (settings.typeWriteMode) {
             TypeWriteMode.CLASS -> out::writeExportedClass
             TypeWriteMode.INTERFACE -> out::writeExportedInterface
