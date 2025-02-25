@@ -19,7 +19,7 @@ class TypeEnvironment(
     }
 
     fun lookup(type: JavaType.Variable): JavaType? = bindings.firstOrNull { it.first == type }?.second
-    fun lookup(index: Int): JavaType? = bindings.firstOrNull { it.first == type }?.second
+    fun lookup(index: Int): JavaType? = bindings[index].second
 
     override fun toString(): String =
         bindings.joinToString(separator = ", ", prefix = "{", postfix = "}") { "${it.first}=${it.second}" }
