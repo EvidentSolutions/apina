@@ -10,11 +10,11 @@ export abstract class ApinaEndpointContext {
         return url + formatQueryParameters(data.requestParams);
     }
 
-    serialize(value: any, type: string): any {
+    serialize(value: any, type: ApinaTypeDescriptor): any {
         return this.config.serialize(value, type);
     }
 
-    deserialize(value: any, type: string): any {
+    deserialize(value: any, type: ApinaTypeDescriptor): any {
         return this.config.deserialize(value, type);
     }
 

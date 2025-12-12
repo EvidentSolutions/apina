@@ -2,51 +2,67 @@ declare const brand: unique symbol;
 
 export type Branded<T, TBrand extends string> = T & { [brand]: TBrand };
 
+type TypeName = string;
+export type ApinaTypeDescriptor = [TypeName, ...ApinaTypeDescriptor[]];
+type GenericSerializer = (...serializers: Serializer[]) => Serializer;
+
 abstract class ApinaConfigBase {
 
     /** Prefix added for all API calls */
     baseUrl: string = "";
 
-    private readonly serializers: Record<string, Serializer> = {};
+    private readonly serializers: Record<TypeName, GenericSerializer> = {};
 
     protected constructor() {
         this.registerIdentitySerializer("any");
         this.registerIdentitySerializer("string");
         this.registerIdentitySerializer("number");
         this.registerIdentitySerializer("boolean");
+        this.registerGenericSerializer("[]", elementSerializer => nullSafeSerializer({
+            serialize: o => o.map((v: any) => elementSerializer.serialize(v)),
+            deserialize: o => o.map((v: any) => elementSerializer.deserialize(v)),
+        }));
+        this.registerGenericSerializer("{}", elementSerializer => nullSafeSerializer({
+            serialize: o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, elementSerializer.serialize(v)])),
+            deserialize: o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, elementSerializer.deserialize(v)])),
+        }));
     }
 
-    serialize(value: unknown, type: string): any {
+    serialize(value: unknown, type: ApinaTypeDescriptor): any {
         return this.lookupSerializer(type).serialize(value);
     }
 
-    deserialize(value: unknown, type: string): any {
+    deserialize(value: unknown, type: ApinaTypeDescriptor): any {
         return this.lookupSerializer(type).deserialize(value);
     }
 
-    registerSerializer(name: string, serializer: Serializer) {
+    registerSerializer(name: TypeName, serializer: Serializer) {
+        this.registerGenericSerializer(name, () => serializer);
+    }
+
+    registerGenericSerializer(name: TypeName, serializer: GenericSerializer) {
         this.serializers[name] = serializer;
     }
 
-    registerEnumSerializer(name: string, enumObject: any) {
+    registerEnumSerializer(name: TypeName, enumObject: any) {
         this.registerSerializer(name, nullSafeSerializer({
             serialize: o => enumObject[o],
             deserialize: o => enumObject[o],
         }));
     }
 
-    registerClassSerializer<T = unknown>(name: string, fields: Record<keyof T, string>) {
+    registerClassSerializer<T = unknown>(name: TypeName, fields: Record<keyof T, ApinaTypeDescriptor>) {
         this.registerSerializer(name, nullSafeSerializer({
-            serialize: o => Object.fromEntries(Object.entries(fields).map(([name, type]) => [name, this.serialize(o[name], type as string)])),
-            deserialize: o => Object.fromEntries(Object.entries(fields).map(([name, type]) => [name, this.deserialize(o[name], type as string)])),
+            serialize: o => Object.fromEntries(Object.entries(fields).map(([name, type]) => [name, this.serialize(o[name], type as ApinaTypeDescriptor)])),
+            deserialize: o => Object.fromEntries(Object.entries(fields).map(([name, type]) => [name, this.deserialize(o[name], type as ApinaTypeDescriptor)])),
         }));
     }
 
-    registerIdentitySerializer(name: string) {
+    registerIdentitySerializer(name: TypeName) {
         this.registerSerializer(name, identitySerializer);
     }
 
-    registerDiscriminatedUnionSerializer<T = unknown>(name: string, discriminator: keyof T, types: Record<string, string>) {
+    registerDiscriminatedUnionSerializer<T = unknown>(name: TypeName, discriminator: keyof T, types: Record<TypeName, ApinaTypeDescriptor>) {
         const self = this;
         this.registerSerializer(name, nullSafeSerializer({
             serialize(obj) {
@@ -66,38 +82,24 @@ abstract class ApinaConfigBase {
         }));
     }
 
-    private lookupSerializer(type: string): Serializer {
-        if (!type) throw new Error("no type given");
+    private lookupSerializer(type: ApinaTypeDescriptor): Serializer {
+        const check = (condition: boolean): void => {
+            if (!condition) throw new Error("invalid type descriptor " + JSON.stringify(type));
+        };
 
-        if (type.endsWith("[]")) {
-            const elementType = type.substring(0, type.length - 2);
-            return arraySerializer(this.lookupSerializer(elementType));
+        check(type != null && type.length > 0);
+
+        const baseType = type[0];
+        const serializerProvider = this.serializers[baseType];
+        if (serializerProvider()) {
+            const args = type.slice(1) as ApinaTypeDescriptor[];
+            const serializers = args.map(arg => this.lookupSerializer(arg));
+            return serializerProvider(...serializers);
         }
 
-        const dictionaryMatch = /^Record<string,\s*(.+)>$/.exec(type);
-        if (dictionaryMatch)
-            return dictionarySerializer(this.lookupSerializer(dictionaryMatch[1]));
-
-        const serializer = this.serializers[type];
-        if (serializer)
-            return serializer;
-
-        throw new Error(`could not find serializer for type '${type}'`);
+        console.error(`could not find serializer for type '${baseType}', falling back to identity serializer`);
+        return identitySerializer;
     }
-}
-
-function arraySerializer(elementSerializer: Serializer): Serializer {
-    return nullSafeSerializer({
-        serialize: o => o.map((v: any) => elementSerializer.serialize(v)),
-        deserialize: o => o.map((v: any) => elementSerializer.deserialize(v)),
-    });
-}
-
-function dictionarySerializer(elementSerializer: Serializer): Serializer {
-    return nullSafeSerializer({
-        serialize: o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, elementSerializer.serialize(v)])),
-        deserialize: o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, elementSerializer.deserialize(v)])),
-    });
 }
 
 function formatQueryParameters(params: Record<string, unknown>): string {
@@ -131,7 +133,7 @@ export interface UrlData {
 export interface RequestData extends UrlData {
     method: string;
     requestBody?: any;
-    responseType?: string;
+    responseType?: ApinaTypeDescriptor;
 }
 
 export interface Serializer<A = any, B = any> {

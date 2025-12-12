@@ -185,28 +185,20 @@ abstract class AbstractTypeScriptGenerator(
         out.writeLine()
 
         for (classDefinition in api.structuralTypeDefinitions) {
-            val defs = LinkedHashMap<String, String>()
-
-            for (property in classDefinition.properties)
-                defs[property.name] = typeDescriptor(property.type)
-
             val typeName = classDefinition.type.name
             out.write("this.registerClassSerializer<$typeName>(").writeValue(typeName).write(", ")
-            out.writeValue(defs).writeLine(");")
+            out.writeValue(classDefinition.properties.associate { it.name to typeDescriptor(it.type).toJs() })
+            out.writeLine(");")
             out.writeLine()
         }
 
         for (definition in api.discriminatedUnionDefinitions) {
-            val defs = mutableMapOf<String, String>()
-
-            for ((discriminatorValue, type) in definition.types)
-                defs[discriminatorValue] = typeDescriptor(ApiType.Class(type.type))
-
             val typeName = definition.type.name
             out.write("this.registerDiscriminatedUnionSerializer<$typeName>(")
             out.writeValue(typeName).write(", ")
             out.writeValue(definition.discriminator).write(", ")
-            out.writeValue(defs).writeLine(");")
+            out.writeValue(definition.types.mapValues { (_, type) -> typeDescriptor(ApiType.Class(type.type)).toJs() })
+            out.writeLine(");")
             out.writeLine()
         }
     }
@@ -244,8 +236,7 @@ abstract class AbstractTypeScriptGenerator(
         val signature = "${endpoint.name}($parameters): ${resultFunctor.apply(resultType)}"
 
         out.write(signature).write(" ").writeBlock {
-            out.write("return this.context.request(")
-                .writeValue(createConfig(endpoint)).writeLine(");")
+            out.write("return this.context.request(").writeValue(createConfig(endpoint)).writeLine(");")
         }
     }
 
@@ -254,9 +245,7 @@ abstract class AbstractTypeScriptGenerator(
         val signature = "${endpoint.name}Url($parameters): string"
 
         out.write(signature).write(" ").writeBlock {
-            out.write("return this.context.url(")
-                .writeValue(createConfig(endpoint, onlyUrl = true))
-                .writeLine(");")
+            out.write("return this.context.url(").writeValue(createConfig(endpoint, onlyUrl = true)).writeLine(");")
         }
     }
 
@@ -291,6 +280,15 @@ abstract class AbstractTypeScriptGenerator(
         }
     }
 
+    private fun typeDescriptor(type: ApiType): TypeDescriptor = when (type) {
+        is ApiType.Array -> TypeDescriptor("[]", listOf(typeDescriptor(type.elementType)))
+        is ApiType.Dictionary -> TypeDescriptor("{}", listOf(typeDescriptor(type.valueType)))
+        is ApiType.BlackBox -> TypeDescriptor(type.name.name)
+        is ApiType.Class -> TypeDescriptor(type.name.name)
+        is ApiType.Nullable -> typeDescriptor(type.type)
+        is ApiType.Primitive -> TypeDescriptor(type.toTypeScript())
+    }
+
     private fun createConfig(endpoint: Endpoint, onlyUrl: Boolean = false): Map<String, Any> = buildMap {
         put("uriTemplate", endpoint.uriTemplate.toString())
 
@@ -309,9 +307,8 @@ abstract class AbstractTypeScriptGenerator(
             endpoint.requestBody?.let { body ->
                 put("requestBody", serialize(body.name, body.type.unwrapNullable()))
             }
-
             endpoint.responseBody?.let { body ->
-                put("responseType", typeDescriptor(body))
+                put("responseType", typeDescriptor(body).toJs())
             }
         }
     }
@@ -320,16 +317,19 @@ abstract class AbstractTypeScriptGenerator(
      * Returns TypeScript code to serialize `variable` of given `type`
      * to transfer representation.
      */
-    private fun serialize(variable: String, type: ApiType) =
-        RawCode("this.context.serialize(" + variable + ", '" + typeDescriptor(type) + "')")
-
-    private fun typeDescriptor(type: ApiType): String {
-        // Use ApiType's native representation as type descriptor.
-        // This method encapsulates the call to make it meaningful in this context.
-        return type.unwrapNullable().toTypeScript()
+    private fun serialize(variable: String, type: ApiType): RawCode {
+        val writer = TypeScriptWriter()
+        writer.write("this.context.serialize($variable, ").writeValue(typeDescriptor(type).toJs()).write(")")
+        return RawCode(writer.output)
     }
 
     private fun ApiType.toTypeScript(): String = toTypeScript(settings.optionalTypeMode)
+
+    private class TypeDescriptor(private val name: String, val args: List<TypeDescriptor> = emptyList()) {
+
+        /** Convert this descriptor to a form that can be serialized and processed by JS */
+        fun toJs(): List<Any> = listOf(name) + args.map { it.toJs() }
+    }
 
     companion object {
 
@@ -343,6 +343,7 @@ abstract class AbstractTypeScriptGenerator(
                 .flatMap { du -> du.types.values }
                 .distinctBy { it.type }
                 .sortedBy { it.type }
+
     }
 }
 
