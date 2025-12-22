@@ -1,3 +1,7 @@
+## 0.25.2 (2025-12-22)
+
+- Add support for Java 25 class files
+
 ## 0.25.1 (2024-12-16)
 
 - Improve error messages
