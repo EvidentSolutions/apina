@@ -2,7 +2,7 @@
 kotlin = "2.0.21"
 kotlin-metadata = "0.9.0"
 kotlin-serialization = "1.2.2"
-asm = "9.5"
+asm = "9.9.1"
 logback = "1.2.9"
 slf4j = "1.7.32"
 junit = "5.7.2"
