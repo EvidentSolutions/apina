@@ -6,14 +6,16 @@ import fi.evident.apina.java.model.type.TypeSchema
 import fi.evident.apina.utils.propertyNameForGetter
 import java.lang.reflect.Modifier
 
-class JavaMethod(val descriptor: String,
-                 val owningClass: JavaClass,
-                 val name: String,
-                 private val visibility: JavaVisibility,
-                 val returnType: JavaType,
-                 val parameters: List<JavaParameter>,
-                 private val modifiers: Int,
-                 val schema: TypeSchema) : JavaAnnotatedElement {
+class JavaMethod(
+    val descriptor: String,
+    val owningClass: JavaClass,
+    val name: String,
+    private val visibility: JavaVisibility,
+    val returnType: JavaType,
+    val parameters: List<JavaParameter>,
+    private val modifiers: Int,
+    val schema: TypeSchema
+) : JavaAnnotatedElement {
 
     private val _annotations = ArrayList<JavaAnnotation>()
 

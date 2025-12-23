@@ -85,7 +85,16 @@ internal object ClassMetadataReader {
 
             val methodSignature = parseMethodSignature(desc, signature)
 
-            val method = JavaMethod(desc, javaClass, name, JavaVisibility.fromAccessFlags(access), methodSignature.returnType, methodSignature.parameters, access, methodSignature.schema)
+            val method = JavaMethod(
+                descriptor = desc,
+                owningClass = javaClass,
+                name = name,
+                visibility = JavaVisibility.fromAccessFlags(access),
+                returnType = methodSignature.returnType,
+                parameters = methodSignature.parameters,
+                modifiers = access,
+                schema = methodSignature.schema,
+            )
             javaClass.addMethod(method)
             return MyMethodVisitor(method)
         }
