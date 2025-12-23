@@ -25,7 +25,6 @@ junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", vers
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-axion-release = "pl.allegro.tech.build.axion-release:1.4.1"
 shadow = "com.github.johnrengelman.shadow:8.1.0"
 asciidoctor = "org.asciidoctor.jvm.convert:3.3.2"
 githubPages = "org.ajoberstar.github-pages:1.6.0"

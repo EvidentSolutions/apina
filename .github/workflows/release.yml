@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Extract version
+      id: version
+      run: echo "value=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Verify Docker is running
+      run: docker info
+
+    - name: Setup gradle
+      uses: gradle/actions/setup-gradle@v4
+
+    - name: Build and test with Gradle
+      run: ./gradlew publishAllPublicationsToMavenCentralRepository --no-configuration-cache -PprojectVersion=${{ steps.version.outputs.value }}
+      env:
+        ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+        ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+        ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+
+    - name: Upload test reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports
+        path: |
+          **/build/reports/tests/
+          **/build/test-results/
