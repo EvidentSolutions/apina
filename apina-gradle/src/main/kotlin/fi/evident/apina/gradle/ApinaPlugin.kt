@@ -10,6 +10,6 @@ open class ApinaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.pluginManager.apply(JavaPlugin::class.java)
 
-        project.tasks.create(ApinaTask.GENERATE_API_CLIENT_TASK_NAME, ApinaTask::class.java)
+        project.tasks.register(ApinaTask.GENERATE_API_CLIENT_TASK_NAME, ApinaTask::class.java)
     }
 }
