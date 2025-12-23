@@ -2,9 +2,9 @@ package fi.evident.apina.java.model
 
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeSchema
-import kotlinx.metadata.KmClass
-import kotlinx.metadata.jvm.KotlinClassMetadata
-import kotlinx.metadata.jvm.Metadata
+import kotlin.metadata.KmClass
+import kotlin.metadata.jvm.KotlinClassMetadata
+import kotlin.metadata.jvm.Metadata
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Modifier
 

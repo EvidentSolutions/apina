@@ -9,9 +9,9 @@ import fi.evident.apina.model.*
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
 import fi.evident.apina.spring.TypeTranslator.Companion.kotlinNameToJavaName
-import kotlinx.metadata.*
-import kotlinx.metadata.jvm.fieldSignature
-import kotlinx.metadata.jvm.syntheticMethodForAnnotations
+import kotlin.metadata.*
+import kotlin.metadata.jvm.fieldSignature
+import kotlin.metadata.jvm.syntheticMethodForAnnotations
 
 /**
  * Translates kotlinx-serialization classes to model types.

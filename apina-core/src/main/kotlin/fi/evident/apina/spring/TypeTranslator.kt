@@ -8,8 +8,8 @@ import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
-import kotlinx.metadata.KmClassifier
-import kotlinx.metadata.KmType
+import kotlin.metadata.KmClassifier
+import kotlin.metadata.KmType
 import org.slf4j.LoggerFactory
 import java.util.*
 

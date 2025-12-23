@@ -1,6 +1,5 @@
 [versions]
 kotlin = "2.0.21"
-kotlin-metadata = "0.9.0"
 kotlin-serialization = "1.2.2"
 asm = "9.9.1"
 logback = "1.2.9"
@@ -12,7 +11,7 @@ spring = "5.3.9"
 spring-data = "2.5.4"
 
 [libraries]
-kotlin-metadata = { module = "org.jetbrains.kotlinx:kotlinx-metadata-jvm", version.ref = "kotlin-metadata" }
+kotlin-metadata = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kotlin" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm", version.ref = "kotlin-serialization" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
