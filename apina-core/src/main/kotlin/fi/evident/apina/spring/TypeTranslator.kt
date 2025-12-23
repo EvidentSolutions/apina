@@ -12,6 +12,7 @@ import kotlin.metadata.KmClassifier
 import kotlin.metadata.KmType
 import org.slf4j.LoggerFactory
 import java.util.*
+import kotlin.metadata.ClassName
 
 /**
  * Translates Java types to model types.
@@ -166,16 +167,17 @@ internal class TypeTranslator(
         val baseType = when (val classifier = type.classifier) {
             is KmClassifier.Class -> resolveJavaTypeForKotlinClassName(classifier.name)
             is KmClassifier.TypeAlias -> throw TypeTranslationException("can't resolve Java-types for type-alias: ${classifier.name}' in $type")
-            is KmClassifier.TypeParameter -> throw TypeTranslationException("can't resolve Java-types for type-parameter: '${classifier.id}' in ${type.classifier}")
+            is KmClassifier.TypeParameter -> env.lookup(classifier.id) ?: throw TypeTranslationException("can't resolve Java-types for type-parameter: '${classifier.id}' in ${type.classifier}")
         }
 
-        return if (arguments.isEmpty())
+        return if (arguments.isEmpty()) {
+            val baseType = baseType as? JavaType.Basic ?: throw TypeTranslationException("expected base type to be basic, but was $baseType")
             translateBasicType(baseType, env)
-        else
+        } else
             translateParameterizedType(baseType, arguments, env)
     }
 
-    private fun resolveJavaTypeForKotlinClassName(name: String): JavaType.Basic = when (name) {
+    fun resolveJavaTypeForKotlinClassName(name: ClassName): JavaType.Basic = when (name) {
         "kotlin/Boolean" -> JavaType.Basic.BOOLEAN
         "kotlin/Int" -> JavaType.Basic.INT
         "kotlin/Short" -> JavaType.Basic.SHORT
