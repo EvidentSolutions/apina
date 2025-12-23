@@ -8,7 +8,6 @@ import kotlin.metadata.KmFunction
 import kotlin.metadata.jvm.signature
 import java.lang.reflect.Modifier
 import kotlin.metadata.KmType
-import kotlin.metadata.isSuspend
 
 class JavaMethod(
     val descriptor: String,
