@@ -55,7 +55,7 @@ tasks.shadowJar {
     archiveClassifier.set("")
     relocate("org.objectweb.asm", "fi.evident.apina.libs.org.objectweb.asm")
     dependencies {
-        include(dependency("org.ow2.asm:asm"))
+        include(dependency(libs.asm.get()))
     }
 }
 

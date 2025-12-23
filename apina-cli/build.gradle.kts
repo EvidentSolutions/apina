@@ -10,6 +10,7 @@ plugins {
 dependencies {
     implementation(project(":apina-core", "shadow"))
     implementation(libs.asm)
+    implementation(libs.kotlin.metadata)
     implementation(libs.logback)
     implementation(kotlin("stdlib"))
 }

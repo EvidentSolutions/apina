@@ -46,12 +46,6 @@ tasks.shadowJar.configure {
     archiveClassifier.set("")
 
     configurations = listOf(shadowImplementation)
-
-    dependencies {
-        exclude(dependency("org.jetbrains.kotlin:.*"))
-        exclude(dependency("org.jetbrains:annotations"))
-        exclude(dependency("org.slf4j:slf4j-api"))
-    }
 }
 
 tasks.jar {
