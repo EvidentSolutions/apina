@@ -22,7 +22,9 @@ import fi.evident.apina.spring.SpringTypes.REQUEST_MAPPING
 import fi.evident.apina.spring.SpringTypes.REQUEST_PARAM
 import fi.evident.apina.spring.SpringTypes.RESPONSE_ENTITY
 import fi.evident.apina.spring.SpringTypes.REST_CONTROLLER
+import kotlin.metadata.KmType
 import org.slf4j.LoggerFactory
+import kotlin.metadata.KmClassifier
 
 /**
  * Builds [ApiDefinition] by reading the classes of a Spring Web MVC application.
@@ -68,13 +70,14 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     }
 
     private fun resolveResponseBody(method: JavaMethod, env: TypeEnvironment): ApiType? {
-        val returnType = method.returnType
+        if (method.returnType.isVoid)
+            return null
 
-        return if (!returnType.isVoid) {
-            typeTranslator.translateType(unwrapReturnType(returnType), method, env)
-        } else {
-            null
-        }
+        val kotlinType = method.kotlinReturnType
+        return if (kotlinType != null)
+            typeTranslator.translateKotlinType(unwrapReturnType(kotlinType), env)
+        else
+            typeTranslator.translateType(unwrapReturnType(method.returnType), method, env)
     }
 
     /**
@@ -84,6 +87,16 @@ class SpringModelReader private constructor(private val classes: JavaModel, priv
     private fun unwrapReturnType(type: JavaType): JavaType {
         if (type is JavaType.Parameterized && type.baseType in RESPONSE_WRAPPERS)
             return type.arguments.single()
+
+        return type
+    }
+
+    private fun unwrapReturnType(type: KmType): KmType {
+        if (type.arguments.isNotEmpty()) {
+            val first = type.classifier as? KmClassifier.Class ?: error("Classifier of return type is not a class: ${type.classifier}")
+            if (typeTranslator.resolveJavaTypeForKotlinClassName(first.name) in RESPONSE_WRAPPERS)
+                return type.arguments.first().type ?: error("Failed to unwrap response wrapper type for ${first.name}")
+        }
 
         return type
     }

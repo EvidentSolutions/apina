@@ -1,3 +1,7 @@
+## Unreleased
+
+- Support `suspend` functions in Spring controllers written in Kotlin
+
 ## 0.25.2 (2025-12-22)
 
 - Add support for Java 25 class files

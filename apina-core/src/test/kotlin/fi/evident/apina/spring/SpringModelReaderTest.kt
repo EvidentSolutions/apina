@@ -193,6 +193,28 @@ class SpringModelReaderTest {
         assertEquals(setOf("Foo", "Bar"), model.classDefinitions.map { it.type.name }.toSet())
     }
 
+    @Test
+    fun `suspend functions are handled like regular functions`() {
+
+        class Foo
+
+        @Suppress("unused", "RedundantSuspendModifier")
+        @RestController
+        class MyController {
+
+            @GetMapping("/regular")
+            fun regularFunction(): Foo = error("dummy")
+
+            @GetMapping("/suspend")
+            suspend fun suspendFunction(): Foo = error("dummy")
+        }
+
+        val group = readModel<MyController>().endpointGroups.single()
+
+        assertEquals(ApiType.Class("Foo"), group.endpointByName("regularFunction").responseBody)
+        assertEquals(ApiType.Class("Foo"), group.endpointByName("suspendFunction").responseBody)
+    }
+
     private fun EndpointGroup.endpointByName(name: String): Endpoint =
         assertNotNull(endpoints.find { it.name == name })
 

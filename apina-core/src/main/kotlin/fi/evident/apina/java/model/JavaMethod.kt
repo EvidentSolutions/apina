@@ -4,7 +4,11 @@ import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.model.type.TypeSchema
 import fi.evident.apina.utils.propertyNameForGetter
+import kotlin.metadata.KmFunction
+import kotlin.metadata.jvm.signature
 import java.lang.reflect.Modifier
+import kotlin.metadata.KmType
+import kotlin.metadata.isSuspend
 
 class JavaMethod(
     val descriptor: String,
@@ -18,6 +22,12 @@ class JavaMethod(
 ) : JavaAnnotatedElement {
 
     private val _annotations = ArrayList<JavaAnnotation>()
+
+    private val kotlinMetadata: KmFunction? by lazy {
+        owningClass.kotlinMetadata?.functions?.find {
+            it.signature?.name == name && it.signature?.descriptor == descriptor
+        }
+    }
 
     val propertyName: String
         get() = propertyNameForGetter(name)
@@ -43,6 +53,9 @@ class JavaMethod(
 
     val isStatic: Boolean
         get() = Modifier.isStatic(modifiers)
+
+    val kotlinReturnType: KmType?
+        get() = kotlinMetadata?.returnType
 
     fun addAnnotation(annotation: JavaAnnotation) {
         _annotations += annotation
