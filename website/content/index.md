@@ -1,8 +1,8 @@
 # Apina
 
-Apina is a tool for creating client-side TypeScript code automatically from your Spring MVC controllers and Jackson
-classes. It analyzes normal Spring / Jackson annotations, builds a model of your API and emits TypeScript code
-targeting either Angular or Fetch API.
+Apina is a tool for creating client-side TypeScript code automatically from your Spring MVC controllers and
+Jackson / Kotlin Serialization classes. It analyzes normal Spring / Jackson / Kotlin Serialization annotations,
+builds a model of your API and emits TypeScript code targeting either Angular or Fetch API.
 
 - **GitHub**: [https://github.com/EvidentSolutions/apina](https://github.com/EvidentSolutions/apina)
 - **Gradle plugin**: [https://plugins.gradle.org/plugin/fi.evident.apina](https://plugins.gradle.org/plugin/fi.evident.apina)
@@ -12,8 +12,6 @@ targeting either Angular or Fetch API.
 Consider the following Spring controller:[^1]
 
 ```kotlin
-package hello
-
 @RestController
 class HelloController {
 
@@ -23,8 +21,8 @@ class HelloController {
 
     enum class Mood { HAPPY, SAD }
 
+    @Serializable
     class GreetingResponse(val greeting: String, val mood: Mood)
-
 }
 ```
 
