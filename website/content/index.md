@@ -125,6 +125,95 @@ Kotlin's nullable type turns into nullable type in TypeScript.
     (`@Nullable`, `@CheckForNull` etc.) from most well-known libraries to signal nullability
     (eg. `org.jetbrains:annotations` or FindBugs).
 
+## Support for Kotlin Serialization
+
+Apina provides first-class support for [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization),
+making it seamless to generate TypeScript code from your Kotlin data classes. Simply annotate your classes
+with `@Serializable` and Apina will analyze them automatically.
+
+The translation is straightforward: Apina traverses the serializable properties of your Kotlin classes and creates
+matching TypeScript interfaces. Since Kotlin Serialization is more structured and less customizable than Jackson,
+the translation is generally more predictable and requires less configuration.
+
+### Basic usage
+
+Simply mark your data classes with `@Serializable`:
+
+```kotlin
+@Serializable
+data class User(
+    val id: Long,
+    val username: String,
+    val email: String?
+)
+```
+
+This generates:
+
+```typescript
+interface User {
+    id: number;
+    username: string;
+    email: string | null;
+}
+```
+
+### Enums
+
+Kotlin enums work the same way as with Jackson. On the wire, enumerations are represented by their literal name,
+and the TypeScript representation is controlled by the `enumMode` property:
+
+```kotlin
+@Serializable
+enum class Status {
+    ACTIVE, INACTIVE, SUSPENDED
+}
+```
+
+See the [Jackson enums section](#enums) for details on the different enum modes.
+
+### Sealed classes
+
+Kotlin Serialization has excellent support for sealed classes, which Apina translates into TypeScript discriminated unions.
+Use `@SerialName` to specify the discriminator values:
+
+```kotlin
+@Serializable
+sealed class Result {
+    @Serializable
+    @SerialName("success")
+    data class Success(val data: String) : Result()
+
+    @Serializable
+    @SerialName("error")
+    data class Error(val message: String) : Result()
+}
+```
+
+This generates:
+
+```typescript
+export interface Result_Success extends Success {
+    type: "success";
+}
+
+export interface Result_Error extends Error {
+    type: "error";
+}
+
+export type Result = Result_Success | Result_Error;
+```
+
+### Supported annotations
+
+The following Kotlin Serialization annotations are recognized by Apina:
+
+| Annotation | Description |
+|------------|-------------|
+| `@Serializable` | Marks a class as serializable |
+| `@SerialName` | Specifies the name used in JSON and for discriminator values |
+| `@Transient` | Property is excluded from serialization |
+
 ## Support for Jackson
 
 Jackson is very customizable, but Apina supports only a small statically analyzable subset of Jackson. If
