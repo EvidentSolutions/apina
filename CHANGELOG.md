@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Support `suspend` functions in Spring controllers written in Kotlin
+- Add `nestedClassNameMode` setting to control naming of nested classes in TypeScript
 
 ## 0.25.2 (2025-12-22)
 

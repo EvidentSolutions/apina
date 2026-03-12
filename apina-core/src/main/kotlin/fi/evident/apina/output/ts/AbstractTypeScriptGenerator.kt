@@ -3,6 +3,9 @@ package fi.evident.apina.output.ts
 import fi.evident.apina.model.*
 import fi.evident.apina.model.parameters.EndpointParameter
 import fi.evident.apina.model.settings.EnumMode
+import fi.evident.apina.model.settings.NestedClassNameMode.QUALIFIED
+import fi.evident.apina.model.settings.NestedClassNameMode.QUALIFIED_DISCRIMINATED_UNIONS
+import fi.evident.apina.model.settings.NestedClassNameMode.UNQUALIFIED
 import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.settings.TypeWriteMode
@@ -272,8 +275,15 @@ abstract class AbstractTypeScriptGenerator(
         else -> type.toTypeScript()
     }
 
-    private fun discriminatedUnionMemberType(unionType: ApiTypeName, memberType: ClassDefinition) =
-        "${unionType.name}_${memberType.type.name}"
+    private fun discriminatedUnionMemberType(unionType: ApiTypeName, memberType: ClassDefinition): String =
+        when (settings.nestedClassNameMode) {
+            UNQUALIFIED -> // Legacy mode: use UnionType_MemberType naming
+                "${unionType.name}_${memberType.type.name}"
+
+            QUALIFIED, QUALIFIED_DISCRIMINATED_UNIONS ->
+                // New modes: use MemberType_Tagged naming (since member is already qualified)
+                "${memberType.type.name}_Tagged"
+        }
 
     private fun parameterListCode(parameters: List<EndpointParameter>): String {
         val firstOptionalIndex = parameters.indexOfLast { it.type !is ApiType.Nullable } + 1

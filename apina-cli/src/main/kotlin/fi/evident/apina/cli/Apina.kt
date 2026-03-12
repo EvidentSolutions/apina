@@ -30,6 +30,7 @@ object Apina {
             processor.settings.platform = arguments.platform
             processor.settings.typeWriteMode = arguments.typeWriteMode
             processor.settings.optionalTypeMode = arguments.optionalTypeMode
+            processor.settings.nestedClassNameMode = arguments.nestedClassNameMode
             processor.settings.reexportImports = arguments.reexportImports
 
             for (blackBoxPattern in arguments.blackBoxPatterns)

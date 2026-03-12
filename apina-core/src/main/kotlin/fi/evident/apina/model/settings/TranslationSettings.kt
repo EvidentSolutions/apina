@@ -22,6 +22,7 @@ class TranslationSettings {
     var typeWriteMode = TypeWriteMode.INTERFACE
     var optionalTypeMode = OptionalTypeMode.NULL
     var enumMode = EnumMode.DEFAULT
+    var nestedClassNameMode = NestedClassNameMode.UNQUALIFIED
     var removedUrlPrefix = ""
     var reexportImports = false
 

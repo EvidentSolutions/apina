@@ -60,6 +60,9 @@ abstract class ApinaTask : DefaultTask() {
     abstract val enumMode: Property<EnumMode>
 
     @get:Input
+    abstract val nestedClassNameMode: Property<NestedClassNameMode>
+
+    @get:Input
     abstract val removedUrlPrefix: Property<String>
 
     @get:Input
@@ -74,6 +77,7 @@ abstract class ApinaTask : DefaultTask() {
         typeWriteMode.convention(TypeWriteMode.INTERFACE)
         optionalTypeMode.convention(OptionalTypeMode.NULL)
         enumMode.convention(EnumMode.DEFAULT)
+        nestedClassNameMode.convention(NestedClassNameMode.UNQUALIFIED)
         removedUrlPrefix.convention("")
         reexportImports.convention(false)
 
@@ -93,6 +97,7 @@ abstract class ApinaTask : DefaultTask() {
             val processor = ApinaProcessor(myClasspath)
 
             processor.settings.enumMode = enumMode.get()
+            processor.settings.nestedClassNameMode = nestedClassNameMode.get()
             processor.settings.removedUrlPrefix = removedUrlPrefix.get()
             processor.settings.platform = platform.get()
             processor.settings.typeWriteMode = typeWriteMode.get()
