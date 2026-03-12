@@ -64,7 +64,7 @@ internal class KotlinSerializationTypeTranslator(
         // We assume that the class is sealed and therefore the subtypes must be in the same package
         for (cl in findSealedSubClasses(metadata)) {
             val name = cl.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: cl.name.replace('$', '.')
-            val def = ClassDefinition(typeTranslator.classNameForType(cl.type.toBasicType()))
+            val def = ClassDefinition(typeTranslator.classNameForDiscriminatedUnionMember(union.type, cl.type.toBasicType()))
             initClassDefinition(def, cl, TypeEnvironment.empty())
             union.addType(name, def)
         }

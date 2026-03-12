@@ -66,7 +66,7 @@ internal class JacksonTypeTranslator(
         api.addDiscriminatedUnion(union)
 
         for ((name, cl) in findSubtypes(javaClass)) {
-            val def = ClassDefinition(typeTranslator.classNameForType(cl.type.toBasicType()))
+            val def = ClassDefinition(typeTranslator.classNameForDiscriminatedUnionMember(union.type, cl.type.toBasicType()))
             initClassDefinition(def, BoundClass(cl, TypeEnvironment.empty()))
             union.addType(name, def)
         }

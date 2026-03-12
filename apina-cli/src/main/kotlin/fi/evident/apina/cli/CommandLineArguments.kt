@@ -1,6 +1,7 @@
 package fi.evident.apina.cli
 
 import fi.evident.apina.model.settings.BrandedPrimitiveType
+import fi.evident.apina.model.settings.NestedClassNameMode
 import fi.evident.apina.model.settings.OptionalTypeMode
 import fi.evident.apina.model.settings.Platform
 import fi.evident.apina.model.settings.TypeWriteMode
@@ -18,6 +19,7 @@ internal class CommandLineArguments {
     var platform = Platform.ANGULAR
     var typeWriteMode = TypeWriteMode.INTERFACE
     var optionalTypeMode = OptionalTypeMode.NULL
+    var nestedClassNameMode = NestedClassNameMode.UNQUALIFIED
     var reexportImports = false
 
     private fun parse(arg: String) {
@@ -56,6 +58,12 @@ internal class CommandLineArguments {
         val optionalTypeMode = parseOptionalWithValue("optional-type-mode", arg)
         if (optionalTypeMode != null) {
             this.optionalTypeMode = OptionalTypeMode.valueOf(optionalTypeMode.uppercase())
+            return
+        }
+
+        val nestedClassNameMode = parseOptionalWithValue("nested-class-name-mode", arg)
+        if (nestedClassNameMode != null) {
+            this.nestedClassNameMode = NestedClassNameMode.valueOf(nestedClassNameMode.uppercase())
             return
         }
 

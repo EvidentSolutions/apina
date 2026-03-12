@@ -5,6 +5,9 @@ import fi.evident.apina.java.model.JavaModel
 import fi.evident.apina.java.model.type.JavaType
 import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.model.ApiDefinition
+import fi.evident.apina.model.settings.NestedClassNameMode.QUALIFIED
+import fi.evident.apina.model.settings.NestedClassNameMode.QUALIFIED_DISCRIMINATED_UNIONS
+import fi.evident.apina.model.settings.NestedClassNameMode.UNQUALIFIED
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
@@ -153,8 +156,29 @@ internal class TypeTranslator(
         }
 
     fun classNameForType(type: JavaType.Basic): ApiTypeName {
-        val translatedName = settings.nameTranslator.translateClassName(type.name)
+        val translatedName = settings.nameTranslator.translateClassName(
+            name = type.name,
+            qualifyNestedClasses = settings.nestedClassNameMode == QUALIFIED
+        )
 
+        return registerTranslatedName(type, translatedName)
+    }
+
+    fun classNameForDiscriminatedUnionMember(unionType: ApiTypeName, type: JavaType.Basic): ApiTypeName {
+        val translatedName = when (settings.nestedClassNameMode) {
+            UNQUALIFIED -> settings.nameTranslator.translateClassName(type.name, qualifyNestedClasses = false)
+            QUALIFIED -> settings.nameTranslator.translateClassName(type.name, qualifyNestedClasses = true)
+            QUALIFIED_DISCRIMINATED_UNIONS -> {
+                // Use the immediate parent (union type name) to qualify the member
+                val simpleName = settings.nameTranslator.translateClassName(type.name, qualifyNestedClasses = false)
+                "${unionType.name}_${simpleName}"
+            }
+        }
+
+        return registerTranslatedName(type, translatedName)
+    }
+
+    private fun registerTranslatedName(type: JavaType.Basic, translatedName: String): ApiTypeName {
         val existingType = translatedNames.putIfAbsent(translatedName, type)
         if (existingType != null && type != existingType)
             throw DuplicateClassNameException(type.name, existingType.name)
@@ -163,15 +187,18 @@ internal class TypeTranslator(
     }
 
     fun translateKotlinType(type: KmType, env: TypeEnvironment): ApiType {
-        val arguments = type.arguments.map { t -> t.type?.let { translateKotlinType(it, env) } ?: ApiType.Primitive.ANY }
+        val arguments =
+            type.arguments.map { t -> t.type?.let { translateKotlinType(it, env) } ?: ApiType.Primitive.ANY }
         val baseType = when (val classifier = type.classifier) {
             is KmClassifier.Class -> resolveJavaTypeForKotlinClassName(classifier.name)
             is KmClassifier.TypeAlias -> throw TypeTranslationException("can't resolve Java-types for type-alias: ${classifier.name}' in $type")
-            is KmClassifier.TypeParameter -> env.lookup(classifier.id) ?: throw TypeTranslationException("can't resolve Java-types for type-parameter: '${classifier.id}' in ${type.classifier}")
+            is KmClassifier.TypeParameter -> env.lookup(classifier.id)
+                ?: throw TypeTranslationException("can't resolve Java-types for type-parameter: '${classifier.id}' in ${type.classifier}")
         }
 
         return if (arguments.isEmpty()) {
-            val baseType = baseType as? JavaType.Basic ?: throw TypeTranslationException("expected base type to be basic, but was $baseType")
+            val baseType = baseType as? JavaType.Basic
+                ?: throw TypeTranslationException("expected base type to be basic, but was $baseType")
             translateBasicType(baseType, env)
         } else
             translateParameterizedType(baseType, arguments, env)

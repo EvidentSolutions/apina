@@ -193,6 +193,14 @@ sealed class Result {
 This generates:
 
 ```typescript
+export interface Success {
+    data: string;
+}
+
+export interface Error {
+    message: string;
+}
+
 export interface Result_Success extends Success {
     type: "success";
 }
@@ -203,6 +211,8 @@ export interface Result_Error extends Error {
 
 export type Result = Result_Success | Result_Error;
 ```
+
+See [Nested class naming](#nested-class-naming) for how to customize the naming of these types.
 
 ### Supported annotations
 
@@ -527,6 +537,117 @@ Methods with `@RequestBody` parameter are supported, but they are omitted from t
 URL-method, since it's impossible to create a URL with request body. In that case,
 you need to  pass the body manually when you end up calling the URL.
 
+## Nested class naming
+
+When you have nested classes in Kotlin, Apina needs to decide how to name them in TypeScript. By default,
+only the simple name is used, which can lead to naming conflicts or unclear type names.
+
+Consider this example:
+
+```kotlin
+@Serializable
+class UserController {
+    @Serializable
+    data class CreateRequest(val name: String, val email: String)
+
+    @Serializable
+    data class UpdateRequest(val name: String)
+}
+
+@Serializable
+class PostController {
+    @Serializable
+    data class CreateRequest(val title: String, val body: String)
+}
+```
+
+By default (`UNQUALIFIED` mode), this generates TypeScript types with only simple names:
+
+```typescript
+export interface CreateRequest {
+    name: string;
+    email: string;
+}
+
+export interface UpdateRequest {
+    name: string;
+}
+
+// Error! Duplicate type name
+export interface CreateRequest {
+    title: string;
+    body: string;
+}
+```
+
+To avoid conflicts and make the types more descriptive, use `QUALIFIED` mode:
+
+```kotlin
+tasks.apina {
+    nestedClassNameMode.set(NestedClassNameMode.QUALIFIED)
+}
+```
+
+This qualifies all nested classes with their parent class name:
+
+```typescript
+export interface UserController_CreateRequest {
+    name: string;
+    email: string;
+}
+
+export interface UserController_UpdateRequest {
+    name: string;
+}
+
+export interface PostController_CreateRequest {
+    title: string;
+    body: string;
+}
+```
+
+### Naming modes
+
+The three available modes are:
+
+- **`UNQUALIFIED` (default)**: Nested classes use only their simple names (e.g., `Success`, `Error`, `CreateRequest`).
+  This is the legacy behavior and may cause naming conflicts if you have nested classes with the same name in different
+  parent classes.
+
+- **`QUALIFIED`**: All nested classes are qualified with their parent class name (e.g., `UserController_CreateRequest`,
+  `Result_Success`). Use this when you want consistent, descriptive names for all nested types and want to avoid
+  naming conflicts.
+
+- **`QUALIFIED_DISCRIMINATED_UNIONS`**: Only members of discriminated unions (sealed classes) are qualified with their
+  parent name. Other nested classes use simple names. This is useful when you want cleaner discriminated union types
+  but don't need qualification for other nested classes like controller request/response types.
+
+In the qualified modes, discriminated union wrapper types use a `_Tagged` suffix. For example, with
+`QUALIFIED_DISCRIMINATED_UNIONS`, the sealed class `Result` with nested classes `Success` and `Error` generates:
+
+```typescript
+export interface Result_Success {
+    data: string;
+}
+
+export interface Result_Error {
+    message: string;
+}
+
+export interface Result_Success_Tagged extends Result_Success {
+    type: "success";
+}
+
+export interface Result_Error_Tagged extends Result_Error {
+    type: "error";
+}
+
+export type Result = Result_Success_Tagged | Result_Error_Tagged;
+```
+
+Now `Result_Success` and `Result_Error` are the primary types you work with, while the `_Tagged` variants
+are only used for the discriminated union itself.
+
 ## Gradle task reference
 
 ```kotlin
@@ -556,6 +677,12 @@ tasks.apina {
     //  - 'NULL'      => name: Type | null
     //  - 'UNDEFINED' => name?: Type
     optionalTypeMode.set(OptionalTypeMode.NULL)
+
+    // How nested classes in discriminated unions are named? (Default mode is 'UNQUALIFIED'.)
+    //  - 'UNQUALIFIED'                  => Use simple names (Bar, Baz). Tagged types: Foo_Bar, Foo_Baz
+    //  - 'QUALIFIED'                    => Qualify all nested classes (Foo_Bar). Tagged types: Foo_Bar_Tagged
+    //  - 'QUALIFIED_DISCRIMINATED_UNIONS' => Only qualify discriminated unions (Foo_Bar). Tagged types: Foo_Bar_Tagged
+    nestedClassNameMode.set(NestedClassNameMode.UNQUALIFIED)
 
     // Which controllers to include when generating API? Defaults to everything.
     // Given regexes may safely match other things that are not controllers, but it pays to

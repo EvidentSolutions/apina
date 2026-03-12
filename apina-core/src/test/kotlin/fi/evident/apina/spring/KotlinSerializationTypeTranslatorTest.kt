@@ -8,6 +8,10 @@ import fi.evident.apina.java.model.type.TypeEnvironment
 import fi.evident.apina.java.reader.TestClassMetadataLoader
 import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.ClassDefinition
+import fi.evident.apina.model.settings.NestedClassNameMode.QUALIFIED
+import fi.evident.apina.model.settings.NestedClassNameMode.QUALIFIED_DISCRIMINATED_UNIONS
+import fi.evident.apina.model.settings.NestedClassNameMode.UNQUALIFIED
+import kotlin.test.assertTrue
 import fi.evident.apina.model.settings.TranslationSettings
 import fi.evident.apina.model.type.ApiType
 import fi.evident.apina.model.type.ApiTypeName
@@ -79,6 +83,102 @@ class KotlinSerializationTypeTranslatorTest {
             ),
             definition.types.keys
         )
+    }
+
+    @Test
+    fun `discriminated union with UNQUALIFIED naming mode`() {
+        settings.nestedClassNameMode = UNQUALIFIED
+
+        loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion>()
+        loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithCustomDiscriminator>()
+        loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator>()
+
+        translator.translateType(
+            JavaType.basic<KotlinSerializationDiscriminatedUnion>(),
+            MockAnnotatedElement(),
+            TypeEnvironment.empty()
+        )
+
+        val definition = api.discriminatedUnionDefinitions.find { it.type.name == "KotlinSerializationDiscriminatedUnion" }
+            ?: fail("could not find union")
+
+        // With UNQUALIFIED mode, nested classes should use simple names
+        val memberTypes = definition.types.values.map { it.type.name }.toSet()
+        assertEquals(setOf("SubClassWithDefaultDiscriminator", "SubClassWithCustomDiscriminator"), memberTypes)
+    }
+
+    @Test
+    fun `discriminated union with QUALIFIED_DISCRIMINATED_UNIONS naming mode`() {
+        val qualifiedApi = ApiDefinition()
+        val qualifiedSettings = TranslationSettings()
+        qualifiedSettings.nestedClassNameMode = QUALIFIED_DISCRIMINATED_UNIONS
+        val qualifiedTranslator = TypeTranslator(qualifiedSettings, model, qualifiedApi)
+
+        loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion>()
+        loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithCustomDiscriminator>()
+        loader.loadClassesFromInheritanceTree<KotlinSerializationDiscriminatedUnion.SubClassWithDefaultDiscriminator>()
+
+        qualifiedTranslator.translateType(
+            JavaType.basic<KotlinSerializationDiscriminatedUnion>(),
+            MockAnnotatedElement(),
+            TypeEnvironment.empty()
+        )
+
+        val definition = qualifiedApi.discriminatedUnionDefinitions.find { it.type.name == "KotlinSerializationDiscriminatedUnion" }
+            ?: fail("could not find union")
+
+        val memberTypes = definition.types.values.map { it.type.name }.toSet()
+        assertEquals(setOf("KotlinSerializationDiscriminatedUnion_SubClassWithDefaultDiscriminator", "KotlinSerializationDiscriminatedUnion_SubClassWithCustomDiscriminator"), memberTypes)
+    }
+
+    // Note: QUALIFIED mode behaves the same as QUALIFIED_DISCRIMINATED_UNIONS for discriminated unions,
+    // so no separate test needed. The difference only affects non-discriminated-union nested classes.
+
+    @Test
+    fun `nested class naming with QUALIFIED mode`() {
+        val qualifiedApi = ApiDefinition()
+        val qualifiedSettings = TranslationSettings()
+        qualifiedSettings.nestedClassNameMode = QUALIFIED
+        val qualifiedTranslator = TypeTranslator(qualifiedSettings, model, qualifiedApi)
+
+        loader.loadClassesFromInheritanceTree<OuterClassForNamingTest.NestedRequest>()
+
+        qualifiedTranslator.translateType(
+            JavaType.basic<OuterClassForNamingTest.NestedRequest>(),
+            MockAnnotatedElement(),
+            TypeEnvironment.empty()
+        )
+
+        // With QUALIFIED mode, regular nested classes should be qualified
+        val classDefinition = qualifiedApi.classDefinitions.find { it.type.name.contains("NestedRequest") }
+            ?: fail("could not find NestedRequest definition")
+
+        // The class name should include both outer class names
+        assertTrue(classDefinition.type.name.contains("OuterClassForNamingTest"), "Expected type name to contain 'OuterClassForNamingTest', but was: ${classDefinition.type.name}")
+        assertTrue(classDefinition.type.name.contains("NestedRequest"), "Expected type name to contain 'NestedRequest', but was: ${classDefinition.type.name}")
+    }
+
+    @Test
+    fun `nested class naming with UNQUALIFIED mode`() {
+        loader.loadClassesFromInheritanceTree<OuterClassForNamingTest.NestedRequest>()
+
+        translator.translateType(
+            JavaType.basic<OuterClassForNamingTest.NestedRequest>(),
+            MockAnnotatedElement(),
+            TypeEnvironment.empty()
+        )
+
+        // With UNQUALIFIED mode (default), regular nested classes should use simple names
+        val classDefinition = api.classDefinitions.find { it.type.name == "NestedRequest" }
+            ?: fail("could not find NestedRequest definition with simple name")
+
+        assertEquals("NestedRequest", classDefinition.type.name)
+    }
+
+    @Serializable
+    class OuterClassForNamingTest {
+        @Serializable
+        data class NestedRequest(val value: String)
     }
 
     @Suppress("unused")
