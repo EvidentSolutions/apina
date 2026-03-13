@@ -25,6 +25,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.jdk }}
-      - uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@v5
+      - name: Build and test with Gradle
+        run: ./gradlew build
