@@ -1,7 +1,19 @@
+## 0.27.0 (2026-03-13)
+- Add `nestedClassNameMode` setting to control naming of nested classes in TypeScript
+
+## 0.26.2 (2026-01-13)
+
+- Include kotlin-metadata dependency in the plugin
+
+## 0.26.1 (2026-01-13)
+
+- Publish Gradle plugin when releasing
+- Fix publishing of manual
+
 ## 0.26.0 (2026-01-13)
 
+- Use Kotlin-specific metadata to read return types of Spring controller methods
 - Support `suspend` functions in Spring controllers written in Kotlin
-- Add `nestedClassNameMode` setting to control naming of nested classes in TypeScript
 
 ## 0.25.2 (2025-12-22)
 
