@@ -340,6 +340,50 @@ class TypeTranslatorTest {
             // ensure that subclasses themselves are not translated
             assertEquals(0, api.classDefinitions.size)
         }
+
+        @Test
+        fun `top-level subclasses should not be qualified in QUALIFIED_DISCRIMINATED_UNIONS mode`() {
+            val qualifiedApi = ApiDefinition()
+            val qualifiedSettings = TranslationSettings()
+            qualifiedSettings.nestedClassNameMode = fi.evident.apina.model.settings.NestedClassNameMode.QUALIFIED_DISCRIMINATED_UNIONS
+            val qualifiedTranslator = TypeTranslator(qualifiedSettings, model, qualifiedApi)
+
+            loader.loadClassesFromInheritanceTree<TopLevelVehicle>()
+            loader.loadClassesFromInheritanceTree<TopLevelCar>()
+            loader.loadClassesFromInheritanceTree<TopLevelBike>()
+
+            qualifiedTranslator.translateType(JavaType.basic<TopLevelVehicle>(), MockAnnotatedElement(), TypeEnvironment.empty())
+
+            assertEquals(1, qualifiedApi.discriminatedUnionDefinitions.size)
+            val definition = qualifiedApi.discriminatedUnionDefinitions.first()
+            assertEquals("TopLevelVehicle", definition.type.name)
+
+            // Top-level subclasses should NOT be qualified with the sealed class name
+            val memberTypes = definition.types.values.map { it.type.name }.toSet()
+            assertEquals(setOf("TopLevelCar", "TopLevelBike"), memberTypes)
+        }
+
+        @Test
+        fun `nested subclasses should be qualified in QUALIFIED_DISCRIMINATED_UNIONS mode`() {
+            val qualifiedApi = ApiDefinition()
+            val qualifiedSettings = TranslationSettings()
+            qualifiedSettings.nestedClassNameMode = fi.evident.apina.model.settings.NestedClassNameMode.QUALIFIED_DISCRIMINATED_UNIONS
+            val qualifiedTranslator = TypeTranslator(qualifiedSettings, model, qualifiedApi)
+
+            loader.loadClassesFromInheritanceTree<Vehicle>()
+            loader.loadClassesFromInheritanceTree<Vehicle.Car>()
+            loader.loadClassesFromInheritanceTree<Vehicle.Truck>()
+
+            qualifiedTranslator.translateType(JavaType.basic<Vehicle>(), MockAnnotatedElement(), TypeEnvironment.empty())
+
+            assertEquals(1, qualifiedApi.discriminatedUnionDefinitions.size)
+            val definition = qualifiedApi.discriminatedUnionDefinitions.first()
+            assertEquals("Vehicle", definition.type.name)
+
+            // Nested subclasses SHOULD be qualified with the parent class name
+            val memberTypes = definition.types.values.map { it.type.name }.toSet()
+            assertEquals(setOf("Vehicle_Car", "Vehicle_Truck"), memberTypes)
+        }
     }
 
     @Test
@@ -417,6 +461,13 @@ class TypeTranslatorTest {
         class Truck : Vehicle2()
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    @JsonSubTypes(
+        JsonSubTypes.Type(value = TopLevelCar::class, name = "car"),
+        JsonSubTypes.Type(value = TopLevelBike::class, name = "bike")
+    )
+    abstract class TopLevelVehicle
+
     private fun translateType(type: JavaType): ApiType =
         translator.translateType(
             type,
@@ -443,3 +494,7 @@ class TypeTranslatorTest {
             ?: fail("could not find definition for $apiType")
     }
 }
+
+// Top-level subclasses for testing discriminated unions with non-nested subclasses
+class TopLevelCar : TypeTranslatorTest.TopLevelVehicle()
+class TopLevelBike : TypeTranslatorTest.TopLevelVehicle()

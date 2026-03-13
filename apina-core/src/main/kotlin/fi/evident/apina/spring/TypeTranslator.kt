@@ -164,19 +164,25 @@ internal class TypeTranslator(
         return registerTranslatedName(type, translatedName)
     }
 
-    fun classNameForDiscriminatedUnionMember(unionType: ApiTypeName, type: JavaType.Basic): ApiTypeName {
+    fun classNameForDiscriminatedUnionMember(unionType: ApiTypeName, unionJavaType: JavaType.Basic, memberType: JavaType.Basic): ApiTypeName {
         val translatedName = when (settings.nestedClassNameMode) {
-            UNQUALIFIED -> settings.nameTranslator.translateClassName(type.name, qualifyNestedClasses = false)
-            QUALIFIED -> settings.nameTranslator.translateClassName(type.name, qualifyNestedClasses = true)
+            UNQUALIFIED -> settings.nameTranslator.translateClassName(memberType.name, qualifyNestedClasses = false)
+            QUALIFIED -> settings.nameTranslator.translateClassName(memberType.name, qualifyNestedClasses = true)
             QUALIFIED_DISCRIMINATED_UNIONS -> {
-                // Use the immediate parent (union type name) to qualify the member
-                val simpleName = settings.nameTranslator.translateClassName(type.name, qualifyNestedClasses = false)
-                "${unionType.name}_${simpleName}"
+                val simpleName = settings.nameTranslator.translateClassName(memberType.name, qualifyNestedClasses = false)
+                if (memberType.isNestedIn(unionJavaType)) {
+                    "${unionType.name}_${simpleName}"
+                } else {
+                    simpleName
+                }
             }
         }
 
-        return registerTranslatedName(type, translatedName)
+        return registerTranslatedName(memberType, translatedName)
     }
+
+    private fun JavaType.Basic.isNestedIn(parentType: JavaType.Basic) =
+        name.startsWith(parentType.name + "$")
 
     private fun registerTranslatedName(type: JavaType.Basic, translatedName: String): ApiTypeName {
         val existingType = translatedNames.putIfAbsent(translatedName, type)
