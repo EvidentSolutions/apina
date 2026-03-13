@@ -135,6 +135,31 @@ class KotlinSerializationTypeTranslatorTest {
     // so no separate test needed. The difference only affects non-discriminated-union nested classes.
 
     @Test
+    fun `discriminated union with top-level subclasses should not be qualified in QUALIFIED_DISCRIMINATED_UNIONS mode`() {
+        val qualifiedApi = ApiDefinition()
+        val qualifiedSettings = TranslationSettings()
+        qualifiedSettings.nestedClassNameMode = QUALIFIED_DISCRIMINATED_UNIONS
+        val qualifiedTranslator = TypeTranslator(qualifiedSettings, model, qualifiedApi)
+
+        loader.loadClassesFromInheritanceTree<TopLevelSealedClass>()
+        loader.loadClassesFromInheritanceTree<TopLevelSubclass1>()
+        loader.loadClassesFromInheritanceTree<TopLevelSubclass2>()
+
+        qualifiedTranslator.translateType(
+            JavaType.basic<TopLevelSealedClass>(),
+            MockAnnotatedElement(),
+            TypeEnvironment.empty()
+        )
+
+        val definition = qualifiedApi.discriminatedUnionDefinitions.find { it.type.name == "TopLevelSealedClass" }
+            ?: fail("could not find union")
+
+        // Top-level subclasses should NOT be qualified with the sealed class name
+        val memberTypes = definition.types.values.map { it.type.name }.toSet()
+        assertEquals(setOf("TopLevelSubclass1", "TopLevelSubclass2"), memberTypes)
+    }
+
+    @Test
     fun `nested class naming with QUALIFIED mode`() {
         val qualifiedApi = ApiDefinition()
         val qualifiedSettings = TranslationSettings()
@@ -365,3 +390,13 @@ class KotlinSerializationTypeTranslatorTest {
             ?: fail("could not find definition for $apiType")
     }
 }
+
+// Test classes for top-level sealed class scenario
+@Serializable
+sealed class TopLevelSealedClass
+
+@Serializable
+class TopLevelSubclass1(val value1: String) : TopLevelSealedClass()
+
+@Serializable
+class TopLevelSubclass2(val value2: Int) : TopLevelSealedClass()
