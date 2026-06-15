@@ -97,8 +97,8 @@ class TypeScriptWriterTest {
 
     @Test
     fun imports() {
-        writer.writeImport("@angular/common/http", listOf("HttpClient", "HttpParams"))
+        writer.writeImport("@angular/core", listOf(ImportDefinition("Injectable"), ImportDefinition("Provider", onlyType = true), ImportDefinition("Type")))
 
-        assertEquals("import { HttpClient, HttpParams } from '@angular/common/http';\n", writer.output)
+        assertEquals("import { Injectable, type Provider, Type } from '@angular/core';\n", writer.output)
     }
 }

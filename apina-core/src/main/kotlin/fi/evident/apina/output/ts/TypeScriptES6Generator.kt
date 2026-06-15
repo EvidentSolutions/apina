@@ -3,7 +3,7 @@ package fi.evident.apina.output.ts
 import fi.evident.apina.model.ApiDefinition
 import fi.evident.apina.model.settings.TranslationSettings
 
-class TypeScriptES6Generator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(
+internal class TypeScriptES6Generator(api: ApiDefinition, settings: TranslationSettings) : AbstractTypeScriptGenerator(
     api = api,
     settings = settings,
     resultFunctor = ResultFunctor.PROMISE,
