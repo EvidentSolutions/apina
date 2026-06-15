@@ -6,7 +6,7 @@ import fi.evident.apina.output.common.CodeWriter
  * Helper for generating TypeScript code. Keeps track of indentation level
  * and supports proper writing of literal values.
  */
-class TypeScriptWriter : CodeWriter<TypeScriptWriter>() {
+internal class TypeScriptWriter : CodeWriter<TypeScriptWriter>() {
 
     override val self: TypeScriptWriter
         get() = this
@@ -19,8 +19,9 @@ class TypeScriptWriter : CodeWriter<TypeScriptWriter>() {
         writeBlock("export class $name", bodyWriter)
     }
 
-    fun writeImport(module: String, types: Collection<String>) {
-        writeLine("import { ${types.joinToString(", ")} } from '$module';")
+    fun writeImport(module: String, imports: Collection<ImportDefinition>) {
+        val importsStr = imports.joinToString(", ", prefix = "{ ", postfix = " }") { it.code() }
+        writeLine("import $importsStr from '$module';")
     }
 
     fun writeExport(types: Collection<String>) {

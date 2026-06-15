@@ -15,13 +15,13 @@ import fi.evident.apina.output.common.RawCode
 import fi.evident.apina.utils.readResourceAsString
 import java.lang.String.format
 
-abstract class AbstractTypeScriptGenerator(
+internal abstract class AbstractTypeScriptGenerator(
     val api: ApiDefinition,
     val settings: TranslationSettings,
     private val resultFunctor: ResultFunctor,
     private val classDecorator: String,
     private val platformRuntimeCodePath: String,
-    private val platformSpecificImports: Map<String, List<String>> = emptyMap()
+    private val platformSpecificImports: Map<String, List<ImportDefinition>> = emptyMap()
 ) {
 
     private val out = TypeScriptWriter()
@@ -51,7 +51,7 @@ abstract class AbstractTypeScriptGenerator(
 
         if (imports.isNotEmpty()) {
             for (anImport in imports)
-                out.writeImport(anImport.moduleName, anImport.types.map { it.name })
+                out.writeImport(anImport.moduleName, anImport.types.map { ImportDefinition(it) })
 
             out.writeLine()
         }
@@ -354,6 +354,11 @@ abstract class AbstractTypeScriptGenerator(
                 .distinctBy { it.type }
                 .sortedBy { it.type }
     }
+}
+
+internal class ImportDefinition constructor(val name: String, val onlyType: Boolean = false) {
+    constructor(type: ApiTypeName): this(type.name, onlyType = true)
+    fun code() = if (onlyType) "type $name" else name
 }
 
 internal fun ApiType.toTypeScript(optionalTypeMode: OptionalTypeMode): String = when (this) {

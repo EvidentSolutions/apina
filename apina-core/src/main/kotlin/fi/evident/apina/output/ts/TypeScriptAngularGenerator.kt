@@ -8,7 +8,7 @@ import fi.evident.apina.output.ts.ResultFunctor.PROMISE
 /**
  * Generates Angular TypeScript code for client side.
  */
-class TypeScriptAngularGenerator(api: ApiDefinition, settings: TranslationSettings, resultFunctor: ResultFunctor) :
+internal class TypeScriptAngularGenerator(api: ApiDefinition, settings: TranslationSettings, resultFunctor: ResultFunctor) :
     AbstractTypeScriptGenerator(
         api = api,
         settings = settings,
@@ -19,18 +19,18 @@ class TypeScriptAngularGenerator(api: ApiDefinition, settings: TranslationSettin
             PROMISE -> "typescript/runtime-angular-promise.ts"
         },
         platformSpecificImports = mapOf(
-            "@angular/core" to listOf("Injectable", "Provider", "Type"),
-            "@angular/common/http" to listOf("HttpClient", "HttpParams"),
+            "@angular/core" to listOf(ImportDefinition("Injectable"), ImportDefinition("Provider", onlyType = true), ImportDefinition("Type")),
+            "@angular/common/http" to listOf(ImportDefinition("HttpClient"), ImportDefinition("HttpParams")),
         ) + resultFunctor.functorImports()
     )
 
 private fun ResultFunctor.functorImports() = when (this) {
     PROMISE -> mapOf(
-        "rxjs" to listOf("firstValueFrom"),
+        "rxjs" to listOf(ImportDefinition("firstValueFrom")),
     )
 
     OBSERVABLE -> mapOf(
-        "rxjs" to listOf("Observable"),
-        "rxjs/operators" to listOf("map"),
+        "rxjs" to listOf(ImportDefinition("Observable", onlyType = true)),
+        "rxjs/operators" to listOf(ImportDefinition("map")),
     )
 }
