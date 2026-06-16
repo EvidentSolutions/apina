@@ -36,6 +36,9 @@ class JavaClass(
     val recordComponents: List<JavaRecordComponent>
         get() = _recordComponent
 
+    val isAbstract: Boolean
+        get() = modifiers and Opcodes.ACC_ABSTRACT != 0
+
     val isEnum: Boolean
         get() = modifiers and Opcodes.ACC_ENUM != 0
 
