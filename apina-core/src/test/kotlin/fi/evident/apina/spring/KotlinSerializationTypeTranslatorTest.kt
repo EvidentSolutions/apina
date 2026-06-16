@@ -86,6 +86,36 @@ class KotlinSerializationTypeTranslatorTest {
     }
 
     @Test
+    fun `discriminated unions with nesting`() {
+        loader.loadClassesFromInheritanceTree<KotlinSerializationNestedDiscriminatedUnion>()
+        loader.loadClassesFromInheritanceTree<KotlinSerializationNestedDiscriminatedUnion.FirstLevelSealedClass>()
+        loader.loadClassesFromInheritanceTree<KotlinSerializationNestedDiscriminatedUnion.FirstLevelSealedClass.SecondLevelNestedClass>()
+        loader.loadClassesFromInheritanceTree<KotlinSerializationNestedDiscriminatedUnion.FirstLevelClassInheritingFromNested>()
+        loader.loadClassesFromInheritanceTree<KotlinSerializationNestedDiscriminatedUnion.FirstLevelNormalClass>()
+
+        translator.translateType(
+            JavaType.basic<KotlinSerializationNestedDiscriminatedUnion>(),
+            MockAnnotatedElement(),
+            TypeEnvironment.empty()
+        )
+
+        val definition =
+            api.discriminatedUnionDefinitions.find { it.type.name == KotlinSerializationNestedDiscriminatedUnion::class.simpleName }
+                ?: fail("could not find union")
+
+        assertEquals("type", definition.discriminator)
+
+        assertEquals(
+            setOf(
+                KotlinSerializationNestedDiscriminatedUnion.FirstLevelNormalClass::class.qualifiedName,
+                KotlinSerializationNestedDiscriminatedUnion.FirstLevelSealedClass.SecondLevelNestedClass::class.qualifiedName,
+                KotlinSerializationNestedDiscriminatedUnion.FirstLevelClassInheritingFromNested::class.qualifiedName,
+            ),
+            definition.types.keys
+        )
+    }
+
+    @Test
     fun `discriminated union with UNQUALIFIED naming mode`() {
         settings.nestedClassNameMode = UNQUALIFIED
 
@@ -323,6 +353,22 @@ class KotlinSerializationTypeTranslatorTest {
         @Serializable
         @SerialName("CustomDiscriminator")
         class SubClassWithCustomDiscriminator(val y: Int) : KotlinSerializationDiscriminatedUnion()
+    }
+
+    @Serializable
+    sealed class KotlinSerializationNestedDiscriminatedUnion {
+
+        @Serializable
+        sealed class FirstLevelSealedClass : KotlinSerializationNestedDiscriminatedUnion() {
+            @Serializable
+            class SecondLevelNestedClass : FirstLevelSealedClass()
+        }
+
+        @Serializable
+        class FirstLevelClassInheritingFromNested : FirstLevelSealedClass()
+
+        @Serializable
+        class FirstLevelNormalClass : KotlinSerializationNestedDiscriminatedUnion()
     }
 
     @Test

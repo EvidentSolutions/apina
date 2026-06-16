@@ -62,7 +62,7 @@ internal class KotlinSerializationTypeTranslator(
         api.addDiscriminatedUnion(union)
 
         // We assume that the class is sealed and therefore the subtypes must be in the same package
-        for (cl in findSealedSubClasses(metadata)) {
+        for (cl in findConcreteSubclassesOfSealedSubclassTree(metadata)) {
             val name = cl.findAnnotation(SERIAL_NAME)?.getAttribute("value") ?: cl.name.replace('$', '.')
             val def = ClassDefinition(typeTranslator.classNameForDiscriminatedUnionMember(union.type, javaClass.type.toBasicType(), cl.type.toBasicType()))
             initClassDefinition(def, cl, TypeEnvironment.empty())
@@ -70,8 +70,23 @@ internal class KotlinSerializationTypeTranslator(
         }
     }
 
-    private fun findSealedSubClasses(metadata: KmClass) =
-        metadata.sealedSubclasses.mapNotNull { classes.findClass(kotlinNameToJavaName(it)) }
+    private fun findConcreteSubclassesOfSealedSubclassTree(root: KmClass): List<JavaClass> {
+        val result = mutableListOf<JavaClass>()
+
+        fun recurse(cl: KmClass) {
+            for (subClassName in cl.sealedSubclasses) {
+                val subClass = classes.findClass(kotlinNameToJavaName(subClassName)) ?: continue
+
+                if (!subClass.isAbstract)
+                    result += subClass
+
+                subClass.kotlinMetadata?.let { recurse(it) }
+            }
+        }
+
+        recurse(root)
+        return result
+    }
 
     private fun initClassDefinition(
         classDefinition: ClassDefinition,
